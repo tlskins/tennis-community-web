@@ -15,7 +15,7 @@ const Index = (props) => {
     }
   }, [props])
 
-  return <Page title="Index Page" linkTo="/other" />
+  return <Page title="Index Page" linkTo="/album" />
 }
 
 export const getStaticProps = wrapper.getStaticProps(async ({ store }) => {

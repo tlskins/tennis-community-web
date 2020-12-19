@@ -1,5 +1,5 @@
 import { wrapper } from '../store/store'
-import '../styles/globals.css'
+import '../styles/index.css'
 
 function WrappedApp({ Component, pageProps }) {
   return <Component {...pageProps} />

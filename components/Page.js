@@ -5,8 +5,8 @@ import Clock from './Clock'
 import AddCount from './AddCount'
 
 const Page = ({ title, linkTo, tick }) => (
-  <div>
-    <h1>{title}</h1>
+  <div className="p-8">
+    <h1 className="m-12">{title}</h1>
     <Clock lastUpdate={tick.lastUpdate} light={tick.light} />
     <AddCount />
     <nav>

@@ -115,9 +115,9 @@ const Album = ({ startClock, tick }) => {
       <div className="p-8 flex flex-wrap">
         { videos.map( (videoUrl, i) => {
           return (
-            <div className="flex flex-col">
+            <div className="flex flex-col m-4">
               <ReactPlayer
-                // className="react-player"
+                className="rounded-md overflow-hidden"
                 ref={playerRefs[i]}
                 url={videoUrl} 
                 playing={playings[i]}
@@ -126,8 +126,8 @@ const Album = ({ startClock, tick }) => {
                 muted={true}
                 playbackRate={playbackRate}
                 loop={true}
-                height="180px"
-                width="320px"
+                height=""
+                width=""
               />
               <div className="flex flex-row content-center justify-center p-1 my-1">
                 { pips[i] &&

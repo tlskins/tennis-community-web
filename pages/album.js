@@ -44,7 +44,7 @@ const Album = ({ startClock, tick }) => {
   }, [videosCount]);
 
 
-  const handleSeekChange = e => {
+  const handleAllSeekChange = e => {
     const seekTo = parseFloat(e.target.value)
     if (seekTo) {
       setPlaying(false)
@@ -52,51 +52,60 @@ const Album = ({ startClock, tick }) => {
     }
   }
 
+  const handleSeekChange = playerRef => e => {
+    const seekTo = parseFloat(e.target.value)
+    if (seekTo) {
+      playerRef.current.seekTo(seekTo)
+    }
+  }
+
   return (
     <div className="p-12">
       <h1 className="m-12">{title}</h1>
 
-      <input
-        type='range'
-        min={0}
-        max={0.999999}
-        step='0.1'
-        onMouseUp={handleSeekChange}
-        onKeyDown={handleSeekChange}
-      />
+      <div className="my-6 p-4 w-full flex flex-col items-center">
+        <input
+          type='range'
+          min={0}
+          max={0.999999}
+          step='0.1'
+          onMouseUp={handleAllSeekChange}
+          onKeyDown={handleAllSeekChange}
+        />
 
-      { playing &&
+        { playing &&
+            <input type='button'
+            className="border rounded p-2 m-2"
+            onClick={() => setPlaying(false)}
+            value="Pause"
+          />
+        }
+        { !playing &&
           <input type='button'
-          className="rounded p-2 m-2"
-          onClick={() => setPlaying(false)}
-          value="Pause"
-        />
-      }
-      { !playing &&
-        <input type='button'
-          className="rounded p-2 m-2"
-          onClick={() => setPlaying(true)}
-          value="Play"
-        />
-      }
+            className="border rounded p-2 m-2"
+            onClick={() => setPlaying(true)}
+            value="Play"
+          />
+        }
 
-      <div>
-        <h2>Playback Rate</h2>
-        <input type="text"
-          placeholder="1"
-          onChange={e => {
-            const rate = parseFloat(e.target.value)
-            if (rate) {
-              setPlaybackRate(rate)
-            }
-          }}
-        />
+        <div>
+          <h2>Playback Rate</h2>
+          <input type="text"
+            placeholder="1"
+            onChange={e => {
+              const rate = parseFloat(e.target.value)
+              if (rate) {
+                setPlaybackRate(rate)
+              }
+            }}
+          />
+        </div>
       </div>
       
       <div className="p-8 flex flex-wrap">
         { videos.map( (videoUrl, i) => {
           return (
-            <div className="m-2 w-1/4">
+            <div className="m-2 w-1/4 flex flex-col items-center">
               <ReactPlayer
                 ref={playerRefs[i]}
                 url={videoUrl} 
@@ -108,6 +117,20 @@ const Album = ({ startClock, tick }) => {
                 height="180px"
                 width="320px"
               />
+              <div className="flex flex-row content-center justify-center p-1 my-1">
+                <input type='button'
+                  className='border rounded p-0.5 mx-1'
+                  value='play'
+                  onClick={() => playerRefs[i].current.playing = true}
+                />
+                <input type='range'
+                  min={0}
+                  max={0.999999}
+                  step='0.1'
+                  onMouseUp={handleSeekChange(playerRefs[i])}
+                  onKeyDown={handleSeekChange(playerRefs[i])}
+                />
+              </div>
             </div>
           )
         })}

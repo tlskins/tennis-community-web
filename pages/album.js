@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState, useRef, createRef } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { addCount } from '../store/count/action'
@@ -10,51 +10,100 @@ import AddCount from '../components/AddCount'
 import ReactPlayer from 'react-player'
 
 const videos = [
-  // "https://tennis-swings.s3.amazonaws.com/1_5sec.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/2sec.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_1.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_2.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_3.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_4.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_5.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_6.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_7.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_1.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_2.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_3.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_4.mp4",
   // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_5.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/1_5sec_v2.mp4"
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_1_swing_1.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_1_swing_2.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_1_swing_3.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_1_swing_4.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_1_swing_5.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_1_swing_6.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_1_swing_7.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_2_swing_1.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_2_swing_2.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_2_swing_3.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_1min_540p_clip_2_swing_4.mp4"
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_6.mp4",
 ]
 
 
 const Album = ({ startClock, tick }) => {
   const title = "Albums"
-  
-  // useEffect(() => {
-  //   const timer = startClock()
+  const [playbackRate, setPlaybackRate] = useState(1)
+  const [playing, setPlaying] = useState(true)
+  // const [seeking, setSeeking] = useState(false)
+  // const [played, setPlayed] = useState(0.0)
 
-  //   return () => {
-  //     clearInterval(timer)
-  //   }
-  // }, [])
+  const videosCount = videos.length;
+  const [playerRefs, setPlayerRefs] = React.useState([]);
 
-  console.log(videos.map( url => ReactPlayer.canPlay(url)))
+  React.useEffect(() => {
+    // add or remove refs
+    setPlayerRefs(playerRefs => (
+      Array(videosCount).fill().map((_, i) => playerRefs[i] || createRef())
+    ));
+  }, [videosCount]);
+
+
+  const handleSeekChange = e => {
+    const seekTo = parseFloat(e.target.value)
+    if (seekTo) {
+      setPlaying(false)
+      playerRefs.forEach( playerRef => playerRef.current.seekTo(seekTo))
+    }
+  }
 
   return (
     <div className="p-12">
       <h1 className="m-12">{title}</h1>
 
-      <div className="p-8 flex flex-wrap content-center items-center justify-center">
-        { videos.map( videoUrl => {
+      <input
+        type='range'
+        min={0}
+        max={0.999999}
+        step='0.1'
+        onMouseUp={handleSeekChange}
+        onKeyDown={handleSeekChange}
+      />
+
+      { playing &&
+          <input type='button'
+          className="rounded p-2 m-2"
+          onClick={() => setPlaying(false)}
+          value="Pause"
+        />
+      }
+      { !playing &&
+        <input type='button'
+          className="rounded p-2 m-2"
+          onClick={() => setPlaying(true)}
+          value="Play"
+        />
+      }
+
+      <div>
+        <h2>Playback Rate</h2>
+        <input type="text"
+          placeholder="1"
+          onChange={e => {
+            const rate = parseFloat(e.target.value)
+            if (rate) {
+              setPlaybackRate(rate)
+            }
+          }}
+        />
+      </div>
+      
+      <div className="p-8 flex flex-wrap">
+        { videos.map( (videoUrl, i) => {
           return (
-            <div className="m-2">
+            <div className="m-2 w-1/4">
               <ReactPlayer
+                ref={playerRefs[i]}
                 url={videoUrl} 
-                controls={true}
-                playing={true}
+                playing={playing}
                 volume={0}
                 muted={true}
+                playbackRate={playbackRate}
                 loop={true}
                 height="180px"
                 width="320px"

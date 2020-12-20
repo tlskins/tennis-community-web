@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { useEffect, useState, useRef, createRef } from 'react'
+import { useEffect, useState, createRef } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { addCount } from '../store/count/action'
@@ -37,7 +37,6 @@ const Album = ({ startClock, tick }) => {
   const [pips, setPips] = useState([]) // Picture in picture for each player
 
   useEffect(() => {
-    // add or remove refs
     setPlayerRefs(playerRefs => (
       Array(videosCount).fill().map((_, i) => playerRefs[i] || createRef())
     ));
@@ -118,6 +117,7 @@ const Album = ({ startClock, tick }) => {
           return (
             <div className="flex flex-col">
               <ReactPlayer
+                // className="react-player"
                 ref={playerRefs[i]}
                 url={videoUrl} 
                 playing={playings[i]}

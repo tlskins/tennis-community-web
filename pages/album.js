@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import React, { useEffect, useState, useRef, createRef } from 'react'
+import { useEffect, useState, useRef, createRef } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { addCount } from '../store/count/action'
@@ -29,25 +29,25 @@ const videos = [
 const Album = ({ startClock, tick }) => {
   const title = "Albums"
   const [playbackRate, setPlaybackRate] = useState(1)
-  const [playing, setPlaying] = useState(true)
-  // const [seeking, setSeeking] = useState(false)
-  // const [played, setPlayed] = useState(0.0)
-
+  const [allPlaying, setAllPlaying] = useState(true)
   const videosCount = videos.length;
-  const [playerRefs, setPlayerRefs] = React.useState([]);
+  const [playerRefs, setPlayerRefs] = useState([]);
+  const [playings, setPlayings] = useState([])
 
-  React.useEffect(() => {
+  useEffect(() => {
     // add or remove refs
     setPlayerRefs(playerRefs => (
       Array(videosCount).fill().map((_, i) => playerRefs[i] || createRef())
     ));
+
+    setPlayings(Array(videosCount).fill().map(() => true))
   }, [videosCount]);
 
 
   const handleAllSeekChange = e => {
     const seekTo = parseFloat(e.target.value)
     if (seekTo) {
-      setPlaying(false)
+      setPlayings(Array(videosCount).fill().map(() => false))
       playerRefs.forEach( playerRef => playerRef.current.seekTo(seekTo))
     }
   }
@@ -64,6 +64,27 @@ const Album = ({ startClock, tick }) => {
       <h1 className="m-12">{title}</h1>
 
       <div className="my-6 p-4 w-full flex flex-col items-center">
+        { allPlaying &&
+            <input type='button'
+            className="border rounded p-2 m-2"
+            onClick={() => {
+              setAllPlaying(false)
+              setPlayings(Array(videosCount).fill().map(() => false))
+            }}
+            value="Pause"
+          />
+        }
+        { !allPlaying &&
+          <input type='button'
+            className="border rounded p-2 m-2"
+            onClick={() => {
+              setAllPlaying(true)
+              setPlayings(Array(videosCount).fill().map(() => true))
+            }}
+            value="Play"
+          />
+        }
+
         <input
           type='range'
           min={0}
@@ -73,23 +94,8 @@ const Album = ({ startClock, tick }) => {
           onKeyDown={handleAllSeekChange}
         />
 
-        { playing &&
-            <input type='button'
-            className="border rounded p-2 m-2"
-            onClick={() => setPlaying(false)}
-            value="Pause"
-          />
-        }
-        { !playing &&
-          <input type='button'
-            className="border rounded p-2 m-2"
-            onClick={() => setPlaying(true)}
-            value="Play"
-          />
-        }
-
-        <div>
-          <h2>Playback Rate</h2>
+        <div className="flex flex-col align-center content-center justify-center p-4">
+          <h2>Speed</h2>
           <input type="text"
             placeholder="1"
             onChange={e => {
@@ -109,7 +115,7 @@ const Album = ({ startClock, tick }) => {
               <ReactPlayer
                 ref={playerRefs[i]}
                 url={videoUrl} 
-                playing={playing}
+                playing={playings[i]}
                 volume={0}
                 muted={true}
                 playbackRate={playbackRate}
@@ -118,11 +124,27 @@ const Album = ({ startClock, tick }) => {
                 width="320px"
               />
               <div className="flex flex-row content-center justify-center p-1 my-1">
-                <input type='button'
-                  className='border rounded p-0.5 mx-1'
-                  value='play'
-                  onClick={() => playerRefs[i].current.playing = true}
-                />
+                { playings[i] &&
+                  <input type='button'
+                    className='border rounded p-0.5 mx-1'
+                    value='pause'
+                    onClick={() => {
+                      const newPlayings = playings.map((p,j) => j === i ? false : p)
+                      setPlayings(newPlayings)
+                    }}
+                  />
+                }
+                { !playings[i] &&
+                  <input type='button'
+                    className='border rounded p-0.5 mx-1'
+                    value='play'
+                    onClick={() => {
+                      const newPlayings = playings.map((p,j) => j === i ? true : p)
+                      setPlayings(newPlayings)
+                    }}
+                  />
+                }
+                
                 <input type='range'
                   min={0}
                   max={0.999999}

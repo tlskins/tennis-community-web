@@ -28,19 +28,21 @@ const videos = [
 
 const Album = ({ startClock, tick }) => {
   const title = "Albums"
+  const videosCount = videos.length;
+
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(true)
-  const videosCount = videos.length;
   const [playerRefs, setPlayerRefs] = useState([]);
   const [playings, setPlayings] = useState([])
+  const [pips, setPips] = useState([]) // Picture in picture for each player
 
   useEffect(() => {
     // add or remove refs
     setPlayerRefs(playerRefs => (
       Array(videosCount).fill().map((_, i) => playerRefs[i] || createRef())
     ));
-
     setPlayings(Array(videosCount).fill().map(() => true))
+    setPips(Array(videosCount).fill().map(() => false))
   }, [videosCount]);
 
 
@@ -94,9 +96,12 @@ const Album = ({ startClock, tick }) => {
           onKeyDown={handleAllSeekChange}
         />
 
-        <div className="flex flex-col align-center content-center justify-center p-4">
-          <h2>Speed</h2>
+        <div className="flex flex-col items-center p-4">
+          <h2 className="w-1/2 text-center">
+            Speed
+          </h2>
           <input type="text"
+            className="w-1/2 text-center rounded"
             placeholder="1"
             onChange={e => {
               const rate = parseFloat(e.target.value)
@@ -111,11 +116,12 @@ const Album = ({ startClock, tick }) => {
       <div className="p-8 flex flex-wrap">
         { videos.map( (videoUrl, i) => {
           return (
-            <div className="m-2 w-1/4 flex flex-col items-center">
+            <div className="flex flex-col">
               <ReactPlayer
                 ref={playerRefs[i]}
                 url={videoUrl} 
                 playing={playings[i]}
+                pip={pips[i]}
                 volume={0}
                 muted={true}
                 playbackRate={playbackRate}
@@ -124,6 +130,27 @@ const Album = ({ startClock, tick }) => {
                 width="320px"
               />
               <div className="flex flex-row content-center justify-center p-1 my-1">
+                { pips[i] &&
+                  <input type='button'
+                    className='border rounded p-0.5 mx-1'
+                    value='-'
+                    onClick={() => {
+                      const newPips = pips.map((p,j) => j === i ? false : p)
+                      setPips(newPips)
+                    }}
+                  />
+                }
+                { !pips[i] &&
+                  <input type='button'
+                    className='border rounded p-0.5 mx-1'
+                    value='+'
+                    onClick={() => {
+                      const newPips = pips.map((p,j) => j === i ? true : p)
+                      setPips(newPips)
+                    }}
+                  />
+                }
+
                 { playings[i] &&
                   <input type='button'
                     className='border rounded p-0.5 mx-1'

@@ -9,6 +9,8 @@ import Clock from '../components/Clock'
 import AddCount from '../components/AddCount'
 import ReactPlayer from 'react-player'
 
+// 13 react players running at the same time took half my cpu
+
 const videos = [
   "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_1.mp4",
   "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_2.mp4",
@@ -19,10 +21,10 @@ const videos = [
   "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_7.mp4",
   "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_1.mp4",
   "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_2.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_3.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_4.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_5.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_6.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_3.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_4.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_5.mp4",
+  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_6.mp4",
 ]
 
 
@@ -33,6 +35,7 @@ const Album = ({ startClock, tick }) => {
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(true)
   const [playerRefs, setPlayerRefs] = useState([]);
+  const [playerDurations, setPlayerDurations] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
 
@@ -53,10 +56,15 @@ const Album = ({ startClock, tick }) => {
     }
   }
 
-  const handleSeekChange = playerRef => e => {
+  const handleSeekChange = (playerRef, i) => e => {
     const seekTo = parseFloat(e.target.value)
     if (seekTo) {
       playerRef.current.seekTo(seekTo)
+      console.log(seekTo)
+      setPlayerDurations({
+        ...playerDurations,
+        [i]: seekTo,
+      })
     }
   }
 
@@ -126,13 +134,15 @@ const Album = ({ startClock, tick }) => {
                 muted={true}
                 playbackRate={playbackRate}
                 loop={true}
+                progressInterval={250}
                 height=""
                 width=""
               />
+
               <div className="flex flex-row content-center justify-center p-1 my-1">
                 { pips[i] &&
                   <input type='button'
-                    className='border rounded p-0.5 mx-1'
+                    className='border rounded p-0.5 mx-1 text-xs'
                     value='-'
                     onClick={() => {
                       const newPips = pips.map((p,j) => j === i ? false : p)
@@ -142,7 +152,7 @@ const Album = ({ startClock, tick }) => {
                 }
                 { !pips[i] &&
                   <input type='button'
-                    className='border rounded p-0.5 mx-1'
+                    className='border rounded p-0.5 mx-1 text-xs'
                     value='+'
                     onClick={() => {
                       const newPips = pips.map((p,j) => j === i ? true : p)
@@ -153,7 +163,7 @@ const Album = ({ startClock, tick }) => {
 
                 { playings[i] &&
                   <input type='button'
-                    className='border rounded p-0.5 mx-1'
+                    className='border bg-gray-200 rounded p-0.5 mx-1 text-xs'
                     value='pause'
                     onClick={() => {
                       const newPlayings = playings.map((p,j) => j === i ? false : p)
@@ -163,21 +173,30 @@ const Album = ({ startClock, tick }) => {
                 }
                 { !playings[i] &&
                   <input type='button'
-                    className='border rounded p-0.5 mx-1'
+                    className='border bg-gray-200 rounded p-0.5 mx-1 text-xs'
                     value='play'
                     onClick={() => {
                       const newPlayings = playings.map((p,j) => j === i ? true : p)
                       setPlayings(newPlayings)
+                      setPlayerDurations({
+                        ...playerDurations,
+                        [i]: undefined,
+                      })
                     }}
                   />
+                }
+
+                { playerDurations[i] &&
+                  <div className="bg-white rounded p-0.5 mx-1 text-xs">
+                    <span> { playerDurations[i] }/10</span>
+                  </div>
                 }
                 
                 <input type='range'
                   min={0}
                   max={0.999999}
                   step='0.1'
-                  onMouseUp={handleSeekChange(playerRefs[i])}
-                  onKeyDown={handleSeekChange(playerRefs[i])}
+                  onChange={handleSeekChange(playerRefs[i], i)}
                 />
               </div>
             </div>

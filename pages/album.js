@@ -115,7 +115,7 @@ const Album = ({ startClock, tick }) => {
       <div className="p-8 flex flex-wrap">
         { videos.map( (videoUrl, i) => {
           return (
-            <div className="flex flex-col m-4">
+            <div className="flex flex-col m-4 w-1/6 h-1/4 content-center justify-center items-center">
               <ReactPlayer
                 className="rounded-md overflow-hidden"
                 ref={playerRefs[i]}

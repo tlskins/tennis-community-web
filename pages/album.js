@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { useEffect, useState, createRef } from 'react'
+import { useEffect, useState, createRef, useRef } from 'react'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { addCount } from '../store/count/action'
@@ -27,9 +27,12 @@ const videos = [
   // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_6.mp4",
 ]
 
+const publicVideos = [
+  "https://tennis-swings.s3.amazonaws.com/public/federer_backhand.mp4",
+  "https://tennis-swings.s3.amazonaws.com/public/federer_forehand.mp4",
+]
 
 const Album = ({ startClock, tick }) => {
-  const title = "Albums"
   const videosCount = videos.length;
 
   const [playbackRate, setPlaybackRate] = useState(1)
@@ -38,6 +41,13 @@ const Album = ({ startClock, tick }) => {
   const [playerDurations, setPlayerDurations] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
+
+  const sideVideoRef = useRef(undefined)
+  const [sideVideo, setSideVideo] = useState(publicVideos[0])
+  const [sideVideoDuration, setSideVideoDuration] = useState(0)
+  const [sideVideoPlayback, setSideVideoPlayback] = useState(1)
+  const [sideVideoPlaying, setSideVideoPlaying] = useState(false)
+  const [sideVideoPip, setSideVideoPip] = useState(false)
 
   useEffect(() => {
     setPlayerRefs(playerRefs => (
@@ -60,7 +70,6 @@ const Album = ({ startClock, tick }) => {
     const seekTo = parseFloat(e.target.value)
     if (seekTo) {
       playerRef.current.seekTo(seekTo)
-      console.log(seekTo)
       setPlayerDurations({
         ...playerDurations,
         [i]: seekTo,
@@ -68,165 +77,296 @@ const Album = ({ startClock, tick }) => {
     }
   }
 
+  const handleSideSeekChange = e => {
+    const seekTo = parseFloat(e.target.value)
+    if (seekTo) {
+      sideVideoRef.current.seekTo(seekTo)
+      setSideVideoDuration(seekTo)
+    }
+  }
+
   return (
-    <div className="p-12">
-      <h1 className="m-12">{title}</h1>
+    <div className="flex flex-col h-screen min-h-screen">
+      {/* <header>{title}</header> */}
 
-      <div className="my-6 p-4 w-full flex flex-col items-center">
-        { allPlaying &&
-            <input type='button'
-            className="border rounded p-2 m-2"
-            onClick={() => {
-              setAllPlaying(false)
-              setPlayings(Array(videosCount).fill().map(() => false))
-            }}
-            value="Pause"
-          />
-        }
-        { !allPlaying &&
-          <input type='button'
-            className="border rounded p-2 m-2"
-            onClick={() => {
-              setAllPlaying(true)
-              setPlayings(Array(videosCount).fill().map(() => true))
-            }}
-            value="Play"
-          />
-        }
+      <main className="flex flex-1 overflow-y-auto">
 
-        <input
-          type='range'
-          min={0}
-          max={0.999999}
-          step='0.1'
-          onMouseUp={handleAllSeekChange}
-          onKeyDown={handleAllSeekChange}
-        />
+        {/* Sidebar */}
 
-        <div className="flex flex-col items-center p-4">
-          <h2 className="w-1/2 text-center">
-            Speed
-          </h2>
-          <input type="text"
-            className="w-1/2 text-center rounded"
-            placeholder="1"
-            onChange={e => {
-              const rate = parseFloat(e.target.value)
-              if (rate) {
-                setPlaybackRate(rate)
-              }
-            }}
-          />
-        </div>
-      </div>
-      
-      <div className="p-8 flex flex-wrap">
-        { videos.map( (videoUrl, i) => {
-          return (
-            <div className="flex flex-col p-2 m-4 w-1/6 h-1/4 content-center justify-center items-center rounded shadow-md">
-              <ReactPlayer
-                className="rounded-md overflow-hidden"
-                ref={playerRefs[i]}
-                url={videoUrl} 
-                playing={playings[i]}
-                pip={pips[i]}
-                volume={0}
-                muted={true}
-                playbackRate={playbackRate}
-                loop={true}
-                progressInterval={200}
-                onProgress={({ played }) => setPlayerDurations({
-                  ...playerDurations,
-                  [i]: parseFloat((Math.ceil(played/.05)*.05).toFixed(2)),
-                })}
-                height=""
-                width=""
+        <div class="h-screen top-0 sticky p-4 bg-white w-1/4">
+          <div className="flex flex-col content-center justify-center items-center">
+            <ReactPlayer
+              className="rounded-md overflow-hidden"
+              ref={sideVideoRef}
+              url={sideVideo} 
+              playing={sideVideoPlaying}
+              pip={sideVideoPip}
+              volume={0}
+              muted={true}
+              playbackRate={sideVideoPlayback}
+              loop={true}
+              progressInterval={200}
+              onProgress={({ played }) => setSideVideoDuration(
+                parseFloat((Math.ceil(played/.05)*.05).toFixed(2))
+              )}
+              height=""
+              width=""
+            />
+          </div>
+
+          {/* Controls Panel */}
+          
+          <div className="flex flex-row content-center justify-center items-center mt-4">
+            {/* Picture in Picture */}
+            { sideVideoPip &&
+              <input type='button'
+                className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+                value='-'
+                onClick={() => setSideVideoPip(false)}
               />
+            }
+            { !sideVideoPip &&
+              <input type='button'
+                className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+                value='+'
+                onClick={() => setSideVideoPip(true)}
+              />
+            }
 
-              {/* Controls Panel */}
-              <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-                {/* Picture in Picture */}
-                { pips[i] &&
-                  <input type='button'
-                    className='border rounded p-0.5 mx-1 text-xs bg-blue-400'
-                    value='-'
-                    tabIndex={(i*3)+1}
-                    onClick={() => {
-                      const newPips = pips.map((p,j) => j === i ? false : p)
-                      setPips(newPips)
-                    }}
-                  />
-                }
-                { !pips[i] &&
-                  <input type='button'
-                    className='border rounded p-0.5 mx-1 text-xs bg-blue-400'
-                    value='+'
-                    tabIndex={(i*3)+1}
-                    onClick={() => {
-                      const newPips = pips.map((p,j) => j === i ? true : p)
-                      setPips(newPips)
-                    }}
-                  />
-                }
+            {/* Play / Pause */}
+            { sideVideoPlaying &&
+              <input type='button'
+                className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
+                value='pause'
+                onClick={() => setSideVideoPlaying(false)}
+              />
+            }
+            { !sideVideoPlaying &&
+              <input type='button'
+                className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
+                value='play'
+                onClick={() => setSideVideoPlaying(true)}
+              />
+            }
+          </div>
 
-                {/* Play / Pause */}
-                { playings[i] &&
-                  <input type='button'
-                    className='border w-10 bg-gray-200 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-                    value='pause'
-                    tabIndex={(i*3)+2}
-                    onClick={() => {
-                      const newPlayings = playings.map((p,j) => j === i ? false : p)
-                      setPlayings(newPlayings)
-                    }}
-                  />
-                }
-                { !playings[i] &&
-                  <input type='button'
-                    className='border w-10 bg-gray-200 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-                    value='play'
-                    tabIndex={(i*3)+2}
-                    onClick={() => {
-                      const newPlayings = playings.map((p,j) => j === i ? true : p)
-                      setPlayings(newPlayings)
-                      setPlayerDurations({
-                        ...playerDurations,
-                        [i]: undefined,
-                      })
-                    }}
-                  />
-                }
-                
-                {/* Seek */}
-                <input
-                  type='range'
-                  tabIndex={(i*3)+3}
-                  value={playerDurations[i]}
-                  min={0}
-                  max={1}
-                  step='0.05'
-                  onChange={handleSeekChange(playerRefs[i], i)}
-                  onFocus={ e => {
-                    console.log('focus!')
-                    e.stopPropagation()
-                    e.preventDefault()
-                  }}
+          <div className="flex flex-col content-center justify-center items-center mt-4">
+            {/* Seek */}
+            <input
+              type='range'
+              value={sideVideoDuration}
+              min={0}
+              max={1}
+              step='0.05'
+              onChange={handleSideSeekChange}
+            />
+
+            <div className="bg-white rounded p-0.5 mx-1 text-xs">
+              <span> { sideVideoDuration ? sideVideoDuration.toFixed(2) : '0.00' }/1.0</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col content-center justify-center items-center mt-4">
+            <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
+              <div className="flex flex-row content-center justify-center items-center p-4">
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setSideVideoPlayback(0.25)}
+                  value=".25x"
                 />
-
-                <div className="bg-white rounded p-0.5 mx-1 text-xs">
-                  <span> { playerDurations[i] ? playerDurations[i].toFixed(2) : '0.00' }/1.0</span>
-                </div>
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setSideVideoPlayback(0.5)}
+                  value=".5x"
+                />
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setSideVideoPlayback(1)}
+                  value="1x"
+                />
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setSideVideoPlayback(2)}
+                  value="2x"
+                />
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setSideVideoPlayback(3)}
+                  value="3x"
+                />
               </div>
             </div>
-          )
-        })}
-      </div>
+          </div>
+        </div>
 
-      <nav>
-        <Link href="/">
-          <a>Home</a>
-        </Link>
-      </nav>
+        {/* Main Body */}
+
+        <div className="p-8 flex flex-wrap">
+          { videos.map( (videoUrl, i) => {
+            return (
+              <div className="flex flex-col w-1/3 content-center justify-center items-center">
+                {/* flex flex-col p-2 m-4 w-1/6 h-1/4 content-center justify-center items-center rounded shadow-md */}
+                <ReactPlayer
+                  className="rounded-md overflow-hidden"
+                  ref={playerRefs[i]}
+                  url={videoUrl} 
+                  playing={playings[i]}
+                  pip={pips[i]}
+                  volume={0}
+                  muted={true}
+                  playbackRate={playbackRate}
+                  loop={true}
+                  progressInterval={200}
+                  onProgress={({ played }) => setPlayerDurations({
+                    ...playerDurations,
+                    [i]: parseFloat((Math.ceil(played/.05)*.05).toFixed(2)),
+                  })}
+                  height=""
+                  width=""
+                />
+
+                {/* Controls Panel */}
+                <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
+                  {/* Picture in Picture */}
+                  { pips[i] &&
+                    <input type='button'
+                      className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+                      value='-'
+                      tabIndex={(i*3)+1}
+                      onClick={() => {
+                        const newPips = pips.map((p,j) => j === i ? false : p)
+                        setPips(newPips)
+                      }}
+                    />
+                  }
+                  { !pips[i] &&
+                    <input type='button'
+                      className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+                      value='+'
+                      tabIndex={(i*3)+1}
+                      onClick={() => {
+                        const newPips = pips.map((p,j) => j === i ? true : p)
+                        setPips(newPips)
+                      }}
+                    />
+                  }
+
+                  {/* Play / Pause */}
+                  { playings[i] &&
+                    <input type='button'
+                      className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
+                      value='pause'
+                      tabIndex={(i*3)+2}
+                      onClick={() => {
+                        const newPlayings = playings.map((p,j) => j === i ? false : p)
+                        setPlayings(newPlayings)
+                      }}
+                    />
+                  }
+                  { !playings[i] &&
+                    <input type='button'
+                      className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
+                      value='play'
+                      tabIndex={(i*3)+2}
+                      onClick={() => {
+                        const newPlayings = playings.map((p,j) => j === i ? true : p)
+                        setPlayings(newPlayings)
+                        setPlayerDurations({
+                          ...playerDurations,
+                          [i]: undefined,
+                        })
+                      }}
+                    />
+                  }
+                  
+                  {/* Seek */}
+                  <input
+                    type='range'
+                    tabIndex={(i*3)+3}
+                    value={playerDurations[i]}
+                    min={0}
+                    max={1}
+                    step='0.05'
+                    onChange={handleSeekChange(playerRefs[i], i)}
+                    onFocus={ e => {
+                      console.log('focus!')
+                      e.stopPropagation()
+                      e.preventDefault()
+                    }}
+                  />
+
+                  <div className="bg-white rounded p-0.5 mx-1 text-xs">
+                    <span> { playerDurations[i] ? playerDurations[i].toFixed(2) : '0.00' }/1.0</span>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </main>
+
+      {/* All Video Controls Footer */}
+      <footer className="flex-none bg-blue-100">
+        <div className="p-4 w-full flex flex-row content-center justify-center items-center">
+          { allPlaying &&
+            <input type='button'
+              className="border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white"
+              onClick={() => {
+                setAllPlaying(false)
+                setPlayings(Array(videosCount).fill().map(() => false))
+              }}
+              value="Pause"
+            />
+          }
+          { !allPlaying &&
+            <input type='button'
+              className="border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white"
+              onClick={() => {
+                setAllPlaying(true)
+                setPlayings(Array(videosCount).fill().map(() => true))
+              }}
+              value="Play"
+            />
+          }
+
+          <input
+            type='range'
+            min={0}
+            max={0.999999}
+            step='0.1'
+            onMouseUp={handleAllSeekChange}
+            onKeyDown={handleAllSeekChange}
+          />
+
+          <div className="flex flex-row content-center justify-center items-center p-4">
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setPlaybackRate(0.1)}
+              value=".1x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setPlaybackRate(0.25)}
+              value=".25x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setPlaybackRate(0.5)}
+              value=".5x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setPlaybackRate(1)}
+              value="1x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setPlaybackRate(1.5)}
+              value="1.5x"
+            />
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }

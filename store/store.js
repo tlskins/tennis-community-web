@@ -1,8 +1,10 @@
 import { createStore, applyMiddleware, combineReducers } from 'redux'
 import { HYDRATE, createWrapper } from 'next-redux-wrapper'
 import thunkMiddleware from 'redux-thunk'
+
 import count from './count/reducer'
 import tick from './tick/reducer'
+import { flashNotificationReducer } from './ui/reducer'
 
 const bindMiddleware = (middleware) => {
   if (process.env.NODE_ENV !== 'production') {
@@ -15,6 +17,7 @@ const bindMiddleware = (middleware) => {
 const combinedReducer = combineReducers({
   count,
   tick,
+  flashNotification: flashNotificationReducer,
 })
 
 const reducer = (state, action) => {

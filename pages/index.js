@@ -6,7 +6,7 @@ import { wrapper } from '../store/store'
 import { serverRenderClock, startClock } from '../store/tick/action'
 import { CreateUser, SignIn } from '../behavior/coordinators/users'
 
-const Index = () => {
+const Index = ({ createUser }) => {
   const [isNewUser, setIsNewUser] = useState(true)
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
@@ -48,7 +48,7 @@ const Index = () => {
               />
               <input type="button"
                 value="Submit"
-                onClick={() => CreateUser({
+                onClick={() => createUser({
                   firstName,
                   lastName,
                   email,
@@ -71,8 +71,7 @@ export const getStaticProps = wrapper.getStaticProps(async ({ store }) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addCount: bindActionCreators(addCount, dispatch),
-    startClock: bindActionCreators(startClock, dispatch),
+    createUser: CreateUser(dispatch),
   }
 }
 

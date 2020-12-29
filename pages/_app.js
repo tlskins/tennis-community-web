@@ -1,6 +1,6 @@
-import { Fragment } from 'react'
-import { wrapper } from '../store/store'
-import '../styles/index.css'
+import React, { Fragment } from "react"
+import { wrapper } from "../store/store"
+import "../styles/index.css"
 
 import FlashNotification from "../components/FlashNotification"
 

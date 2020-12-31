@@ -30,7 +30,27 @@ const reducer = (state, action) => {
 }
 
 const initStore = () => {
-  return createStore(reducer, bindMiddleware([thunkMiddleware]))
+  const isServer = typeof window === "undefined"
+  if (isServer) {
+    return createStore(reducer, bindMiddleware([thunkMiddleware]))
+  } else {
+    // we need it only on client side
+    const {persistStore, persistReducer} = require("redux-persist")
+    const storage = require("redux-persist/lib/storage").default
+
+    const persistConfig = {
+      key: "root",
+      // whitelist: ["fromClient"], // make sure it does not clash with server keys
+      storage
+    }
+
+    const persistedReducer = persistReducer(persistConfig, reducer)
+    const store = createStore(persistedReducer, bindMiddleware([thunkMiddleware]))
+
+    store.__persistor = persistStore(store) // Nasty hack
+
+    return store
+  }
 }
 
 export const wrapper = createWrapper(initStore)

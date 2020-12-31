@@ -1,5 +1,5 @@
 import React, { Fragment } from "react"
-import { wrapper } from "../store/store"
+import { wrapper } from "../state/store"
 import "../styles/index.css"
 
 import FlashNotification from "../components/FlashNotification"

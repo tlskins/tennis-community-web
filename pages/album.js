@@ -1,13 +1,6 @@
-import Link from 'next/link'
-import { useEffect, useState, createRef, useRef } from 'react'
-import { connect } from 'react-redux'
-import { bindActionCreators } from 'redux'
-import { addCount } from '../store/count/action'
-import { wrapper } from '../store/store'
-import { serverRenderClock, startClock } from '../store/tick/action'
-import Clock from '../components/Clock'
-import AddCount from '../components/AddCount'
-import ReactPlayer from 'react-player'
+import React, { useEffect, useState, createRef, useRef } from "react"
+import { connect } from "react-redux"
+import ReactPlayer from "react-player"
 
 // 13 react players running at the same time took half my cpu
 
@@ -32,12 +25,12 @@ const publicVideos = [
   "https://tennis-swings.s3.amazonaws.com/public/federer_forehand.mp4",
 ]
 
-const Album = ({ startClock, tick }) => {
-  const videosCount = videos.length;
+const Album = () => {
+  const videosCount = videos.length
 
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(true)
-  const [playerRefs, setPlayerRefs] = useState([]);
+  const [playerRefs, setPlayerRefs] = useState([])
   const [playerDurations, setPlayerDurations] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
@@ -52,10 +45,10 @@ const Album = ({ startClock, tick }) => {
   useEffect(() => {
     setPlayerRefs(playerRefs => (
       Array(videosCount).fill().map((_, i) => playerRefs[i] || createRef())
-    ));
+    ))
     setPlayings(Array(videosCount).fill().map(() => true))
     setPips(Array(videosCount).fill().map(() => false))
-  }, [videosCount]);
+  }, [videosCount])
 
 
   const handleAllSeekChange = e => {
@@ -93,7 +86,7 @@ const Album = ({ startClock, tick }) => {
 
         {/* Sidebar */}
 
-        <div class="h-screen top-0 sticky p-4 bg-white w-1/4">
+        <div className="h-screen top-0 sticky p-4 bg-white w-1/4">
           <div className="flex flex-col content-center justify-center items-center">
             <ReactPlayer
               className="rounded-md overflow-hidden"
@@ -162,7 +155,7 @@ const Album = ({ startClock, tick }) => {
             />
 
             <div className="bg-white rounded p-0.5 mx-1 text-xs">
-              <span> { sideVideoDuration ? sideVideoDuration.toFixed(2) : '0.00' }/1.0</span>
+              <span> { sideVideoDuration ? sideVideoDuration.toFixed(2) : "0.00" }/1.0</span>
             </div>
           </div>
 
@@ -204,7 +197,9 @@ const Album = ({ startClock, tick }) => {
         <div className="p-8 flex flex-wrap">
           { videos.map( (videoUrl, i) => {
             return (
-              <div className="flex flex-col w-1/3 content-center justify-center items-center">
+              <div className="flex flex-col w-1/3 content-center justify-center items-center"
+                key={i}
+              >
                 {/* flex flex-col p-2 m-4 w-1/6 h-1/4 content-center justify-center items-center rounded shadow-md */}
                 <ReactPlayer
                   className="rounded-md overflow-hidden"
@@ -289,14 +284,14 @@ const Album = ({ startClock, tick }) => {
                     step='0.05'
                     onChange={handleSeekChange(playerRefs[i], i)}
                     onFocus={ e => {
-                      console.log('focus!')
+                      console.log("focus!")
                       e.stopPropagation()
                       e.preventDefault()
                     }}
                   />
 
                   <div className="bg-white rounded p-0.5 mx-1 text-xs">
-                    <span> { playerDurations[i] ? playerDurations[i].toFixed(2) : '0.00' }/1.0</span>
+                    <span> { playerDurations[i] ? playerDurations[i].toFixed(2) : "0.00" }/1.0</span>
                   </div>
                 </div>
               </div>
@@ -371,20 +366,6 @@ const Album = ({ startClock, tick }) => {
   )
 }
 
-export const getServerSideProps = wrapper.getServerSideProps(
-  async ({ store }) => {
-    store.dispatch(serverRenderClock(true))
-    store.dispatch(addCount())
-  }
-)
-
 const mapStateToProps = (state) => state
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    addCount: bindActionCreators(addCount, dispatch),
-    startClock: bindActionCreators(startClock, dispatch),
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Album)
+export default connect(mapStateToProps, undefined)(Album)

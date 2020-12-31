@@ -1,25 +1,40 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
-import { CreateUser, SignIn } from "../behavior/coordinators/users"
 import PropTypes from "prop-types"
+import Link from "next/link"
 
-const Index = ({ createUser, signIn }) => {
+import { CreateUser, SignIn } from "../behavior/coordinators/users"
+
+
+const Index = ({ createUser, signIn, user }) => {
   const [isNewUser, setIsNewUser] = useState(true)
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
-  const onToggleForm = () => {
-    clearForm()
-    setIsNewUser(!isNewUser)
-  }
-
   const clearForm = () => {
     setFirstName("")
     setLastName("")
     setEmail("")
     setPassword("")
+  }
+
+  const onToggleForm = () => {
+    clearForm()
+    setIsNewUser(!isNewUser)
+  }
+
+  const onCreateUser = async () => {
+    const success = await createUser({
+      firstName,
+      lastName,
+      email,
+      password,
+    })
+    if (success) {
+      clearForm()
+    }
   }
 
   const onSignIn = async () => {
@@ -35,6 +50,14 @@ const Index = ({ createUser, signIn }) => {
   return (
     <div className="flex flex-col h-screen min-h-screen">
       <main className="flex flex-1 overflow-y-auto">
+        { user &&
+          <div className="p-8">
+            <Link href="/upload">
+              <a>Upload</a>
+            </Link>
+          </div>
+        }
+        
         <div className="p-8">
           { isNewUser &&
             <div className="flex flex-col">
@@ -67,14 +90,9 @@ const Index = ({ createUser, signIn }) => {
               />
               <input type="button"
                 value="Submit"
-                onClick={() => createUser({
-                  firstName,
-                  lastName,
-                  email,
-                  password,
-                })}
+                onClick={onCreateUser}
               />
-              <a className="text-white cursor-pointer"
+              <a className="cursor-pointer"
                 onClick={onToggleForm}
               >
                 Sign In
@@ -103,7 +121,7 @@ const Index = ({ createUser, signIn }) => {
                 value="Submit"
                 onClick={onSignIn}
               />
-              <a className="text-white cursor-pointer"
+              <a className="cursor-pointer"
                 onClick={onToggleForm}
               >
                 New User
@@ -122,6 +140,13 @@ const Index = ({ createUser, signIn }) => {
 //   store.dispatch(addCount())
 // })
 
+const mapStateToProps = (state) => {
+  console.log("mapstate", state)
+  return {
+    user: state.user,
+  }
+}
+
 const mapDispatchToProps = (dispatch) => {
   return {
     createUser: CreateUser(dispatch),
@@ -130,8 +155,10 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 Index.propTypes = {
+  user: PropTypes.object,
+
   createUser: PropTypes.func,
   signIn: PropTypes.func,
 }
 
-export default connect(null, mapDispatchToProps)(Index)
+export default connect(mapStateToProps, mapDispatchToProps)(Index)

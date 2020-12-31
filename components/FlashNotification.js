@@ -2,7 +2,7 @@ import React from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 
-import { toggleFlashNotification } from "../store/ui/action"
+import { toggleFlashNotification } from "../state/ui/action"
 
 
 const FlashNotif = (props) => {
@@ -20,7 +20,10 @@ const FlashNotif = (props) => {
   }
 
   return (
-    <div id="notif_container" onClick={ clearNotif } className={ `${ alertClass } ${ !on && "hidden" } fixed w-1/2 z-10 center-absolute-x mt-2 rounded justify-between text-center flex p-3 text-hGray border border-hGray rounded font-regular text-lg items-start sm:w-full xs:w-full md:w-full` }>
+    <div id="notif_container"
+      onClick={ clearNotif }
+      className={ `${ alertClass } ${ !on && "hidden" } fixed w-1/2 z-10 center-absolute-x mt-2 rounded justify-between text-center flex p-3 text-gray-700 border border-gray-700 rounded font-regular text-lg items-start sm:w-full xs:w-full md:w-full` }
+    >
       <div className="flex flex-col items-center w-full pt-3">
         <p id="notif_message px-3">{ message }</p>
         { callback &&
@@ -34,7 +37,9 @@ const FlashNotif = (props) => {
           </button>
         }
       </div>
-      <button className="cursor-pointer block w-3 h-3" value="X" />
+      <button className="cursor-pointer block w-3 h-3">
+        X
+      </button>
       {/* <img onClick={ clearNotif } className="cursor-pointer block w-3 h-3" src={ x } alt="x" /> */}
     </div>
   )

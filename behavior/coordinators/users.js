@@ -1,16 +1,13 @@
 import { post } from "../api/rest"
-import { toggleFlashNotification } from "../../store/ui/action"
+import { setUser } from "../../state/user/action"
+import { HandleError } from "./errors"
 
 export const CreateUser = (dispatch) => async ({ firstName, lastName, email, password }) => {
   try {
     await post("/users", { firstName, lastName, email, password })
   }
-  catch( error ) {
-    dispatch(toggleFlashNotification({
-      on: true,
-      alertType: "fail",
-      message: error.response?.data?.message || "",
-    }))
+  catch( err ) {
+    HandleError(dispatch, err)
     return false
   }
   return true
@@ -18,14 +15,11 @@ export const CreateUser = (dispatch) => async ({ firstName, lastName, email, pas
 
 export const SignIn = (dispatch) => async ({ email, password }) => {
   try {
-    await post("/users/sign_in", { email, password })
+    const response = await post("/users/sign_in", { email, password })
+    dispatch(setUser(response.data))
   }
-  catch( error ) {
-    dispatch(toggleFlashNotification({
-      on: true,
-      alertType: "fail",
-      message: error.response?.data?.message || "",
-    }))
+  catch( err ) {
+    HandleError(dispatch, err)
     return false
   }
   return true

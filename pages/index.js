@@ -2,11 +2,13 @@ import React, { useState } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Link from "next/link"
+import { useRouter } from "next/router"
 
-import { CreateUser, SignIn } from "../behavior/coordinators/users"
+import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
 
 
-const Index = ({ createUser, signIn, user }) => {
+const Index = ({ createUser, signIn, signOut, user }) => {
+  const router = useRouter()
   const [isNewUser, setIsNewUser] = useState(true)
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
@@ -44,6 +46,7 @@ const Index = ({ createUser, signIn, user }) => {
     })
     if (success) {
       clearForm()
+      router.push("/albums")
     }
   }
 
@@ -55,6 +58,14 @@ const Index = ({ createUser, signIn, user }) => {
             <Link href="/upload">
               <a>Upload</a>
             </Link>
+          </div>
+        }
+
+        { user &&
+          <div className="p-8">
+            <button onClick={signOut}>
+              Sign Out
+            </button>
           </div>
         }
         
@@ -135,11 +146,6 @@ const Index = ({ createUser, signIn, user }) => {
   )
 }
 
-// export const getStaticProps = wrapper.getStaticProps(async ({ store }) => {
-//   store.dispatch(serverRenderClock(true))
-//   store.dispatch(addCount())
-// })
-
 const mapStateToProps = (state) => {
   console.log("mapstate", state)
   return {
@@ -151,6 +157,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     createUser: CreateUser(dispatch),
     signIn: SignIn(dispatch),
+    signOut: SignOut(dispatch),
   }
 }
 
@@ -159,6 +166,7 @@ Index.propTypes = {
 
   createUser: PropTypes.func,
   signIn: PropTypes.func,
+  signOut: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Index)

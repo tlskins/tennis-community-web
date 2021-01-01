@@ -4,6 +4,8 @@ import thunkMiddleware from "redux-thunk"
 
 import { flashNotificationReducer } from "./ui/reducer"
 import { userReducer } from "./user/reducer"
+import { recentUploadsReducer } from "./upload/reducer"
+
 
 const bindMiddleware = (middleware) => {
   if (process.env.NODE_ENV !== "production") {
@@ -16,7 +18,15 @@ const bindMiddleware = (middleware) => {
 const combinedReducer = combineReducers({
   flashNotification: flashNotificationReducer,
   user: userReducer,
+  recentUploads: recentUploadsReducer,
 })
+
+export const LOG_OUT = "LOG_OUT"
+
+export const logOut = () => ({
+  type: LOG_OUT
+})
+  
 
 const reducer = (state, action) => {
   if (action.type === HYDRATE) {
@@ -24,7 +34,10 @@ const reducer = (state, action) => {
       ...state, // use previous state
       ...action.payload, // apply delta from hydration
     }
-  } else {
+  } else if (action.type === LOG_OUT) {
+    return {}
+  }
+  else {
     return combinedReducer(state, action)
   }
 }
@@ -40,7 +53,7 @@ const initStore = () => {
 
     const persistConfig = {
       key: "root",
-      // whitelist: ["fromClient"], // make sure it does not clash with server keys
+      whitelist: ["user"], // make sure it does not clash with server keys
       storage
     }
 

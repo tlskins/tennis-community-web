@@ -1,5 +1,6 @@
 import { post } from "../api/rest"
 import { setUser } from "../../state/user/action"
+import { logOut } from "../../state/store"
 import { HandleError } from "./errors"
 
 export const CreateUser = (dispatch) => async ({ firstName, lastName, email, password }) => {
@@ -24,3 +25,5 @@ export const SignIn = (dispatch) => async ({ email, password }) => {
   }
   return true
 }
+
+export const SignOut = (dispatch) => () => dispatch(logOut())

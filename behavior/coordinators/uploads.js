@@ -1,4 +1,5 @@
-import { post } from "../api/rest"
+import { post, get } from "../api/rest"
+import { setRecentUploads } from "../../state/upload/action"
 import { HandleError } from "./errors"
 
 import AWS from "aws-sdk"
@@ -10,10 +11,9 @@ const s3 = new AWS.S3({
 })
   
 
-export const UploadVideo = (dispatch) => async ({ userId, file, fileName, fileType }) => {
+export const UploadVideo = (dispatch) => async ({ userId, file, fileName }) => {
   console.log("uploading", userId, file, fileName)
   try {
-    // const { data: { url: uploadUrl } } = await get("/uploads/upload_url", { fileName } )
     const uploadId = Moment().format("YYYY_MM_DD_hh_mm_ss")
     const params = {
       Bucket: process.env.NEXT_PUBLIC_SWINGS_BUCKET,
@@ -27,11 +27,22 @@ export const UploadVideo = (dispatch) => async ({ userId, file, fileName, fileTy
         HandleError(dispatch, err)
         return false
       }
-      const { Bucket, Key, Location } = data
-      console.log("uploaded to s3", Bucket, Key, Location )
-      const response = await post("/users/create_swing_upload", { originalURL: Location })
+      const response = await post("/uploads", { originalURL: data.Location })
       console.log("create_swing_upload response", response )
     })
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+  return true
+}
+
+
+export const GetRecentUploads = (dispatch) => async () => {
+  try {
+    const response = await get("/uploads")
+    dispatch(setRecentUploads(response.data))
   }
   catch( err ) {
     HandleError(dispatch, err)

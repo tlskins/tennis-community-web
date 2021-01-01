@@ -4,13 +4,16 @@ import PropTypes from "prop-types"
 
 import { UploadVideo } from "../behavior/coordinators/uploads"
 
+let uploading = false
 
-const Upload = ({ uploadVideo, user }) => {
+const SwingUploader = ({ uploadVideo, user }) => {
   const [selectedVideo, setSelectedVideo] = useState(undefined)
 
-  console.log("user",user)
-
   const onUploadVideo = async () => {
+    if (uploading) {
+      return
+    }
+    uploading = true
     const response = await uploadVideo({
       userId: user?.id,
       file: selectedVideo,
@@ -18,6 +21,7 @@ const Upload = ({ uploadVideo, user }) => {
       fileType: selectedVideo.type,
     })
     console.log(response)
+    uploading = false
   }
 
   const onFileChange = e => {
@@ -25,13 +29,12 @@ const Upload = ({ uploadVideo, user }) => {
   }
 
   return(
-    <div className="flex flex-col h-screen min-h-screen">
-      <main className="flex flex-1 overflow-y-auto">
-        <div className="flex flex-col p-8">
-          <input type="file"
-            onChange={onFileChange}
-          />
-          { selectedVideo &&
+    <div className="flex flex-col">
+      <div className="flex flex-col p-8">
+        <input type="file"
+          onChange={onFileChange}
+        />
+        { selectedVideo &&
             <Fragment>
               <button className="border-black border rounded m-2 p-1"
                 onClick={onUploadVideo}
@@ -44,15 +47,13 @@ const Upload = ({ uploadVideo, user }) => {
                 </p>
               </div>
             </Fragment>
-          }
-        </div>
-      </main>
+        }
+      </div>
     </div>
   )
 }
 
 const mapStateToProps = (state) => {
-  console.log("mapstate", state)
   return {
     user: state.user,
   }
@@ -64,10 +65,10 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
   
-Upload.propTypes = {
+SwingUploader.propTypes = {
   user: PropTypes.object,
 
   uploadVideo: PropTypes.func,
 }
   
-export default connect(mapStateToProps, mapDispatchToProps)(Upload)
+export default connect(mapStateToProps, mapDispatchToProps)(SwingUploader)

@@ -1,19 +1,24 @@
-import React, { useEffect, useState, createRef, useRef } from "react"
+import React, { useEffect, useState, createRef, useRef, Fragment } from "react"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
+import PropTypes from "prop-types"
+import Moment from "moment"
+
+import SwingUploader from "../components/SwingUploader"
+import { GetRecentUploads } from "../behavior/coordinators/uploads"
 
 // 13 react players running at the same time took half my cpu
 
 const videos = [
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_1.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_2.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_3.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_4.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_5.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_6.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_7.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_1.mp4",
-  "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_2.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_1.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_2.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_3.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_4.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_5.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_6.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_7.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_1.mp4",
+  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_2.mp4",
   // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_3.mp4",
   // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_4.mp4",
   // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_5.mp4",
@@ -25,7 +30,7 @@ const publicVideos = [
   "https://tennis-swings.s3.amazonaws.com/public/federer_forehand.mp4",
 ]
 
-const Album = () => {
+const Album = ({ recentUploads, getRecentUploads }) => {
   const videosCount = videos.length
 
   const [playbackRate, setPlaybackRate] = useState(1)
@@ -34,6 +39,8 @@ const Album = () => {
   const [playerDurations, setPlayerDurations] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
+
+  const [activeSideBar, setActiveSidebar] = useState("New Album")
 
   const sideVideoRef = useRef(undefined)
   const [sideVideo, setSideVideo] = useState(publicVideos[0])
@@ -50,6 +57,11 @@ const Album = () => {
     setPips(Array(videosCount).fill().map(() => false))
   }, [videosCount])
 
+  useEffect(() => {
+    if (recentUploads === null) {
+      getRecentUploads()
+    }
+  }, [recentUploads])
 
   const handleAllSeekChange = e => {
     const seekTo = parseFloat(e.target.value)
@@ -84,113 +96,161 @@ const Album = () => {
 
       <main className="flex flex-1 overflow-y-auto">
 
-        {/* Sidebar */}
+        {/* Begin Sidebar */}
 
         <div className="h-screen top-0 sticky p-4 bg-white w-1/4">
           <div className="flex flex-col content-center justify-center items-center">
-            <ReactPlayer
-              className="rounded-md overflow-hidden"
-              ref={sideVideoRef}
-              url={sideVideo} 
-              playing={sideVideoPlaying}
-              pip={sideVideoPip}
-              volume={0}
-              muted={true}
-              playbackRate={sideVideoPlayback}
-              loop={true}
-              progressInterval={200}
-              onProgress={({ played }) => setSideVideoDuration(
-                parseFloat((Math.ceil(played/.05)*.05).toFixed(2))
-              )}
-              height=""
-              width=""
-            />
-          </div>
 
-          {/* Controls Panel */}
+            <div onClick={() => setActiveSidebar("New Album")}>
+              <h2 className="text-blue-400 underline cursor-pointer">
+                New Album
+              </h2>
+              { activeSideBar === "New Album" &&
+                <Fragment>
+                  <SwingUploader />
+                  <h2>
+                    Recent Uploads
+                  </h2>
+                  <div>
+                    { recentUploads?.map( (upload, i) => {
+                      const filePaths = upload.originalURL.split("/")
+                      const fileName = filePaths[filePaths.length-1]
+                      return(
+                        <div key={i}
+                          className="border border-black rounded p-1 m-2"
+                        >
+                          <div>{ upload.uploadKey }</div>
+                          <div>Filename: { fileName } </div>
+                          <div>Created: { Moment(upload.createdAt).format("LLL") }</div>
+                          <div>Status: { upload.status }</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </Fragment>
+              }
+            </div>
+
+            <div onClick={() => setActiveSidebar("View Album")}>
+              <h2 className="text-blue-400 underline cursor-pointer">
+                View Album
+              </h2>
+            </div>
+            
+            <div onClick={() => setActiveSidebar("Pro Comparison")}>
+              <h2 className="text-blue-400 underline cursor-pointer">
+                Pro Comparison
+              </h2>
+              { activeSideBar === "Pro Comparison" &&
+                <Fragment>
+                  <ReactPlayer
+                    className="rounded-md overflow-hidden"
+                    ref={sideVideoRef}
+                    url={sideVideo} 
+                    playing={sideVideoPlaying}
+                    pip={sideVideoPip}
+                    volume={0}
+                    muted={true}
+                    playbackRate={sideVideoPlayback}
+                    loop={true}
+                    progressInterval={200}
+                    onProgress={({ played }) => setSideVideoDuration(
+                      parseFloat((Math.ceil(played/.05)*.05).toFixed(2))
+                    )}
+                    height=""
+                    width=""
+                  />
+
+                  {/* Controls Panel */}
           
-          <div className="flex flex-row content-center justify-center items-center mt-4">
-            {/* Picture in Picture */}
-            { sideVideoPip &&
+                  <div className="flex flex-row content-center justify-center items-center mt-4">
+                    {/* Picture in Picture */}
+                    { sideVideoPip &&
               <input type='button'
                 className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
                 value='-'
                 onClick={() => setSideVideoPip(false)}
               />
-            }
-            { !sideVideoPip &&
+                    }
+                    { !sideVideoPip &&
               <input type='button'
                 className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
                 value='+'
                 onClick={() => setSideVideoPip(true)}
               />
-            }
+                    }
 
-            {/* Play / Pause */}
-            { sideVideoPlaying &&
+                    {/* Play / Pause */}
+                    { sideVideoPlaying &&
               <input type='button'
                 className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
                 value='pause'
                 onClick={() => setSideVideoPlaying(false)}
               />
-            }
-            { !sideVideoPlaying &&
+                    }
+                    { !sideVideoPlaying &&
               <input type='button'
                 className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
                 value='play'
                 onClick={() => setSideVideoPlaying(true)}
               />
-            }
-          </div>
+                    }
+                  </div>
 
-          <div className="flex flex-col content-center justify-center items-center mt-4">
-            {/* Seek */}
-            <input
-              type='range'
-              value={sideVideoDuration}
-              min={0}
-              max={1}
-              step='0.05'
-              onChange={handleSideSeekChange}
-            />
+                  <div className="flex flex-col content-center justify-center items-center mt-4">
+                    {/* Seek */}
+                    <input
+                      type='range'
+                      value={sideVideoDuration}
+                      min={0}
+                      max={1}
+                      step='0.05'
+                      onChange={handleSideSeekChange}
+                    />
 
-            <div className="bg-white rounded p-0.5 mx-1 text-xs">
-              <span> { sideVideoDuration ? sideVideoDuration.toFixed(2) : "0.00" }/1.0</span>
-            </div>
-          </div>
+                    <div className="bg-white rounded p-0.5 mx-1 text-xs">
+                      <span> { sideVideoDuration ? sideVideoDuration.toFixed(2) : "0.00" }/1.0</span>
+                    </div>
+                  </div>
 
-          <div className="flex flex-col content-center justify-center items-center mt-4">
-            <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-              <div className="flex flex-row content-center justify-center items-center p-4">
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                  onClick={() => setSideVideoPlayback(0.25)}
-                  value=".25x"
-                />
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                  onClick={() => setSideVideoPlayback(0.5)}
-                  value=".5x"
-                />
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                  onClick={() => setSideVideoPlayback(1)}
-                  value="1x"
-                />
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                  onClick={() => setSideVideoPlayback(2)}
-                  value="2x"
-                />
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                  onClick={() => setSideVideoPlayback(3)}
-                  value="3x"
-                />
-              </div>
+                  <div className="flex flex-col content-center justify-center items-center mt-4">
+                    <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
+                      <div className="flex flex-row content-center justify-center items-center p-4">
+                        <input type='button'
+                          className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                          onClick={() => setSideVideoPlayback(0.25)}
+                          value=".25x"
+                        />
+                        <input type='button'
+                          className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                          onClick={() => setSideVideoPlayback(0.5)}
+                          value=".5x"
+                        />
+                        <input type='button'
+                          className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                          onClick={() => setSideVideoPlayback(1)}
+                          value="1x"
+                        />
+                        <input type='button'
+                          className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                          onClick={() => setSideVideoPlayback(2)}
+                          value="2x"
+                        />
+                        <input type='button'
+                          className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                          onClick={() => setSideVideoPlayback(3)}
+                          value="3x"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </Fragment>
+              }
             </div>
           </div>
         </div>
+
+        {/* End Sidebar */}
 
         {/* Main Body */}
 
@@ -366,6 +426,24 @@ const Album = () => {
   )
 }
 
-const mapStateToProps = (state) => state
+const mapStateToProps = (state) => {
+  console.log("mapStateToProps", state)
+  return {
+    recentUploads: state.recentUploads,
+  }
+}
 
-export default connect(mapStateToProps, undefined)(Album)
+const mapDispatchToProps = (dispatch) => {
+  return {
+    getRecentUploads: GetRecentUploads(dispatch),
+  }
+}
+  
+Album.propTypes = {
+  user: PropTypes.object,
+  recentUploads: PropTypes.arrayOf(PropTypes.object),
+
+  getRecentUploads: PropTypes.func,
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Album)

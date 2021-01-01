@@ -6,32 +6,26 @@ import Moment from "moment"
 
 import SwingUploader from "../components/SwingUploader"
 import { GetRecentUploads } from "../behavior/coordinators/uploads"
-
-// 13 react players running at the same time took half my cpu
-
-const videos = [
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_1.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_2.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_3.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_4.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_5.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_6.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_1_swing_7.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_1.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_2.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_3.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_4.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_5.mp4",
-  // "https://tennis-swings.s3.amazonaws.com/timuserid/2020_12_18_1152_59/tim_ground_profile_wide_540p_clip_2_swing_6.mp4",
-]
+import { GetAlbums, LoadAlbum } from "../behavior/coordinators/albums"
 
 const publicVideos = [
   "https://tennis-swings.s3.amazonaws.com/public/federer_backhand.mp4",
   "https://tennis-swings.s3.amazonaws.com/public/federer_forehand.mp4",
 ]
 
-const Album = ({ recentUploads, getRecentUploads }) => {
-  const videosCount = videos.length
+const videosPerPage = 9
+
+const Album = ({
+  album,
+  recentUploads,
+  getRecentUploads,
+  getAlbums,
+  loadAlbum,
+}) => {
+  const swingVideos = album?.swingVideos || []
+  const videosCount = swingVideos.length
+
+  console.log("swingVideos", swingVideos)
 
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(true)
@@ -41,6 +35,9 @@ const Album = ({ recentUploads, getRecentUploads }) => {
   const [pips, setPips] = useState([]) // Picture in picture for each player
 
   const [activeSideBar, setActiveSidebar] = useState("New Album")
+
+  const [myAlbums, setMyAlbums] = useState([])
+  const [albumPage, setAlbumPage] = useState(0)
 
   const sideVideoRef = useRef(undefined)
   const [sideVideo, setSideVideo] = useState(publicVideos[0])
@@ -101,6 +98,7 @@ const Album = ({ recentUploads, getRecentUploads }) => {
         <div className="h-screen top-0 sticky p-4 bg-white w-1/4">
           <div className="flex flex-col content-center justify-center items-center">
 
+            {/* New Album Sidebar */}
             <div onClick={() => setActiveSidebar("New Album")}>
               <h2 className="text-blue-400 underline cursor-pointer">
                 New Album
@@ -131,12 +129,44 @@ const Album = ({ recentUploads, getRecentUploads }) => {
               }
             </div>
 
-            <div onClick={() => setActiveSidebar("View Album")}>
+            {/* My Albums Sidebar */}
+            <div 
+              onClick={ async () => {
+                if (activeSideBar === "View Album") {
+                  return
+                }
+                setActiveSidebar("View Album")
+                const albums = await getAlbums()
+                if (albums) {
+                  setMyAlbums(albums)
+                }
+              }}
+            >
               <h2 className="text-blue-400 underline cursor-pointer">
                 View Album
               </h2>
+              { activeSideBar === "View Album" &&
+                <Fragment>
+                  <div>
+                    { myAlbums.map( (album, i) => {
+                      return(
+                        <div key={i}
+                          className="border border-black rounded p-1 m-2"
+                          onClick={() => loadAlbum(album.id)}
+                        >
+                          <div>{ album.name }</div>
+                          <div>Status: { album.status }</div>
+                          <div>Videos: { album.swingVideos.length } </div>
+                          <div>Created: { Moment(album.createdAt).format("LLL") }</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </Fragment>
+              }
             </div>
-            
+
+            {/* Pro Comparison Sidebar */}
             <div onClick={() => setActiveSidebar("Pro Comparison")}>
               <h2 className="text-blue-400 underline cursor-pointer">
                 Pro Comparison
@@ -255,7 +285,7 @@ const Album = ({ recentUploads, getRecentUploads }) => {
         {/* Main Body */}
 
         <div className="p-8 flex flex-wrap">
-          { videos.map( (videoUrl, i) => {
+          { swingVideos.slice(albumPage * videosPerPage, (albumPage+1) * videosPerPage).map( (swing, i) => {
             return (
               <div className="flex flex-col w-1/3 content-center justify-center items-center"
                 key={i}
@@ -264,7 +294,7 @@ const Album = ({ recentUploads, getRecentUploads }) => {
                 <ReactPlayer
                   className="rounded-md overflow-hidden"
                   ref={playerRefs[i]}
-                  url={videoUrl} 
+                  url={swing.videoURL} 
                   playing={playings[i]}
                   pip={pips[i]}
                   volume={0}
@@ -363,6 +393,12 @@ const Album = ({ recentUploads, getRecentUploads }) => {
       {/* All Video Controls Footer */}
       <footer className="flex-none bg-blue-100">
         <div className="p-4 w-full flex flex-row content-center justify-center items-center">
+          { album &&
+            <div>
+              Album { album.name } ({ album.swingVideos.length })
+            </div>
+          }
+
           { allPlaying &&
             <input type='button'
               className="border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white"
@@ -420,6 +456,28 @@ const Album = ({ recentUploads, getRecentUploads }) => {
               value="1.5x"
             />
           </div>
+
+          <div className="flex flex-col">
+            <h2>Page { albumPage+1 }</h2>
+            <div className="flex flex-row">
+              { albumPage > 0 &&
+                <button
+                  onClick={() => setAlbumPage(albumPage-1)}
+                  className="border border-black rounder p-0.5 mx-1"
+                >
+                  &lt;
+                </button>
+              }
+              { (albumPage < (swingVideos.length / videosPerPage)-1) &&
+                <button
+                  onClick={() => setAlbumPage(albumPage+1)}
+                  className="border border-black rounder p-0.5 mx-1"
+                >
+                  &gt;
+                </button>
+              }
+            </div>
+          </div>
         </div>
       </footer>
     </div>
@@ -430,20 +488,26 @@ const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
     recentUploads: state.recentUploads,
+    album: state.album,
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    getAlbums: GetAlbums(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
+    loadAlbum: LoadAlbum(dispatch),
   }
 }
   
 Album.propTypes = {
+  album: PropTypes.object,
   user: PropTypes.object,
   recentUploads: PropTypes.arrayOf(PropTypes.object),
 
+  getAlbums: PropTypes.func,
   getRecentUploads: PropTypes.func,
+  loadAlbum: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Album)

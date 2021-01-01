@@ -5,6 +5,7 @@ import thunkMiddleware from "redux-thunk"
 import { flashNotificationReducer } from "./ui/reducer"
 import { userReducer } from "./user/reducer"
 import { recentUploadsReducer } from "./upload/reducer"
+import { albumReducer } from "./album/reducer"
 
 
 const bindMiddleware = (middleware) => {
@@ -19,6 +20,7 @@ const combinedReducer = combineReducers({
   flashNotification: flashNotificationReducer,
   user: userReducer,
   recentUploads: recentUploadsReducer,
+  album: albumReducer,
 })
 
 export const LOG_OUT = "LOG_OUT"

@@ -11,8 +11,14 @@ import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { GetAlbums, LoadAlbum } from "../../behavior/coordinators/albums"
 
 const publicVideos = [
-  "https://tennis-swings.s3.amazonaws.com/public/federer_backhand.mp4",
-  "https://tennis-swings.s3.amazonaws.com/public/federer_forehand.mp4",
+  {
+    url: "https://tennis-swings.s3.amazonaws.com/public/federer_backhand.mp4",
+    name: "Federer Backhand",
+  },
+  {
+    url: "https://tennis-swings.s3.amazonaws.com/public/federer_forehand.mp4",
+    name: "Federer Forehand",
+  },
 ]
 
 const videosPerPage = 9
@@ -26,7 +32,6 @@ const Album = ({
 }) => {
   const router = useRouter()
   const albumId = router.query.id && router.query.id[0]
-  console.log("router", router.query, albumId)
 
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
@@ -44,7 +49,7 @@ const Album = ({
   const [albumPage, setAlbumPage] = useState(0)
 
   const sideVideoRef = useRef(undefined)
-  const [sideVideo, setSideVideo] = useState(publicVideos[0])
+  const [sideVideo, setSideVideo] = useState(publicVideos[0].url)
   const [sideVideoDuration, setSideVideoDuration] = useState(0)
   const [sideVideoPlayback, setSideVideoPlayback] = useState(1)
   const [sideVideoPlaying, setSideVideoPlaying] = useState(false)
@@ -53,12 +58,13 @@ const Album = ({
   const pageVideos = swingVideos.slice(albumPage * videosPerPage, (albumPage+1) * videosPerPage)
 
   useEffect(() => {
-    loadAlbum(albumId)
+    if (albumId) {
+      loadAlbum(albumId)
+    }
   }, [albumId])
 
   useEffect(() => {
     if (album?.id) {
-      console.log("useEffect swingvideos " + pageVideos.length)
       setPlayerRefs(ref => pageVideos.map((_, i) => ref[i] || createRef()))
       setPlayings(pageVideos.map(() => true))
       setPips(pageVideos.map(() => false))
@@ -133,7 +139,11 @@ const Album = ({
                           <div>Created: { Moment(upload.createdAt).format("LLL") }</div>
                           <div>Status: { upload.status }</div>
                           { upload.albumId &&
-                            <div>View Album</div>
+                            <Link href={`/albums/${upload.albumId}`}>
+                              <div className="underline cursor-pointer text-blue-400">
+                                View Album
+                              </div>
+                            </Link>
                           }
                         </div>
                       )
@@ -167,7 +177,7 @@ const Album = ({
                         <Link key={i}
                           href={`/albums/${album.id}`}
                         >
-                          <div className="border border-black rounded p-1 m-2">
+                          <div className="border border-black rounded p-1 m-2 hover:bg-gray-200 cursor-pointer">
                             <div>{ album.name }</div>
                             <div>Status: { album.status }</div>
                             <div>Videos: { album.swingVideos.length } </div>
@@ -188,6 +198,14 @@ const Album = ({
               </h2>
               { activeSideBar === "Pro Comparison" &&
                 <Fragment>
+                  <select onChange={e => setSideVideo(e.target.value)}>
+                    { publicVideos.map((vid, i) => {
+                      return(
+                        <option value={vid.url}>{ vid.name }</option>
+                      )
+                    })}
+                  </select>
+
                   <ReactPlayer
                     className="rounded-md overflow-hidden"
                     ref={sideVideoRef}
@@ -211,34 +229,34 @@ const Album = ({
                   <div className="flex flex-row content-center justify-center items-center mt-4">
                     {/* Picture in Picture */}
                     { sideVideoPip &&
-              <input type='button'
-                className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-                value='-'
-                onClick={() => setSideVideoPip(false)}
-              />
+                      <input type='button'
+                        className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+                        value='-'
+                        onClick={() => setSideVideoPip(false)}
+                      />
                     }
                     { !sideVideoPip &&
-              <input type='button'
-                className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-                value='+'
-                onClick={() => setSideVideoPip(true)}
-              />
+                      <input type='button'
+                        className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+                        value='+'
+                        onClick={() => setSideVideoPip(true)}
+                      />
                     }
 
                     {/* Play / Pause */}
                     { sideVideoPlaying &&
-              <input type='button'
-                className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-                value='pause'
-                onClick={() => setSideVideoPlaying(false)}
-              />
+                      <input type='button'
+                        className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
+                        value='pause'
+                        onClick={() => setSideVideoPlaying(false)}
+                      />
                     }
                     { !sideVideoPlaying &&
-              <input type='button'
-                className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-                value='play'
-                onClick={() => setSideVideoPlaying(true)}
-              />
+                      <input type='button'
+                        className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
+                        value='play'
+                        onClick={() => setSideVideoPlaying(true)}
+                      />
                     }
                   </div>
 

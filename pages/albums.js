@@ -25,8 +25,6 @@ const Album = ({
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
 
-  console.log("swingVideos", swingVideos)
-
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(true)
   const [playerRefs, setPlayerRefs] = useState([])
@@ -45,14 +43,17 @@ const Album = ({
   const [sideVideoPlayback, setSideVideoPlayback] = useState(1)
   const [sideVideoPlaying, setSideVideoPlaying] = useState(false)
   const [sideVideoPip, setSideVideoPip] = useState(false)
+  
+  const pageVideos = swingVideos.slice(albumPage * videosPerPage, (albumPage+1) * videosPerPage)
 
   useEffect(() => {
-    setPlayerRefs(playerRefs => (
-      Array(videosCount).fill().map((_, i) => playerRefs[i] || createRef())
-    ))
-    setPlayings(Array(videosCount).fill().map(() => true))
-    setPips(Array(videosCount).fill().map(() => false))
-  }, [videosCount])
+    if (album?.id) {
+      console.log("useEffect swingvideos " + pageVideos.length)
+      setPlayerRefs(ref => pageVideos.map((_, i) => ref[i] || createRef()))
+      setPlayings(pageVideos.map(() => true))
+      setPips(pageVideos.map(() => false))
+    }
+  }, [album?.id, albumPage])
 
   useEffect(() => {
     if (recentUploads === null) {
@@ -63,7 +64,7 @@ const Album = ({
   const handleAllSeekChange = e => {
     const seekTo = parseFloat(e.target.value)
     if (seekTo) {
-      setPlayings(Array(videosCount).fill().map(() => false))
+      setPlayings(swingVideos.map(() => false))
       playerRefs.forEach( playerRef => playerRef.current.seekTo(seekTo))
     }
   }
@@ -282,10 +283,10 @@ const Album = ({
 
         {/* End Sidebar */}
 
-        {/* Main Body */}
+        {/* Begin Album Videos */}
 
         <div className="p-8 flex flex-wrap">
-          { swingVideos.slice(albumPage * videosPerPage, (albumPage+1) * videosPerPage).map( (swing, i) => {
+          { pageVideos.map( (swing, i) => {
             return (
               <div className="flex flex-col w-1/3 content-center justify-center items-center"
                 key={i}
@@ -388,6 +389,7 @@ const Album = ({
             )
           })}
         </div>
+        {/* End Album Videos */}
       </main>
 
       {/* All Video Controls Footer */}

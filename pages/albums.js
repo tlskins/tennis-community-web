@@ -43,7 +43,7 @@ const Album = ({
   const [sideVideoPlayback, setSideVideoPlayback] = useState(1)
   const [sideVideoPlaying, setSideVideoPlaying] = useState(false)
   const [sideVideoPip, setSideVideoPip] = useState(false)
-  
+
   const pageVideos = swingVideos.slice(albumPage * videosPerPage, (albumPage+1) * videosPerPage)
 
   useEffect(() => {
@@ -307,12 +307,16 @@ const Album = ({
                     ...playerDurations,
                     [i]: parseFloat((Math.ceil(played/.05)*.05).toFixed(2)),
                   })}
-                  height=""
-                  width=""
+                  height="226px"
+                  width="285px"
                 />
 
                 {/* Controls Panel */}
                 <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
+                  <p>
+                    { swing.clip }.{ swing.swing }
+                  </p>
+
                   {/* Picture in Picture */}
                   { pips[i] &&
                     <input type='button'

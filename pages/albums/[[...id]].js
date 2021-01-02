@@ -3,10 +3,12 @@ import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import Moment from "moment"
+import Link from "next/link"
+import { useRouter } from "next/router"
 
-import SwingUploader from "../components/SwingUploader"
-import { GetRecentUploads } from "../behavior/coordinators/uploads"
-import { GetAlbums, LoadAlbum } from "../behavior/coordinators/albums"
+import SwingUploader from "../../components/SwingUploader"
+import { GetRecentUploads } from "../../behavior/coordinators/uploads"
+import { GetAlbums, LoadAlbum } from "../../behavior/coordinators/albums"
 
 const publicVideos = [
   "https://tennis-swings.s3.amazonaws.com/public/federer_backhand.mp4",
@@ -22,6 +24,10 @@ const Album = ({
   getAlbums,
   loadAlbum,
 }) => {
+  const router = useRouter()
+  const albumId = router.query.id && router.query.id[0]
+  console.log("router", router.query, albumId)
+
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
 
@@ -45,6 +51,10 @@ const Album = ({
   const [sideVideoPip, setSideVideoPip] = useState(false)
 
   const pageVideos = swingVideos.slice(albumPage * videosPerPage, (albumPage+1) * videosPerPage)
+
+  useEffect(() => {
+    loadAlbum(albumId)
+  }, [albumId])
 
   useEffect(() => {
     if (album?.id) {
@@ -122,6 +132,9 @@ const Album = ({
                           <div>Filename: { fileName } </div>
                           <div>Created: { Moment(upload.createdAt).format("LLL") }</div>
                           <div>Status: { upload.status }</div>
+                          { upload.albumId &&
+                            <div>View Album</div>
+                          }
                         </div>
                       )
                     })}
@@ -151,15 +164,16 @@ const Album = ({
                   <div>
                     { myAlbums.map( (album, i) => {
                       return(
-                        <div key={i}
-                          className="border border-black rounded p-1 m-2"
-                          onClick={() => loadAlbum(album.id)}
+                        <Link key={i}
+                          href={`/albums/${album.id}`}
                         >
-                          <div>{ album.name }</div>
-                          <div>Status: { album.status }</div>
-                          <div>Videos: { album.swingVideos.length } </div>
-                          <div>Created: { Moment(album.createdAt).format("LLL") }</div>
-                        </div>
+                          <div className="border border-black rounded p-1 m-2">
+                            <div>{ album.name }</div>
+                            <div>Status: { album.status }</div>
+                            <div>Videos: { album.swingVideos.length } </div>
+                            <div>Created: { Moment(album.createdAt).format("LLL") }</div>
+                          </div>
+                        </Link>
                       )
                     })}
                   </div>

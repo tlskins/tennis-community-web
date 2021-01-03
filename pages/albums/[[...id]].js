@@ -9,6 +9,8 @@ import { useRouter } from "next/router"
 import SwingUploader from "../../components/SwingUploader"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { GetAlbums, LoadAlbum, UpdateAlbum } from "../../behavior/coordinators/albums"
+import { setAlbum } from "../../state/album/action"
+import { toggleFlashNotification } from "../../state/ui/action"
 
 const publicVideos = [
   {
@@ -23,6 +25,8 @@ const publicVideos = [
 
 const videosPerPage = 9
 
+let timer
+
 const Album = ({
   album,
   recentUploads,
@@ -30,6 +34,7 @@ const Album = ({
   getAlbums,
   loadAlbum,
   updateAlbum,
+  updateAlbumRedux,
 }) => {
   const router = useRouter()
   const albumId = router.query.id && router.query.id[0]
@@ -113,6 +118,25 @@ const Album = ({
       swingVideos: album.swingVideos.filter( swing => swing.id !== swingId ),
     })
   }
+
+  const executeAfterTimeout = (func, timeout) => {
+    if ( timer ) {
+      clearTimeout( timer )
+    }
+    timer = undefined
+    timer = setTimeout(() => {
+      func()
+    }, timeout )
+  }
+
+  const onUpdateAlbumName = e => {
+    const updatedAlbum = { ...album, name: e.target.value }
+    updateAlbumRedux(updatedAlbum)
+    executeAfterTimeout(() => {
+      updateAlbum(updatedAlbum)
+    }, 700)
+  }
+
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -472,8 +496,12 @@ const Album = ({
       <footer className="flex-none bg-blue-100">
         <div className="p-4 w-full flex flex-row content-center justify-center items-center">
           { album &&
-            <div>
-              Album { album.name } ({ album.swingVideos.length })
+            <div className="flex flex-col mr-4">
+              Album ({ album.swingVideos.length })
+              <input type="text"
+                value={album.name}
+                onChange={onUpdateAlbumName}
+              />
             </div>
           }
 
@@ -576,6 +604,7 @@ const mapDispatchToProps = (dispatch) => {
     getRecentUploads: GetRecentUploads(dispatch),
     loadAlbum: LoadAlbum(dispatch),
     updateAlbum: UpdateAlbum(dispatch),
+    updateAlbumRedux: updatedAlbum => dispatch(setAlbum(updatedAlbum))
   }
 }
   
@@ -588,6 +617,7 @@ Album.propTypes = {
   getRecentUploads: PropTypes.func,
   loadAlbum: PropTypes.func,
   updateAlbum: PropTypes.func,
+  updateAlbumRedux: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Album)

@@ -8,7 +8,7 @@ import { useRouter } from "next/router"
 
 import SwingUploader from "../../components/SwingUploader"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
-import { GetAlbums, LoadAlbum } from "../../behavior/coordinators/albums"
+import { GetAlbums, LoadAlbum, UpdateAlbum } from "../../behavior/coordinators/albums"
 
 const publicVideos = [
   {
@@ -29,6 +29,7 @@ const Album = ({
   getRecentUploads,
   getAlbums,
   loadAlbum,
+  updateAlbum,
 }) => {
   const router = useRouter()
   const albumId = router.query.id && router.query.id[0]
@@ -47,6 +48,8 @@ const Album = ({
 
   const [myAlbums, setMyAlbums] = useState([])
   const [albumPage, setAlbumPage] = useState(0)
+  const [hoveredSwing, setHoveredSwing] = useState(undefined)
+  const [deleteSwing, setDeleteSwing] = useState(undefined)
 
   const sideVideoRef = useRef(undefined)
   const [sideVideo, setSideVideo] = useState(publicVideos[0].url)
@@ -102,6 +105,13 @@ const Album = ({
       sideVideoRef.current.seekTo(seekTo)
       setSideVideoDuration(seekTo)
     }
+  }
+
+  const onDeleteSwing = swingId => {
+    updateAlbum({
+      ...album,
+      swingVideos: album.swingVideos.filter( swing => swing.id !== swingId ),
+    })
   }
 
   return (
@@ -320,9 +330,39 @@ const Album = ({
         <div className="p-8 flex flex-wrap">
           { pageVideos.map( (swing, i) => {
             return (
-              <div className="flex flex-col w-1/3 content-center justify-center items-center"
+              <div className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-gray-200"
+                onMouseOver={() => setHoveredSwing(swing.id)}
                 key={i}
               >
+                { (hoveredSwing === swing.id && !deleteSwing) &&
+                  <button className="absolute top-1 right-1 underline text-blue-400 cursor-pointer"
+                    onClick={() => {
+                      setHoveredSwing(undefined)
+                      setDeleteSwing(swing.id)
+                    }}
+                  >
+                    Delete
+                  </button>
+                }
+                { deleteSwing === swing.id &&
+                  <button className="absolute top-1 right-1 underline text-blue-400 cursor-pointer"
+                    onClick={() => {
+                      setDeleteSwing(undefined)
+                    }}
+                  >
+                    Cancel?
+                  </button>
+                }
+                { deleteSwing === swing.id &&
+                  <button className="absolute top-6 right-1 underline text-blue-400 cursor-pointer"
+                    onClick={() => {
+                      setDeleteSwing(undefined)
+                      onDeleteSwing(swing.id)
+                    }}
+                  >
+                    Confirm?
+                  </button>
+                }
                 {/* flex flex-col p-2 m-4 w-1/6 h-1/4 content-center justify-center items-center rounded shadow-md */}
                 <ReactPlayer
                   className="rounded-md overflow-hidden"
@@ -535,6 +575,7 @@ const mapDispatchToProps = (dispatch) => {
     getAlbums: GetAlbums(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     loadAlbum: LoadAlbum(dispatch),
+    updateAlbum: UpdateAlbum(dispatch),
   }
 }
   
@@ -546,6 +587,7 @@ Album.propTypes = {
   getAlbums: PropTypes.func,
   getRecentUploads: PropTypes.func,
   loadAlbum: PropTypes.func,
+  updateAlbum: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Album)

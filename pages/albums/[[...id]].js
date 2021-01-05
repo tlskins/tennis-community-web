@@ -2,7 +2,7 @@ import React, { useEffect, useState, createRef, useRef, Fragment } from "react"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
-import Moment from "moment"
+import Moment from "moment-timezone"
 import Link from "next/link"
 import { useRouter } from "next/router"
 
@@ -10,7 +10,6 @@ import SwingUploader from "../../components/SwingUploader"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { GetAlbums, LoadAlbum, UpdateAlbum } from "../../behavior/coordinators/albums"
 import { setAlbum } from "../../state/album/action"
-import { toggleFlashNotification } from "../../state/ui/action"
 
 const publicVideos = [
   {
@@ -23,7 +22,11 @@ const publicVideos = [
   },
 ]
 
-const videosPerPage = 9
+const swingVieMap = {
+  "video": 9,
+  "gif": 24,
+  "jpg": 24,
+}
 
 let timer
 
@@ -41,6 +44,8 @@ const Album = ({
 
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
+  const [albumView, setAlbumView] = useState("video")
+  const [swingsPerPage, setSwingsPerPage] = useState(9)
 
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(true)
@@ -63,7 +68,7 @@ const Album = ({
   const [sideVideoPlaying, setSideVideoPlaying] = useState(false)
   const [sideVideoPip, setSideVideoPip] = useState(false)
 
-  const pageVideos = swingVideos.slice(albumPage * videosPerPage, (albumPage+1) * videosPerPage)
+  const pageVideos = swingVideos.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
   useEffect(() => {
     if (albumId) {
@@ -137,6 +142,111 @@ const Album = ({
     }, 700)
   }
 
+  const renderVideo = ({ swing, i, ref, playing, pip, duration }) => {
+    return(
+      <Fragment>
+        {/* flex flex-col p-2 m-4 w-1/6 h-1/4 content-center justify-center items-center rounded shadow-md */}
+        <ReactPlayer
+          className="rounded-md overflow-hidden"
+          ref={ref}
+          url={swing.videoURL} 
+          playing={playing}
+          pip={pip}
+          volume={0}
+          muted={true}
+          playbackRate={playbackRate}
+          loop={true}
+          progressInterval={200}
+          onProgress={({ played }) => setPlayerDurations({
+            ...playerDurations,
+            [i]: parseFloat((Math.ceil(played/.05)*.05).toFixed(2)),
+          })}
+          height="226px"
+          width="285px"
+        />
+
+        {/* Controls Panel */}
+        <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
+          <p>
+            { swing.clip }.{ swing.swing }
+          </p>
+
+          {/* Picture in Picture */}
+          { pip &&
+            <input type='button'
+              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+              value='-'
+              tabIndex={(i*3)+1}
+              onClick={() => {
+                const newPips = pips.map((p,j) => j === i ? false : p)
+                setPips(newPips)
+              }}
+            />
+          }
+          { !pip &&
+            <input type='button'
+              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+              value='+'
+              tabIndex={(i*3)+1}
+              onClick={() => {
+                const newPips = pips.map((p,j) => j === i ? true : p)
+                setPips(newPips)
+              }}
+            />
+          }
+
+          {/* Play / Pause */}
+          { playing &&
+            <input type='button'
+              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
+              value='pause'
+              tabIndex={(i*3)+2}
+              onClick={() => {
+                const newPlayings = playings.map((p,j) => j === i ? false : p)
+                setPlayings(newPlayings)
+              }}
+            />
+          }
+          { !playing &&
+            <input type='button'
+              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
+              value='play'
+              tabIndex={(i*3)+2}
+              onClick={() => {
+                const newPlayings = playings.map((p,j) => j === i ? true : p)
+                setPlayings(newPlayings)
+                setPlayerDurations({
+                  ...playerDurations,
+                  [i]: undefined,
+                })
+              }}
+            />
+          }
+          
+          {/* Seek */}
+          <input
+            type='range'
+            tabIndex={(i*3)+3}
+            value={duration}
+            min={0}
+            max={1}
+            step='0.05'
+            onChange={handleSeekChange(ref, i)}
+            onFocus={ e => {
+              console.log("focus!")
+              e.stopPropagation()
+              e.preventDefault()
+            }}
+          />
+
+          <div className="bg-white rounded p-0.5 mx-1 text-xs">
+            <span> { duration ? duration.toFixed(2) : "0.00" }/1.0</span>
+          </div>
+        </div>
+      </Fragment>
+    )
+  }
+
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -146,64 +256,28 @@ const Album = ({
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/4">
-          <div className="flex flex-col content-center justify-center items-center">
-
-            {/* New Album Sidebar */}
-            <div onClick={() => setActiveSidebar("New Album")}>
-              <h2 className="text-blue-400 underline cursor-pointer">
-                New Album
-              </h2>
-              { activeSideBar === "New Album" &&
-                <Fragment>
-                  <SwingUploader />
-                  <h2>
-                    Recent Uploads
-                  </h2>
-                  <div>
-                    { recentUploads?.map( (upload, i) => {
-                      const filePaths = upload.originalURL.split("/")
-                      const fileName = filePaths[filePaths.length-1]
-                      return(
-                        <div key={i}
-                          className="border border-black rounded p-1 m-2"
-                        >
-                          <div>{ upload.uploadKey }</div>
-                          <div>Filename: { fileName } </div>
-                          <div>Created: { Moment(upload.createdAt).format("LLL") }</div>
-                          <div>Status: { upload.status }</div>
-                          { upload.albumId &&
-                            <Link href={`/albums/${upload.albumId}`}>
-                              <div className="underline cursor-pointer text-blue-400">
-                                View Album
-                              </div>
-                            </Link>
-                          }
-                        </div>
-                      )
-                    })}
-                  </div>
-                </Fragment>
-              }
-            </div>
+        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll">
+          <div className="flex flex-col content-center justify-center items-center text-sm">
 
             {/* My Albums Sidebar */}
-            <div 
-              onClick={ async () => {
-                if (activeSideBar === "View Album") {
-                  return
-                }
-                setActiveSidebar("View Album")
-                const albums = await getAlbums()
-                if (albums) {
-                  setMyAlbums(albums)
-                }
-              }}
-            >
-              <h2 className="text-blue-400 underline cursor-pointer">
+            <Fragment className="my-2">
+              <h2 className="text-blue-400 underline cursor-pointer"
+                onClick={ async () => {
+                  if (activeSideBar === "View Album") {
+                    setActiveSidebar(undefined)
+                    return
+                  }
+                  setActiveSidebar("View Album")
+                  const albums = await getAlbums()
+                  if (albums) {
+                    setMyAlbums(albums)
+                  }
+                }}
+              >
                 View Album
               </h2>
-              { activeSideBar === "View Album" &&
+              <div>
+                { activeSideBar === "View Album" &&
                 <Fragment>
                   <div>
                     { myAlbums.map( (album, i) => {
@@ -222,20 +296,30 @@ const Album = ({
                     })}
                   </div>
                 </Fragment>
-              }
-            </div>
+                }
+              </div>
+            </Fragment>
 
             {/* Pro Comparison Sidebar */}
-            <div onClick={() => setActiveSidebar("Pro Comparison")}>
-              <h2 className="text-blue-400 underline cursor-pointer">
+            <Fragment className="my-2">
+              <h2 className="text-blue-400 underline cursor-pointer"
+                onClick={() => {
+                  if (activeSideBar === "Pro Comparison") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("Pro Comparison")
+                  }
+                }}
+              >
                 Pro Comparison
               </h2>
-              { activeSideBar === "Pro Comparison" &&
+              <div>
+                { activeSideBar === "Pro Comparison" &&
                 <Fragment>
                   <select onChange={e => setSideVideo(e.target.value)}>
                     { publicVideos.map((vid, i) => {
                       return(
-                        <option value={vid.url}>{ vid.name }</option>
+                        <option key={i} value={vid.url}>{ vid.name }</option>
                       )
                     })}
                   </select>
@@ -342,8 +426,58 @@ const Album = ({
                     </div>
                   </div>
                 </Fragment>
-              }
-            </div>
+                }
+              </div>
+            </Fragment>
+
+            {/* New Album Sidebar */}
+            <Fragment className="my-2">
+              <h2 className="text-blue-400 underline cursor-pointer self-center"
+                onClick={() => {
+                  if (activeSideBar === "New Album") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("New Album")
+                  }
+                }}
+              >
+              New Album
+              </h2>
+              <div>
+                { activeSideBar === "New Album" &&
+                <Fragment>
+                  <SwingUploader />
+                  <h2>
+                    Recent Uploads
+                  </h2>
+                  <div>
+                    { recentUploads?.map( (upload, i) => {
+                      const filePaths = upload.originalURL.split("/")
+                      const fileName = filePaths[filePaths.length-1]
+                      return(
+                        <div key={i}
+                          className="border border-black rounded p-1 m-2"
+                        >
+                          <div>{ upload.uploadKey }</div>
+                          <div>Filename: { fileName } </div>
+                          <div>Created: { Moment(upload.createdAt).format("LLL") }</div>
+                          <div>Status: { upload.status }</div>
+                          { upload.albumId &&
+                            <Link href={`/albums/${upload.albumId}`}>
+                              <div className="underline cursor-pointer text-blue-400">
+                                View Album
+                              </div>
+                            </Link>
+                          }
+                        </div>
+                      )
+                    })}
+                  </div>
+                </Fragment>
+                }
+              </div>
+            </Fragment>
+
           </div>
         </div>
 
@@ -351,10 +485,18 @@ const Album = ({
 
         {/* Begin Album Videos */}
 
-        <div className="p-8 flex flex-wrap">
+        <div className="p-4 flex flex-wrap w-4/5">
           { pageVideos.map( (swing, i) => {
+            let width
+            if (albumView === "video") {
+              width = "w-1/3"
+            } else if (albumView === "gif") {
+              width = "w-1/6"
+            } else if (albumView === "jpg") {
+              width = "w-1/6"
+            }
             return (
-              <div className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-gray-200"
+              <div className={`flex flex-col relative ${width} content-center justify-center items-center hover:bg-gray-200`}
                 onMouseOver={() => setHoveredSwing(swing.id)}
                 key={i}
               >
@@ -387,104 +529,33 @@ const Album = ({
                     Confirm?
                   </button>
                 }
-                {/* flex flex-col p-2 m-4 w-1/6 h-1/4 content-center justify-center items-center rounded shadow-md */}
-                <ReactPlayer
-                  className="rounded-md overflow-hidden"
-                  ref={playerRefs[i]}
-                  url={swing.videoURL} 
-                  playing={playings[i]}
-                  pip={pips[i]}
-                  volume={0}
-                  muted={true}
-                  playbackRate={playbackRate}
-                  loop={true}
-                  progressInterval={200}
-                  onProgress={({ played }) => setPlayerDurations({
-                    ...playerDurations,
-                    [i]: parseFloat((Math.ceil(played/.05)*.05).toFixed(2)),
-                  })}
-                  height="226px"
-                  width="285px"
-                />
-
-                {/* Controls Panel */}
-                <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-                  <p>
-                    { swing.clip }.{ swing.swing }
-                  </p>
-
-                  {/* Picture in Picture */}
-                  { pips[i] &&
-                    <input type='button'
-                      className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-                      value='-'
-                      tabIndex={(i*3)+1}
-                      onClick={() => {
-                        const newPips = pips.map((p,j) => j === i ? false : p)
-                        setPips(newPips)
-                      }}
+                
+                { albumView === "video" &&
+                  renderVideo({
+                    swing,
+                    i,
+                    ref: playerRefs[i],
+                    playing: playings[i],
+                    pip: pips[i],
+                    duration: playerDurations[i]
+                  }) 
+                }
+                { albumView === "gif" &&
+                  <div>
+                    <img src={swing.gifURL}
+                      alt="loading..."
+                      style={{height: 113, width: 142}}
                     />
-                  }
-                  { !pips[i] &&
-                    <input type='button'
-                      className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-                      value='+'
-                      tabIndex={(i*3)+1}
-                      onClick={() => {
-                        const newPips = pips.map((p,j) => j === i ? true : p)
-                        setPips(newPips)
-                      }}
-                    />
-                  }
-
-                  {/* Play / Pause */}
-                  { playings[i] &&
-                    <input type='button'
-                      className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-                      value='pause'
-                      tabIndex={(i*3)+2}
-                      onClick={() => {
-                        const newPlayings = playings.map((p,j) => j === i ? false : p)
-                        setPlayings(newPlayings)
-                      }}
-                    />
-                  }
-                  { !playings[i] &&
-                    <input type='button'
-                      className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-                      value='play'
-                      tabIndex={(i*3)+2}
-                      onClick={() => {
-                        const newPlayings = playings.map((p,j) => j === i ? true : p)
-                        setPlayings(newPlayings)
-                        setPlayerDurations({
-                          ...playerDurations,
-                          [i]: undefined,
-                        })
-                      }}
-                    />
-                  }
-                  
-                  {/* Seek */}
-                  <input
-                    type='range'
-                    tabIndex={(i*3)+3}
-                    value={playerDurations[i]}
-                    min={0}
-                    max={1}
-                    step='0.05'
-                    onChange={handleSeekChange(playerRefs[i], i)}
-                    onFocus={ e => {
-                      console.log("focus!")
-                      e.stopPropagation()
-                      e.preventDefault()
-                    }}
-                  />
-
-                  <div className="bg-white rounded p-0.5 mx-1 text-xs">
-                    <span> { playerDurations[i] ? playerDurations[i].toFixed(2) : "0.00" }/1.0</span>
                   </div>
-                </div>
+                }
+                { albumView === "jpg" &&
+                  <div>
+                    <img src={swing.jpgURL}
+                      alt="loading..."
+                      style={{height: 99, width: 126}}
+                    />
+                  </div>
+                }
               </div>
             )
           })}
@@ -497,11 +568,24 @@ const Album = ({
         <div className="p-4 w-full flex flex-row content-center justify-center items-center">
           { album &&
             <div className="flex flex-col mr-4">
-              Album ({ album.swingVideos.length })
+              <select
+                className="my-1"
+                onChange={e => {
+                  setAlbumView(e.target.value)
+                  setSwingsPerPage(swingVieMap[e.target.value])
+                }}
+              >
+                { ["video", "gif", "jpg"].map((view, i) => {
+                  return(
+                    <option key={i} value={view}>{ view }</option>
+                  )
+                })}
+              </select>
               <input type="text"
                 value={album.name}
                 onChange={onUpdateAlbumName}
               />
+              ({ album.swingVideos.length })
             </div>
           }
 
@@ -574,7 +658,7 @@ const Album = ({
                   &lt;
                 </button>
               }
-              { (albumPage < (swingVideos.length / videosPerPage)-1) &&
+              { (albumPage < (swingVideos.length / swingsPerPage)-1) &&
                 <button
                   onClick={() => setAlbumPage(albumPage+1)}
                   className="border border-black rounder p-0.5 mx-1"

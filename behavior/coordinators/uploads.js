@@ -1,6 +1,7 @@
 import { post, get } from "../api/rest"
 import { setRecentUploads } from "../../state/upload/action"
 import { HandleError } from "./errors"
+import { toggleFlashNotification } from "../../state/ui/action"
 
 import AWS from "aws-sdk"
 import Moment from "moment"
@@ -14,7 +15,7 @@ const s3 = new AWS.S3({
 export const UploadVideo = (dispatch) => async ({ userId, file, fileName }) => {
   console.log("uploading", userId, file, fileName)
   try {
-    const uploadId = Moment().format("YYYY_MM_DD_hh_mm_ss")
+    const uploadId = Moment().format("YYYY_MMMDD_hhmm_ss_a")
     const params = {
       Bucket: process.env.NEXT_PUBLIC_SWINGS_BUCKET,
       Key: `originals/${userId}/${uploadId}/${fileName}`,
@@ -29,6 +30,12 @@ export const UploadVideo = (dispatch) => async ({ userId, file, fileName }) => {
       }
       const response = await post("/uploads", { originalURL: data.Location })
       console.log("create_swing_upload response", response )
+
+      dispatch(toggleFlashNotification({
+        on: true,
+        alertType: "success",
+        message: `Upload ${uploadId} successfull! Starting processing now...`,
+      }))
     })
   }
   catch( err ) {

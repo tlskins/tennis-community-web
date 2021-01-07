@@ -6,7 +6,6 @@ import {useStore} from "react-redux"
 
 import FlashNotification from "../components/FlashNotification"
 
-
 function WrappedApp({ Component, pageProps }) {
   const store = useStore()
   return (

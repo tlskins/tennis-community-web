@@ -260,7 +260,7 @@ const Album = ({
           <div className="flex flex-col content-center justify-center items-center text-sm">
 
             {/* My Albums Sidebar */}
-            <Fragment className="my-2">
+            <Fragment>
               <h2 className="text-blue-400 underline cursor-pointer"
                 onClick={ async () => {
                   if (activeSideBar === "View Album") {
@@ -276,7 +276,7 @@ const Album = ({
               >
                 View Album
               </h2>
-              <div>
+              <div className="mb-2">
                 { activeSideBar === "View Album" &&
                 <Fragment>
                   <div>
@@ -301,7 +301,7 @@ const Album = ({
             </Fragment>
 
             {/* Pro Comparison Sidebar */}
-            <Fragment className="my-2">
+            <Fragment>
               <h2 className="text-blue-400 underline cursor-pointer"
                 onClick={() => {
                   if (activeSideBar === "Pro Comparison") {
@@ -313,7 +313,7 @@ const Album = ({
               >
                 Pro Comparison
               </h2>
-              <div>
+              <div className="mb-2">
                 { activeSideBar === "Pro Comparison" &&
                 <Fragment>
                   <select onChange={e => setSideVideo(e.target.value)}>
@@ -431,7 +431,7 @@ const Album = ({
             </Fragment>
 
             {/* New Album Sidebar */}
-            <Fragment className="my-2">
+            <Fragment>
               <h2 className="text-blue-400 underline cursor-pointer self-center"
                 onClick={() => {
                   if (activeSideBar === "New Album") {
@@ -443,7 +443,7 @@ const Album = ({
               >
               New Album
               </h2>
-              <div>
+              <div className="mb-2">
                 { activeSideBar === "New Album" &&
                 <Fragment>
                   <SwingUploader />
@@ -454,9 +454,15 @@ const Album = ({
                     { recentUploads?.map( (upload, i) => {
                       const filePaths = upload.originalURL.split("/")
                       const fileName = filePaths[filePaths.length-1]
+                      let bgColor
+                      if (upload.status === "Finished") {
+                        bgColor = "bg-green-300"
+                      } else {
+                        bgColor = "bg-yellow-200"
+                      }
                       return(
                         <div key={i}
-                          className="border border-black rounded p-1 m-2"
+                          className={`border border-black rounded p-1 m-2 ${bgColor}`}
                         >
                           <div>{ upload.uploadKey }</div>
                           <div>Filename: { fileName } </div>
@@ -568,24 +574,28 @@ const Album = ({
         <div className="p-4 w-full flex flex-row content-center justify-center items-center">
           { album &&
             <div className="flex flex-col mr-4">
-              <select
-                className="my-1"
-                onChange={e => {
-                  setAlbumView(e.target.value)
-                  setSwingsPerPage(swingVieMap[e.target.value])
-                }}
-              >
-                { ["video", "gif", "jpg"].map((view, i) => {
-                  return(
-                    <option key={i} value={view}>{ view }</option>
-                  )
-                })}
-              </select>
               <input type="text"
                 value={album.name}
                 onChange={onUpdateAlbumName}
               />
-              ({ album.swingVideos.length })
+              <div className="flex flex-row">
+                <select
+                  className="my-1 mr-1"
+                  onChange={e => {
+                    setAlbumView(e.target.value)
+                    setSwingsPerPage(swingVieMap[e.target.value])
+                  }}
+                >
+                  { ["video", "gif", "jpg"].map((view, i) => {
+                    return(
+                      <option key={i} value={view}>{ view }</option>
+                    )
+                  })}
+                </select>
+                <p>
+                  ({ album.swingVideos.length })
+                </p>
+              </div>
             </div>
           }
 

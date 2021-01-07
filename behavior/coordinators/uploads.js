@@ -12,10 +12,10 @@ const s3 = new AWS.S3({
 })
   
 
-export const UploadVideo = (dispatch) => async ({ userId, file, fileName }) => {
+export const UploadVideo = (dispatch, callback = () => {}) => async ({ userId, file, fileName }) => {
   console.log("uploading", userId, file, fileName)
   try {
-    const uploadId = Moment().format("YYYY_MMMDD_hhmm_ss_a")
+    const uploadId = Moment().format("MMMDD_hhmm_ss_a_YYYY")
     const params = {
       Bucket: process.env.NEXT_PUBLIC_SWINGS_BUCKET,
       Key: `originals/${userId}/${uploadId}/${fileName}`,
@@ -34,15 +34,17 @@ export const UploadVideo = (dispatch) => async ({ userId, file, fileName }) => {
       dispatch(toggleFlashNotification({
         on: true,
         alertType: "success",
-        message: `Upload ${uploadId} successfull! Starting processing now...`,
+        message: `Processing new upload: ${uploadId}`,
       }))
+
+      if (callback) {
+        callback(response)
+      }
     })
   }
   catch( err ) {
     HandleError(dispatch, err)
-    return false
   }
-  return true
 }
 
 

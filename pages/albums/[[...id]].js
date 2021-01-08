@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 
 import SwingUploader from "../../components/SwingUploader"
+import Notifications from "../../components/Notifications"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { GetAlbums, LoadAlbum, UpdateAlbum } from "../../behavior/coordinators/albums"
 import { setAlbum } from "../../state/album/action"
@@ -251,6 +252,7 @@ const Album = ({
   return (
     <div className="flex flex-col h-screen min-h-screen">
       {/* <header>{title}</header> */}
+      <Notifications />
 
       <main className="flex flex-1 overflow-y-auto">
 
@@ -441,7 +443,7 @@ const Album = ({
                   }
                 }}
               >
-              New Album
+                New Album
               </h2>
               <div className="mb-2">
                 { activeSideBar === "New Album" &&

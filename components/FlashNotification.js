@@ -19,6 +19,8 @@ const FlashNotif = (props) => {
     alertClass = "bg-indigo-200"
   }
 
+  console.log("callback", callback)
+
   return (
     <div id="notif_container"
       onClick={ clearNotif }
@@ -33,7 +35,7 @@ const FlashNotif = (props) => {
             className="bg-white text-xl py-1 px-4 rounded border border-solid mt-2 border-hGray cursor-pointer shadow text-hGray focus:outline-none"
             aria-label="notification_ok"
           >
-          OK
+            OK
           </button>
         }
       </div>

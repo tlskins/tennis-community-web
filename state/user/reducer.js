@@ -9,7 +9,7 @@ export function userReducer(
 ) {
   switch (action.type) {
   case SET_USER: {
-    const { payload } = action  
+    const { payload } = action
     return payload
   }
   default:

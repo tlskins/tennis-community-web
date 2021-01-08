@@ -6,10 +6,8 @@ import Moment from "moment"
 import { GetRecentUploads, UploadVideo } from "../behavior/coordinators/uploads"
 
 let uploading = false
-let refreshUploadsTimer
-let lastUpload
 
-const SwingUploader = ({ uploadVideo, getRecentUploads, user }) => {
+const SwingUploader = ({ uploadVideo, user }) => {
   const [selectedVideo, setSelectedVideo] = useState(undefined)
   const [isUploading, setIsUploading] = useState(false)
 
@@ -27,16 +25,7 @@ const SwingUploader = ({ uploadVideo, getRecentUploads, user }) => {
     })
     uploading = false
     setIsUploading(false)
-
-    // console.log("refreshUploadsTimer", refreshUploadsTimer)
-    // lastUpload = Moment()
-    // refreshUploadsTimer = setInterval(async () => {
-    //   console.log("refreshing... ", lastUpload)
-    //   await getRecentUploads()
-    //   if (Moment().isAfter(lastUpload.add(12, "minutes"))) {
-    //     refreshUploadsTimer = undefined
-    //   }
-    // }, 60000)
+    setSelectedVideo(undefined)
   }
 
   const onFileChange = e => {
@@ -50,18 +39,18 @@ const SwingUploader = ({ uploadVideo, getRecentUploads, user }) => {
           onChange={onFileChange}
         />
         { selectedVideo &&
-            <Fragment>
-              <button className="border-black border rounded m-2 p-1"
-                onClick={onUploadVideo}
-              >
-                { uploading ? "Uploading..." : "Upload" }
-              </button>
-              <div>
-                <p className="p-2">
+          <Fragment>
+            <button className="border-black border rounded m-2 p-1"
+              onClick={onUploadVideo}
+            >
+              { uploading ? "Uploading..." : "Upload" }
+            </button>
+            <div>
+              <p className="p-2">
                 Video Type: { selectedVideo.type }
-                </p>
-              </div>
-            </Fragment>
+              </p>
+            </div>
+          </Fragment>
         }
       </div>
     </div>

@@ -19,8 +19,6 @@ const FlashNotif = (props) => {
     alertClass = "bg-indigo-200"
   }
 
-  console.log("callback", callback)
-
   return (
     <div id="notif_container"
       onClick={ clearNotif }

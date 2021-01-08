@@ -40,10 +40,7 @@ const Index = ({ createUser, signIn, signOut, user }) => {
   }
 
   const onSignIn = async () => {
-    const success = await signIn({
-      email,
-      password,
-    })
+    const success = await signIn({ email, password })
     if (success) {
       clearForm()
       router.push("/albums")
@@ -53,14 +50,6 @@ const Index = ({ createUser, signIn, signOut, user }) => {
   return (
     <div className="flex flex-col h-screen min-h-screen">
       <main className="flex flex-1 overflow-y-auto">
-        { user &&
-          <div className="p-8">
-            <Link href="/upload">
-              <a>Upload</a>
-            </Link>
-          </div>
-        }
-
         { user &&
           <div className="p-8">
             <button onClick={signOut}>

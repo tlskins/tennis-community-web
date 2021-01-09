@@ -240,10 +240,11 @@ const Friends = ({
                         { cache ? cache.userName : "..." } ({ cache ? `${cache.firstName} ${cache.lastName}` : "..." })
                       </span>
                     </div>
+                    
                     { activeFriendReq === friendId &&
                         <div className="flex flex-row">
                           <button className="rounded mx-1 p-2 underline bg-red-400 cursor-pointer"
-                            onClick={onUnfriend( friendId, cache.userName)}
+                            onClick={onUnfriend( friendId, cache?.userName)}
                           >
                             Unfriend
                           </button>

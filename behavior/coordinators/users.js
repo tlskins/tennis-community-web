@@ -40,9 +40,9 @@ export const LoadUser = (dispatch) => async () => {
   return true
 }
 
-export const ClearNotifications = (dispatch) => async ({ uploads }) => {
+export const ClearNotifications = (dispatch) => async ({ uploads, friends }) => {
   try {
-    const response = await put("/users/clear_notifications", { uploads })
+    const response = await put("/users/clear_notifications", { uploads, friends })
     dispatch(setUser(response.data))
   }
   catch( err ) {

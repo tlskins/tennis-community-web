@@ -1,11 +1,9 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
-import Link from "next/link"
 import { useRouter } from "next/router"
 
 import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
-import { setUser } from "../state/user/action"
 import { toggleFlashNotification } from "../state/ui/action"
 
 

@@ -5,21 +5,25 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 
 import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
+import { setUser } from "../state/user/action"
+import { toggleFlashNotification } from "../state/ui/action"
 
 
-const Index = ({ createUser, signIn, signOut, user }) => {
+const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
   const router = useRouter()
   const [isNewUser, setIsNewUser] = useState(true)
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [userName, setUserName] = useState("")
 
   const clearForm = () => {
     setFirstName("")
     setLastName("")
     setEmail("")
     setPassword("")
+    setUserName("")
   }
 
   const onToggleForm = () => {
@@ -33,9 +37,11 @@ const Index = ({ createUser, signIn, signOut, user }) => {
       lastName,
       email,
       password,
+      userName,
     })
     if (success) {
       clearForm()
+      displayAlert({ alertType: "success", message: `Confirmation email sent to ${email}`})
     }
   }
 
@@ -66,6 +72,12 @@ const Index = ({ createUser, signIn, signOut, user }) => {
               </h2>
               <input type="text"
                 className="border m-1 p-1 rounded"
+                placeholder="user name"
+                value={userName}
+                onChange={e => setUserName(e.target.value)}
+              />
+              <input type="text"
+                className="border m-1 p-1 rounded"
                 placeholder="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -92,7 +104,7 @@ const Index = ({ createUser, signIn, signOut, user }) => {
                 value="Submit"
                 onClick={onCreateUser}
               />
-              <a className="cursor-pointer"
+              <a className="cursor-pointer underline text-blue-300"
                 onClick={onToggleForm}
               >
                 Sign In
@@ -121,7 +133,7 @@ const Index = ({ createUser, signIn, signOut, user }) => {
                 value="Submit"
                 onClick={onSignIn}
               />
-              <a className="cursor-pointer"
+              <a className="cursor-pointer underline text-blue-300"
                 onClick={onToggleForm}
               >
                 New User
@@ -136,7 +148,6 @@ const Index = ({ createUser, signIn, signOut, user }) => {
 }
 
 const mapStateToProps = (state) => {
-  console.log("mapstate", state)
   return {
     user: state.user,
   }
@@ -147,6 +158,11 @@ const mapDispatchToProps = (dispatch) => {
     createUser: CreateUser(dispatch),
     signIn: SignIn(dispatch),
     signOut: SignOut(dispatch),
+    displayAlert: ({ alertType, message }) => dispatch(toggleFlashNotification({
+      on: true,
+      alertType,
+      message,
+    }))
   }
 }
 
@@ -154,6 +170,7 @@ Index.propTypes = {
   user: PropTypes.object,
 
   createUser: PropTypes.func,
+  displayAlert: PropTypes.func,
   signIn: PropTypes.func,
   signOut: PropTypes.func,
 }

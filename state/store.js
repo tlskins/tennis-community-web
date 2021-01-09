@@ -3,7 +3,7 @@ import { HYDRATE, createWrapper } from "next-redux-wrapper"
 import thunkMiddleware from "redux-thunk"
 
 import { flashNotificationReducer } from "./ui/reducer"
-import { userReducer } from "./user/reducer"
+import { userReducer, usersCacheReducer } from "./user/reducer"
 import { recentUploadsReducer } from "./upload/reducer"
 import { albumReducer } from "./album/reducer"
 
@@ -19,6 +19,7 @@ const bindMiddleware = (middleware) => {
 const combinedReducer = combineReducers({
   flashNotification: flashNotificationReducer,
   user: userReducer,
+  usersCache: usersCacheReducer,
   recentUploads: recentUploadsReducer,
   album: albumReducer,
 })

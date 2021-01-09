@@ -3,9 +3,9 @@ import { setUser } from "../../state/user/action"
 import { logOut } from "../../state/store"
 import { HandleError } from "./errors"
 
-export const CreateUser = (dispatch) => async ({ firstName, lastName, email, password }) => {
+export const CreateUser = (dispatch) => async ({ firstName, lastName, email, password, userName }) => {
   try {
-    await post("/users", { firstName, lastName, email, password })
+    await post("/users", { firstName, lastName, email, password, userName })
   }
   catch( err ) {
     HandleError(dispatch, err)

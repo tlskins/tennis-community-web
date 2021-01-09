@@ -1,5 +1,5 @@
-import { post, put } from "../api/rest"
-import { setUser } from "../../state/user/action"
+import { post, put, del } from "../api/rest"
+import { setUser, cacheUsers } from "../../state/user/action"
 import { HandleError } from "./errors"
 
 export const SearchFriends = (dispatch) => async ({ search, ids, limit, offset }) => {
@@ -18,6 +18,11 @@ export const SearchFriends = (dispatch) => async ({ search, ids, limit, offset }
       params.offset = offset
     }
     const resp = await put("/users/friends/search", params)
+
+    if (resp.data?.length > 0) {
+      dispatch(cacheUsers(resp.data))
+    }
+
     return resp.data
   }
   catch( err ) {
@@ -26,9 +31,10 @@ export const SearchFriends = (dispatch) => async ({ search, ids, limit, offset }
   }
 }
 
-export const SendFriendRequest = (dispatch) => async ({ friendId }) => {
+export const SendFriendRequest = (dispatch) => async ({ id }) => {
   try {
-    await post(`/users/friends/${friendId}`)
+    await post(`/users/friends/${id}`) 
+
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -37,9 +43,9 @@ export const SendFriendRequest = (dispatch) => async ({ friendId }) => {
   return true
 }
 
-export const AcceptFriendRequest = (dispatch) => async ({ requestId }) => {
+export const AcceptFriendRequest = (dispatch) => async ({ requestId, accept }) => {
   try {
-    const resp = await post(`/users/friends/requests/${requestId}`)
+    const resp = await post(`/users/friends/requests/${requestId}`, { accept })
     dispatch(setUser(resp.data))
   }
   catch( err ) {
@@ -50,8 +56,9 @@ export const AcceptFriendRequest = (dispatch) => async ({ requestId }) => {
 }
 
 export const Unfriend = (dispatch) => async ({ friendId }) => {
+  console.log("unfriend coord")
   try {
-    await delete(`users/friends/${friendId}`)
+    await del(`/users/friends/${friendId}`)
   }
   catch( err ) {
     HandleError(dispatch, err)

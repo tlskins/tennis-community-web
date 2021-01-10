@@ -4,25 +4,23 @@ import PropTypes from "prop-types"
 import Moment from "moment-timezone"
 
 import Notifications from "../../components/Notifications"
-import {
-  SearchFriends,
-  SendFriendRequest,
-  AcceptFriendRequest,
-  Unfriend,
-} from "../../behavior/coordinators/friends"
-import { LoadUser } from "../../behavior/coordinators/users"
-import { LoadAlbums } from "../../behavior/coordinators/albums"
+import { LoadAlbums, CreateAlbum } from "../../behavior/coordinators/albums"
+import { SearchFriends } from "../../behavior/coordinators/friends"
 import { toggleFlashNotification } from "../../state/ui/action"
 import SwingUploader from "../../components/SwingUploader"
 
-let timer
 const AlbumsPerPage = 3
 const SwingsPerPage = 6
 
 const NewAlbum = ({
+  user,
+  usersCache,
   albums,
   
+  createAlbum,
+  displayAlert,
   loadAlbums,
+  searchFriends,
 }) => {
   const [uploadType, setUploadType] = useState("File")
   const [albumsPage, setAlbumsPage] = useState(0)
@@ -32,23 +30,37 @@ const NewAlbum = ({
   const [albumView, setAlbumView] = useState("gif")
   const [selectedSwings, setSelectedSwings] = useState([])
   const [newAlbumName, setNewAlbumName] = useState("")
+  const [isPublic, setIsPublic] = useState(false)
+  const [isViewableByFriends, setIsViewableByFriends] = useState(false)
+  const [friendIds, setFriendIds] = useState([])
+  const [friendSearch, setFriendSearch] = useState("")
 
   const activeAlbums = albums.slice(albumsPage * AlbumsPerPage, (albumsPage+1) * AlbumsPerPage)
   const activeSwings = activeAlbum?.swingVideos.slice(albumPage * SwingsPerPage, (albumPage+1) * SwingsPerPage) || []
+  const searchRgx = new RegExp(friendSearch, "gi")
+  const searchedFriendIds = user.friendIds.filter( friendId => {
+    const friend = usersCache[friendId]
+    if (!friend || friendIds.includes(friendId)) {
+      return false
+    }
+    if (friendSearch === "") {
+      return true
+    }
+    return searchRgx.test(friend.userName) || searchRgx.test(friend.firstName) || searchRgx.test(friend.lastName)
+  })
 
   useEffect(() => {
     loadAlbums()
   }, [])
 
-  const executeAfterTimeout = (func, timeout) => {
-    if ( timer ) {
-      clearTimeout( timer )
+  useEffect(() => {
+    if (user.friendRequests.length > 0) {
+      const ids = user.friendIds.filter( id => !usersCache[id])
+      if (ids.length > 0) {
+        searchFriends({ ids: [ ...ids, ...user.friendIds] })
+      }
     }
-    timer = undefined
-    timer = setTimeout(() => {
-      func()
-    }, timeout )
-  }
+  }, [user.friendIds])
 
   const onSelectAlbum = album => () => {
     setAlbumPage(0)
@@ -72,7 +84,37 @@ const NewAlbum = ({
     setSelectedSwings([...selectedSwings.slice(0,swingIdx), ...selectedSwings.slice(swingIdx+1,selectedSwings.length)])
   }
 
-  console.log("selectedSwings", selectedSwings)
+  const onSaveAlbum = async () => {
+    if ( await createAlbum({
+      name: newAlbumName,
+      status: "Created",
+      swingVideos: selectedSwings,
+      isPublic,
+      isViewableByFriends,
+      friendIds,
+    })) {
+      displayAlert({
+        alertType: "success",
+        message: `Album ${newAlbumName} Successfully Created`,
+      })
+      clearForm()
+    }
+  }
+
+  const clearForm = () => {
+    setUploadType("File")
+    setAlbumsPage(0)
+    setAlbumPage(0)
+    setActiveSelectedSwing(0)
+    setActiveAlbum(undefined)
+    setAlbumView("gif")
+    setSelectedSwings([])
+    setNewAlbumName("")
+    setIsPublic(false)
+    setIsViewableByFriends(false)
+    setFriendIds([])
+    setFriendSearch("")
+  }
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -168,31 +210,101 @@ const NewAlbum = ({
               {/* Begin Selected Swings Row */}
 
               { selectedSwings.length > 0 &&
-                <Fragment>
-                  <div className="flex flex-row w-full">
-                    { activeSelectedSwing > 0 &&
-                    <button onClick={() => setActiveSelectedSwing(activeSelectedSwing-1)}>&lt;</button>
-                    }
-                    { <div className="w-1/5 mx-4 p-2 rounded hover:bg-red-200 cursor-pointer bg-green-300"
-                      onClick={onUnselectSwing(activeSelectedSwing)}
-                    >
-                      <p>{ activeSelectedSwing+1 }/{ selectedSwings.length }</p>
-                      <img src={selectedSwings[activeSelectedSwing].gifURL}
-                        alt="loading..."
-                        style={{height: 226, width: 285}}
+                <div className="flex flex-row content-center justify-center items-center p-2">
+                  <div className="flex flex-col mr-4 p-2">
+                    <p className="mb-2">Share with</p>
+
+                    <div className="flex flex-row">
+                      <input id="public"
+                        className="mr-2"
+                        type="checkbox"
+                        value={isPublic}
+                        onChange={e => setIsPublic(e.target.checked)}
                       />
+                      <label htmlFor="public"> Public</label><br></br>
                     </div>
-                    }
-                    { selectedSwings.length-1 > activeSelectedSwing &&
-                    <button onClick={() => setActiveSelectedSwing(activeSelectedSwing+1)}>&gt;</button>
-                    }
+
+                    <div className="flex flex-row">
+                      <input id="public"
+                        className="mr-2"
+                        type="checkbox"
+                        value={isViewableByFriends}
+                        onChange={e => setIsViewableByFriends(e.target.checked)}
+                      />
+                      <label htmlFor="public"> All Friends</label><br></br>
+                    </div>
+
+                    <div className="flex flex-col">
+                      <label> Specific Friends</label>
+                      <div>
+                        { friendIds.map( (friendId, i) => {
+                          const friend = usersCache[friendId]
+                          return(
+                            <div key={friendId}
+                              className="rounded border border-black p-1 bg-green-200 cursor-pointer hover:bg-red-200 my-1"
+                              onClick={() => setFriendIds([...friendIds.slice(0,i), ...friendIds.slice(i+1,friendIds.length)])}
+                            >
+                              <p>{ friend?.userName } ({ friend?.firstName })</p>
+                            </div>
+                          )
+                        })}
+                      </div>
+
+                      <input type="text"
+                        className="rounded border border-black p-1 my-2"
+                        placeholder="search"
+                        value={friendSearch}
+                        onChange={e => setFriendSearch(e.target.value)}
+                      />
+                      <div>
+                        { searchedFriendIds.map( friendId => {
+                          const friend = usersCache[friendId]
+                          return(
+                            <div key={friendId}
+                              className="rounded border border-black p-1 bg-blue-200 cursor-pointer hover:bg-green-200 my-1"
+                              onClick={() => setFriendIds([...friendIds, friendId])}
+                            >
+                              <p>{ friend?.userName } ({ friend?.firstName })</p>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
                   </div>
-                  <input type="text"
-                    placeholder="Name"
-                    value={newAlbumName}
-                    onChange={e => setNewAlbumName(e.target.value)}
-                  />
-                </Fragment>
+
+                  <div className="flex flex-col content-center justify-center items-center mx-1 p-2">
+                    <input type="text"
+                      placeholder="Name"
+                      value={newAlbumName}
+                      onChange={e => setNewAlbumName(e.target.value)}
+                    />
+                  
+                    <div className="flex flex-row my-1">
+                      { activeSelectedSwing > 0 &&
+                        <button onClick={() => setActiveSelectedSwing(activeSelectedSwing-1)}>&lt;</button>
+                      }
+                      <div className="mx-4 p-2 rounded hover:bg-red-200 cursor-pointer"
+                        onClick={onUnselectSwing(activeSelectedSwing)}
+                      >
+                        <p>{ activeSelectedSwing+1 }/{ selectedSwings.length }</p>
+                        <img src={selectedSwings[activeSelectedSwing].gifURL}
+                          alt="loading..."
+                          style={{height: 226, width: 285}}
+                        />
+                      </div>
+                      { selectedSwings.length-1 > activeSelectedSwing &&
+                        <button onClick={() => setActiveSelectedSwing(activeSelectedSwing+1)}>&gt;</button>
+                      }
+                    </div>
+
+                    <button className="rounded border border-black p-1 my-1 w-12 bg-green-300"
+                      onClick={onSaveAlbum}
+                      value="Save"
+                    >
+                        Save
+                    </button>
+                  </div>
+                </div>
               }
             </div>
         }
@@ -214,8 +326,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    createAlbum: CreateAlbum(dispatch),
     loadAlbums: LoadAlbums(dispatch),
-    loadUser: LoadUser(dispatch),
+    searchFriends: SearchFriends(dispatch),
     displayAlert: ({ alertType, message }) => dispatch(toggleFlashNotification({
       on: true,
       alertType,
@@ -229,13 +342,10 @@ NewAlbum.propTypes = {
   albums: PropTypes.arrayOf(PropTypes.object),
   usersCache: PropTypes.object,
 
-  acceptFriendRequest: PropTypes.func,
-  loadUser: PropTypes.func,
+  createAlbum: PropTypes.func,
   loadAlbums: PropTypes.func,
-  displayAlert: PropTypes.func,
   searchFriends: PropTypes.func,
-  sendFriendRequest: PropTypes.func,
-  unfriend: PropTypes.func,
+  displayAlert: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewAlbum)

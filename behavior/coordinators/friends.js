@@ -56,7 +56,6 @@ export const AcceptFriendRequest = (dispatch) => async ({ requestId, accept }) =
 }
 
 export const Unfriend = (dispatch) => async ({ friendId }) => {
-  console.log("unfriend coord")
   try {
     await del(`/users/friends/${friendId}`)
   }

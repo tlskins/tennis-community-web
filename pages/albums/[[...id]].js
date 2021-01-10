@@ -9,7 +9,7 @@ import { useRouter } from "next/router"
 import SwingUploader from "../../components/SwingUploader"
 import Notifications from "../../components/Notifications"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
-import { GetAlbums, LoadAlbum, UpdateAlbum } from "../../behavior/coordinators/albums"
+import { LoadAlbums, LoadAlbum, UpdateAlbum } from "../../behavior/coordinators/albums"
 import { setAlbum } from "../../state/album/action"
 
 const publicVideos = [
@@ -696,7 +696,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    getAlbums: GetAlbums(dispatch),
+    getAlbums: LoadAlbums(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     loadAlbum: LoadAlbum(dispatch),
     updateAlbum: UpdateAlbum(dispatch),

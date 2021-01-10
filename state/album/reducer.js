@@ -1,14 +1,29 @@
-import { SET_ALBUM } from "./action"
+import { SET_ALBUM, SET_ALBUMS } from "./action"
 
-const albumnInitialState = null
-  
+const albumInitialState = null
+const albumsInitialState = []
+
 
 export function albumReducer(
-  state = albumnInitialState,
+  state = albumInitialState,
   action
 ) {
   switch (action.type) {
   case SET_ALBUM: {
+    const { payload } = action  
+    return payload
+  }
+  default:
+    return state
+  }
+}
+  
+export function albumsReducer(
+  state = albumsInitialState,
+  action
+) {
+  switch (action.type) {
+  case SET_ALBUMS: {
     const { payload } = action  
     return payload
   }

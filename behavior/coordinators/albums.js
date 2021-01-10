@@ -2,11 +2,13 @@ import { get, put } from "../api/rest"
 import { setAlbum } from "../../state/album/action"
 import { HandleError } from "./errors"
 import { toggleFlashNotification } from "../../state/ui/action"
+import { setAlbums } from "../../state/album/action"
 
 
-export const GetAlbums = (dispatch) => async () => {
+export const LoadAlbums = (dispatch) => async () => {
   try {
     const response = await get("/albums")
+    dispatch(setAlbums(response.data))
     return response.data
   }
   catch( err ) {

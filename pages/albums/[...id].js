@@ -2,11 +2,8 @@ import React, { useEffect, useState, createRef, useRef, Fragment } from "react"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
-import Moment from "moment-timezone"
-import Link from "next/link"
 import { useRouter } from "next/router"
 
-import SwingUploader from "../../components/SwingUploader"
 import Notifications from "../../components/Notifications"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { LoadAlbums, LoadAlbum, UpdateAlbum } from "../../behavior/coordinators/albums"
@@ -35,7 +32,6 @@ const Album = ({
   album,
   recentUploads,
   getRecentUploads,
-  getAlbums,
   loadAlbum,
   updateAlbum,
   updateAlbumRedux,
@@ -57,7 +53,6 @@ const Album = ({
 
   const [activeSideBar, setActiveSidebar] = useState("New Album")
 
-  const [myAlbums, setMyAlbums] = useState([])
   const [albumPage, setAlbumPage] = useState(0)
   const [hoveredSwing, setHoveredSwing] = useState(undefined)
   const [deleteSwing, setDeleteSwing] = useState(undefined)
@@ -261,47 +256,6 @@ const Album = ({
         <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll">
           <div className="flex flex-col content-center justify-center items-center text-sm">
 
-            {/* My Albums Sidebar */}
-            <Fragment>
-              <h2 className="text-blue-400 underline cursor-pointer"
-                onClick={ async () => {
-                  if (activeSideBar === "View Album") {
-                    setActiveSidebar(undefined)
-                    return
-                  }
-                  setActiveSidebar("View Album")
-                  const albums = await getAlbums()
-                  if (albums) {
-                    setMyAlbums(albums)
-                  }
-                }}
-              >
-                View Album
-              </h2>
-              <div className="mb-2">
-                { activeSideBar === "View Album" &&
-                <Fragment>
-                  <div>
-                    { myAlbums.map( (album, i) => {
-                      return(
-                        <Link key={i}
-                          href={`/albums/${album.id}`}
-                        >
-                          <div className="border border-black rounded p-1 m-2 hover:bg-gray-200 cursor-pointer">
-                            <div>{ album.name }</div>
-                            <div>Status: { album.status }</div>
-                            <div>Videos: { album.swingVideos.length } </div>
-                            <div>Created: { Moment(album.createdAt).format("LLL") }</div>
-                          </div>
-                        </Link>
-                      )
-                    })}
-                  </div>
-                </Fragment>
-                }
-              </div>
-            </Fragment>
-
             {/* Pro Comparison Sidebar */}
             <Fragment>
               <h2 className="text-blue-400 underline cursor-pointer"
@@ -431,61 +385,6 @@ const Album = ({
                 }
               </div>
             </Fragment>
-
-            {/* New Album Sidebar */}
-            <Fragment>
-              <h2 className="text-blue-400 underline cursor-pointer self-center"
-                onClick={() => {
-                  if (activeSideBar === "New Album") {
-                    setActiveSidebar(undefined)
-                  } else {
-                    setActiveSidebar("New Album")
-                  }
-                }}
-              >
-                New Album
-              </h2>
-              <div className="mb-2">
-                { activeSideBar === "New Album" &&
-                <Fragment>
-                  <SwingUploader />
-                  <h2>
-                    Recent Uploads
-                  </h2>
-                  <div>
-                    { recentUploads?.map( (upload, i) => {
-                      const filePaths = upload.originalURL.split("/")
-                      const fileName = filePaths[filePaths.length-1]
-                      let bgColor
-                      if (upload.status === "Finished") {
-                        bgColor = "bg-green-300"
-                      } else {
-                        bgColor = "bg-yellow-200"
-                      }
-                      return(
-                        <div key={i}
-                          className={`border border-black rounded p-1 m-2 ${bgColor}`}
-                        >
-                          <div>{ upload.uploadKey }</div>
-                          <div>Filename: { fileName } </div>
-                          <div>Created: { Moment(upload.createdAt).format("LLL") }</div>
-                          <div>Status: { upload.status }</div>
-                          { upload.albumId &&
-                            <Link href={`/albums/${upload.albumId}`}>
-                              <div className="underline cursor-pointer text-blue-400">
-                                View Album
-                              </div>
-                            </Link>
-                          }
-                        </div>
-                      )
-                    })}
-                  </div>
-                </Fragment>
-                }
-              </div>
-            </Fragment>
-
           </div>
         </div>
 

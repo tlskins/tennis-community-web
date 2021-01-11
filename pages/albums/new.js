@@ -35,7 +35,7 @@ const NewAlbum = ({
   const [friendIds, setFriendIds] = useState([])
   const [friendSearch, setFriendSearch] = useState("")
 
-  const activeAlbums = albums.slice(albumsPage * AlbumsPerPage, (albumsPage+1) * AlbumsPerPage)
+  const activeAlbums = albums.myAlbums.slice(albumsPage * AlbumsPerPage, (albumsPage+1) * AlbumsPerPage)
   const activeSwings = activeAlbum?.swingVideos.slice(albumPage * SwingsPerPage, (albumPage+1) * SwingsPerPage) || []
   const searchRgx = new RegExp(friendSearch, "gi")
   const searchedFriendIds = user.friendIds.filter( friendId => {
@@ -339,7 +339,7 @@ const mapDispatchToProps = (dispatch) => {
   
 NewAlbum.propTypes = {
   user: PropTypes.object,
-  albums: PropTypes.arrayOf(PropTypes.object),
+  albums: PropTypes.object,
   usersCache: PropTypes.object,
 
   createAlbum: PropTypes.func,

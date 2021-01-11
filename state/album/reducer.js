@@ -1,7 +1,12 @@
 import { SET_ALBUM, SET_ALBUMS } from "./action"
 
 const albumInitialState = null
-const albumsInitialState = []
+const albumsInitialState = {
+  lastRequestAt: undefined,
+  myAlbums: [],
+  friendsAlbums: [],
+  publicAlbums: [],
+}
 
 
 export function albumReducer(

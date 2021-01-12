@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createRef, useRef, Fragment } from "react"
+import React, { useEffect, useState, createRef, Fragment } from "react"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"

@@ -12,7 +12,15 @@ const s3 = new AWS.S3({
 })
   
 
-export const UploadVideo = (dispatch, callback = () => {}) => async ({ userId, file, fileName }) => {
+export const UploadVideo = (dispatch, callback = () => {}) => async ({
+  userId,
+  file,
+  fileName,
+  albumName,
+  isPublic,
+  isViewableByFriends,
+  friendIds,
+}) => {
   console.log("uploading", userId, file, fileName)
   try {
     const uploadId = Moment().format("MMMDD_hhmm_ss_a_YYYY")
@@ -28,7 +36,13 @@ export const UploadVideo = (dispatch, callback = () => {}) => async ({ userId, f
         HandleError(dispatch, err)
         return false
       }
-      const response = await post("/uploads", { originalURL: data.Location })
+      const response = await post("/uploads", {
+        originalURL: data.Location,
+        albumName,
+        isPublic,
+        isViewableByFriends,
+        friendIds,
+      })
       console.log("create_swing_upload response", response )
 
       dispatch(toggleFlashNotification({

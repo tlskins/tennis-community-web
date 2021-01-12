@@ -237,6 +237,7 @@ const NewAlbum = ({
                     <div className="flex flex-col">
                       <label> Specific Friends</label>
                       <div>
+                        { friendIds.length === 0 && <p>None</p> }
                         { friendIds.map( (friendId, i) => {
                           const friend = usersCache[friendId]
                           return(

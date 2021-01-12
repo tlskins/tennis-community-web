@@ -2,6 +2,7 @@ import React, { useEffect, useState, createRef, Fragment } from "react"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
+import Link from "next/link"
 
 import Notifications from "../../components/Notifications"
 import { LoadAlbums } from "../../behavior/coordinators/albums"
@@ -206,21 +207,21 @@ const AlbumsIndex = ({
             <div className="flex flex-row">
               { myActiveAlbums.map( (album, i) => {
                 return (
-                  <div key={i}
-                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-gray-200"
-                  >
-                    <p>{ album.name }</p>
-                    { 
-                      renderVideo({
-                        swing: album.swingVideos[0],
-                        i,
-                        ref: playerRefs[i],
-                        playing: playings[i],
-                        pip: pips[i],
-                        duration: playerDurations[i]
-                      })
-                    }
-                  </div>
+                  <Link href={`/albums/${album.id}`} key={i}>
+                    <div className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-gray-200">
+                      <p>{ album.name }</p>
+                      { 
+                        renderVideo({
+                          swing: album.swingVideos[0],
+                          i,
+                          ref: playerRefs[i],
+                          playing: playings[i],
+                          pip: pips[i],
+                          duration: playerDurations[i]
+                        })
+                      }
+                    </div>
+                  </Link>
                 )
               })}
             </div>

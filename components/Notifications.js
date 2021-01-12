@@ -25,7 +25,12 @@ const Notifications = ({
       user.uploadNotifications.forEach( note => toggleFlashMessage({
         alertType: "success",
         message: note.subject,
-        callback: () => clearNotifications({ uploads: true }),
+        callback: () => {
+          clearNotifications({ uploads: true })
+          if (note.type === "Upload Complete") {
+            router.push(`/albums/${note.albumId}`)
+          }
+        }
       }))
     }
   }, [user.uploadNotifications])

@@ -23,17 +23,14 @@ const AlbumsIndex = ({
   const [publicAlbumsPage, setPublicAlbumsPage] = useState(0)
 
   const myActiveAlbums = albums.myAlbums.slice(myAlbumsPage * albumsPerRow, (myAlbumsPage+1) * albumsPerRow).filter( a => !!a )
-  console.log("myalbums", myActiveAlbums)
   const friendsActiveAlbums = albums.friendsAlbums.slice(friendsAlbumsPage * albumsPerRow, (friendsAlbumsPage+1) * albumsPerRow).filter( a => !!a )
   const publicActiveAlbums = albums.publicAlbums.slice(publicAlbumsPage * albumsPerRow, (publicAlbumsPage+1) * albumsPerRow).filter( a => !!a )
 
   useEffect(() => {
-    console.log("loading ablums...")
     loadAlbums()
   }, [])
 
   useEffect(() => {
-    console.log("setting players...")
     const activeAlbums = [...myActiveAlbums, ...friendsActiveAlbums, ...publicActiveAlbums]
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
     setPlayings(activeAlbums.map(() => false))

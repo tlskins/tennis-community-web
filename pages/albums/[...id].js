@@ -162,10 +162,6 @@ const Album = ({
 
         {/* Controls Panel */}
         <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-          <p>
-            { swing.clip }.{ swing.swing }
-          </p>
-
           {/* Picture in Picture */}
           { pip &&
             <input type='button'
@@ -248,7 +244,7 @@ const Album = ({
       {/* <header>{title}</header> */}
       <Notifications />
 
-      <main className="flex flex-1 overflow-y-auto">
+      <main className="flex overflow-y-scroll">
 
         {/* Begin Sidebar */}
 
@@ -397,19 +393,23 @@ const Album = ({
           { pageVideos.map( (swing, i) => {
             let width
             if (albumView === "video") {
-              width = "w-1/3"
+              width = "w-1/3 h-1/3"
             } else if (albumView === "gif") {
-              width = "w-1/6"
+              width = "w-1/6 h-1/6"
             } else if (albumView === "jpg") {
-              width = "w-1/6"
+              width = "w-1/6 h-1/6"
             }
             return (
-              <div className={`flex flex-col relative ${width} content-center justify-center items-center hover:bg-gray-200`}
+              <div className={`flex flex-col relative ${width} items-center hover:bg-green-200 rounded-md p-2`}
                 onMouseOver={() => setHoveredSwing(swing.id)}
+                onMouseLeave={() => {
+                  setHoveredSwing(undefined)
+                  setDeleteSwing(undefined)
+                }}
                 key={i}
               >
                 { (hoveredSwing === swing.id && !deleteSwing) &&
-                  <button className="absolute top-1 right-1 underline text-blue-400 cursor-pointer"
+                  <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
                     onClick={() => {
                       setHoveredSwing(undefined)
                       setDeleteSwing(swing.id)
@@ -419,7 +419,7 @@ const Album = ({
                   </button>
                 }
                 { deleteSwing === swing.id &&
-                  <button className="absolute top-1 right-1 underline text-blue-400 cursor-pointer"
+                  <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
                     onClick={() => {
                       setDeleteSwing(undefined)
                     }}
@@ -428,7 +428,7 @@ const Album = ({
                   </button>
                 }
                 { deleteSwing === swing.id &&
-                  <button className="absolute top-6 right-1 underline text-blue-400 cursor-pointer"
+                  <button className="absolute top-6 right-4 underline text-sm text-blue-400 cursor-pointer"
                     onClick={() => {
                       setDeleteSwing(undefined)
                       onDeleteSwing(swing.id)
@@ -472,7 +472,7 @@ const Album = ({
       </main>
 
       {/* All Video Controls Footer */}
-      <footer className="flex-none bg-blue-100">
+      <footer className="sticky flex flex-wrap bg-blue-100">
         <div className="p-4 w-full flex flex-row content-center justify-center items-center">
           { album &&
             <div className="flex flex-col mr-4">

@@ -54,7 +54,7 @@ const NewAlbum = ({
   }, [])
 
   useEffect(() => {
-    if (user.friendRequests.length > 0) {
+    if (user.friendIds.length > 0) {
       const ids = user.friendIds.filter( id => !usersCache[id])
       if (ids.length > 0) {
         searchFriends({ ids: [ ...ids, ...user.friendIds] })

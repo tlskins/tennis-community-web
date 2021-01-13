@@ -33,7 +33,7 @@ const Friends = ({
   const displayUser = usersCache[displayUserId]
   
   useEffect(() => {
-    if (user.friendRequests.length > 0) {
+    if (user.friendRequests.length > 0 || user.friendIds.length > 0) {
       let ids = user.friendRequests.map( r => r.fromUserId === user.id ? r.toUserId : r.fromUserId)
       ids = ids.filter( id => !usersCache[id])
       searchFriends({ ids: [ ...ids, ...user.friendIds] })

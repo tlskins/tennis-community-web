@@ -22,7 +22,7 @@ const FlashNotif = (props) => {
   return (
     <div id="notif_container"
       onClick={ clearNotif }
-      className={ `${ alertClass } ${ !on && "hidden" } fixed w-1/2 z-10 center-absolute-x mt-2 rounded justify-between text-center flex p-3 text-gray-700 border border-gray-700 rounded font-regular text-lg items-start sm:w-full xs:w-full md:w-full` }
+      className={ `${ alertClass } ${ !on && "hidden" } fixed absolute right-2 w-1/2 z-10 ml-12 mt-2 shadow-md rounded justify-between text-center flex px-3 py-2 text-gray-700 border border-gray-300 rounded font-regular text-lg items-start` }
     >
       <div className="flex flex-col items-center w-full pt-3">
         <p id="notif_message px-3">{ message }</p>
@@ -30,7 +30,7 @@ const FlashNotif = (props) => {
           <button
             onClick={ callback }
             id="ok-btn"
-            className="bg-white text-xl py-1 px-4 rounded border border-solid mt-2 border-hGray cursor-pointer shadow text-hGray focus:outline-none"
+            className="bg-white text-sm py-1 px-4 rounded-lg border border-solid my-2 border-gray-300 cursor-pointer shadow text-gray-600 focus:outline-none"
             aria-label="notification_ok"
           >
             OK
@@ -40,7 +40,6 @@ const FlashNotif = (props) => {
       <button className="cursor-pointer block w-3 h-3">
         X
       </button>
-      {/* <img onClick={ clearNotif } className="cursor-pointer block w-3 h-3" src={ x } alt="x" /> */}
     </div>
   )
 }

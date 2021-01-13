@@ -59,7 +59,7 @@ const SwingUploader = ({ uploadVideo, user, usersCache }) => {
         <input type="file"
           onChange={onFileChange}
         />
-        { isUploading &&
+        { (isUploading || uploading) &&
           <h2>Uploading...</h2>
         }
         { selectedVideo &&

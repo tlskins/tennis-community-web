@@ -393,11 +393,11 @@ const Album = ({
           { pageVideos.map( (swing, i) => {
             let width
             if (albumView === "video") {
-              width = "w-1/3 h-1/3"
+              width = "w-1/3"
             } else if (albumView === "gif") {
-              width = "w-1/6 h-1/6"
+              width = "w-1/6"
             } else if (albumView === "jpg") {
-              width = "w-1/6 h-1/6"
+              width = "w-1/6"
             }
             return (
               <div className={`flex flex-col relative ${width} items-center hover:bg-green-200 rounded-md p-2`}

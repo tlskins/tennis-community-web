@@ -171,7 +171,7 @@ const Friends = ({
                   const cache = usersCache[req.toUserId]
                   return(
                     <div key={req.id}
-                      className="border rounded my-1 p-2 bg-gray-200"
+                      className="border rounded my-1 p-2 w-1/4 bg-gray-200"
                     >
                         Pending friend request to
                       <span className="underline text-blue-400 cursor-pointer ml-1"
@@ -229,7 +229,7 @@ const Friends = ({
                 const cache = usersCache[friendId]
                 return(
                   <div key={friendId}
-                    className="flex flex-col border rounded my-1 p-2 bg-yellow-200"
+                    className="flex flex-col border rounded my-1 p-2 w-1/4 bg-yellow-200"
                     onMouseEnter={() => setActiveFriendReq(friendId)}
                     onMouseLeave={() => setActiveFriendReq(undefined)}
                   >

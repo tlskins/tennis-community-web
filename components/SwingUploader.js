@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, Fragment } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 
@@ -13,6 +13,7 @@ const SwingUploader = ({ uploadVideo, user, usersCache }) => {
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
   const [friendSearch, setFriendSearch] = useState("")
+  const [isSearchingFriends, setIsSearchingFriends] = useState(false)
   const [newAlbumName, setNewAlbumName] = useState("")
 
   const searchRgx = new RegExp(friendSearch, "gi")
@@ -58,12 +59,22 @@ const SwingUploader = ({ uploadVideo, user, usersCache }) => {
         <input type="file"
           onChange={onFileChange}
         />
+        { isUploading &&
+          <h2>Uploading...</h2>
+        }
         { selectedVideo &&
           <div >
             <div>
               <p className="p-2">
                 Video Type: { selectedVideo.type }
               </p>
+              <input id="albumName"
+                className="ml-2 p-1 rounded text-center border border-black"
+                type="text"
+                placeholder="Album Name"
+                value={newAlbumName}
+                onChange={e => setNewAlbumName(e.target.value)}
+              />
             </div>
 
             <div className="mt-12">
@@ -91,54 +102,68 @@ const SwingUploader = ({ uploadVideo, user, usersCache }) => {
                 </div>
 
                 <div className="flex flex-col">
-                  <label> Specific Friends</label>
-                  <div>
-                    { friendIds.length === 0 && <p>None</p> }
-                    { friendIds.map( (friendId, i) => {
-                      const friend = usersCache[friendId]
-                      return(
-                        <div key={friendId}
-                          className="rounded border border-black p-1 bg-green-200 cursor-pointer hover:bg-red-200 my-1"
-                          onClick={() => setFriendIds([...friendIds.slice(0,i), ...friendIds.slice(i+1,friendIds.length)])}
-                        >
-                          <p>{ friend?.userName } ({ friend?.firstName })</p>
-                        </div>
-                      )
-                    })}
+                  <div className="flex flex-row">
+                    <input id="specificFriends"
+                      className="mr-2"
+                      type="checkbox"
+                      value={isSearchingFriends}
+                      onChange={e => {
+                        if (!e.target.checked) {
+                          setFriendIds([])
+                        }
+                        setIsSearchingFriends(e.target.checked)
+                      }}
+                    />
+                    <label htmlFor="specificFriends"> Specific Friends</label><br></br>
                   </div>
 
-                  <input type="text"
-                    className="rounded border border-black p-1 my-2"
-                    placeholder="search"
-                    value={friendSearch}
-                    onChange={e => setFriendSearch(e.target.value)}
-                  />
-                  <div>
-                    { searchedFriendIds.map( friendId => {
-                      const friend = usersCache[friendId]
-                      return(
-                        <div key={friendId}
-                          className="rounded border border-black p-1 bg-blue-200 cursor-pointer hover:bg-green-200 my-1"
-                          onClick={() => setFriendIds([...friendIds, friendId])}
-                        >
-                          <p>{ friend?.userName } ({ friend?.firstName })</p>
-                        </div>
-                      )
-                    })}
-                  </div>
+                  { friendIds.length > 0 &&
+                    <div>
+                      { friendIds.map( (friendId, i) => {
+                        const friend = usersCache[friendId]
+                        return(
+                          <div key={friendId}
+                            className="rounded border border-black p-1 bg-green-200 cursor-pointer hover:bg-red-200 my-1"
+                            onClick={() => setFriendIds([...friendIds.slice(0,i), ...friendIds.slice(i+1,friendIds.length)])}
+                          >
+                            <p>{ friend?.userName } ({ friend?.firstName })</p>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  }
+
+                  { isSearchingFriends &&
+                    <Fragment>
+                      <input type="text"
+                        className="rounded border border-black p-1 my-2"
+                        placeholder="search"
+                        value={friendSearch}
+                        onChange={e => setFriendSearch(e.target.value)}
+                      />
+                      <div>
+                        { searchedFriendIds.map( friendId => {
+                          const friend = usersCache[friendId]
+                          return(
+                            <div key={friendId}
+                              className="rounded border border-black p-1 bg-blue-200 cursor-pointer hover:bg-green-200 my-1"
+                              onClick={() => setFriendIds([...friendIds, friendId])}
+                            >
+                              <p>{ friend?.userName } ({ friend?.firstName })</p>
+                            </div>
+                          )
+                        })}
+                      </div> 
+                    </Fragment>
+                  }
                 </div>
               </div>
 
               <div className="flex flex-col content-center justify-center items-center mx-1 p-2">
-                <input type="text"
-                  placeholder="Name"
-                  value={newAlbumName}
-                  onChange={e => setNewAlbumName(e.target.value)}
-                />
                 <button className="border-black border rounded m-2 p-1"
                   onClick={onUploadVideo}
                 >
-                  { uploading ? "Uploading..." : "Upload" }
+                  Upload
                 </button>
               </div>
             </div>

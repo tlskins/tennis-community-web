@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import Link from "next/link"
+import Moment from "moment"
 
 import Notifications from "../../components/Notifications"
 import { LoadAlbums } from "../../behavior/coordinators/albums"
@@ -75,10 +76,6 @@ const AlbumsIndex = ({
 
         {/* Controls Panel */}
         <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-          <p>
-            { swing.clip }.{ swing.swing }
-          </p>
-
           {/* Picture in Picture */}
           { pip &&
             <input type='button'
@@ -208,8 +205,12 @@ const AlbumsIndex = ({
               { myActiveAlbums.map( (album, i) => {
                 return (
                   <Link href={`/albums/${album.id}`} key={i}>
-                    <div className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-gray-200">
-                      <p>{ album.name }</p>
+                    <div className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2">
+                      <p><span className="font-semibold">{ album.name }</span></p>
+                      <p>
+                        <span className="font-semibold text-xs"> Created: </span> 
+                        <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                      </p>
                       { 
                         renderVideo({
                           swing: album.swingVideos[0],
@@ -258,7 +259,11 @@ const AlbumsIndex = ({
                   <div key={i}
                     className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-gray-200"
                   >
-                    <p>{ album.name }</p>
+                    <p><span className="font-semibold">{ album.name }</span></p>
+                    <p>
+                      <span className="font-semibold text-xs"> Created: </span> 
+                      <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                    </p>
                     { 
                       renderVideo({
                         swing: album.swingVideos[0],
@@ -308,7 +313,11 @@ const AlbumsIndex = ({
                   <div key={i}
                     className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-gray-200"
                   >
-                    <p>{ album.name }</p>
+                    <p><span className="font-semibold">{ album.name }</span></p>
+                    <p>
+                      <span className="font-semibold text-xs"> Created: </span> 
+                      <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                    </p>
                     { 
                       renderVideo({
                         swing: album.swingVideos[0],

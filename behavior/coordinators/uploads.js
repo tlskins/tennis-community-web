@@ -48,7 +48,7 @@ export const UploadVideo = (dispatch, callback = () => {}) => async ({
       dispatch(toggleFlashNotification({
         on: true,
         alertType: "success",
-        message: `Processing new upload: ${uploadId}`,
+        message: `Processing new album: ${albumName} ETA ~10 minutes`,
       }))
 
       if (callback) {

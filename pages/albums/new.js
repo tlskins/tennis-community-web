@@ -34,6 +34,7 @@ const NewAlbum = ({
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
   const [friendSearch, setFriendSearch] = useState("")
+  const [isSearchingFriends, setIsSearchingFriends] = useState(false)
 
   const activeAlbums = albums.myAlbums.slice(albumsPage * AlbumsPerPage, (albumsPage+1) * AlbumsPerPage)
   const activeSwings = activeAlbum?.swingVideos.slice(albumPage * SwingsPerPage, (albumPage+1) * SwingsPerPage) || []
@@ -210,7 +211,7 @@ const NewAlbum = ({
               {/* Begin Selected Swings Row */}
 
               { selectedSwings.length > 0 &&
-                <div className="flex flex-row content-center justify-center items-center p-2">
+                <div className="flex flex-row content-center justify-center items-center p-2 w-full">
                   <div className="flex flex-col mr-4 p-2">
                     <p className="mb-2">Share with</p>
 
@@ -235,47 +236,68 @@ const NewAlbum = ({
                     </div>
 
                     <div className="flex flex-col">
-                      <label> Specific Friends</label>
-                      <div>
-                        { friendIds.length === 0 && <p>None</p> }
-                        { friendIds.map( (friendId, i) => {
-                          const friend = usersCache[friendId]
-                          return(
-                            <div key={friendId}
-                              className="rounded border border-black p-1 bg-green-200 cursor-pointer hover:bg-red-200 my-1"
-                              onClick={() => setFriendIds([...friendIds.slice(0,i), ...friendIds.slice(i+1,friendIds.length)])}
-                            >
-                              <p>{ friend?.userName } ({ friend?.firstName })</p>
-                            </div>
-                          )
-                        })}
+                      <div className="flex flex-row">
+                        <input id="specificFriends"
+                          className="mr-2"
+                          type="checkbox"
+                          value={isSearchingFriends}
+                          onChange={e => {
+                            if (!e.target.checked) {
+                              setFriendIds([])
+                            }
+                            setIsSearchingFriends(e.target.checked)
+                          }}
+                        />
+                        <label htmlFor="specificFriends"> Specific Friends</label><br></br>
                       </div>
+                      
+                      { friendIds.length > 0 &&
+                        <div>
+                          { friendIds.map( (friendId, i) => {
+                            const friend = usersCache[friendId]
+                            return(
+                              <div key={friendId}
+                                className="rounded border border-black p-1 bg-green-200 cursor-pointer hover:bg-red-200 my-1"
+                                onClick={() => setFriendIds([...friendIds.slice(0,i), ...friendIds.slice(i+1,friendIds.length)])}
+                              >
+                                <p>{ friend?.userName } ({ friend?.firstName })</p>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      }
 
-                      <input type="text"
-                        className="rounded border border-black p-1 my-2"
-                        placeholder="search"
-                        value={friendSearch}
-                        onChange={e => setFriendSearch(e.target.value)}
-                      />
-                      <div>
-                        { searchedFriendIds.map( friendId => {
-                          const friend = usersCache[friendId]
-                          return(
-                            <div key={friendId}
-                              className="rounded border border-black p-1 bg-blue-200 cursor-pointer hover:bg-green-200 my-1"
-                              onClick={() => setFriendIds([...friendIds, friendId])}
-                            >
-                              <p>{ friend?.userName } ({ friend?.firstName })</p>
-                            </div>
-                          )
-                        })}
-                      </div>
+                      { isSearchingFriends &&
+                        <Fragment>
+                          <input type="text"
+                            className="rounded border border-black p-1 my-2"
+                            placeholder="search"
+                            value={friendSearch}
+                            onChange={e => setFriendSearch(e.target.value)}
+                          />
+                          <div>
+                            { searchedFriendIds.map( friendId => {
+                              const friend = usersCache[friendId]
+                              return(
+                                <div key={friendId}
+                                  className="rounded border border-black p-1 bg-blue-200 cursor-pointer hover:bg-green-200 my-1"
+                                  onClick={() => setFriendIds([...friendIds, friendId])}
+                                >
+                                  <p>{ friend?.userName } ({ friend?.firstName })</p>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </Fragment>
+                      }
                     </div>
                   </div>
 
                   <div className="flex flex-col content-center justify-center items-center mx-1 p-2">
-                    <input type="text"
-                      placeholder="Name"
+                    <input id="albumName"
+                      className="ml-2 p-1 rounded text-center border border-black"
+                      type="text"
+                      placeholder="Album Name"
                       value={newAlbumName}
                       onChange={e => setNewAlbumName(e.target.value)}
                     />

@@ -51,7 +51,7 @@ const Album = ({
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
 
-  const [activeSideBar, setActiveSidebar] = useState("New Album")
+  const [activeSideBar, setActiveSidebar] = useState("Pro Comparison")
 
   const [albumPage, setAlbumPage] = useState(0)
   const [hoveredSwing, setHoveredSwing] = useState(undefined)
@@ -141,7 +141,6 @@ const Album = ({
   const renderVideo = ({ swing, i, ref, playing, pip, duration }) => {
     return(
       <Fragment>
-        {/* flex flex-col p-2 m-4 w-1/6 h-1/4 content-center justify-center items-center rounded shadow-md */}
         <ReactPlayer
           className="rounded-md overflow-hidden"
           ref={ref}
@@ -271,8 +270,10 @@ const Album = ({
               </h2>
               <div className="mb-2">
                 { activeSideBar === "Pro Comparison" &&
-                <Fragment>
-                  <select onChange={e => setSideVideo(e.target.value)}>
+                <div className="flex flex-col content-center justify-center items-center">
+                  <select className="my-4"
+                    onChange={e => setSideVideo(e.target.value)}
+                  >
                     { publicVideos.map((vid, i) => {
                       return(
                         <option key={i} value={vid.url}>{ vid.name }</option>
@@ -381,7 +382,7 @@ const Album = ({
                       </div>
                     </div>
                   </div>
-                </Fragment>
+                </div>
                 }
               </div>
             </Fragment>

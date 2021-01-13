@@ -9,7 +9,7 @@ import { toggleFlashNotification } from "../state/ui/action"
 
 const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
   const router = useRouter()
-  const [isNewUser, setIsNewUser] = useState(true)
+  const [isNewUser, setIsNewUser] = useState(false)
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
@@ -53,7 +53,7 @@ const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      <main className="flex flex-1 overflow-y-auto">
+      <main className="flex flex-1 overflow-y-auto content-center justify-center items-center">
         { user &&
           <div className="p-8">
             <button onClick={signOut}>
@@ -62,7 +62,7 @@ const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
           </div>
         }
         
-        <div className="p-8">
+        <div className="p-12">
           { isNewUser &&
             <div className="flex flex-col">
               <h2 className="my-2 font-bold">

@@ -3,13 +3,23 @@ import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
+import Moment from "moment"
 
 import Notifications from "../../components/Notifications"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
-import { LoadAlbums, LoadAlbum, UpdateAlbum } from "../../behavior/coordinators/albums"
+import {
+  LoadAlbums,
+  LoadAlbum,
+  UpdateAlbum,
+  PostComment,
+} from "../../behavior/coordinators/albums"
+import { SearchFriends } from "../..//behavior/coordinators/friends"
 import { setAlbum } from "../../state/album/action"
 
 const SWING_FRAMES = 45
+const REPLY_PREVIEW_LEN = 50
+let commentsCache = {}
+let posting = false
 
 const publicVideos = [
   {
@@ -33,8 +43,12 @@ let timer
 const Album = ({
   album,
   recentUploads,
+  usersCache,
+
   getRecentUploads,
   loadAlbum,
+  postComment,
+  searchFriends,
   updateAlbum,
   updateAlbumRedux,
 }) => {
@@ -66,6 +80,12 @@ const Album = ({
   const [sideVideoPlaying, setSideVideoPlaying] = useState(false)
   const [sideVideoPip, setSideVideoPip] = useState(false)
 
+  const [comments, setComments] = useState([])
+  const [commenters, setCommenters] = useState([])
+  const [comment, setComment] = useState("")
+  const [replyId, setReplyId] = useState(undefined)
+  const [replyPreview, setReplyPreview] = useState("")
+
   const pageVideos = swingVideos.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
   useEffect(() => {
@@ -73,6 +93,34 @@ const Album = ({
       loadAlbum(albumId)
     }
   }, [albumId])
+
+  useEffect(() => {
+    setComments(album?.comments || [])
+  }, [album])
+
+  useEffect(() => {
+    if (comments.length > 0) {
+      const commentersSet = new Set([])
+      // search comment users
+      const usersSet = new Set([])
+      comments.forEach( com => {
+        if (!usersCache[com.userId]) {
+          usersSet.add(com.userId)
+        }
+
+        // build commenters
+        commentersSet.add(com.userId)
+
+        // build comments cache
+        commentsCache[com.id] = com
+      })
+      const ids = Array.from(usersSet)
+      if (ids.length > 0) {
+        searchFriends({ ids })
+      }
+      setCommenters(Array.from(commentersSet))
+    }
+  }, [comments])
 
   useEffect(() => {
     if (album?.id) {
@@ -139,6 +187,51 @@ const Album = ({
     executeAfterTimeout(() => {
       updateAlbum(updatedAlbum)
     }, 700)
+  }
+
+  const onPostComment = async () => {
+    if (posting) {
+      return
+    }
+    posting = true
+    const params = { albumId, text: comment }
+    if (replyId) {
+      params.replyId = replyId
+    }
+    if (await postComment(params)) {
+      setReplyId(undefined)
+      setReplyPreview("")
+      setComment("")
+    }
+    posting = false
+  }
+
+  const onSortComments = e => {
+    const sortBy = e.target.value
+    let newComments = []
+    if (sortBy === "POSTED ASC") {
+      newComments = comments.sort((a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? 1 : -1)
+    } else if (sortBy === "POSTED DESC") {
+      newComments = comments.sort((a,b) => Moment(a.createdAt).isBefore(Moment(b.createdAt)) ? 1 : -1)
+    }
+    setComments([...newComments])
+  }
+
+  const onFilterComments = e => {
+    const filterBy = e.target.value
+    let newComments = []
+    if (filterBy === "ALL") {
+      newComments = comments.map( com => {
+        com.isHidden = false
+        return com
+      })
+    } else {
+      newComments = comments.map( com => {
+        com.isHidden = com.userId !== filterBy
+        return com
+      })
+    }
+    setComments([...newComments])
   }
 
   const renderVideo = ({ swing, i, ref, playing, pip, duration }) => {
@@ -259,7 +352,7 @@ const Album = ({
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll">
+        <div className="h-screen top-0 sticky p-4 bg-white w-1/4 overflow-y-scroll">
           <div className="flex flex-col content-center justify-center items-center text-sm">
 
             {/* Pro Comparison Sidebar */}
@@ -393,6 +486,151 @@ const Album = ({
                 }
               </div>
             </Fragment>
+
+            {/* Comments Sidebar */}
+            <Fragment>
+              <h2 className="text-blue-400 underline cursor-pointer"
+                onClick={() => {
+                  if (activeSideBar === "Album Comments") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("Album Comments")
+                  }
+                }}
+              >
+                Album Comments
+              </h2>
+              <div className="mb-2">
+                { activeSideBar === "Album Comments" &&
+                  <div className="flex flex-col content-center justify-center items-center">
+                    <div className="p-4">
+                      <div className="flex flex-col p-4 items-center overscroll-contain">
+                        <div className="flex flex-col w-full">
+
+                          {/* Comment Form */}
+                          <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                            { replyId &&
+                              <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
+                                onClick={() => {
+                                  setReplyPreview("")
+                                  setReplyId(undefined)
+                                }}
+                              >
+                                <p>reply to</p>
+                                <p className="pl-2 text-gray-700">{ replyPreview }</p>
+                              </div>
+                            }
+                            <textarea
+                              className="p-2 border border-black rounded"
+                              autoFocus={true}
+                              placeholder={ replyId ? "Reply to comment" : "Comment"}
+                              rows="4"
+                              onChange={e => setComment(e.target.value)}
+                              value={comment}
+                            />
+                            <div className="flex flex-row">
+                              <p className="mx-2 p-2 text-sm text-gray-500 align-middle">
+                                { Moment().format("MMM D YYYY H:m a") }
+                              </p>
+                              <p className="mx-2 p-2 text-sm align-middle font-bold">
+                              |
+                              </p>
+                              <input type='button'
+                                className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
+                                value='post'
+                                onClick={onPostComment}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Comments Filters / Sort */}
+                          <div className="flex flex-row my-2">
+                            <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                              onChange={onSortComments}
+                            >
+                              <option value="POSTED ASC">Sort by First Posted</option>
+                              <option value="POSTED DESC">Sort by Last Posted</option>
+                            </select>
+
+                            <select className="rounded py-0.5 px-1 ml-12 border border-black bg-blue-600 text-white text-xs"
+                              onChange={onFilterComments}
+                            >
+                              <option value="ALL">All Users</option>
+                              { commenters.map( usrId => {
+                                return(
+                                  <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
+                                )
+                              })}
+                            </select>
+                          </div>
+
+                          {/* Comments List  */}
+
+                          <div className="flex flex-col h-80 overflow-y-scroll">
+                            { comments.filter( com => !com.isHidden ).map( comment => {
+                              return(
+                                <div key={comment.id}
+                                  className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100 cursor-pointer"
+                                >
+                                  { comment.replyId &&
+                                    <div className="p-2 border border-black rounded text-xs bg-gray-300">
+                                      <p>reply to</p>
+                                      <p className="pl-2 text-gray-700">
+                                        { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
+                                      </p>
+                                      <div className="flex flex-row items-center">
+                                        <p className="mx-2 text-xs text-blue-500 align-middle">
+                                          @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                        </p>
+                                        <p className="mx-2 text-sm align-middle font-bold">
+                                          |
+                                        </p>
+                                        <p className="mx-2 text-xs text-gray-500 align-middle">
+                                          { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY H:m a") }
+                                        </p>
+                                      </div>
+                                    </div>
+                                  }
+                                  <div className="flex flex-col pt-1 my-0.5"
+                                  >
+                                    <p className="p-1">
+                                      { comment.text }
+                                    </p>
+                                    <div className="flex flex-row items-center">
+                                      <p className="mx-2 text-xs text-blue-500 align-middle">
+                                        @{ usersCache[comment.userId]?.userName || "..." }
+                                      </p>
+                                      <p className="mx-2 text-sm align-middle font-bold">
+                                        |
+                                      </p>
+                                      <p className="mx-2 text-xs text-gray-500 align-middle">
+                                        { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
+                                      </p>
+                                      <p className="mx-2 text-sm align-middle font-bold">
+                                        |
+                                      </p>
+                                      <input type='button'
+                                        className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
+                                        value='reply'
+                                        onClick={() => {
+                                          setReplyId(comment.id)
+                                          setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                                        }}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </Fragment>
           </div>
         </div>
 
@@ -400,7 +638,7 @@ const Album = ({
 
         {/* Begin Album Videos */}
 
-        <div className="p-4 flex flex-wrap w-4/5">
+        <div className="p-4 flex flex-wrap w-3/4">
           { pageVideos.map( (swing, i) => {
             let width
             if (albumView === "video") {
@@ -602,6 +840,7 @@ const mapStateToProps = (state) => {
   return {
     recentUploads: state.recentUploads,
     album: state.album,
+    usersCache: state.usersCache,
   }
 }
 
@@ -610,6 +849,8 @@ const mapDispatchToProps = (dispatch) => {
     getAlbums: LoadAlbums(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     loadAlbum: LoadAlbum(dispatch),
+    postComment: PostComment(dispatch),
+    searchFriends: SearchFriends(dispatch),
     updateAlbum: UpdateAlbum(dispatch),
     updateAlbumRedux: updatedAlbum => dispatch(setAlbum(updatedAlbum))
   }
@@ -618,11 +859,14 @@ const mapDispatchToProps = (dispatch) => {
 Album.propTypes = {
   album: PropTypes.object,
   user: PropTypes.object,
+  usersCache: PropTypes.object,
   recentUploads: PropTypes.arrayOf(PropTypes.object),
 
   getAlbums: PropTypes.func,
   getRecentUploads: PropTypes.func,
   loadAlbum: PropTypes.func,
+  postComment: PropTypes.func,
+  searchFriends: PropTypes.func,
   updateAlbum: PropTypes.func,
   updateAlbumRedux: PropTypes.func,
 }

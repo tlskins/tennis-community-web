@@ -13,7 +13,6 @@ import { SearchFriends } from "../../../../behavior/coordinators/friends"
 const SWING_FRAMES = 45
 const REPLY_PREVIEW_LEN = 50
 let commentsCache = {}
-let commenters = []
 let posting = false
 
 const Album = ({
@@ -31,6 +30,7 @@ const Album = ({
   const [playing, setPlaying] = useState(false)
   const [playerRef, setPlayerRef] = useState(undefined)
   const [playerFrame, setPlayerFrame] = useState(0.0)
+
   const [comments, setComments] = useState([])
   const [commenters, setCommenters] = useState([])
   const [comment, setComment] = useState("")
@@ -39,8 +39,6 @@ const Album = ({
 
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
-
-  console.log("commenters", commenters)
 
   useEffect(() => {
     if (albumId && (!album || album.id !== albumId)) {
@@ -220,7 +218,7 @@ const Album = ({
       <Notifications />
       <main className="flex overflow-y-scroll">
         <div className="py-8 px-24 grid grid-cols-2 gap-4 w-full">
-          {/* Swing Video */}
+          {/* Swing Video Column */}
           <div className="flex flex-col items-center p-4">
             {
               renderVideo({
@@ -232,6 +230,7 @@ const Album = ({
             }
           </div>
 
+          {/* Comments Column */}
           <div className="py-4 px-16">
             <div className="flex flex-col p-4 items-center overscroll-contain border border-black rounded shadow-md">
               <div className="flex flex-col w-full">
@@ -280,8 +279,8 @@ const Album = ({
                   <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
                     onChange={onSortComments}
                   >
-                    <option value="POSTED ASC">Sort by Posted Asc</option>
-                    <option value="POSTED DESC">Sort by Posted Desc</option>
+                    <option value="POSTED ASC">Sort by First Posted</option>
+                    <option value="POSTED DESC">Sort by Last Posted</option>
                     <option value="FRAME">Sort by Frame</option>
                   </select>
 
@@ -308,7 +307,9 @@ const Album = ({
                         { comment.replyId &&
                           <div className="p-2 border border-black rounded text-xs bg-gray-300">
                             <p>reply to</p>
-                            <p className="pl-2 text-gray-700">{ commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }</p>
+                            <p className="pl-2 text-gray-700">
+                              { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
+                            </p>
                             <div className="flex flex-row items-center">
                               <p className="mx-2 text-xs text-blue-500 align-middle">
                                 @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }

@@ -7,15 +7,18 @@ import Moment from "moment"
 
 import Notifications from "../../../../components/Notifications"
 import { LoadAlbum, PostComment } from "../../../../behavior/coordinators/albums"
+import { SearchFriends } from "../../../../behavior/coordinators/friends"
 
 
 const SWING_FRAMES = 45
 
 const Album = ({
   album,
+  usersCache,
 
   loadAlbum,
   postComment,
+  searchFriends,
 }) => {
   const router = useRouter()
   const albumId = router.query.albumid
@@ -28,6 +31,7 @@ const Album = ({
 
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
+  const comments = swing?.comments || []
 
   useEffect(() => {
     if (albumId && (!album || album.id !== albumId)) {
@@ -41,6 +45,21 @@ const Album = ({
     }
   }, [album?.id])
 
+  useEffect(() => {
+    if (comments.length > 0) {
+      const usersSet = new Set([])
+      comments.forEach( com => {
+        if (!usersCache[com.userId]) {
+          usersSet.add(com.userId)
+        }
+      })
+      const ids = Array.from(usersSet)
+      if (ids.length > 0) {
+        searchFriends({ ids })
+      }
+    }
+  }, [comments])
+
   const handleSeekChange = (playerRef) => e => {
     const frame = parseInt(e.target.value)
     if (frame != null) {
@@ -50,10 +69,8 @@ const Album = ({
     }
   }
 
-  const onPostComment = async () => {
-    if (await postComment({ albumId, swingId, text: comment, frame: playerFrame })) {
-      loadAlbum(albumId)
-    }
+  const onPostComment = () => {
+    postComment({ albumId, swingId, text: comment, frame: playerFrame })
   }
 
   const renderVideo = ({ swing, ref, playing, pip, duration }) => {
@@ -143,7 +160,7 @@ const Album = ({
           <div className="py-4 px-16">
             <div className="flex flex-col p-4 items-center overscroll-contain border border-black rounded">
               <div className="flex flex-col w-full">
-                <div className="flex flex-col border-b-2 border-gray-400">
+                <div className="flex flex-col border-b-2 border-gray-400 mb-2">
                   <textarea
                     className="p-2 border border-black rounded"
                     autoFocus={true}
@@ -173,7 +190,7 @@ const Album = ({
                 </div>
 
                 <div className="flex flex-col">
-                  { (swing.comments || []).map( comment => {
+                  { comments.map( comment => {
                     return(
                       <div key={comment.id}
                         className="my-1 border border-gray-400 rounded"
@@ -182,7 +199,7 @@ const Album = ({
                           { comment.text }
                         </p>
                         <p className="py-1 px-0.5 text-xs">
-                          @ frame { comment.frame } on { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
+                          {usersCache[comment.userId]?.userName || "..."} @ frame { comment.frame } on { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
                         </p>
                       </div>
                     )
@@ -202,6 +219,7 @@ const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
     album: state.album,
+    usersCache: state.usersCache,
   }
 }
 
@@ -209,11 +227,13 @@ const mapDispatchToProps = (dispatch) => {
   return {
     loadAlbum: LoadAlbum(dispatch),
     postComment: PostComment(dispatch),
+    searchFriends: SearchFriends(dispatch),
   }
 }
   
 Album.propTypes = {
   album: PropTypes.object,
+  usersCache: PropTypes.object,
 
   loadAlbum: PropTypes.func,
   postComment: PropTypes.func,

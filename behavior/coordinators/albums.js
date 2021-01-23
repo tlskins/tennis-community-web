@@ -58,9 +58,9 @@ export const CreateAlbum = (dispatch) => async album => {
   return true
 }
 
-export const PostComment = (dispatch) => async ({ albumId, swingId, replyId, text }) => {
+export const PostComment = (dispatch) => async ({ albumId, swingId, replyId, text, frame }) => {
   try {
-    const params = { text }
+    const params = { text, frame }
     if (swingId) {
       params.swingId = swingId
     }

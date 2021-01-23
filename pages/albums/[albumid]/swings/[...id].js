@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
+import Moment from "moment"
 
 import Notifications from "../../../../components/Notifications"
 import { LoadAlbum, PostComment } from "../../../../behavior/coordinators/albums"
@@ -12,17 +13,18 @@ const SWING_FRAMES = 45
 
 const Album = ({
   album,
+
   loadAlbum,
+  postComment,
 }) => {
   const router = useRouter()
   const albumId = router.query.albumid
   const swingId = router.query.id && router.query.id[0]
-  console.log("query", router)
 
-  const [playbackRate, setPlaybackRate] = useState(1)
   const [playing, setPlaying] = useState(false)
   const [playerRef, setPlayerRef] = useState(undefined)
   const [playerFrame, setPlayerFrame] = useState(0.0)
+  const [comment, setComment] = useState("")
 
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
@@ -41,12 +43,16 @@ const Album = ({
 
   const handleSeekChange = (playerRef) => e => {
     const frame = parseInt(e.target.value)
-    console.log("handleSeekChange frame", frame)
     if (frame != null) {
       const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
-      console.log("handleSeekChange seekTo", seekTo)
       playerRef.current.seekTo(seekTo)
       setPlayerFrame(frame)
+    }
+  }
+
+  const onPostComment = async () => {
+    if (await postComment({ albumId, swingId, text: comment, frame: playerFrame })) {
+      loadAlbum(albumId)
     }
   }
 
@@ -65,13 +71,11 @@ const Album = ({
           pip={pip}
           volume={0}
           muted={true}
-          playbackRate={playbackRate}
+          playbackRate={1}
           loop={true}
           progressInterval={200}
           onProgress={({ played }) => {
-            console.log("onProgress played", played)
             const frame = Math.round(played*SWING_FRAMES)
-            console.log("onProgress frame", frame)
             setPlayerFrame(frame)
           }}
           height="452px"
@@ -121,15 +125,11 @@ const Album = ({
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      {/* <header>{title}</header> */}
       <Notifications />
-
       <main className="flex overflow-y-scroll">
-
-        {/* Begin Album Videos */}
-
-        <div className="p-4 flex flex-wrap w-4/5">
-          <div className="flex flex-col relative w-1/2 items-center hover:bg-green-200 rounded-md p-2">
+        <div className="py-8 px-24 grid grid-cols-2 gap-4 w-full">
+          {/* Swing Video */}
+          <div className="flex flex-col items-center p-4">
             {
               renderVideo({
                 swing,
@@ -139,8 +139,60 @@ const Album = ({
               }) 
             }
           </div>
+
+          <div className="py-4 px-16">
+            <div className="flex flex-col p-4 items-center overscroll-contain border border-black rounded">
+              <div className="flex flex-col w-full">
+                <div className="flex flex-col border-b-2 border-gray-400">
+                  <textarea
+                    className="p-2 border border-black rounded"
+                    autoFocus={true}
+                    placeholder="Comment"
+                    rows="4"
+                    onChange={e => setComment(e.target.value)}
+                  />
+                  <div className="flex flex-row">
+                    <p className="mx-2 p-2 text-sm text-blue-500 align-middle">
+                      { Moment().format("MMM D YYYY H:m a") }
+                    </p>
+                    <p className="mx-2 p-2 text-sm align-middle font-bold">
+                    |
+                    </p>
+                    <p className="p-2 text-sm align-middle font-medium">
+                      frame {playerFrame}
+                    </p>
+                    <p className="mx-2 p-2 text-sm align-middle font-bold">
+                    |
+                    </p>
+                    <input type='button'
+                      className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
+                      value='post'
+                      onClick={onPostComment}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col">
+                  { (swing.comments || []).map( comment => {
+                    return(
+                      <div key={comment.id}
+                        className="my-1 border border-gray-400 rounded"
+                      >
+                        <p className="p-2">
+                          { comment.text }
+                        </p>
+                        <p className="py-1 px-0.5 text-xs">
+                          @ frame { comment.frame } on { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
+                        </p>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+            </div>
+          </div>
         </div>
-        {/* End Album Videos */}
       </main>
     </div>
   )

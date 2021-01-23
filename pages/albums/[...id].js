@@ -233,6 +233,12 @@ const Album = ({
           <div className="bg-white rounded p-0.5 mx-1 text-xs">
             <span> { duration ? duration.toFixed(2) : "0.00" }/1.0</span>
           </div>
+
+          <input type='button'
+            className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+            value='goto'
+            onClick={() => router.push(`/albums/${albumId}/swings/${swing.id}`)}
+          />
         </div>
       </Fragment>
     )

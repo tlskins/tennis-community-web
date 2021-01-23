@@ -57,3 +57,22 @@ export const CreateAlbum = (dispatch) => async album => {
   }
   return true
 }
+
+export const PostComment = (dispatch) => async ({ albumId, swingId, replyId, text }) => {
+  try {
+    const params = { text }
+    if (swingId) {
+      params.swingId = swingId
+    }
+    if (replyId) {
+      params.replyId = replyId
+    }
+    const response = await post(`/albums/${albumId}/comments`, params)
+    dispatch(setAlbum(response.data))
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+  return true
+}

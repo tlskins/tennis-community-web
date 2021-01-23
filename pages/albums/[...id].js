@@ -235,8 +235,8 @@ const Album = ({
           </div>
 
           <input type='button'
-            className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-            value='goto'
+            className='border rounded py-0.5 px-1 mx-1 text-xs font-bold bg-indigo-700 text-white'
+            value='view'
             onClick={() => router.push(`/albums/${albumId}/swings/${swing.id}`)}
           />
         </div>

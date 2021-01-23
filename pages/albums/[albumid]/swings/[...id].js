@@ -11,6 +11,9 @@ import { SearchFriends } from "../../../../behavior/coordinators/friends"
 
 
 const SWING_FRAMES = 45
+const REPLY_PREVIEW_LEN = 50
+let commentsCache = {}
+let posting = false
 
 const Album = ({
   album,
@@ -28,6 +31,8 @@ const Album = ({
   const [playerRef, setPlayerRef] = useState(undefined)
   const [playerFrame, setPlayerFrame] = useState(0.0)
   const [comment, setComment] = useState("")
+  const [replyId, setReplyId] = useState(undefined)
+  const [replyPreview, setReplyPreview] = useState("")
 
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
@@ -47,11 +52,15 @@ const Album = ({
 
   useEffect(() => {
     if (comments.length > 0) {
+      // search comment users
       const usersSet = new Set([])
       comments.forEach( com => {
         if (!usersCache[com.userId]) {
           usersSet.add(com.userId)
         }
+
+        // build comments cache
+        commentsCache[com.id] = com
       })
       const ids = Array.from(usersSet)
       if (ids.length > 0) {
@@ -60,17 +69,34 @@ const Album = ({
     }
   }, [comments])
 
-  const handleSeekChange = (playerRef) => e => {
+  const handleSeekChange = e => {
     const frame = parseInt(e.target.value)
     if (frame != null) {
-      const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
-      playerRef.current.seekTo(seekTo)
-      setPlayerFrame(frame)
+      onSeekTo(frame)
     }
   }
 
-  const onPostComment = () => {
-    postComment({ albumId, swingId, text: comment, frame: playerFrame })
+  const onSeekTo = frame => {
+    const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
+    playerRef.current.seekTo(seekTo)
+    setPlayerFrame(frame)
+  }
+
+  const onPostComment = async () => {
+    if (posting) {
+      return
+    }
+    posting = true
+    const params = { albumId, swingId, text: comment, frame: playerFrame }
+    if (replyId) {
+      params.replyId = replyId
+    }
+    if (await postComment(params)) {
+      setReplyId(undefined)
+      setReplyPreview("")
+      setComment("")
+    }
+    posting = false
   }
 
   const renderVideo = ({ swing, ref, playing, pip, duration }) => {
@@ -101,6 +127,12 @@ const Album = ({
 
         {/* Controls Panel */}
         <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
+          <input type='button'
+            className='border rounded py-0.5 px-1 mx-1 text-xs bg-blue-700 text-white'
+            value='Back To Album'
+            onClick={() => router.push(`/albums/${albumId}`)}
+          />
+
           {/* Play / Pause */}
           { playing &&
             <input type='button'
@@ -124,7 +156,7 @@ const Album = ({
             min={0}
             max={SWING_FRAMES}
             step='1'
-            onChange={handleSeekChange(ref)}
+            onChange={handleSeekChange}
             onFocus={ e => {
               e.stopPropagation()
               e.preventDefault()
@@ -158,18 +190,30 @@ const Album = ({
           </div>
 
           <div className="py-4 px-16">
-            <div className="flex flex-col p-4 items-center overscroll-contain border border-black rounded">
+            <div className="flex flex-col p-4 items-center overscroll-contain border border-black rounded shadow-md">
               <div className="flex flex-col w-full">
                 <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                  { replyId &&
+                    <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
+                      onClick={() => {
+                        setReplyPreview("")
+                        setReplyId(undefined)
+                      }}
+                    >
+                      <p>reply to</p>
+                      <p className="pl-2 text-gray-700">{ replyPreview }</p>
+                    </div>
+                  }
                   <textarea
                     className="p-2 border border-black rounded"
                     autoFocus={true}
-                    placeholder="Comment"
+                    placeholder={ replyId ? "Reply to comment" : "Comment"}
                     rows="4"
                     onChange={e => setComment(e.target.value)}
+                    value={comment}
                   />
                   <div className="flex flex-row">
-                    <p className="mx-2 p-2 text-sm text-blue-500 align-middle">
+                    <p className="mx-2 p-2 text-sm text-gray-500 align-middle">
                       { Moment().format("MMM D YYYY H:m a") }
                     </p>
                     <p className="mx-2 p-2 text-sm align-middle font-bold">
@@ -193,14 +237,66 @@ const Album = ({
                   { comments.map( comment => {
                     return(
                       <div key={comment.id}
-                        className="my-1 border border-gray-400 rounded"
+                        className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100 cursor-pointer"
                       >
-                        <p className="p-2">
-                          { comment.text }
-                        </p>
-                        <p className="py-1 px-0.5 text-xs">
-                          {usersCache[comment.userId]?.userName || "..."} @ frame { comment.frame } on { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
-                        </p>
+                        { comment.replyId &&
+                          <div className="p-2 border border-black rounded text-xs bg-gray-300">
+                            <p>reply to</p>
+                            <p className="pl-2 text-gray-700">{ commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }</p>
+                            <div className="flex flex-row items-center">
+                              <p className="mx-2 text-xs text-blue-500 align-middle">
+                                @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                              </p>
+                              <p className="mx-2 text-sm align-middle font-bold">
+                                |
+                              </p>
+                              <p className="mx-2 text-xs text-gray-500 align-middle">
+                                { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY H:m a") }
+                              </p>
+                              <p className="mx-2 text-sm align-middle font-bold">
+                                |
+                              </p>
+                              <p className="text-xs align-middle font-medium">
+                                frame {commentsCache[comment.replyId]?.frame}
+                              </p>
+                            </div>
+                          </div>
+                        }
+                        <div className="flex flex-col pt-1 my-0.5"
+                          onClick={() => onSeekTo(comment.frame)}
+                        >
+                          <p className="p-1">
+                            { comment.text }
+                          </p>
+                          <div className="flex flex-row items-center">
+                            <p className="mx-2 text-xs text-blue-500 align-middle">
+                              @{ usersCache[comment.userId]?.userName || "..." }
+                            </p>
+                            <p className="mx-2 text-sm align-middle font-bold">
+                            |
+                            </p>
+                            <p className="mx-2 text-xs text-gray-500 align-middle">
+                              { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
+                            </p>
+                            <p className="mx-2 text-sm align-middle font-bold">
+                            |
+                            </p>
+                            <p className="text-xs align-middle font-medium">
+                            frame {comment.frame}
+                            </p>
+                            <p className="mx-2 text-sm align-middle font-bold">
+                            |
+                            </p>
+                            <input type='button'
+                              className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
+                              value='reply'
+                              onClick={() => {
+                                setReplyId(comment.id)
+                                setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
                     )
                   })}
@@ -237,6 +333,7 @@ Album.propTypes = {
 
   loadAlbum: PropTypes.func,
   postComment: PropTypes.func,
+  searchFriends: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Album)

@@ -4,10 +4,13 @@ import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import Link from "next/link"
 import Moment from "moment"
+import { useRouter } from "next/router"
 
 import Notifications from "../../components/Notifications"
 import { LoadAlbums } from "../../behavior/coordinators/albums"
+import { Router } from "next/router"
 
+const SWING_FRAMES = 45
 const albumsPerRow = 3
 
 const AlbumsIndex = ({
@@ -15,8 +18,9 @@ const AlbumsIndex = ({
 
   loadAlbums,
 }) => {
+  const router = useRouter()
   const [playerRefs, setPlayerRefs] = useState([])
-  const [playerDurations, setPlayerDurations] = useState({})
+  const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
 
@@ -40,17 +44,18 @@ const AlbumsIndex = ({
   }, [albums.myAlbums, myAlbumsPage, albums.friendsAlbums, friendsAlbumsPage, albums.publicAlbums, publicAlbumsPage])
 
   const handleSeekChange = (playerRef, i) => e => {
-    const seekTo = parseFloat(e.target.value)
-    if (seekTo) {
+    const frame = parseFloat(e.target.value)
+    if (frame != null) {
+      const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
       playerRef.current.seekTo(seekTo)
-      setPlayerDurations({
-        ...playerDurations,
-        [i]: seekTo,
+      setPlayerFrames({
+        ...playerFrames,
+        [i]: frame,
       })
     }
   }
 
-  const renderVideo = ({ swing, i, ref, playing, pip, duration }) => {
+  const renderVideo = ({ albumId, swing, i, ref, playing, pip, duration }) => {
     if (!swing) {
       return null
     }
@@ -66,16 +71,25 @@ const AlbumsIndex = ({
           muted={true}
           loop={true}
           progressInterval={200}
-          onProgress={({ played }) => setPlayerDurations({
-            ...playerDurations,
-            [i]: parseFloat((Math.ceil(played/.05)*.05).toFixed(2)),
-          })}
+          onProgress={({ played }) => {
+            const frame = Math.round(played*SWING_FRAMES)
+            setPlayerFrames({
+              ...playerFrames,
+              [i]: frame,
+            })
+          }}
           height="226px"
           width="285px"
         />
 
         {/* Controls Panel */}
         <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
+          <input type='button'
+            className='border rounded py-0.5 px-1 mx-1 text-xs font-bold bg-indigo-700 text-white cursor-pointer'
+            value='view'
+            onClick={() => router.push(`/albums/${albumId}`)}
+          />
+
           {/* Picture in Picture */}
           { pip &&
             <input type='button'
@@ -120,8 +134,8 @@ const AlbumsIndex = ({
               onClick={() => {
                 const newPlayings = playings.map((p,j) => j === i ? true : p)
                 setPlayings(newPlayings)
-                setPlayerDurations({
-                  ...playerDurations,
+                setPlayerFrames({
+                  ...playerFrames,
                   [i]: undefined,
                 })
               }}
@@ -134,8 +148,8 @@ const AlbumsIndex = ({
             tabIndex={(i*3)+3}
             value={duration}
             min={0}
-            max={1}
-            step='0.05'
+            max={SWING_FRAMES}
+            step='1'
             onChange={handleSeekChange(ref, i)}
             onFocus={ e => {
               console.log("focus!")
@@ -145,7 +159,7 @@ const AlbumsIndex = ({
           />
 
           <div className="bg-white rounded p-0.5 mx-1 text-xs">
-            <span> { duration ? duration.toFixed(2) : "0.00" }/1.0</span>
+            <span> { duration ? duration : "0" }/{SWING_FRAMES}</span>
           </div>
         </div>
       </Fragment>
@@ -202,27 +216,33 @@ const AlbumsIndex = ({
               </div>
             </div>
             <div className="flex flex-row">
+              { myActiveAlbums.length === 0 &&
+                <div className="py-2 px-12">
+                  <h2 className="font-semibold">None</h2>
+                </div>
+              }
               { myActiveAlbums.map( (album, i) => {
                 return (
-                  <Link href={`/albums/${album.id}`} key={i}>
-                    <div className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2">
-                      <p><span className="font-semibold">{ album.name }</span></p>
-                      <p>
-                        <span className="font-semibold text-xs"> Created: </span> 
-                        <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
-                      </p>
-                      { 
-                        renderVideo({
-                          swing: album.swingVideos[0],
-                          i,
-                          ref: playerRefs[i],
-                          playing: playings[i],
-                          pip: pips[i],
-                          duration: playerDurations[i]
-                        })
-                      }
-                    </div>
-                  </Link>
+                  <div key={i}
+                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
+                  >
+                    <p><span className="font-semibold">{ album.name }</span></p>
+                    <p>
+                      <span className="font-semibold text-xs"> Created: </span> 
+                      <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                    </p>
+                    { 
+                      renderVideo({
+                        albumId: album.id,
+                        swing: album.swingVideos[0],
+                        i,
+                        ref: playerRefs[i],
+                        playing: playings[i],
+                        pip: pips[i],
+                        duration: playerFrames[i]
+                      })
+                    }
+                  </div>
                 )
               })}
             </div>
@@ -253,6 +273,11 @@ const AlbumsIndex = ({
               </div>
             </div>
             <div className="flex flex-row">
+              { friendsActiveAlbums.length === 0 &&
+                <div className="py-2 px-12">
+                  <h2 className="font-semibold">None</h2>
+                </div>
+              }
               { friendsActiveAlbums.map( (album, i) => {
                 const idx = i + myActiveAlbums.length
                 return (
@@ -271,7 +296,7 @@ const AlbumsIndex = ({
                         ref: playerRefs[idx],
                         playing: playings[idx],
                         pip: pips[idx],
-                        duration: playerDurations[idx]
+                        duration: playerFrames[idx]
                       })
                     }
                   </div>
@@ -307,6 +332,11 @@ const AlbumsIndex = ({
               </div>
             </div>
             <div className="flex flex-row">
+              { publicActiveAlbums.length === 0 &&
+                <div className="py-2 px-12">
+                  <h2 className="font-semibold">None</h2>
+                </div>
+              }
               { publicActiveAlbums.map( (album, i) => {
                 const idx = i + (myActiveAlbums.length) + (friendsActiveAlbums.length)
                 return (
@@ -325,7 +355,7 @@ const AlbumsIndex = ({
                         ref: playerRefs[idx],
                         playing: playings[idx],
                         pip: pips[idx],
-                        duration: playerDurations[idx]
+                        duration: playerFrames[idx]
                       })
                     }
                   </div>

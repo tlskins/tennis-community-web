@@ -9,6 +9,8 @@ import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { LoadAlbums, LoadAlbum, UpdateAlbum } from "../../behavior/coordinators/albums"
 import { setAlbum } from "../../state/album/action"
 
+const SWING_FRAMES = 45
+
 const publicVideos = [
   {
     url: "https://tennis-swings.s3.amazonaws.com/public/federer_backhand.mp4",
@@ -47,7 +49,7 @@ const Album = ({
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(true)
   const [playerRefs, setPlayerRefs] = useState([])
-  const [playerDurations, setPlayerDurations] = useState({})
+  const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
 
@@ -95,12 +97,13 @@ const Album = ({
   }
 
   const handleSeekChange = (playerRef, i) => e => {
-    const seekTo = parseFloat(e.target.value)
-    if (seekTo) {
+    const frame = parseFloat(e.target.value)
+    if (frame != null) {
+      const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
       playerRef.current.seekTo(seekTo)
-      setPlayerDurations({
-        ...playerDurations,
-        [i]: seekTo,
+      setPlayerFrames({
+        ...playerFrames,
+        [i]: frame,
       })
     }
   }
@@ -152,10 +155,13 @@ const Album = ({
           playbackRate={playbackRate}
           loop={true}
           progressInterval={200}
-          onProgress={({ played }) => setPlayerDurations({
-            ...playerDurations,
-            [i]: parseFloat((Math.ceil(played/.05)*.05).toFixed(2)),
-          })}
+          onProgress={({ played }) => {
+            const frame = Math.round(played*SWING_FRAMES)
+            setPlayerFrames({
+              ...playerFrames,
+              [i]: frame,
+            })
+          }}
           height="226px"
           width="285px"
         />
@@ -206,8 +212,8 @@ const Album = ({
               onClick={() => {
                 const newPlayings = playings.map((p,j) => j === i ? true : p)
                 setPlayings(newPlayings)
-                setPlayerDurations({
-                  ...playerDurations,
+                setPlayerFrames({
+                  ...playerFrames,
                   [i]: undefined,
                 })
               }}
@@ -220,18 +226,17 @@ const Album = ({
             tabIndex={(i*3)+3}
             value={duration}
             min={0}
-            max={1}
-            step='0.05'
+            max={SWING_FRAMES}
+            step='1'
             onChange={handleSeekChange(ref, i)}
             onFocus={ e => {
-              console.log("focus!")
               e.stopPropagation()
               e.preventDefault()
             }}
           />
 
           <div className="bg-white rounded p-0.5 mx-1 text-xs">
-            <span> { duration ? duration.toFixed(2) : "0.00" }/1.0</span>
+            <span> { duration ? duration : "0" }/{SWING_FRAMES}</span>
           </div>
 
           <input type='button'
@@ -451,7 +456,7 @@ const Album = ({
                     ref: playerRefs[i],
                     playing: playings[i],
                     pip: pips[i],
-                    duration: playerDurations[i]
+                    duration: playerFrames[i]
                   }) 
                 }
                 { albumView === "gif" &&

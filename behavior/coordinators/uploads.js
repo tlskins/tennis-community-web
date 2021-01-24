@@ -1,7 +1,7 @@
 import { post, get } from "../api/rest"
 import { setRecentUploads } from "../../state/upload/action"
 import { HandleError } from "./errors"
-import { toggleFlashNotification } from "../../state/ui/action"
+import { newNotification } from "../../state/ui/action"
 
 import AWS from "aws-sdk"
 import Moment from "moment"
@@ -45,8 +45,7 @@ export const UploadVideo = (dispatch, callback = () => {}) => async ({
       })
       console.log("create_swing_upload response", response )
 
-      dispatch(toggleFlashNotification({
-        on: true,
+      dispatch(newNotification({
         alertType: "success",
         message: `Processing new album: ${albumName} ETA ~10 minutes`,
       }))

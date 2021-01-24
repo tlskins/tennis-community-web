@@ -1,26 +1,28 @@
-import { TOGGLE_FLASH_NOTIF } from "./action"
+import { NEW_NOTIFICATION, REMOVE_NOTIFICATION } from "./action"
+import Moment from "moment"
 
-const flashNotificationInitialState = {
-  alertType: "",
-  message: "",
-  on: false,
-}
-  
+const flashNotificationInitialState = []
 
 export function flashNotificationReducer(
   state = flashNotificationInitialState,
   action
 ) {
   switch (action.type) {
-  case TOGGLE_FLASH_NOTIF: {
-    const { payload } = action
-  
-    return {
-      alertType: payload.alertType,
-      message: payload.message,
-      on: payload.on,
-      callback: payload.callback,
+  case NEW_NOTIFICATION: {
+    return [
+      ...state,
+      { id: Moment().format(), ...action.payload }
+    ]
+  }
+  case REMOVE_NOTIFICATION: {
+    const idx = state.findIndex( note => note.id === action.payload)
+    if (idx < 0) {
+      return state
     }
+    return [
+      ...state.slice(0, idx),
+      ...state.slice(idx+1, state.length),
+    ]
   }
   default:
     return state

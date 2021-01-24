@@ -6,7 +6,7 @@ import Moment from "moment-timezone"
 import Notifications from "../../components/Notifications"
 import { LoadAlbums, CreateAlbum } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
-import { toggleFlashNotification } from "../../state/ui/action"
+import { newNotification } from "../../state/ui/action"
 import SwingUploader from "../../components/SwingUploader"
 
 const AlbumsPerPage = 3
@@ -352,8 +352,7 @@ const mapDispatchToProps = (dispatch) => {
     createAlbum: CreateAlbum(dispatch),
     loadAlbums: LoadAlbums(dispatch),
     searchFriends: SearchFriends(dispatch),
-    displayAlert: ({ alertType, message }) => dispatch(toggleFlashNotification({
-      on: true,
+    displayAlert: ({ alertType, message }) => dispatch(newNotification({
       alertType,
       message,
     }))

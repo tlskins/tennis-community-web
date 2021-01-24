@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 
 import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
-import { toggleFlashNotification } from "../state/ui/action"
+import { newNotification } from "../state/ui/action"
 
 
 const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
@@ -156,8 +156,7 @@ const mapDispatchToProps = (dispatch) => {
     createUser: CreateUser(dispatch),
     signIn: SignIn(dispatch),
     signOut: SignOut(dispatch),
-    displayAlert: ({ alertType, message }) => dispatch(toggleFlashNotification({
-      on: true,
+    displayAlert: ({ alertType, message }) => dispatch(newNotification({
       alertType,
       message,
     }))

@@ -6,7 +6,7 @@ import { useRouter } from "next/router"
 import { ClearNotifications, LoadUser } from "../behavior/coordinators/users"
 import { GetRecentUploads } from "../behavior/coordinators/uploads"
 import { useInterval } from "../behavior/helpers"
-import { toggleFlashNotification } from "../state/ui/action"
+import { newNotification } from "../state/ui/action"
 
 const Notifications = ({
   user,
@@ -67,8 +67,7 @@ const mapDispatchToProps = (dispatch) => {
     clearNotifications: ClearNotifications(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     loadUser: LoadUser(dispatch),
-    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(toggleFlashNotification({
-      on: true,
+    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
       alertType,
       callback,
       message,

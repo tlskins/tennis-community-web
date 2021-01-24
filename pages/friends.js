@@ -11,7 +11,7 @@ import {
   Unfriend,
 } from "../behavior/coordinators/friends"
 import { LoadUser } from "../behavior/coordinators/users"
-import { toggleFlashNotification } from "../state/ui/action"
+import { newNotification } from "../state/ui/action"
 
 let timer
 
@@ -278,8 +278,7 @@ const mapDispatchToProps = (dispatch) => {
     acceptFriendRequest: AcceptFriendRequest(dispatch),
     loadUser: LoadUser(dispatch),
     unfriend: Unfriend(dispatch),
-    displayAlert: ({ alertType, message }) => dispatch(toggleFlashNotification({
-      on: true,
+    displayAlert: ({ alertType, message }) => dispatch(newNotification({
       alertType,
       message,
     }))

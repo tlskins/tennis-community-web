@@ -1,7 +1,7 @@
 import { get, put, post } from "../api/rest"
 import { setAlbum } from "../../state/album/action"
 import { HandleError } from "./errors"
-import { toggleFlashNotification } from "../../state/ui/action"
+import { newNotification } from "../../state/ui/action"
 import { setAlbums } from "../../state/album/action"
 
 
@@ -33,8 +33,7 @@ export const UpdateAlbum = (dispatch) => async (album) => {
   try {
     const response = await put(`/albums/${album.id}`, album)
     dispatch(setAlbum(response.data))
-    dispatch(toggleFlashNotification({
-      on: true,
+    dispatch(newNotification({
       alertType: "success",
       message: `Album ${album.name} updated!`,
     }))

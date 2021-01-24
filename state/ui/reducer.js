@@ -1,5 +1,4 @@
 import { NEW_NOTIFICATION, REMOVE_NOTIFICATION } from "./action"
-import Moment from "moment"
 
 const flashNotificationInitialState = []
 
@@ -9,9 +8,12 @@ export function flashNotificationReducer(
 ) {
   switch (action.type) {
   case NEW_NOTIFICATION: {
+    if (state.find( note => note.id === action.payload.id)) {
+      return state
+    }
     return [
       ...state,
-      { id: Moment().format(), ...action.payload }
+      action.payload,
     ]
   }
   case REMOVE_NOTIFICATION: {

@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 
-import { ClearNotifications, LoadUser } from "../behavior/coordinators/users"
+import { RemoveNotification, LoadUser } from "../behavior/coordinators/users"
 import { GetRecentUploads } from "../behavior/coordinators/uploads"
 import { useInterval } from "../behavior/helpers"
 import { newNotification } from "../state/ui/action"
@@ -12,43 +12,67 @@ const Notifications = ({
   user,
 
   toggleFlashMessage,
-  clearNotifications,
+  removeNotification,
   getRecentUploads,
   loadUser,
 }) => {
   const router = useRouter()
   useInterval(loadUser, 30000, 30)
+  
+  const uploadNoteIds = user.uploadNotifications.map( note => note.id)
+  const friendNoteIds = user.friendNotifications.map( note => note.id)
+  const commentNoteIds = user.commentNotifications.map( note => note.id)
 
   useEffect(() => {
     if (user.uploadNotifications?.length > 0) {
       getRecentUploads()
       user.uploadNotifications.forEach( note => toggleFlashMessage({
+        id: note.id,
         alertType: "success",
         message: note.subject,
         callback: () => {
-          clearNotifications({ uploads: true })
+          removeNotification({ uploadNotificationId: note.id })
           if (note.type === "Upload Complete") {
             router.push(`/albums/${note.albumId}`)
           }
         }
       }))
     }
-  }, [user.uploadNotifications])
+  }, [uploadNoteIds])
 
   useEffect(async () => {
     user.friendNotifications.forEach( note => {
       toggleFlashMessage({
+        id: note.id,
         alertType: "success",
         message: note.subject,
         callback: () => {
-          clearNotifications({ friends: true })
+          removeNotification({ friendNotificationId: note.id })
           if (note.type === "New Friend Request") {
             router.push("/friends")
           }
         },
       })
     })
-  }, [user.friendNotifications])
+  }, [friendNoteIds])
+
+  useEffect(async () => {
+    user.commentNotifications.forEach( note => {
+      let message = `${note.friendUserName} commented on your album ${note.albumName}`
+      if (note.numComments > 1) {
+        message = `${note.friendUserName} made ${note.numComments} comments on your album ${note.albumName}`
+      }
+      toggleFlashMessage({
+        id: note.id,
+        alertType: "success",
+        message,
+        callback: () => {
+          removeNotification({ commentNotificationId: note.id })
+          router.push(`/albums/${note.albumId}`)
+        },
+      })
+    })
+  }, [commentNoteIds])
 
   return(
     <Fragment />
@@ -64,7 +88,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    clearNotifications: ClearNotifications(dispatch),
+    removeNotification: RemoveNotification(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     loadUser: LoadUser(dispatch),
     toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
@@ -78,7 +102,7 @@ const mapDispatchToProps = (dispatch) => {
 Notifications.propTypes = {
   user: PropTypes.object,
 
-  clearNotifications: PropTypes.func,
+  removeNotification: PropTypes.func,
   getRecentUploads: PropTypes.func,
   loadUser: PropTypes.func,
   toggleFlashMessage: PropTypes.func,

@@ -2,13 +2,11 @@ import React, { useEffect, useState, createRef, Fragment } from "react"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
-import Link from "next/link"
 import Moment from "moment"
 import { useRouter } from "next/router"
 
 import Notifications from "../../components/Notifications"
 import { LoadAlbums } from "../../behavior/coordinators/albums"
-import { Router } from "next/router"
 
 const SWING_FRAMES = 45
 const albumsPerRow = 3
@@ -291,6 +289,7 @@ const AlbumsIndex = ({
                     </p>
                     { 
                       renderVideo({
+                        albumId: album.id,
                         swing: album.swingVideos[0],
                         i: idx,
                         ref: playerRefs[idx],
@@ -350,6 +349,7 @@ const AlbumsIndex = ({
                     </p>
                     { 
                       renderVideo({
+                        albumId: album.id,
                         swing: album.swingVideos[0],
                         i: idx,
                         ref: playerRefs[idx],

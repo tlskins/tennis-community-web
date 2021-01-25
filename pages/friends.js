@@ -89,7 +89,6 @@ const Friends = ({
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      {/* <header>{title}</header> */}
       <Notifications />
 
       <main className="flex flex-1 overflow-y-auto">

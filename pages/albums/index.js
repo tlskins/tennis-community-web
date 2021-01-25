@@ -69,7 +69,7 @@ const AlbumsIndex = ({
     }
   }
 
-  const renderVideo = ({ albumId, swing, i, ref, playing, pip, duration }) => {
+  const renderVideo = ({ albumId, swing, i, ref, playing, pip, duration, comments }) => {
     if (!swing) {
       return null
     }
@@ -174,6 +174,10 @@ const AlbumsIndex = ({
 
           <div className="bg-white rounded p-0.5 mx-1 text-xs">
             <span> { duration ? duration : "0" }/{SWING_FRAMES}</span>
+          </div>
+
+          <div className="bg-white rounded p-0.5 mx-1 text-xs">
+            <span> { comments } @ </span>
           </div>
         </div>
       </Fragment>
@@ -308,7 +312,8 @@ const AlbumsIndex = ({
                         ref: playerRefs[i],
                         playing: playings[i],
                         pip: pips[i],
-                        duration: playerFrames[i]
+                        duration: playerFrames[i],
+                        comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
                       })
                     }
                   </div>
@@ -366,7 +371,8 @@ const AlbumsIndex = ({
                         ref: playerRefs[idx],
                         playing: playings[idx],
                         pip: pips[idx],
-                        duration: playerFrames[idx]
+                        duration: playerFrames[idx],
+                        comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
                       })
                     }
                   </div>
@@ -426,7 +432,8 @@ const AlbumsIndex = ({
                         ref: playerRefs[idx],
                         playing: playings[idx],
                         pip: pips[idx],
-                        duration: playerFrames[idx]
+                        duration: playerFrames[idx],
+                        comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
                       })
                     }
                   </div>

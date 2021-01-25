@@ -65,9 +65,9 @@ const Album = ({
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
-  const [pips, setPips] = useState([]) // Picture in picture for each player
+  const [pips, setPips] = useState([])
 
-  const [activeSideBar, setActiveSidebar] = useState("Pro Comparison")
+  const [activeSideBar, setActiveSidebar] = useState("Album Comments")
 
   const [albumPage, setAlbumPage] = useState(0)
   const [hoveredSwing, setHoveredSwing] = useState(undefined)
@@ -330,6 +330,10 @@ const Album = ({
 
           <div className="bg-white rounded p-0.5 mx-1 text-xs">
             <span> { duration ? duration : "0" }/{SWING_FRAMES}</span>
+          </div>
+
+          <div className="bg-white rounded p-0.5 mx-1 text-xs">
+            <span> {(swing.comments?.length || 0)} @ </span>
           </div>
 
           <input type='button'

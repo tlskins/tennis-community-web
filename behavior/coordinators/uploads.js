@@ -7,8 +7,12 @@ import AWS from "aws-sdk"
 import Moment from "moment"
 
 const s3 = new AWS.S3({
-  accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
-  secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY
+  accessKeyId: process.env.VERCEL_GITHUB_COMMIT_REF === "production"
+    ? process.env.NEXT_PUBLIC_PROD_AWS_ACCESS_KEY
+    : process.env.NEXT_PUBLIC_AWS_ACCESS_KEY,
+  secretAccessKey: process.env.VERCEL_GITHUB_COMMIT_REF === "production"
+    ? process.env.NEXT_PUBLIC_PROD_AWS_SECRET_ACCESS_KEY
+    : process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
 })
   
 
@@ -22,10 +26,13 @@ export const UploadVideo = (dispatch, callback = () => {}) => async ({
   friendIds,
 }) => {
   console.log("uploading", userId, file, fileName)
+  // NEXT_PUBLIC_SWINGS_BUCKET
   try {
     const uploadId = Moment().format("MMMDD_hhmm_ss_a_YYYY")
     const params = {
-      Bucket: process.env.NEXT_PUBLIC_SWINGS_BUCKET,
+      Bucket: process.env.VERCEL_GITHUB_COMMIT_REF === "production"
+        ? process.env.NEXT_PUBLIC_PROD_SWINGS_BUCKET
+        : process.env.NEXT_PUBLIC_SWINGS_BUCKET,
       Key: `originals/${userId}/${uploadId}/${fileName}`,
       Body: file,
       ACL: "public-read",

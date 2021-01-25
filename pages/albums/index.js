@@ -4,12 +4,20 @@ import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import Moment from "moment"
 import { useRouter } from "next/router"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
 
 import Notifications from "../../components/Notifications"
 import { LoadAlbums } from "../../behavior/coordinators/albums"
 
 const SWING_FRAMES = 45
 const albumsPerRow = 3
+
+const filterAlbums = (albums, search, rgx, start, end) => {
+  let filtered = albums.filter( alb => search ? rgx.test(alb.name) : true)
+  filtered = filtered.filter( alb => start ? Moment(alb.createdAt).isAfter(Moment(start)) : true)
+  return filtered.filter( alb => end ? Moment(alb.createdAt).isBefore(Moment(end)) : true)
+}
 
 const AlbumsIndex = ({
   albums,
@@ -25,10 +33,18 @@ const AlbumsIndex = ({
   const [myAlbumsPage, setMyAlbumsPage] = useState(0)
   const [friendsAlbumsPage, setFriendsAlbumsPage] = useState(0)
   const [publicAlbumsPage, setPublicAlbumsPage] = useState(0)
+  const [search, setSearch] = useState("")
+  const [startDate, setStartDate] = useState(undefined)
+  const [endDate, setEndDate] = useState(undefined)
 
-  const myActiveAlbums = albums.myAlbums.slice(myAlbumsPage * albumsPerRow, (myAlbumsPage+1) * albumsPerRow).filter( a => !!a )
-  const friendsActiveAlbums = albums.friendsAlbums.slice(friendsAlbumsPage * albumsPerRow, (friendsAlbumsPage+1) * albumsPerRow).filter( a => !!a )
-  const publicActiveAlbums = albums.publicAlbums.slice(publicAlbumsPage * albumsPerRow, (publicAlbumsPage+1) * albumsPerRow).filter( a => !!a )
+  const searchRgx = new RegExp(search, "gi")
+  const myFilteredAlbums = filterAlbums(albums.myAlbums, search, searchRgx, startDate, endDate)
+  const friendsFilteredAlbums = filterAlbums(albums.friendsAlbums, search, searchRgx, startDate, endDate)
+  const publicFilteredAlbums = filterAlbums(albums.publicAlbums, search, searchRgx, startDate, endDate)
+
+  const myActiveAlbums = myFilteredAlbums.slice(myAlbumsPage * albumsPerRow, (myAlbumsPage+1) * albumsPerRow).filter( a => !!a )
+  const friendsActiveAlbums = friendsFilteredAlbums.slice(friendsAlbumsPage * albumsPerRow, (friendsAlbumsPage+1) * albumsPerRow).filter( a => !!a )
+  const publicActiveAlbums = publicFilteredAlbums.slice(publicAlbumsPage * albumsPerRow, (publicAlbumsPage+1) * albumsPerRow).filter( a => !!a )
 
   useEffect(() => {
     loadAlbums()
@@ -164,6 +180,12 @@ const AlbumsIndex = ({
     )
   }
 
+  const onSearch = e => {
+    setSearch(e.target.value)
+    setMyAlbumsPage(0)
+    setFriendsAlbumsPage(0)
+    setPublicAlbumsPage(0)
+  }
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -177,8 +199,57 @@ const AlbumsIndex = ({
         <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll">
           <div className="flex flex-col content-center justify-center items-center text-sm">
 
-            {/* Pro Comparison Sidebar */}
-            <p>Search / Filter Sidebar</p>
+            <h2 className="text-blue-400 underline">
+                Search Albums
+            </h2>
+            <div className="mb-2 flex flex-col">
+              <input type="text"
+                placeholder="search"
+                className="rounded border border-black m-1 p-1"
+                value={search}
+                onChange={onSearch}
+              />
+            </div>
+            <div className="flex flex-row">
+              <div className="flex flex-col mx-1">
+                <div className="flex flex-row m-0.5">
+                  <p className="text-center">
+                  Start
+                  </p>
+                  { startDate &&
+                    <input type='button'
+                      className="border w-6 rounded-full mx-1 text-xs bg-red-300"
+                      onClick={() => setStartDate(undefined)}
+                      value="x"
+                    />
+                  }
+                </div>
+                <DatePicker
+                  className="rounded border border-black p-0.5 w-20 text-xs"
+                  selected={startDate}
+                  onChange={date => setStartDate(date)}
+                />
+              </div>
+              <div className="flex flex-col mx-1">
+                <div className="flex flex-row m-0.5">
+                  <p className="text-center">
+                    End
+                  </p>
+                  { endDate &&
+                    <input type='button'
+                      className="border w-6 rounded-full mx-1 text-xs bg-red-300"
+                      onClick={() => setEndDate(undefined)}
+                      value="x"
+                    />
+                  }
+                </div>
+                <DatePicker
+                  className="rounded border border-black p-0.5 w-20 text-xs"
+                  selected={endDate}
+                  onChange={date => setEndDate(date)}
+                />
+              </div>
+            </div>
             
           </div>
         </div>

@@ -6,6 +6,7 @@ import { useRouter } from "next/router"
 import Moment from "moment"
 
 import Notifications from "../../components/Notifications"
+import Sharing from "../../components/Sharing"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import {
   LoadAlbums,
@@ -80,6 +81,10 @@ const Album = ({
   const [sideVideoPlaying, setSideVideoPlaying] = useState(false)
   const [sideVideoPip, setSideVideoPip] = useState(false)
 
+  const [isPublic, setIsPublic] = useState(false)
+  const [isViewableByFriends, setIsViewableByFriends] = useState(false)
+  const [friendIds, setFriendIds] = useState([])
+
   const [comments, setComments] = useState([])
   const [commenters, setCommenters] = useState([])
   const [comment, setComment] = useState("")
@@ -96,6 +101,9 @@ const Album = ({
 
   useEffect(() => {
     setComments(album?.comments || [])
+    setIsPublic(album?.isPublic || false)
+    setIsViewableByFriends(album?.isViewableByFriends || false)
+    setFriendIds(album?.friendIds || [])
   }, [album])
 
   useEffect(() => {
@@ -232,6 +240,19 @@ const Album = ({
       })
     }
     setComments([...newComments])
+  }
+
+  const onShareAlbum = () => {
+    updateAlbum(
+      {
+        id: album.id,
+        name: album.name,
+        isPublic,
+        isViewableByFriends,
+        friendIds
+      },
+      true,
+    )
   }
 
   const renderVideo = ({ swing, i, ref, playing, pip, duration }) => {
@@ -487,6 +508,40 @@ const Album = ({
                     </div>
                   </div>
                 </div>
+                }
+              </div>
+            </Fragment>
+
+            {/* Sharing Sidebar */}
+            <Fragment>
+              <h2 className="text-blue-400 underline cursor-pointer"
+                onClick={() => {
+                  if (activeSideBar === "Sharing") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("Sharing")
+                  }
+                }}
+              >
+                Sharing
+              </h2>
+              <div className="mb-2">
+                { activeSideBar === "Sharing" &&
+                  <div className="flex flex-col content-center justify-center items-center">
+                    <Sharing
+                      isPublic={isPublic}
+                      setIsPublic={setIsPublic}
+                      isViewableByFriends={isViewableByFriends}
+                      setIsViewableByFriends={setIsViewableByFriends}
+                      friendIds={friendIds}
+                      setFriendIds={setFriendIds}
+                    />
+                    <input type='button'
+                      className="border w-14 rounded py-0.5 px-2 my-2 text-xs font-semibold bg-blue-700 text-white"
+                      onClick={onShareAlbum}
+                      value="Share"
+                    />
+                  </div>
                 }
               </div>
             </Fragment>

@@ -29,9 +29,9 @@ export const LoadAlbum = (dispatch) => async (albumId) => {
   return true
 }
 
-export const UpdateAlbum = (dispatch) => async (album) => {
+export const UpdateAlbum = (dispatch) => async (album, shareAlbum = false) => {
   try {
-    const response = await put(`/albums/${album.id}`, album)
+    const response = await put(`/albums/${album.id}`, { ...album, shareAlbum })
     dispatch(setAlbum(response.data))
     dispatch(newNotification({
       alertType: "success",

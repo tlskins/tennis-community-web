@@ -1,11 +1,16 @@
-import React, { useState, Fragment } from "react"
+import React, { useState, useEffect, Fragment } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
+
+import { SearchFriends } from "../behavior/coordinators/friends"
+
 
 const Sharing = ({
   // redux
   user,
   usersCache,
+
+  searchFriends,
   // inherited
   isPublic,
   setIsPublic,
@@ -14,8 +19,19 @@ const Sharing = ({
   friendIds,
   setFriendIds,
 }) => {
+  console.log("sharing", isPublic, isViewableByFriends, friendIds)
   const [friendSearch, setFriendSearch] = useState("")
   const [isSearchingFriends, setIsSearchingFriends] = useState(friendIds.length > 0)
+
+  useEffect(() => {
+    if (friendIds.length > 0) {
+      const ids = friendIds.filter( id => !usersCache[id])
+      if (ids.length > 0) {
+        searchFriends({ ids: [ ...ids] })
+      }
+    }
+  }, [friendIds])
+
 
   const searchRgx = new RegExp(friendSearch, "gi")
   const searchedFriendIds = user.friendIds.filter( friendId => {
@@ -78,7 +94,7 @@ const Sharing = ({
                     className="rounded border border-black p-1 bg-green-200 cursor-pointer hover:bg-red-200 my-1"
                     onClick={() => setFriendIds([...friendIds.slice(0,i), ...friendIds.slice(i+1,friendIds.length)])}
                   >
-                    <p>{ friend?.userName } ({ friend?.firstName })</p>
+                    <p>{ friend ? `@${friend.userName} (${friend.firstName} ${friend.lastName})` : "Loading..."}</p>
                   </div>
                 )
               })}
@@ -101,7 +117,7 @@ const Sharing = ({
                       className="rounded border border-black p-1 bg-blue-200 cursor-pointer hover:bg-green-200 my-1"
                       onClick={() => setFriendIds([...friendIds, friendId])}
                     >
-                      <p>{ friend?.userName } ({ friend?.firstName })</p>
+                      <p>{ friend ? `@${friend.userName} (${friend.firstName} ${friend.lastName})` : "Loading..."}</p>
                     </div>
                   )
                 })}
@@ -111,6 +127,12 @@ const Sharing = ({
       </div>
     </div>
   )
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    searchFriends: SearchFriends(dispatch),
+  }
 }
 
 const mapStateToProps = (state) => {
@@ -127,9 +149,10 @@ Sharing.propTypes = {
   user: PropTypes.object,
   usersCache: PropTypes.object,
 
+  searchFriends: PropTypes.func,
   setIsPublic: PropTypes.func,
   setIsViewableByFriends: PropTypes.func,
   setFriendIds: PropTypes.func,
 }
   
-export default connect(mapStateToProps, undefined)(Sharing)
+export default connect(mapStateToProps, mapDispatchToProps)(Sharing)

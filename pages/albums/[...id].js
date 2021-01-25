@@ -699,7 +699,7 @@ const Album = ({
 
         <div className="p-4 flex flex-col w-3/4">
           <h2 className="m-4 text-xl underline text-center">
-            { album.name }
+            { album?.name }
           </h2>
 
           <div className="flex flex-wrap">

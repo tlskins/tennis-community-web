@@ -697,84 +697,90 @@ const Album = ({
 
         {/* Begin Album Videos */}
 
-        <div className="p-4 flex flex-wrap w-3/4">
-          { pageVideos.map( (swing, i) => {
-            let width
-            if (albumView === "video") {
-              width = "w-1/3"
-            } else if (albumView === "gif") {
-              width = "w-1/6"
-            } else if (albumView === "jpg") {
-              width = "w-1/6"
-            }
-            return (
-              <div className={`flex flex-col relative ${width} items-center hover:bg-green-200 rounded-md p-2`}
-                onMouseOver={() => setHoveredSwing(swing.id)}
-                onMouseLeave={() => {
-                  setHoveredSwing(undefined)
-                  setDeleteSwing(undefined)
-                }}
-                key={i}
-              >
-                { (hoveredSwing === swing.id && !deleteSwing) &&
-                  <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
-                    onClick={() => {
-                      setHoveredSwing(undefined)
-                      setDeleteSwing(swing.id)
-                    }}
-                  >
-                    Delete
-                  </button>
-                }
-                { deleteSwing === swing.id &&
-                  <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
-                    onClick={() => {
-                      setDeleteSwing(undefined)
-                    }}
-                  >
-                    Cancel?
-                  </button>
-                }
-                { deleteSwing === swing.id &&
-                  <button className="absolute top-6 right-4 underline text-sm text-blue-400 cursor-pointer"
-                    onClick={() => {
-                      setDeleteSwing(undefined)
-                      onDeleteSwing(swing.id)
-                    }}
-                  >
-                    Confirm?
-                  </button>
-                }
+        <div className="p-4 flex flex-col w-3/4">
+          <h2 className="m-4 text-xl underline text-center">
+            { album.name }
+          </h2>
+
+          <div className="flex flex-wrap">
+            { pageVideos.map( (swing, i) => {
+              let width
+              if (albumView === "video") {
+                width = "w-1/3"
+              } else if (albumView === "gif") {
+                width = "w-1/6"
+              } else if (albumView === "jpg") {
+                width = "w-1/6"
+              }
+              return (
+                <div className={`flex flex-col relative ${width} items-center hover:bg-green-200 rounded-md p-2`}
+                  onMouseOver={() => setHoveredSwing(swing.id)}
+                  onMouseLeave={() => {
+                    setHoveredSwing(undefined)
+                    setDeleteSwing(undefined)
+                  }}
+                  key={i}
+                >
+                  { (hoveredSwing === swing.id && !deleteSwing) &&
+                    <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
+                      onClick={() => {
+                        setHoveredSwing(undefined)
+                        setDeleteSwing(swing.id)
+                      }}
+                    >
+                      Delete
+                    </button>
+                  }
+                  { deleteSwing === swing.id &&
+                    <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
+                      onClick={() => {
+                        setDeleteSwing(undefined)
+                      }}
+                    >
+                      Cancel?
+                    </button>
+                  }
+                  { deleteSwing === swing.id &&
+                    <button className="absolute top-6 right-4 underline text-sm text-blue-400 cursor-pointer"
+                      onClick={() => {
+                        setDeleteSwing(undefined)
+                        onDeleteSwing(swing.id)
+                      }}
+                    >
+                      Confirm?
+                    </button>
+                  }
                 
-                { albumView === "video" &&
-                  renderVideo({
-                    swing,
-                    i,
-                    ref: playerRefs[i],
-                    playing: playings[i],
-                    pip: pips[i],
-                    duration: playerFrames[i]
-                  }) 
-                }
-                { albumView === "gif" &&
-                  <div>
-                    <img src={swing.gifURL}
-                      alt="loading..."
-                      style={{height: 113, width: 142}}
-                    />
-                  </div>
-                }
-                { albumView === "jpg" &&
-                  <div>
-                    <img src={swing.jpgURL}
-                      alt="loading..."
-                      style={{height: 99, width: 126}}
-                    />
-                  </div>
-                }
-              </div>
-            )
-          })}
+                  { albumView === "video" &&
+                    renderVideo({
+                      swing,
+                      i,
+                      ref: playerRefs[i],
+                      playing: playings[i],
+                      pip: pips[i],
+                      duration: playerFrames[i]
+                    }) 
+                  }
+                  { albumView === "gif" &&
+                    <div>
+                      <img src={swing.gifURL}
+                        alt="loading..."
+                        style={{height: 113, width: 142}}
+                      />
+                    </div>
+                  }
+                  { albumView === "jpg" &&
+                    <div>
+                      <img src={swing.jpgURL}
+                        alt="loading..."
+                        style={{height: 99, width: 126}}
+                      />
+                    </div>
+                  }
+                </div>
+              )
+            })}
+          </div>
         </div>
         {/* End Album Videos */}
       </main>

@@ -112,14 +112,17 @@ const Friends = ({
                   onChange={onSearchUsers}
                 />
                 <div>
-                  { foundUsers.map(({ id, userName, firstName }, i) => {
+                  { foundUsers.map(({ id, userName, firstName, lastName }, i) => {
                     const isFriend = user.friendIds.includes(id)
                     const isRequested = user.friendRequests.find( req => req.toUserId === id || req.fromUserId === id )
                     return(
                       <div key={i}
                         className="rounded border border-gray my-1 p-1 bg-gray-200 hover:bg-indigo-200 cursor-pointer flex content-center justify-center items-center"
                       >
-                        <p className="text-center">{ userName } | { firstName}</p>
+                        <div className="flex flex-col">
+                          <p className="text-center text-blue-800 text-sm underline">@{ userName }</p>
+                          <p className="text-center text-xs">{ firstName } {lastName}</p>
+                        </div>
                         { (!isFriend && !isRequested && id !== user.id) &&
                             <button className="rounded border border-black bg-green-200 p-1 ml-2 text-xs"
                               onClick={onSendFriendRequest({ id, userName })}
@@ -177,7 +180,7 @@ const Friends = ({
                       <span className="underline text-blue-400 cursor-pointer ml-1"
                         onClick={() => setDisplayUserId(req.fromUserId)}
                       >
-                        { cache ? cache.userName : "..." }
+                        { cache ? `${cache.userName} (${cache.firstName} ${cache.lastName})` : "..." }
                       </span>
                     </div>
                   )

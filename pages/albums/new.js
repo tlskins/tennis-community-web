@@ -4,10 +4,11 @@ import PropTypes from "prop-types"
 import Moment from "moment-timezone"
 
 import Notifications from "../../components/Notifications"
+import SwingUploader from "../../components/SwingUploader"
+import Sharing from "../../components/Sharing"
 import { LoadAlbums, CreateAlbum } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
 import { newNotification } from "../../state/ui/action"
-import SwingUploader from "../../components/SwingUploader"
 
 const AlbumsPerPage = 3
 const SwingsPerPage = 6
@@ -33,22 +34,9 @@ const NewAlbum = ({
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
-  const [friendSearch, setFriendSearch] = useState("")
-  const [isSearchingFriends, setIsSearchingFriends] = useState(false)
 
   const activeAlbums = albums.myAlbums.slice(albumsPage * AlbumsPerPage, (albumsPage+1) * AlbumsPerPage)
   const activeSwings = activeAlbum?.swingVideos.slice(albumPage * SwingsPerPage, (albumPage+1) * SwingsPerPage) || []
-  const searchRgx = new RegExp(friendSearch, "gi")
-  const searchedFriendIds = user.friendIds.filter( friendId => {
-    const friend = usersCache[friendId]
-    if (!friend || friendIds.includes(friendId)) {
-      return false
-    }
-    if (friendSearch === "") {
-      return true
-    }
-    return searchRgx.test(friend.userName) || searchRgx.test(friend.firstName) || searchRgx.test(friend.lastName)
-  })
 
   useEffect(() => {
     loadAlbums()
@@ -114,7 +102,6 @@ const NewAlbum = ({
     setIsPublic(false)
     setIsViewableByFriends(false)
     setFriendIds([])
-    setFriendSearch("")
   }
 
   return (
@@ -212,86 +199,14 @@ const NewAlbum = ({
 
               { selectedSwings.length > 0 &&
                 <div className="flex flex-row content-center justify-center items-center p-2 w-full">
-                  <div className="flex flex-col mr-4 p-2">
-                    <p className="mb-2">Share with</p>
-
-                    <div className="flex flex-row">
-                      <input id="public"
-                        className="mr-2"
-                        type="checkbox"
-                        value={isPublic}
-                        onChange={e => setIsPublic(e.target.checked)}
-                      />
-                      <label htmlFor="public"> Public</label><br></br>
-                    </div>
-
-                    <div className="flex flex-row">
-                      <input id="public"
-                        className="mr-2"
-                        type="checkbox"
-                        value={isViewableByFriends}
-                        onChange={e => setIsViewableByFriends(e.target.checked)}
-                      />
-                      <label htmlFor="public"> All Friends</label><br></br>
-                    </div>
-
-                    <div className="flex flex-col">
-                      <div className="flex flex-row">
-                        <input id="specificFriends"
-                          className="mr-2"
-                          type="checkbox"
-                          value={isSearchingFriends}
-                          onChange={e => {
-                            if (!e.target.checked) {
-                              setFriendIds([])
-                            }
-                            setIsSearchingFriends(e.target.checked)
-                          }}
-                        />
-                        <label htmlFor="specificFriends"> Specific Friends</label><br></br>
-                      </div>
-                      
-                      { friendIds.length > 0 &&
-                        <div>
-                          { friendIds.map( (friendId, i) => {
-                            const friend = usersCache[friendId]
-                            return(
-                              <div key={friendId}
-                                className="rounded border border-black p-1 bg-green-200 cursor-pointer hover:bg-red-200 my-1"
-                                onClick={() => setFriendIds([...friendIds.slice(0,i), ...friendIds.slice(i+1,friendIds.length)])}
-                              >
-                                <p>{ friend?.userName } ({ friend?.firstName })</p>
-                              </div>
-                            )
-                          })}
-                        </div>
-                      }
-
-                      { isSearchingFriends &&
-                        <Fragment>
-                          <input type="text"
-                            className="rounded border border-black p-1 my-2"
-                            placeholder="search"
-                            value={friendSearch}
-                            onChange={e => setFriendSearch(e.target.value)}
-                          />
-                          <div>
-                            { searchedFriendIds.map( friendId => {
-                              const friend = usersCache[friendId]
-                              return(
-                                <div key={friendId}
-                                  className="rounded border border-black p-1 bg-blue-200 cursor-pointer hover:bg-green-200 my-1"
-                                  onClick={() => setFriendIds([...friendIds, friendId])}
-                                >
-                                  <p>{ friend?.userName } ({ friend?.firstName })</p>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        </Fragment>
-                      }
-                    </div>
-                  </div>
+                  <Sharing
+                    isPublic={isPublic}
+                    setIsPublic={setIsPublic}
+                    isViewableByFriends={isViewableByFriends}
+                    setIsViewableByFriends={setIsViewableByFriends}
+                    friendIds={friendIds}
+                    setFriendIds={setFriendIds}
+                  />
 
                   <div className="flex flex-col content-center justify-center items-center mx-1 p-2">
                     <input id="albumName"

@@ -22,6 +22,7 @@ const filterAlbums = (albums, search, rgx, start, end) => {
 
 const AlbumsIndex = ({
   albums,
+  user,
 
   loadAlbums,
 }) => {
@@ -190,7 +191,9 @@ const AlbumsIndex = ({
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      <Notifications />
+      { (user && user.id) &&
+        <Notifications />
+      }
 
       <main className="flex flex-1 overflow-y-auto">
 
@@ -262,124 +265,128 @@ const AlbumsIndex = ({
 
           {/* Start My Albums */}
 
-          <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
-            <div className="flex flex-row content-center justify-center items-center mb-2">
-              { myAlbumsPage > 0 &&
+          { (user && user.id) &&
+            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
+              <div className="flex flex-row content-center justify-center items-center mb-2">
+                { myAlbumsPage > 0 &&
                 <button
                   onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
                   className="p-0.5 mx-1"
                 >
                   &lt;
                 </button>
-              }
-              <h2 className="font-medium underline mx-2">My Albums</h2>
-              { (myAlbumsPage < (albums.myAlbums.length / albumsPerRow)-1) &&
+                }
+                <h2 className="font-medium underline mx-2">My Albums</h2>
+                { (myAlbumsPage < (albums.myAlbums.length / albumsPerRow)-1) &&
                 <button
                   onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
                   className="-0.5 mx-1"
                 >
                   &gt;
                 </button>
-              }
-            </div>
+                }
+              </div>
 
-            <div className="flex flex-row">
-              { myActiveAlbums.length === 0 &&
+              <div className="flex flex-row">
+                { myActiveAlbums.length === 0 &&
                 <div className="w-full py-2 px-12 content-center justify-center items-center">
                   <h2 className="font-semibold text-center">None</h2>
                 </div>
-              }
-              { myActiveAlbums.map( (album, i) => {
-                return (
-                  <div key={i}
-                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
-                  >
-                    <p className="font-semibold text-blue-700 underline cursor-pointer"
-                      onClick={() => router.push(`/albums/${album.id}`)}
+                }
+                { myActiveAlbums.map( (album, i) => {
+                  return (
+                    <div key={i}
+                      className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
                     >
-                      { album.name }
-                    </p>
-                    <p>
-                      <span className="font-semibold text-xs"> Created: </span> 
-                      <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
-                    </p>
-                    { 
-                      renderVideo({
-                        swing: album.swingVideos[0],
-                        i,
-                        ref: playerRefs[i],
-                        playing: playings[i],
-                        pip: pips[i],
-                        duration: playerFrames[i],
-                        comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
-                      })
-                    }
-                  </div>
-                )
-              })}
+                      <p className="font-semibold text-blue-700 underline cursor-pointer"
+                        onClick={() => router.push(`/albums/${album.id}`)}
+                      >
+                        { album.name }
+                      </p>
+                      <p>
+                        <span className="font-semibold text-xs"> Created: </span> 
+                        <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                      </p>
+                      { 
+                        renderVideo({
+                          swing: album.swingVideos[0],
+                          i,
+                          ref: playerRefs[i],
+                          playing: playings[i],
+                          pip: pips[i],
+                          duration: playerFrames[i],
+                          comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
+                        })
+                      }
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-          </div>
+          }
 
           {/* Start Friends Albums */}
 
-          <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md my-2">
-            <div className="flex flex-row content-center justify-center items-center mb-2">
-              { friendsAlbumsPage > 0 &&
+          { (user && user.id) &&
+            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md my-2">
+              <div className="flex flex-row content-center justify-center items-center mb-2">
+                { friendsAlbumsPage > 0 &&
                 <button
                   onClick={() => setFriendsAlbumsPage(friendsAlbumsPage-1)}
                   className="p-0.5 mx-1"
                 >
                   &lt;
                 </button>
-              }
-              <h2 className="font-medium underline mx-2">Friends Albums</h2>
-              { (friendsAlbumsPage < (albums.friendsAlbums.length / albumsPerRow)-1) &&
+                }
+                <h2 className="font-medium underline mx-2">Friends Albums</h2>
+                { (friendsAlbumsPage < (albums.friendsAlbums.length / albumsPerRow)-1) &&
                 <button
                   onClick={() => setMyAlbumsPage(friendsAlbumsPage+1)}
                   className="-0.5 mx-1"
                 >
                   &gt;
                 </button>
-              }
-            </div>
+                }
+              </div>
 
-            <div className="flex flex-row">
-              { friendsActiveAlbums.length === 0 &&
+              <div className="flex flex-row">
+                { friendsActiveAlbums.length === 0 &&
                 <div className="w-full py-2 px-12 content-center justify-center items-center">
                   <h2 className="font-semibold text-center">None</h2>
                 </div>
-              }
-              { friendsActiveAlbums.map( (album, i) => {
-                const idx = i + myActiveAlbums.length
-                return (
-                  <div key={i}
-                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
-                  >
-                    <p className="font-semibold text-blue-700 underline cursor-pointer"
-                      onClick={() => router.push(`/albums/${album.id}`)}
+                }
+                { friendsActiveAlbums.map( (album, i) => {
+                  const idx = i + myActiveAlbums.length
+                  return (
+                    <div key={i}
+                      className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
                     >
-                      { album.name }
-                    </p>
-                    <p>
-                      <span className="font-semibold text-xs"> Created: </span> 
-                      <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
-                    </p>
-                    { 
-                      renderVideo({
-                        swing: album.swingVideos[0],
-                        i: idx,
-                        ref: playerRefs[idx],
-                        playing: playings[idx],
-                        pip: pips[idx],
-                        duration: playerFrames[idx],
-                        comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
-                      })
-                    }
-                  </div>
-                )
-              })}
+                      <p className="font-semibold text-blue-700 underline cursor-pointer"
+                        onClick={() => router.push(`/albums/${album.id}`)}
+                      >
+                        { album.name }
+                      </p>
+                      <p>
+                        <span className="font-semibold text-xs"> Created: </span> 
+                        <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                      </p>
+                      { 
+                        renderVideo({
+                          swing: album.swingVideos[0],
+                          i: idx,
+                          ref: playerRefs[idx],
+                          playing: playings[idx],
+                          pip: pips[idx],
+                          duration: playerFrames[idx],
+                          comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
+                        })
+                      }
+                    </div>
+                  )
+                })}
+              </div>
             </div>
-          </div>
+          }
 
           {/* Start Public Albums */}
 
@@ -454,6 +461,7 @@ const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
     albums: state.albums,
+    user: state.user,
   }
 }
 

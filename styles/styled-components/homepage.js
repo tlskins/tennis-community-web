@@ -1,4 +1,4 @@
-import styled from '@emotion/styled'
+import styled from "@emotion/styled"
 
 export const Header = styled.header`
   background: black;
@@ -72,7 +72,7 @@ export const Section = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  background: ${ props => props.bg || '#fff' };
+  background: ${ props => props.bg || "#fff" };
 `
 
 export const IconSection = styled.div`
@@ -156,7 +156,7 @@ export const CommunityVideos = styled.div`
   padding: 50px 20px;
   h2 {
     margin-bottom: 20px;
-    color: ${ props => props.theme.gray800 };
+    // color: ${ props => props.theme.gray800 };
     font-family: 'bold';
     font-size: 40px;
     text-align: center;

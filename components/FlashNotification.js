@@ -18,7 +18,7 @@ const getAlertClass = alertType => {
 const FlashNotif = ({ notifications, onRemoveNotification }) => {
   return (
     <div className="fixed absolute right-2 w-1/2 z-10 ml-12 mt-2 flex flex-col space-y-6 items-start">
-      { notifications.map( (note, i) => {
+      { (notifications || []).map( (note, i) => {
         return(
           <div key={i}
             onClick={ () => onRemoveNotification(note.id) }

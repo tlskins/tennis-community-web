@@ -2,6 +2,7 @@ import React, { useEffect, useState, Fragment } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment-timezone"
+import { useRouter } from "next/router"
 
 import Notifications from "../components/Notifications"
 import {
@@ -26,11 +27,31 @@ const Friends = ({
   displayAlert,
   unfriend,
 }) => {
+  const router = useRouter()
+
   const [search, setSearch] = useState("")
   const [foundUsers, setFoundUsers] = useState([])
   const [displayUserId, setDisplayUserId] = useState(undefined)
   const [activeFriendReq, setActiveFriendReq] = useState(undefined)
   const displayUser = usersCache[displayUserId]
+
+  useEffect(() => {
+    if (!user || !user.id) {
+      router.push("/")
+    }
+  }, [user])
+
+  if (!user) {
+    return(<Fragment/>)
+  }
+
+  useEffect(() => {
+    if (user.friendRequests.length > 0 || user.friendIds.length > 0) {
+      let ids = user.friendRequests.map( r => r.fromUserId === user.id ? r.toUserId : r.fromUserId)
+      ids = ids.filter( id => !usersCache[id])
+      searchFriends({ ids: [ ...ids, ...user.friendIds] })
+    }
+  }, [user.friendRequests, user.friendIds])
   
   useEffect(() => {
     if (user.friendRequests.length > 0 || user.friendIds.length > 0) {
@@ -94,8 +115,9 @@ const Friends = ({
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      <Notifications />
-
+      { (user && user.id) &&
+        <Notifications />
+      }
       <main className="flex flex-1 overflow-y-auto">
 
         {/* Begin Sidebar */}

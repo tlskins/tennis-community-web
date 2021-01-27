@@ -21,6 +21,7 @@ const NavBar = ({ user, signOut }) => {
 
   const onSignOut = async () => {
     await signOut()
+    window.localStorage.setItem("authToken", "")
     router.push("/")
   }
 

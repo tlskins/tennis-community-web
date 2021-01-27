@@ -45,6 +45,7 @@ let timer
 const Album = ({
   album,
   recentUploads,
+  user,
   usersCache,
 
   getRecentUploads,
@@ -372,7 +373,9 @@ const Album = ({
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      <Notifications />
+      { (user && user.id) &&
+        <Notifications />
+      }
 
       <main className="flex overflow-y-scroll bg-gray-100">
 
@@ -912,6 +915,7 @@ const mapStateToProps = (state) => {
   return {
     recentUploads: state.recentUploads,
     album: state.album,
+    user: state.user,
     usersCache: state.usersCache,
   }
 }

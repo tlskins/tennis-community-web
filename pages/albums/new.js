@@ -106,7 +106,9 @@ const NewAlbum = ({
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      <Notifications />
+      { (user && user.id) &&
+        <Notifications />
+      }
 
       <main className="flex flex-1 flex-col overflow-y-auto">
 

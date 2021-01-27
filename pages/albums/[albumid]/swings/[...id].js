@@ -17,6 +17,7 @@ let posting = false
 
 const Album = ({
   album,
+  user,
   usersCache,
 
   loadAlbum,
@@ -215,7 +216,9 @@ const Album = ({
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      <Notifications />
+      { (user && user.id) &&
+        <Notifications />
+      }
       <main className="flex overflow-y-scroll">
         <div className="py-8 px-24 grid grid-cols-2 gap-4 w-full">
           {/* Swing Video Column */}
@@ -382,6 +385,7 @@ const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
     album: state.album,
+    user: state.user,
     usersCache: state.usersCache,
   }
 }
@@ -396,6 +400,7 @@ const mapDispatchToProps = (dispatch) => {
   
 Album.propTypes = {
   album: PropTypes.object,
+  user: PropTypes.object,
   usersCache: PropTypes.object,
 
   loadAlbum: PropTypes.func,

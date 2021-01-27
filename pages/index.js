@@ -43,8 +43,7 @@ const Index = ({ albums, loadAlbums }) => {
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
-  const [publicAlbumsPage, setPublicAlbumsPage] = useState(0)
-  const publicActiveAlbums = albums.publicAlbums.slice(publicAlbumsPage * albumsPerRow, (publicAlbumsPage+1) * albumsPerRow).filter( a => !!a )
+  const publicActiveAlbums = albums.publicAlbums.slice(0, albumsPerRow).filter( a => !!a )
 
   useEffect(() => {
     loadAlbums()
@@ -53,9 +52,9 @@ const Index = ({ albums, loadAlbums }) => {
   useEffect(() => {
     const activeAlbums = [...publicActiveAlbums]
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
-    setPlayings(activeAlbums.map(() => false))
+    setPlayings(activeAlbums.map(() => true))
     setPips(activeAlbums.map(() => false))
-  }, [albums.publicAlbums, publicAlbumsPage])
+  }, [albums.publicAlbums])
 
   const handleSeekChange = (playerRef, i) => e => {
     const frame = parseFloat(e.target.value)

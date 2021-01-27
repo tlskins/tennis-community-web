@@ -206,7 +206,7 @@ const Index = ({ albums, loadAlbums }) => {
           </IconContainer>
         </IconSection>
       </Section>
-      <Section bg={ colors.gray800 }>
+      {/* <Section bg={ colors.gray800 }>
         <VideoSection>
           <h2>See How It Works</h2>
           <VideoWrapper>
@@ -215,46 +215,48 @@ const Index = ({ albums, loadAlbums }) => {
             </VideoInnerWrapper>
           </VideoWrapper>
         </VideoSection>
-      </Section>
-      <Section>
-        <CommunityVideos>
-          <div className="flex flex-col">
-            <h2 className="underline cursor-pointer text-blue-600"
-              onClick={() => router.push("/albums")}
-            >
+      </Section> */}
+      <div className="w-full border border-t border-gray-300">
+        <Section>
+          <CommunityVideos>
+            <div className="flex flex-col">
+              <h2 className="underline cursor-pointer text-blue-600"
+                onClick={() => router.push("/albums")}
+              >
               Latest Community Uploads
-            </h2>
-            { publicActiveAlbums.map( (album, idx) => {
-              return (
-                <div key={idx}
-                  className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
-                >
-                  <p className="font-semibold text-blue-700 underline cursor-pointer"
-                    onClick={() => router.push(`/albums/${album.id}`)}
+              </h2>
+              { publicActiveAlbums.map( (album, idx) => {
+                return (
+                  <div key={idx}
+                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
                   >
-                    { album.name }
-                  </p>
-                  <p>
-                    <span className="font-semibold text-xs"> Created: </span> 
-                    <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
-                  </p>
-                  { 
-                    renderVideo({
-                      swing: album.swingVideos[0],
-                      i: idx,
-                      ref: playerRefs[idx],
-                      playing: playings[idx],
-                      pip: pips[idx],
-                      duration: playerFrames[idx],
-                      comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
-                    })
-                  }
-                </div>
-              )
-            })}
-          </div>          
-        </CommunityVideos>
-      </Section>
+                    <p className="font-semibold text-blue-700 underline cursor-pointer"
+                      onClick={() => router.push(`/albums/${album.id}`)}
+                    >
+                      { album.name }
+                    </p>
+                    <p>
+                      <span className="font-semibold text-xs"> Created: </span> 
+                      <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                    </p>
+                    { 
+                      renderVideo({
+                        swing: album.swingVideos[0],
+                        i: idx,
+                        ref: playerRefs[idx],
+                        playing: playings[idx],
+                        pip: pips[idx],
+                        duration: playerFrames[idx],
+                        comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
+                      })
+                    }
+                  </div>
+                )
+              })}
+            </div>          
+          </CommunityVideos>
+        </Section>
+      </div>
       <Footer bg={ footerBg } mobileBg={ footerBgMobile }>
         <FooterInner>
           <p className="footer-title">Have questions or feedback?</p>

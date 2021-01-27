@@ -1,7 +1,7 @@
 import axios from "axios"
 
 
-const API_HOST = process.env.VERCEL_GITHUB_COMMIT_REF === "production"
+const API_HOST = process.env.VERCEL_GIT_COMMIT_REF === "production"
   ? process.env.NEXT_PUBLIC_PROD_API_HOST
   : process.env.NEXT_PUBLIC_API_HOST
 

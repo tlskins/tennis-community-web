@@ -38,7 +38,7 @@ const albumsPerRow = 3
 
 const Index = ({ albums, loadAlbums }) => {
 
-  console.log("env", process.env.VERCEL_GITHUB_COMMIT_REF, process.env.VERCEL_GIT_COMMIT_REF, process.env.VERCEL_ENV)
+  console.log("env", process.env.VERCEL_GITHUB_COMMIT_REF, process.env.VERCEL_GIT_COMMIT_REF, process.env.VERCEL_ENV, process.env.ENV_TYPE)
   const router = useRouter()
 
   const [playerRefs, setPlayerRefs] = useState([])

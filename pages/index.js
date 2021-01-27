@@ -15,7 +15,7 @@ import camera from "../public/camera-icon.svg"
 import racket from "../public/racket-icon.svg"
 import speech from "../public/speech-icon.svg"
 import speechBubble from "../public/speech-bubble.svg"
-import colors from "../styles/colors.js"
+// import colors from "../styles/colors.js"
 
 import {
   CTAButton,
@@ -25,9 +25,9 @@ import {
   IconContainer,
   IconSection,
   Section,
-  VideoSection,
-  VideoWrapper,
-  VideoInnerWrapper,
+  // VideoSection,
+  // VideoWrapper,
+  // VideoInnerWrapper,
   CommunityVideos,
   Footer,
   FooterInner,
@@ -37,6 +37,8 @@ const SWING_FRAMES = 45
 const albumsPerRow = 3
 
 const Index = ({ albums, loadAlbums }) => {
+
+  console.log("env", process.env.VERCEL_GITHUB_COMMIT_REF, process.env.VERCEL_GIT_COMMIT_REF, process.env.VERCEL_ENV)
   const router = useRouter()
 
   const [playerRefs, setPlayerRefs] = useState([])

@@ -7,9 +7,12 @@ import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
 import { newNotification } from "../state/ui/action"
 import bg from "../public/homepage-bg.jpg"
 import mobileBg from "../public/homepage-mobile.jpg"
+import footerBg from "../public/footer.jpg"
+import footerBgMobile from "../public/footer-mobile.jpg"
 import camera from "../public/camera-icon.svg"
 import racket from "../public/racket-icon.svg"
 import speech from "../public/speech-icon.svg"
+import colors from "../styles/colors.js"
 
 import {
   CTAButton,
@@ -19,6 +22,12 @@ import {
   IconContainer,
   IconSection,
   Section,
+  VideoSection,
+  VideoWrapper,
+  VideoInnerWrapper,
+  CommunityVideos,
+  Footer,
+  FooterInner,
 } from "../styles/styled-components"
 
 const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
@@ -92,6 +101,27 @@ const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
           </IconContainer>
         </IconSection>
       </Section>
+      <Section bg={ colors.gray800 }>
+        <VideoSection>
+          <h2>See How It Works</h2>
+          <VideoWrapper>
+            <VideoInnerWrapper>
+              <iframe width="560" height="315" src="https://www.youtube.com/embed/CGRzfUccmNE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </VideoInnerWrapper>
+          </VideoWrapper>
+        </VideoSection>
+      </Section>
+      <Section>
+        <CommunityVideos>
+          <h2>Latest Community Uploads</h2>
+        </CommunityVideos>
+      </Section>
+      <Footer bg={ footerBg } mobileBg={ footerBgMobile }>
+        <FooterInner>
+          <p className="footer-title">Have a question or feedback?</p>
+          <p className="footer-subtitle">Reach us at <a href="mailto: queenbee@hivetennis.com">queenbee@hivetennis.com</a></p>
+        </FooterInner>
+      </Footer>
       {/*<main className="flex flex-1 overflow-y-auto content-center justify-center items-center">
         { user &&
           <div className="p-8">

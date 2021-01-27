@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react"
+import React, { useState } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Link from "next/link"
@@ -15,10 +15,6 @@ import {
 
 
 const NavBar = ({ user, signOut }) => {
-  // if (!user || !user.id) {
-  //   return(<Fragment />)
-  // }
-
   const router = useRouter()
 
   const [showLogin, setShowLogin] = useState(false)

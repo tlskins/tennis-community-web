@@ -51,10 +51,15 @@ const Friends = ({
   }
 
   const onSearchUsers = async e => {
-    setSearch(e.target.value)
+    const search = e.target.value
+    setSearch(search)
     executeAfterTimeout(async () => {
-      const friends = await searchFriends({ search: e.target.value })
-      setFoundUsers(friends)
+      if (search) {
+        const friends = await searchFriends({ search })
+        setFoundUsers(friends)
+      } else {
+        setFoundUsers([])
+      }
     }, 700)
   }
 
@@ -95,18 +100,18 @@ const Friends = ({
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll">
+        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll border-r border-gray-400">
           <div className="flex flex-col content-center justify-center items-center text-sm">
 
             {/* Search Users Sidebar */}
             <Fragment>
-              <h2 className="text-blue-400 underline">
+              <h2 className="text-blue-400 underline mb-2">
                 Search Users
               </h2>
               <div className="mb-2 flex flex-col">
                 <input type="text"
                   placeholder="search"
-                  className="rounded border border-black m-1 p-1"
+                  className="rounded border border-gray-400 m-1 p-1 text-center shadow"
                   value={search}
                   onChange={onSearchUsers}
                 />
@@ -142,9 +147,9 @@ const Friends = ({
 
         {/* Begin Main */}
 
-        <div className="p-4 flex flex-col flex-wrap w-4/5">
+        <div className="p-4 flex flex-col flex-wrap w-4/5 bg-gray-100">
           { displayUser &&
-            <div className="p-4 mb-4">
+            <div className="p-4 mb-4 bg-white rounded shadow-md">
               <h2> 
                 <span className="font-semibold mr-1">Username:</span>
                 { displayUser.userName }
@@ -160,46 +165,51 @@ const Friends = ({
             </div>
           }
 
-          <div className="p-4 mb-4">
-            <h2>
+          <div className="flex flex-row grid grid-cols-2 bg-white rounded shadow-md">
+            <div className="p-4 mb-4">
+              <div className="content-center justify-center items-center mb-2">
+                <h2 className="underline font-semibold text-center">
                 Requests
-            </h2>
-            <div className="flex flex-col">
-              { user.friendRequests.length === 0 &&
+                </h2>
+              </div>
+              <div className="flex flex-col">
+                { user.friendRequests.length === 0 &&
                 <h2>None</h2>
-              }
-              { user.friendRequests.map(req => {
-                if (req.fromUserId === user.id) {
-                  const cache = usersCache[req.toUserId]
+                }
+                { user.friendRequests.map(req => {
+                  if (req.fromUserId === user.id) {
+                    const cache = usersCache[req.toUserId]
+                    return(
+                      <div key={req.id}
+                        className="border border-gray-200 rounded my-1 p-2 bg-gray-200 shadow-md"
+                      >
+                        <div className="flex flex-row content-center justify-center items-center">
+                          <p>Pending friend request to</p>
+                          <span className="underline text-blue-400 cursor-pointer ml-1"
+                            onClick={() => setDisplayUserId(req.fromUserId)}
+                          >
+                            { cache ? `${cache.userName} (${cache.firstName} ${cache.lastName})` : "..." }
+                          </span>
+                        </div>
+                      </div>
+                    )
+                  }
+                  const cache = usersCache[req.fromUserId]
                   return(
                     <div key={req.id}
-                      className="border rounded my-1 p-2 w-1/4 bg-gray-200"
+                      className="flex flex-col border rounded my-1 p-2 bg-yellow-200"
+                      onMouseEnter={() => setActiveFriendReq(req.id)}
+                      onMouseLeave={() => setActiveFriendReq(undefined)}
                     >
-                        Pending friend request to
-                      <span className="underline text-blue-400 cursor-pointer ml-1"
-                        onClick={() => setDisplayUserId(req.fromUserId)}
-                      >
-                        { cache ? `${cache.userName} (${cache.firstName} ${cache.lastName})` : "..." }
-                      </span>
-                    </div>
-                  )
-                }
-                const cache = usersCache[req.fromUserId]
-                return(
-                  <div key={req.id}
-                    className="flex flex-col border rounded my-1 p-2 bg-yellow-200"
-                    onMouseEnter={() => setActiveFriendReq(req.id)}
-                    onMouseLeave={() => setActiveFriendReq(undefined)}
-                  >
-                    <div className="flex flex-row">
+                      <div className="flex flex-row">
                         Pending friend request from
-                      <span className="underline text-blue-400 cursor-pointer ml-1"
-                        onClick={() => setDisplayUserId(req.fromUserId)}
-                      >
-                        { cache ? cache.userName : "..." }
-                      </span>
-                    </div>
-                    { activeFriendReq === req.id &&
+                        <span className="underline text-blue-400 cursor-pointer ml-1"
+                          onClick={() => setDisplayUserId(req.fromUserId)}
+                        >
+                          { cache ? cache.userName : "..." }
+                        </span>
+                      </div>
+                      { activeFriendReq === req.id &&
                         <div className="flex flex-row">
                           <button className="rounded mx-1 p-2 underline bg-green-400 cursor-pointer"
                             onClick={onAcceptFriendRequest(req.id, true)}
@@ -212,52 +222,54 @@ const Friends = ({
                             Reject
                           </button>
                         </div>
-                    }
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="p-4 mb-4">
-            <h2>
-            Friends
-            </h2>
-            <div className="flex flex-col">
-              { user.friendIds.length === 0 &&
-                <h2>None</h2>
-              }
-              { user.friendIds.map(friendId => {
-                const cache = usersCache[friendId]
-                return(
-                  <div key={friendId}
-                    className="flex flex-col border rounded my-1 p-2 w-1/4 bg-yellow-200"
-                    onMouseEnter={() => setActiveFriendReq(friendId)}
-                    onMouseLeave={() => setActiveFriendReq(undefined)}
-                  >
-                    <div className="flex flex-row">
-                      <span className="underline text-blue-400 cursor-pointer ml-1"
-                        onClick={() => setDisplayUserId(friendId)}
-                      >
-                        { cache ? cache.userName : "..." } ({ cache ? `${cache.firstName} ${cache.lastName}` : "..." })
-                      </span>
+                      }
                     </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            <div className="p-4 mb-4">
+              <div className="content-center justify-center items-center mb-2">
+                <h2 className="underline font-semibold text-center">
+                Friends
+                </h2>
+              </div>
+              <div className="flex flex-col">
+                { user.friendIds.length === 0 &&
+                <h2>None</h2>
+                }
+                { user.friendIds.map(friendId => {
+                  const cache = usersCache[friendId]
+                  return(
+                    <div key={friendId}
+                      className="flex flex-row border border-gray-200 rounded my-1 p-2 bg-yellow-200 shadow-md content-center justify-center items-center"
+                      onMouseEnter={() => setActiveFriendReq(friendId)}
+                      onMouseLeave={() => setActiveFriendReq(undefined)}
+                    >
+                      <div className="flex flex-row">
+                        <span className="underline text-blue-400 cursor-pointer ml-1"
+                          onClick={() => setDisplayUserId(friendId)}
+                        >
+                          { cache ? cache.userName : "..." } ({ cache ? `${cache.firstName} ${cache.lastName}` : "..." })
+                        </span>
+                      </div>
                     
-                    { activeFriendReq === friendId &&
+                      { activeFriendReq === friendId &&
                         <div className="flex flex-row">
-                          <button className="rounded mx-1 p-2 underline bg-red-400 cursor-pointer"
+                          <button className="rounded ml-2 px-2 py-0.5 underline bg-red-400 cursor-pointer"
                             onClick={onUnfriend( friendId, cache?.userName)}
                           >
                             Unfriend
                           </button>
                         </div>
-                    }
-                  </div>
-                )
-              })}
+                      }
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
-          
         </div>
         {/* End Main */}
       </main>

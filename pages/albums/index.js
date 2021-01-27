@@ -405,7 +405,7 @@ const AlbumsIndex = ({
             </div>
 
             <div className="flex flex-row">
-              { myActiveAlbums.length === 0 &&
+              { publicActiveAlbums.length === 0 &&
                 <div className="w-full py-2 px-12 content-center justify-center items-center">
                   <h2 className="font-semibold text-center">None</h2>
                 </div>

@@ -39,6 +39,7 @@ const LoginForm = ({ createUser, signIn, signOut, user, displayAlert }) => {
     if (success) {
       clearForm()
       displayAlert({ alertType: "success", message: `Confirmation email sent to ${email}`})
+      setIsNewUser(false)
     }
   }
 

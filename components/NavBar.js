@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 
 import { SignOut } from "../behavior/coordinators/users"
+import LoginForm from "./LoginForm"
 
 import {
   DropdownLink,
@@ -20,6 +21,8 @@ const NavBar = ({ user, signOut }) => {
 
   const router = useRouter()
 
+  const [showLogin, setShowLogin] = useState(false)
+
   const onSignOut = async () => {
     await signOut()
     router.push("/")
@@ -32,7 +35,14 @@ const NavBar = ({ user, signOut }) => {
       </Link>
       { !user || !user.id ?
         <LinksContainer>
-          <a href="#">Sign In</a>
+          <div className="static">
+            <a href="#" onClick={() => setShowLogin(!showLogin)}>Sign In</a>
+            { showLogin &&
+            <div className="absolute z-10 float-left mt-7 -mx-36">
+              <LoginForm />
+            </div>
+            }
+          </div>
         </LinksContainer>
         :
         <LinksContainer>

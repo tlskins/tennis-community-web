@@ -9,6 +9,7 @@ import "react-datepicker/dist/react-datepicker.css"
 
 import Notifications from "../../components/Notifications"
 import { LoadAlbums } from "../../behavior/coordinators/albums"
+import speechBubble from "../../public/speech-bubble.svg"
 
 const SWING_FRAMES = 45
 const albumsPerRow = 3
@@ -69,7 +70,7 @@ const AlbumsIndex = ({
     }
   }
 
-  const renderVideo = ({ albumId, swing, i, ref, playing, pip, duration, comments }) => {
+  const renderVideo = ({ swing, i, ref, playing, pip, duration, comments }) => {
     if (!swing) {
       return null
     }
@@ -98,11 +99,6 @@ const AlbumsIndex = ({
 
         {/* Controls Panel */}
         <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-          <input type='button'
-            className='border rounded py-0.5 px-1 mx-1 text-xs font-bold bg-indigo-700 text-white cursor-pointer'
-            value='view'
-            onClick={() => router.push(`/albums/${albumId}`)}
-          />
 
           {/* Picture in Picture */}
           { pip &&
@@ -176,8 +172,9 @@ const AlbumsIndex = ({
             <span> { duration ? duration : "0" }/{SWING_FRAMES}</span>
           </div>
 
-          <div className="bg-white rounded p-0.5 mx-1 text-xs">
-            <span> { comments } @ </span>
+          <div className="flex flex-row bg-white rounded mx-1 text-xs py-0.5 w-8">
+            <p className="mr-1 text-center">{ comments }</p>
+            <img src={speechBubble} className="w-5 h-5"/>
           </div>
         </div>
       </Fragment>
@@ -193,23 +190,22 @@ const AlbumsIndex = ({
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      {/* <header>{title}</header> */}
       <Notifications />
 
       <main className="flex flex-1 overflow-y-auto">
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll">
+        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll border-r border-gray-400">
           <div className="flex flex-col content-center justify-center items-center text-sm">
 
-            <h2 className="text-blue-400 underline">
+            <h2 className="text-blue-400 underline mb-2">
                 Search Albums
             </h2>
             <div className="mb-2 flex flex-col">
               <input type="text"
                 placeholder="search"
-                className="rounded border border-black m-1 p-1"
+                className="rounded border border-gray-400 m-1 p-1 text-center shadow"
                 value={search}
                 onChange={onSearch}
               />
@@ -217,7 +213,7 @@ const AlbumsIndex = ({
             <div className="flex flex-row">
               <div className="flex flex-col mx-1">
                 <div className="flex flex-row m-0.5">
-                  <p className="text-center">
+                  <p className="text-center text-gray-400">
                   Start
                   </p>
                   { startDate &&
@@ -229,14 +225,14 @@ const AlbumsIndex = ({
                   }
                 </div>
                 <DatePicker
-                  className="rounded border border-black p-0.5 w-20 text-xs"
+                  className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow"
                   selected={startDate}
                   onChange={date => setStartDate(date)}
                 />
               </div>
               <div className="flex flex-col mx-1">
                 <div className="flex flex-row m-0.5">
-                  <p className="text-center">
+                  <p className="text-center text-gray-400">
                     End
                   </p>
                   { endDate &&
@@ -248,7 +244,7 @@ const AlbumsIndex = ({
                   }
                 </div>
                 <DatePicker
-                  className="rounded border border-black p-0.5 w-20 text-xs"
+                  className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow z-100"
                   selected={endDate}
                   onChange={date => setEndDate(date)}
                 />
@@ -262,36 +258,35 @@ const AlbumsIndex = ({
 
         {/* Begin Album Videos */}
 
-        <div className="p-4 flex flex-col w-4/5">
+        <div className="p-4 flex flex-col w-4/5 bg-gray-100">
 
           {/* Start My Albums */}
 
-          <div className="flex flex-col">
-            <div className="flex flex-row">
-              <h2>My Albums</h2>
-              <div className="p-4 flex flex-wrap w-4/5">
-                { myAlbumsPage > 0 &&
+          <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
+            <div className="flex flex-row content-center justify-center items-center mb-2">
+              { myAlbumsPage > 0 &&
                 <button
                   onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
-                  className="border border-black rounder p-0.5 mx-1"
+                  className="p-0.5 mx-1"
                 >
                   &lt;
                 </button>
-                }
-                { (myAlbumsPage < (albums.myAlbums.length / albumsPerRow)-1) &&
+              }
+              <h2 className="font-medium underline mx-2">My Albums</h2>
+              { (myAlbumsPage < (albums.myAlbums.length / albumsPerRow)-1) &&
                 <button
                   onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
-                  className="border border-black rounder p-0.5 mx-1"
+                  className="-0.5 mx-1"
                 >
                   &gt;
                 </button>
-                }
-              </div>
+              }
             </div>
+
             <div className="flex flex-row">
               { myActiveAlbums.length === 0 &&
-                <div className="py-2 px-12">
-                  <h2 className="font-semibold">None</h2>
+                <div className="w-full py-2 px-12 content-center justify-center items-center">
+                  <h2 className="font-semibold text-center">None</h2>
                 </div>
               }
               { myActiveAlbums.map( (album, i) => {
@@ -299,14 +294,17 @@ const AlbumsIndex = ({
                   <div key={i}
                     className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
                   >
-                    <p><span className="font-semibold">{ album.name }</span></p>
+                    <p className="font-semibold text-blue-700 underline cursor-pointer"
+                      onClick={() => router.push(`/albums/${album.id}`)}
+                    >
+                      { album.name }
+                    </p>
                     <p>
                       <span className="font-semibold text-xs"> Created: </span> 
                       <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
                     </p>
                     { 
                       renderVideo({
-                        albumId: album.id,
                         swing: album.swingVideos[0],
                         i,
                         ref: playerRefs[i],
@@ -324,48 +322,50 @@ const AlbumsIndex = ({
 
           {/* Start Friends Albums */}
 
-          <div className="flex flex-col">
-            <div className="flex flex-row">
-              <h2>Friends Albums</h2>
-              <div className="p-4 flex w-4/5">
-                { friendsAlbumsPage > 0 &&
+          <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md my-2">
+            <div className="flex flex-row content-center justify-center items-center mb-2">
+              { friendsAlbumsPage > 0 &&
                 <button
                   onClick={() => setFriendsAlbumsPage(friendsAlbumsPage-1)}
-                  className="border border-black rounder p-0.5 mx-1"
+                  className="p-0.5 mx-1"
                 >
                   &lt;
                 </button>
-                }
-                { (friendsAlbumsPage < (albums.friendsAlbums.length / albumsPerRow)-1) &&
+              }
+              <h2 className="font-medium underline mx-2">Friends Albums</h2>
+              { (friendsAlbumsPage < (albums.friendsAlbums.length / albumsPerRow)-1) &&
                 <button
                   onClick={() => setMyAlbumsPage(friendsAlbumsPage+1)}
-                  className="border border-black rounder p-0.5 mx-1"
+                  className="-0.5 mx-1"
                 >
                   &gt;
                 </button>
-                }
-              </div>
+              }
             </div>
+
             <div className="flex flex-row">
               { friendsActiveAlbums.length === 0 &&
-                <div className="py-2 px-12">
-                  <h2 className="font-semibold">None</h2>
+                <div className="w-full py-2 px-12 content-center justify-center items-center">
+                  <h2 className="font-semibold text-center">None</h2>
                 </div>
               }
               { friendsActiveAlbums.map( (album, i) => {
                 const idx = i + myActiveAlbums.length
                 return (
                   <div key={i}
-                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-gray-200"
+                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
                   >
-                    <p><span className="font-semibold">{ album.name }</span></p>
+                    <p className="font-semibold text-blue-700 underline cursor-pointer"
+                      onClick={() => router.push(`/albums/${album.id}`)}
+                    >
+                      { album.name }
+                    </p>
                     <p>
                       <span className="font-semibold text-xs"> Created: </span> 
                       <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
                     </p>
                     { 
                       renderVideo({
-                        albumId: album.id,
                         swing: album.swingVideos[0],
                         i: idx,
                         ref: playerRefs[idx],
@@ -383,50 +383,50 @@ const AlbumsIndex = ({
 
           {/* Start Public Albums */}
 
-          <div className="flex flex-col">
-            <div className="flex flex-row">
-              <div className="flex flex-col">
-                <h2>Public Albums</h2>
-                <div className="p-4 flex w-4/5">
-                  { publicAlbumsPage > 0 &&
+          <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
+            <div className="flex flex-row content-center justify-center items-center mb-2">
+              { publicAlbumsPage > 0 &&
                     <button
                       onClick={() => setPublicAlbumsPage(publicAlbumsPage-1)}
-                      className="border border-black rounder p-0.5 mx-1"
+                      className="p-0.5 mx-1"
                     >
                       &lt;
                     </button>
-                  }
-                  { (publicAlbumsPage < (albums.publicAlbums.length / albumsPerRow)-1) &&
+              }
+              <h2 className="font-medium underline mx-2">Public Albums</h2>
+              { (publicAlbumsPage < (albums.publicAlbums.length / albumsPerRow)-1) &&
                     <button
                       onClick={() => setMyAlbumsPage(publicAlbumsPage+1)}
-                      className="border border-black rounder p-0.5 mx-1"
+                      className="-0.5 mx-1"
                     >
                       &gt;
                     </button>
-                  }
-                </div>
-              </div>
+              }
             </div>
+
             <div className="flex flex-row">
-              { publicActiveAlbums.length === 0 &&
-                <div className="py-2 px-12">
-                  <h2 className="font-semibold">None</h2>
+              { myActiveAlbums.length === 0 &&
+                <div className="w-full py-2 px-12 content-center justify-center items-center">
+                  <h2 className="font-semibold text-center">None</h2>
                 </div>
               }
               { publicActiveAlbums.map( (album, i) => {
                 const idx = i + (myActiveAlbums.length) + (friendsActiveAlbums.length)
                 return (
                   <div key={i}
-                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-gray-200"
+                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
                   >
-                    <p><span className="font-semibold">{ album.name }</span></p>
+                    <p className="font-semibold text-blue-700 underline cursor-pointer"
+                      onClick={() => router.push(`/albums/${album.id}`)}
+                    >
+                      { album.name }
+                    </p>
                     <p>
                       <span className="font-semibold text-xs"> Created: </span> 
                       <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
                     </p>
                     { 
                       renderVideo({
-                        albumId: album.id,
                         swing: album.swingVideos[0],
                         i: idx,
                         ref: playerRefs[idx],

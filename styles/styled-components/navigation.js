@@ -1,4 +1,4 @@
-import styled from '@emotion/styled'
+import styled from "@emotion/styled"
 
 
 export const NavigationBar = styled.nav`
@@ -9,6 +9,7 @@ export const NavigationBar = styled.nav`
   padding: 0 30px;
   height: 50px;
   font-family: 'regular';
+  border-bottom: 1px solid rgba(156, 163, 175);
   color: ${ props => props.theme.gray800 };
 `
 

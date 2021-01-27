@@ -6,7 +6,7 @@ import { useRouter } from "next/router"
 import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
 import { newNotification } from "../state/ui/action"
 
-const SignIn = ({ createUser, signIn, signOut, user, displayAlert }) => {
+const LoginForm = ({ createUser, signIn, signOut, user, displayAlert }) => {
   const router = useRouter()
   const [isNewUser, setIsNewUser] = useState(false)
   const [firstName, setFirstName] = useState("")
@@ -51,7 +51,7 @@ const SignIn = ({ createUser, signIn, signOut, user, displayAlert }) => {
   }
 
   return (
-    <main className="flex flex-1 overflow-y-auto content-center justify-center items-center">
+    <div className="flex flex-1 overflow-y-auto content-center justify-center items-center bg-white p-8 rounded shadow-lg">
       { user &&
         <div className="p-8">
           <button onClick={signOut}>
@@ -60,7 +60,7 @@ const SignIn = ({ createUser, signIn, signOut, user, displayAlert }) => {
         </div>
       }
 
-      <div className="p-12">
+      <div>
         { isNewUser &&
           <div className="flex flex-col">
             <h2 className="my-2 font-bold">
@@ -138,7 +138,7 @@ const SignIn = ({ createUser, signIn, signOut, user, displayAlert }) => {
         }
 
       </div>
-    </main>
+    </div>
   )
 }
 
@@ -162,7 +162,7 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 
-SignIn.propTypes = {
+LoginForm.propTypes = {
   user: PropTypes.object,
 
   createUser: PropTypes.func,
@@ -172,4 +172,4 @@ SignIn.propTypes = {
 }
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignIn)
+export default connect(mapStateToProps, mapDispatchToProps)(LoginForm)

@@ -16,6 +16,7 @@ import {
 } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../..//behavior/coordinators/friends"
 import { setAlbum } from "../../state/album/action"
+import speechBubble from "../../public/speech-bubble.svg"
 
 const SWING_FRAMES = 45
 const REPLY_PREVIEW_LEN = 50
@@ -353,8 +354,9 @@ const Album = ({
             <span> { duration ? duration : "0" }/{SWING_FRAMES}</span>
           </div>
 
-          <div className="bg-white rounded p-0.5 mx-1 text-xs">
-            <span> {(swing.comments?.length || 0)} @ </span>
+          <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
+            <p className="mr-1 text-center">{(swing.comments?.length || 0)}</p>
+            <img src={speechBubble} className="w-5 h-5"/>
           </div>
 
           <input type='button'
@@ -370,14 +372,13 @@ const Album = ({
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
-      {/* <header>{title}</header> */}
       <Notifications />
 
-      <main className="flex overflow-y-scroll">
+      <main className="flex overflow-y-scroll bg-gray-100">
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/4 overflow-y-scroll">
+        <div className="h-screen top-0 sticky p-4 bg-white w-1/4 overflow-y-scroll border-r border-gray-400">
           <div className="flex flex-col content-center justify-center items-center text-sm">
 
             {/* Pro Comparison Sidebar */}
@@ -698,11 +699,19 @@ const Album = ({
         {/* Begin Album Videos */}
 
         <div className="p-4 flex flex-col w-3/4">
-          <h2 className="m-4 text-xl underline text-center">
+          {/* <h2 className="m-4 text-xl underline text-center">
             { album?.name }
-          </h2>
+          </h2> */}
 
-          <div className="flex flex-wrap">
+          <div className="mb-2 flex content-center justify-center items-center">
+            <input type="text"
+              className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border border-gray-200"
+              value={album.name}
+              onChange={onUpdateAlbumName}
+            />
+          </div>
+
+          <div className="flex flex-wrap rounded bg-white px-2 py-4 shadow-md mb-2">
             { pageVideos.map( (swing, i) => {
               let width
               if (albumView === "video") {
@@ -786,17 +795,13 @@ const Album = ({
       </main>
 
       {/* All Video Controls Footer */}
-      <footer className="sticky flex flex-wrap bg-blue-100">
+      <footer className="sticky flex flex-wrap bg-gray-200 border-t border-gray-400">
         <div className="p-4 w-full flex flex-row content-center justify-center items-center">
           { album &&
             <div className="flex flex-col mr-4">
-              <input type="text"
-                value={album.name}
-                onChange={onUpdateAlbumName}
-              />
               <div className="flex flex-row">
                 <select
-                  className="my-1 mr-1"
+                  className="my-1 mr-1 rounded border border-gray-500"
                   onChange={e => {
                     setAlbumView(e.target.value)
                     setSwingsPerPage(swingVieMap[e.target.value])
@@ -874,7 +879,9 @@ const Album = ({
           </div>
 
           <div className="flex flex-col">
-            <h2>Page { albumPage+1 }</h2>
+            <h2 className="underline text-blue-500">
+              Page { albumPage+1 }
+            </h2>
             <div className="flex flex-row">
               { albumPage > 0 &&
                 <button

@@ -5,12 +5,20 @@ import { useRouter } from "next/router"
 
 import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
 import { newNotification } from "../state/ui/action"
-import bg from "../styles/images/homepage-bg.jpg"
+import bg from "../public/homepage-bg.jpg"
+import mobileBg from "../public/homepage-mobile.jpg"
+import camera from "../public/camera-icon.svg"
+import racket from "../public/racket-icon.svg"
+import speech from "../public/speech-icon.svg"
+
 import {
   CTAButton,
   Header,
   HeaderTitle,
   HeaderTitleContainer,
+  IconContainer,
+  IconSection,
+  Section,
 } from "../styles/styled-components"
 
 const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
@@ -59,12 +67,31 @@ const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
 
   return (
     <div>
-      <Header bg={ bg }>
+      <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>
           <HeaderTitle>Upload videos of you playing tennis from your phone & get feedback from your coach or the community!</HeaderTitle>
           <CTAButton>Get Started</CTAButton>
         </HeaderTitleContainer>
       </Header>
+      <Section>
+        <IconSection>
+          <IconContainer>
+            <img src={ camera }/>
+            <h3>Upload Videos</h3>
+            <p>Upload videos of yourself playing tennis and automatically have all swings exported with our AI.</p>
+          </IconContainer>
+          <IconContainer>
+            <img src={ racket }/>
+            <h3>Analyze Swings</h3>
+            <p>Watch your swings on our state of the art video analysis platform and compare your swings frame by frame with the pros.</p>
+          </IconContainer>
+          <IconContainer>
+            <img src={ speech }/>
+            <h3>Get Feedback</h3>
+            <p>Share your swings with friends, coaches, or the community to get frame by frame feedback on your swings.</p>
+          </IconContainer>
+        </IconSection>
+      </Section>
       {/*<main className="flex flex-1 overflow-y-auto content-center justify-center items-center">
         { user &&
           <div className="p-8">

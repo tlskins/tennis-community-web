@@ -5,7 +5,13 @@ import { useRouter } from "next/router"
 
 import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
 import { newNotification } from "../state/ui/action"
-
+import bg from "../styles/images/homepage-bg.jpg"
+import {
+  CTAButton,
+  Header,
+  HeaderTitle,
+  HeaderTitleContainer,
+} from "../styles/styled-components"
 
 const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
   const router = useRouter()
@@ -52,8 +58,14 @@ const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
   }
 
   return (
-    <div className="flex flex-col h-screen min-h-screen">
-      <main className="flex flex-1 overflow-y-auto content-center justify-center items-center">
+    <div>
+      <Header bg={ bg }>
+        <HeaderTitleContainer>
+          <HeaderTitle>Upload videos of you playing tennis from your phone & get feedback from your coach or the community!</HeaderTitle>
+          <CTAButton>Get Started</CTAButton>
+        </HeaderTitleContainer>
+      </Header>
+      {/*<main className="flex flex-1 overflow-y-auto content-center justify-center items-center">
         { user &&
           <div className="p-8">
             <button onClick={signOut}>
@@ -61,7 +73,7 @@ const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
             </button>
           </div>
         }
-        
+
         <div className="p-12">
           { isNewUser &&
             <div className="flex flex-col">
@@ -140,7 +152,7 @@ const Index = ({ createUser, signIn, signOut, user, displayAlert }) => {
           }
 
         </div>
-      </main>
+      </main>*/}
     </div>
   )
 }

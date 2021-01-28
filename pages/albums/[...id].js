@@ -34,7 +34,7 @@ const publicVideos = [
   },
 ]
 
-const swingVieMap = {
+const swingViewMap = {
   "video": 9,
   "gif": 24,
   "jpg": 24,
@@ -798,27 +798,32 @@ const Album = ({
       </main>
 
       {/* All Video Controls Footer */}
-      <footer className="sticky flex flex-wrap bg-gray-200 border-t border-gray-400">
+      <footer className="absolute bottom-0 sticky w-full bg-gray-200 border-t border-gray-400 mb-0">
         <div className="p-4 w-full flex flex-row content-center justify-center items-center">
           { album &&
-            <div className="flex flex-col mr-4">
-              <div className="flex flex-row">
-                <select
-                  className="my-1 mr-1 rounded border border-gray-500"
-                  onChange={e => {
-                    setAlbumView(e.target.value)
-                    setSwingsPerPage(swingVieMap[e.target.value])
-                  }}
-                >
-                  { ["video", "gif", "jpg"].map((view, i) => {
-                    return(
-                      <option key={i} value={view}>{ view }</option>
-                    )
-                  })}
-                </select>
-                <p>
-                  ({ album.swingVideos.length })
+            <div className="flex flex-col mr-8">
+              <div className="flex flex-col">
+                <p className="text-sm underline font-semibold">
+                  Analysis Format
                 </p>
+                <div className="flex flex-row">
+                  <select
+                    className="my-1 mr-1 rounded border border-gray-500"
+                    onChange={e => {
+                      setAlbumView(e.target.value)
+                      setSwingsPerPage(swingViewMap[e.target.value])
+                    }}
+                  >
+                    { Object.entries(swingViewMap).map(([type, count], i) => {
+                      return(
+                        <option key={i} value={type}>{ type } ({count})</option>
+                      )
+                    })}
+                  </select>
+                  <p>
+                    ({ album.swingVideos.length })
+                  </p>
+                </div>
               </div>
             </div>
           }

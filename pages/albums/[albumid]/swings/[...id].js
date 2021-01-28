@@ -89,7 +89,11 @@ const Album = ({
   }
 
   const onSeekTo = frame => {
+    if (frame == null) {
+      return
+    }
     const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
+    console.log("seekto", seekTo, frame)
     playerRef.current.seekTo(seekTo)
     setPlayerFrame(frame)
   }
@@ -352,7 +356,7 @@ const Album = ({
                             |
                             </p>
                             <p className="text-xs align-middle font-medium">
-                            frame {comment.frame}
+                            frame {comment.frame || 0}
                             </p>
                             <p className="mx-2 text-sm align-middle font-bold">
                             |
@@ -362,6 +366,7 @@ const Album = ({
                               value='reply'
                               onClick={() => {
                                 setReplyId(comment.id)
+                                setPlayerFrame(comment.frame)
                                 setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
                               }}
                             />

@@ -37,8 +37,15 @@ const SWING_FRAMES = 45
 const albumsPerRow = 3
 
 const Index = ({ albums, loadAlbums }) => {
-
-  console.log("env", process.env.VERCEL_GITHUB_COMMIT_REF, process.env.VERCEL_GIT_COMMIT_REF, process.env.VERCEL_ENV, process.env.ENV_TYPE)
+  console.log(
+    "env",
+    process.env.VERCEL_GITHUB_COMMIT_REF,
+    process.env.VERCEL_GIT_COMMIT_REF,
+    process.env.VERCEL_ENV,
+    process.env.ENV_TYPE,
+    process.env.NEXT_PUBLIC_PROD_API_HOST,
+    process.env.NEXT_PUBLIC_API_HOST,
+  )
   const router = useRouter()
 
   const [playerRefs, setPlayerRefs] = useState([])

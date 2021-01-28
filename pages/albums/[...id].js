@@ -709,7 +709,7 @@ const Album = ({
           <div className="mb-2 flex content-center justify-center items-center">
             <input type="text"
               className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border border-gray-200"
-              value={album.name}
+              value={album?.name}
               onChange={onUpdateAlbumName}
             />
           </div>

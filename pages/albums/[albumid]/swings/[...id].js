@@ -209,8 +209,8 @@ const Album = ({
             }}
           />
 
-          <div className="bg-white rounded p-0.5 mx-1 text-xs">
-            <span> { duration ? duration : "0" }/{SWING_FRAMES}</span>
+          <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
+            <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
           </div>
         </div>
       </Fragment>

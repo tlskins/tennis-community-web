@@ -8,7 +8,7 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 
 import Notifications from "../../components/Notifications"
-import { LoadAlbums } from "../../behavior/coordinators/albums"
+import { LoadAlbums, DeleteAlbum } from "../../behavior/coordinators/albums"
 import speechBubble from "../../public/speech-bubble.svg"
 
 const SWING_FRAMES = 45
@@ -24,6 +24,7 @@ const AlbumsIndex = ({
   albums,
   user,
 
+  deleteAlbum,
   loadAlbums,
 }) => {
   const router = useRouter()
@@ -31,6 +32,9 @@ const AlbumsIndex = ({
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
+
+  const [hoveredAlbum, setHoveredAlbum] = useState(undefined)
+  const [toDeleteAlbum, setToDeleteAlbum] = useState(undefined)
 
   const [myAlbumsPage, setMyAlbumsPage] = useState(0)
   const [friendsAlbumsPage, setFriendsAlbumsPage] = useState(0)
@@ -169,8 +173,8 @@ const AlbumsIndex = ({
             }}
           />
 
-          <div className="bg-white rounded p-0.5 mx-1 text-xs">
-            <span> { duration ? duration : "0" }/{SWING_FRAMES}</span>
+          <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
+            <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
           </div>
 
           <div className="flex flex-row bg-white rounded mx-1 text-xs py-0.5 w-8">
@@ -297,7 +301,42 @@ const AlbumsIndex = ({
                   return (
                     <div key={i}
                       className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
+                      onMouseOver={() => setHoveredAlbum(album.id)}
+                      onMouseLeave={() => {
+                        setHoveredAlbum(undefined)
+                        setToDeleteAlbum(undefined)
+                      }}
                     >
+                      { (hoveredAlbum === album.id && !toDeleteAlbum) &&
+                        <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
+                          onClick={() => {
+                            setHoveredAlbum(undefined)
+                            setToDeleteAlbum(album.id)
+                          }}
+                        >
+                          Delete
+                        </button>
+                      }
+                      { toDeleteAlbum === album.id &&
+                        <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
+                          onClick={() => {
+                            setToDeleteAlbum(undefined)
+                          }}
+                        >
+                          Cancel?
+                        </button>
+                      }
+                      { toDeleteAlbum === album.id &&
+                        <button className="absolute top-6 right-4 underline text-sm text-blue-400 cursor-pointer"
+                          onClick={() => {
+                            setToDeleteAlbum(undefined)
+                            deleteAlbum(album.id)
+                          }}
+                        >
+                          Confirm?
+                        </button>
+                      }
+                  
                       <p className="font-semibold text-blue-700 underline cursor-pointer"
                         onClick={() => router.push(`/albums/${album.id}`)}
                       >
@@ -467,6 +506,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    deleteAlbum: DeleteAlbum(dispatch),
     loadAlbums: LoadAlbums(dispatch),
   }
 }
@@ -475,6 +515,7 @@ AlbumsIndex.propTypes = {
   albums: PropTypes.object,
   user: PropTypes.object,
 
+  deleteAlbum: PropTypes.func,
   loadAlbums: PropTypes.func,
 }
 

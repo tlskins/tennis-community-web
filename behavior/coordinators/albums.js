@@ -1,4 +1,4 @@
-import { get, put, post } from "../api/rest"
+import { get, put, post, del } from "../api/rest"
 import { setAlbum } from "../../state/album/action"
 import { HandleError } from "./errors"
 import { newNotification } from "../../state/ui/action"
@@ -21,6 +21,19 @@ export const LoadAlbum = (dispatch) => async (albumId) => {
   try {
     const response = await get(`/albums/${albumId}`)
     dispatch(setAlbum(response.data))
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+  return true
+}
+
+export const DeleteAlbum = (dispatch) => async (albumId) => {
+  try {
+    await del(`/albums/${albumId}`)
+    const response = await get("/albums")
+    dispatch(setAlbums(response.data))
   }
   catch( err ) {
     HandleError(dispatch, err)

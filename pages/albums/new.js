@@ -10,7 +10,7 @@ import { LoadAlbums, CreateAlbum } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
 import { newNotification } from "../../state/ui/action"
 
-const AlbumsPerPage = 3
+const AlbumsPerPage = 4
 const SwingsPerPage = 6
 
 const NewAlbum = ({
@@ -28,7 +28,6 @@ const NewAlbum = ({
   const [albumPage, setAlbumPage] = useState(0)
   const [activeSelectedSwing, setActiveSelectedSwing] = useState(0)
   const [activeAlbum, setActiveAlbum] = useState(undefined)
-  const [albumView, setAlbumView] = useState("gif")
   const [selectedSwings, setSelectedSwings] = useState([])
   const [newAlbumName, setNewAlbumName] = useState("")
   const [isPublic, setIsPublic] = useState(false)
@@ -96,7 +95,6 @@ const NewAlbum = ({
     setAlbumPage(0)
     setActiveSelectedSwing(0)
     setActiveAlbum(undefined)
-    setAlbumView("gif")
     setSelectedSwings([])
     setNewAlbumName("")
     setIsPublic(false)
@@ -110,75 +108,88 @@ const NewAlbum = ({
         <Notifications />
       }
 
-      <main className="flex flex-1 flex-col overflow-y-auto">
+      <main className="flex flex-1 flex-col overflow-y-auto bg-white p-8">
 
         {/* Begin Main */}
 
-        <div className="p-4 flex flex-row flex-wrap w-full">
-          <h2>Create Album From</h2>
-          <select className="ml-1 border rounded border-black p-1"
-            onChange={e => setUploadType(e.target.value)}
-          >
-            <option value="File">File</option>
-            <option value="Album">Album</option>
-          </select>
-        </div>
+        <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-6 border border-black shadow-md">
+          <div className="p-4 flex flex-row">
+            <h2>Create Album From</h2>
+            <select className="ml-1 border rounded border-black p-1"
+              onChange={e => setUploadType(e.target.value)}
+            >
+              <option value="File">File</option>
+              <option value="Album">Album</option>
+            </select>
+          </div>
 
-        { uploadType === "File" &&
+          { uploadType === "File" &&
             <div className="p-4 flex flex-col flex-wrap w-full">
               <SwingUploader />
             </div>
-        }
+          }
+        </div>
 
         { uploadType === "Album" &&
-            <div className="p-4 flex flex-col">
+          <Fragment>
+            <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-6 border border-black shadow-md">
 
               {/* Begin My Albums Row */}
 
-              <div className="flex flex-row w-full">
-                { albumPage > 1 &&
+              <div className="w-full content-center justify-center items-center mb-4">
+                <h2 className="text-center underline text-lg font-semibold mb-2">Select Album</h2>
+
+                <div className="flex flex-row">
+                  { albumsPage > 0 &&
                     <button onClick={() => setAlbumsPage(albumsPage-1)}>&lt;</button>
-                }
-                { activeAlbums.map( album => {
-                  const bg = activeAlbum?.id === album.id ? "bg-gray-300" : ""
-                  return(
-                    <div key={album.id}
-                      className={`w-1/5 mx-4 p-2 rounded hover:bg-gray-200 cursor-pointer ${bg}`}
-                      onClick={onSelectAlbum(album)}
-                    >
-                      <p>{ album.name } ({ album.swingVideos.length })</p>
-                      <p>Created: { Moment(album.createdAt).format("LLL") }</p>
-                      <img src={album.swingVideos[0]?.gifURL}
-                        alt="loading..."
-                        style={{height: 226, width: 285}}
-                      />
-                    </div>
-                  )
-                })}
-                { activeAlbums.length === AlbumsPerPage &&
+                  }
+                  { activeAlbums.map( album => {
+                    const bg = activeAlbum?.id === album.id ? "bg-gray-300" : ""
+                    return(
+                      <div key={album.id}
+                        className={`w-1/5 mx-4 p-2 rounded hover:bg-gray-200 cursor-pointer content-center justify-center items-center ${bg}`}
+                        onClick={onSelectAlbum(album)}
+                      >
+                        <div className="mb-2 p-1 rounded bg-blue-100 border border-gray-200 shadow">
+                          <p><span className="font-semibold mr-1">Album:</span>{ album.name }</p>
+                          <p><span className="font-semibold mr-1">Swings:</span>{ album.swingVideos.length }</p>
+                          <p><span className="font-semibold mr-1">Created:</span>{ Moment(album.createdAt).format("LLL") }</p>
+                        </div>
+                        <img src={album.swingVideos[0]?.gifURL}
+                          alt="loading..."
+                          style={{height: 226, width: 285}}
+                        />
+                      </div>
+                    )
+                  })}
+                  { activeAlbums.length === AlbumsPerPage &&
                     <button onClick={() => setAlbumsPage(albumsPage+1)}>&gt;</button>
-                }
+                  }
+                </div>
+                <p className="text-center">Page { albumsPage+1 }</p>
               </div>
-              <div>Page { albumsPage+1 }</div>
+            </div>
 
-              {/* Begin Active Album Swings Row */}
+            { activeAlbum &&
+              <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-6 border border-black shadow-md">
+                {/* Begin Active Album Swings Row */}
 
-              { activeAlbum &&
-                <Fragment>
-                  <div className="flex flex-row w-full">
+                <div className="w-full content-center justify-center items-center mb-4">
+                  <h2 className="text-center underline text-lg font-semibold mb-2">Select Swings</h2>
+
+                  <div className="flex flex-row">
                     { albumPage > 0 &&
-                    <button onClick={() => setAlbumPage(albumPage-1)}>&lt;</button>
+                        <button onClick={() => setAlbumPage(albumPage-1)}>&lt;</button>
                     }
                     { activeSwings.map( (swing, i) => {
-                      const url = albumView === "gif" ? swing.gifURL : swing.jpgURL
                       const bg = selectedSwings.some( sw => sw.id == swing.id) ? "bg-green-200" : ""
                       return(
                         <div key={swing.id}
-                          className={`w-1/5 mx-4 p-2 rounded hover:bg-gray-200 cursor-pointer ${bg}`}
+                          className={`w-1/5 mx-4 p-2 rounded cursor-pointer ${bg}`}
                           onClick={onSelectSwing(swing)}
                         >
                           <p>Swing { i+1 + (albumPage*SwingsPerPage) }</p>
-                          <img src={url}
+                          <img src={swing.gifURL}
                             alt="loading..."
                             style={{height: 226, width: 285}}
                           />
@@ -186,66 +197,69 @@ const NewAlbum = ({
                       )
                     })}
                     { activeSwings.length === SwingsPerPage &&
-                    <button onClick={() => setAlbumPage(albumPage+1)}>&gt;</button>
+                        <button onClick={() => setAlbumPage(albumPage+1)}>&gt;</button>
                     }
                   </div>
-                  <select onChange={e => setAlbumView(e.target.value)}>
-                    <option value="gif">GIFs</option>
-                    <option value="jpg">JPGs</option>
-                  </select>
-                  <div>Page { albumPage+1 }</div>
-                </Fragment>
-              }
 
-              {/* Begin Selected Swings Row */}
-
-              { selectedSwings.length > 0 &&
-                <div className="flex flex-row content-center justify-center items-center p-2 w-full">
-                  <Sharing
-                    isPublic={isPublic}
-                    setIsPublic={setIsPublic}
-                    isViewableByFriends={isViewableByFriends}
-                    setIsViewableByFriends={setIsViewableByFriends}
-                    friendIds={friendIds}
-                    setFriendIds={setFriendIds}
-                  />
-
-                  <div className="flex flex-col content-center justify-center items-center mx-1 p-2">
-                    <input id="albumName"
-                      className="ml-2 p-1 rounded text-center border border-black"
-                      type="text"
-                      placeholder="Album Name"
-                      value={newAlbumName}
-                      onChange={e => setNewAlbumName(e.target.value)}
-                    />
-                  
-                    <div className="flex flex-row my-1">
-                      { activeSelectedSwing > 0 &&
-                        <button onClick={() => setActiveSelectedSwing(activeSelectedSwing-1)}>&lt;</button>
-                      }
-                      <div className="mx-4 p-2 rounded hover:bg-red-200 cursor-pointer"
-                        onClick={onUnselectSwing(activeSelectedSwing)}
-                      >
-                        <p>{ activeSelectedSwing+1 }/{ selectedSwings.length }</p>
-                        <img src={selectedSwings[activeSelectedSwing].gifURL}
-                          alt="loading..."
-                          style={{height: 226, width: 285}}
-                        />
-                      </div>
-                      { selectedSwings.length-1 > activeSelectedSwing &&
-                        <button onClick={() => setActiveSelectedSwing(activeSelectedSwing+1)}>&gt;</button>
-                      }
-                    </div>
-
-                    <button className="rounded border border-black p-1 my-1 w-12 bg-green-300"
-                      onClick={onSaveAlbum}
-                      value="Save"
-                    >
-                        Save
-                    </button>
-                  </div>
+                  <p className="text-center">Page { albumPage+1 }</p>
                 </div>
-              }
+              </div>
+            }
+          </Fragment>
+        }
+
+        {/* Begin Selected Swings Row */}
+
+        { selectedSwings.length > 0 &&
+            <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-6 border border-black shadow-md">
+              <h2 className="text-center underline text-lg font-semibold mb-2">Finalize Upload</h2>
+
+              <div className="flex flex-row content-center justify-center items-center p-2 w-full">
+
+                <Sharing
+                  isPublic={isPublic}
+                  setIsPublic={setIsPublic}
+                  isViewableByFriends={isViewableByFriends}
+                  setIsViewableByFriends={setIsViewableByFriends}
+                  friendIds={friendIds}
+                  setFriendIds={setFriendIds}
+                />
+
+                <div className="flex flex-col content-center justify-center items-center mx-1 p-2">
+                  <input id="albumName"
+                    className="ml-2 p-1 rounded text-center border border-black"
+                    type="text"
+                    placeholder="Album Name"
+                    value={newAlbumName}
+                    onChange={e => setNewAlbumName(e.target.value)}
+                  />
+                
+                  <div className="flex flex-row my-1">
+                    { activeSelectedSwing > 0 &&
+                      <button onClick={() => setActiveSelectedSwing(activeSelectedSwing-1)}>&lt;</button>
+                    }
+                    <div className="mx-4 p-2 rounded hover:bg-red-200 cursor-pointer"
+                      onClick={onUnselectSwing(activeSelectedSwing)}
+                    >
+                      <p>{ activeSelectedSwing+1 }/{ selectedSwings.length }</p>
+                      <img src={selectedSwings[activeSelectedSwing].gifURL}
+                        alt="loading..."
+                        style={{height: 226, width: 285}}
+                      />
+                    </div>
+                    { selectedSwings.length-1 > activeSelectedSwing &&
+                      <button onClick={() => setActiveSelectedSwing(activeSelectedSwing+1)}>&gt;</button>
+                    }
+                  </div>
+
+                  <button className="rounded border border-black p-1 my-1 w-12 bg-green-300"
+                    onClick={onSaveAlbum}
+                    value="Save"
+                  >
+                      Save
+                  </button>
+                </div>
+              </div>
             </div>
         }
         

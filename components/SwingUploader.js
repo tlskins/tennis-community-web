@@ -42,8 +42,9 @@ const SwingUploader = ({ uploadVideo, user }) => {
 
   return(
     <div className="flex flex-col">
-      <div className="flex flex-col content-center justify-center items-center p-2">
+      <div className="flex flex-col content-center justify-center items-center">
         <input type="file"
+          className="rounded bg-gray-200 border border-gray-400 p-2 mb-4"
           onChange={onFileChange}
         />
         { (isUploading || uploading) &&

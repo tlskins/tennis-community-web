@@ -168,8 +168,8 @@ const Index = ({ albums, loadAlbums }) => {
             }}
           />
 
-          <div className="bg-white rounded p-0.5 mx-1 text-xs">
-            <span> { duration ? duration : "0" }/{SWING_FRAMES}</span>
+          <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
+            <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
           </div>
 
           <div className="flex flex-row bg-white rounded mx-1 text-xs py-0.5 w-8">
@@ -227,34 +227,36 @@ const Index = ({ albums, loadAlbums }) => {
               >
               Latest Community Uploads
               </h2>
-              { publicActiveAlbums.map( (album, idx) => {
-                return (
-                  <div key={idx}
-                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
-                  >
-                    <p className="font-semibold text-blue-700 underline cursor-pointer"
-                      onClick={() => router.push(`/albums/${album.id}`)}
+              <div className="flex flex-row">
+                { publicActiveAlbums.map( (album, idx) => {
+                  return (
+                    <div key={idx}
+                      className="flex flex-col content-center justify-center items-center hover:bg-green-200 rounded-md p-2 mr-2"
                     >
-                      { album.name }
-                    </p>
-                    <p>
-                      <span className="font-semibold text-xs"> Created: </span> 
-                      <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
-                    </p>
-                    { 
-                      renderVideo({
-                        swing: album.swingVideos[0],
-                        i: idx,
-                        ref: playerRefs[idx],
-                        playing: playings[idx],
-                        pip: pips[idx],
-                        duration: playerFrames[idx],
-                        comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
-                      })
-                    }
-                  </div>
-                )
-              })}
+                      <p className="font-semibold text-blue-700 underline cursor-pointer"
+                        onClick={() => router.push(`/albums/${album.id}`)}
+                      >
+                        { album.name }
+                      </p>
+                      <p>
+                        <span className="font-semibold text-xs"> Created: </span> 
+                        <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                      </p>
+                      { 
+                        renderVideo({
+                          swing: album.swingVideos[0],
+                          i: idx,
+                          ref: playerRefs[idx],
+                          playing: playings[idx],
+                          pip: pips[idx],
+                          duration: playerFrames[idx],
+                          comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
+                        })
+                      }
+                    </div>
+                  )
+                })}
+              </div>
             </div>          
           </CommunityVideos>
         </Section>

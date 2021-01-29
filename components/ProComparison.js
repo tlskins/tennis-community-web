@@ -10,6 +10,34 @@ const publicVideos = [
     url: "https://tennis-swings.s3.amazonaws.com/public/federer_forehand.mp4",
     name: "Federer Forehand",
   },
+  {
+    url: "https://tennis-swings.s3.amazonaws.com/public/federer_serve.mp4",
+    name: "Federer Serve",
+  },
+  {
+    url: "https://tennis-swings.s3.amazonaws.com/public/djokovic_backhand.mp4",
+    name: "Djokovic Backhand",
+  },
+  {
+    url: "https://tennis-swings.s3.amazonaws.com/public/djokovic_forehand.mp4",
+    name: "Djokovic Forehand",
+  },
+  {
+    url: "https://tennis-swings.s3.amazonaws.com/public/djokovic_serve.mp4",
+    name: "Djokovic Serve",
+  },
+  {
+    url: "https://tennis-swings.s3.amazonaws.com/public/nadal_backhand.mp4",
+    name: "Nadal Backhand",
+  },
+  {
+    url: "https://tennis-swings.s3.amazonaws.com/public/nadal_forehand.mp4",
+    name: "Nadal Forehand",
+  },
+  {
+    url: "https://tennis-swings.s3.amazonaws.com/public/nadal_serve.mp4",
+    name: "Nadal Serve",
+  },
 ]
   
 

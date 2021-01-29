@@ -20,7 +20,7 @@ import { setAlbum } from "../../state/album/action"
 import speechBubble from "../../public/speech-bubble.svg"
 import pencil from "../../public/pencil.svg"
 
-const SWING_FRAMES = 45
+const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 50
 let commentsCache = {}
 let posting = false
@@ -131,10 +131,15 @@ const Album = ({
   }, [recentUploads])
 
   const handleAllSeekChange = e => {
-    const seekTo = parseFloat(e.target.value)
-    if (seekTo) {
+    const frame = parseFloat(e.target.value)
+    if (frame != null) {
+      const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
       setPlayings(swingVideos.map(() => false))
       playerRefs.forEach( playerRef => playerRef.current.seekTo(seekTo))
+      setPlayerFrames(Object.keys(playerFrames).reduce((acc,key) => {
+        acc[key]=frame
+        return acc
+      },{}))
     }
   }
 
@@ -719,8 +724,8 @@ const Album = ({
           <input
             type='range'
             min={0}
-            max={0.999999}
-            step='0.1'
+            max={SWING_FRAMES}
+            step='1'
             onMouseUp={handleAllSeekChange}
             onKeyDown={handleAllSeekChange}
           />

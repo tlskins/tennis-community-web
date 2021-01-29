@@ -28,9 +28,10 @@ const Album = ({
   const albumId = router.query.albumid
   const swingId = router.query.id && router.query.id[0]
 
-  const [playing, setPlaying] = useState(false)
+  const [playing, setPlaying] = useState(true)
   const [playerRef, setPlayerRef] = useState(undefined)
   const [playerFrame, setPlayerFrame] = useState(0.0)
+  const [playback, setPlayback] = useState(1)
 
   const [comments, setComments] = useState([])
   const [commenters, setCommenters] = useState([])
@@ -160,7 +161,7 @@ const Album = ({
           pip={pip}
           volume={0}
           muted={true}
-          playbackRate={1}
+          playbackRate={playback}
           loop={true}
           progressInterval={200}
           onProgress={({ played }) => {
@@ -172,45 +173,77 @@ const Album = ({
         />
 
         {/* Controls Panel */}
-        <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-          <input type='button'
-            className='border rounded py-0.5 px-1 mx-1 text-xs bg-blue-700 text-white cursor-pointer'
-            value='Back To Album'
-            onClick={() => router.push(`/albums/${albumId}`)}
-          />
+        <div className="flex flex-col p-1 mt-4 bg-gray-100 rounded border-2 border-gray-300">
+          <div className="flex flex-row content-center justify-center items-center mt-2">
+            <div>
+              {/* Play / Pause */}
+              { playing &&
+                <input type='button'
+                  className='border w-10 h-6 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
+                  value='pause'
+                  onClick={() => setPlaying(!playing)}
+                />
+              }
+              { !playing &&
+                <input type='button'
+                  className='border w-10 h-6 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
+                  value='play'
+                  onClick={() => setPlaying(!playing)}
+                />
+              }
+            </div>
 
-          {/* Play / Pause */}
-          { playing &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-              value='pause'
-              onClick={() => setPlaying(!playing)}
-            />
-          }
-          { !playing &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-              value='play'
-              onClick={() => setPlaying(!playing)}
-            />
-          }
-          
-          {/* Seek */}
-          <input
-            type='range'
-            value={duration}
-            min={0}
-            max={SWING_FRAMES}
-            step='1'
-            onChange={handleSeekChange}
-            onFocus={ e => {
-              e.stopPropagation()
-              e.preventDefault()
-            }}
-          />
+            <div className="flex flex-col ml-2">
+              {/* Seek */}
+              <input
+                type='range'
+                value={duration}
+                min={0}
+                max={SWING_FRAMES}
+                step='1'
+                onChange={handleSeekChange}
+                onFocus={ e => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                }}
+              />
+            </div>
 
-          <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
-            <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
+            <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
+              <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col content-center justify-center items-center">
+            <div className="flex flex-row content-center justify-center p-1 bg-gray-100 rounded">
+              <div className="flex flex-row content-center justify-center items-center p-4">
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setPlayback(0.25)}
+                  value=".25x"
+                />
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setPlayback(0.5)}
+                  value=".5x"
+                />
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setPlayback(1)}
+                  value="1x"
+                />
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setPlayback(2)}
+                  value="2x"
+                />
+                <input type='button'
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  onClick={() => setPlayback(3)}
+                  value="3x"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </Fragment>
@@ -223,26 +256,32 @@ const Album = ({
       { (user && user.id) &&
         <Notifications />
       }
-      <main className="flex overflow-y-scroll">
-        <div className="py-8 px-24 grid grid-cols-2 gap-4 w-full">
+      <main className="flex overflow-y-scroll bg-gray-100">
+        <div className="py-8 px-24 grid grid-cols-2 gap-8 w-full">
           {/* Swing Video Column */}
-          <div className="flex flex-col items-center p-4">
-            {
-              renderVideo({
-                swing,
-                ref: playerRef,
-                playing: playing,
-                duration: playerFrame,
-              }) 
-            }
+          <div className="flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative">
+            <a href={`/albums/${album?.id}`}
+              className="text-sm text-blue-500 underline cursor-pointer absolute left-2 top-2"
+            >
+              back to album
+            </a>
+            <div className="mt-4">
+              {
+                renderVideo({
+                  swing,
+                  ref: playerRef,
+                  playing: playing,
+                  duration: playerFrame,
+                }) 
+              }
+            </div>
           </div>
 
           {/* Comments Column */}
-          <div className="py-4 px-16">
-            <div className="flex flex-col p-4 items-center overscroll-contain border border-black rounded shadow-md">
-              <div className="flex flex-col w-full">
-                <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                  { replyId &&
+          <div className="flex flex-col w-4/5 p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
+            <div className="flex flex-col w-full">
+              <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                { replyId &&
                     <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
                       onClick={() => {
                         setReplyPreview("")
@@ -252,66 +291,74 @@ const Album = ({
                       <p>reply to</p>
                       <p className="pl-2 text-gray-700">{ replyPreview }</p>
                     </div>
-                  }
-                  <textarea
-                    className="p-2 border border-black rounded"
-                    autoFocus={true}
-                    placeholder={ replyId ? "Reply to comment" : "Comment"}
-                    rows="4"
-                    onChange={e => setComment(e.target.value)}
-                    value={comment}
-                  />
-                  <div className="flex flex-row">
-                    <p className="mx-2 p-2 text-sm text-gray-500 align-middle">
-                      { Moment().format("MMM D YYYY H:m a") }
-                    </p>
-                    <p className="mx-2 p-2 text-sm align-middle font-bold">
+                }
+                <textarea
+                  className="p-2 border border-black rounded bg-gray-100"
+                  autoFocus={true}
+                  placeholder={ replyId ? "Reply to comment" : "Comment on specific frame"}
+                  rows="4"
+                  maxLength={500}
+                  onChange={e => setComment(e.target.value)}
+                  value={comment}
+                />
+                <div className="flex flex-row p-2">
+                  <p className="mx-2 text-sm text-gray-500 align-middle">
+                    { Moment().format("MMM D YYYY H:m a") }
+                  </p>
+                  <p className="mx-2 text-sm align-middle font-bold">
                     |
-                    </p>
-                    <p className="p-2 text-sm align-middle font-medium">
+                  </p>
+                  <p className="text-sm text-gray-500 align-middle">
+                      chars {comment.length}
+                  </p>
+                  <p className="mx-2 text-sm align-middle font-bold">
+                    |
+                  </p>
+                  <p className="text-sm align-middle font-medium underline">
                       frame {playerFrame}
-                    </p>
-                    <p className="mx-2 p-2 text-sm align-middle font-bold">
+                  </p>
+                  <p className="mx-2 text-sm align-middle font-bold">
                     |
-                    </p>
-                    <input type='button'
-                      className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
-                      value='post'
-                      onClick={onPostComment}
-                    />
-                  </div>
+                  </p>
+                  
+                  <input type='button'
+                    className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center'
+                    value='post'
+                    onClick={onPostComment}
+                  />
                 </div>
+              </div>
 
-                <div className="flex flex-row my-2">
-                  <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                    onChange={onSortComments}
-                  >
-                    <option value="POSTED ASC">Sort by First Posted</option>
-                    <option value="POSTED DESC">Sort by Last Posted</option>
-                    <option value="FRAME">Sort by Frame</option>
-                  </select>
+              <div className="flex flex-row my-2 content-center justify-center items-center">
+                <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                  onChange={onSortComments}
+                >
+                  <option value="POSTED ASC">Sort by First Posted</option>
+                  <option value="POSTED DESC">Sort by Last Posted</option>
+                  <option value="FRAME">Sort by Frame</option>
+                </select>
 
-                  <select className="rounded py-0.5 px-1 ml-12 border border-black bg-blue-600 text-white text-xs"
-                    onChange={onFilterComments}
-                  >
-                    <option value="ALL">All Users</option>
-                    { commenters.map( usrId => {
-                      return(
-                        <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
-                      )
-                    })}
-                  </select>
-                </div>
-
-                {/* Comments List  */}
-
-                <div className="flex flex-col h-80 overflow-y-scroll">
-                  { comments.filter( com => !com.isHidden ).map( comment => {
+                <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                  onChange={onFilterComments}
+                >
+                  <option value="ALL">Filter All Users</option>
+                  { commenters.map( usrId => {
                     return(
-                      <div key={comment.id}
-                        className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100 cursor-pointer"
-                      >
-                        { comment.replyId &&
+                      <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
+                    )
+                  })}
+                </select>
+              </div>
+
+              {/* Comments List  */}
+
+              <div className="flex flex-col h-80 overflow-y-scroll">
+                { comments.filter( com => !com.isHidden ).map( comment => {
+                  return(
+                    <div key={comment.id}
+                      className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100 cursor-pointer"
+                    >
+                      { comment.replyId &&
                           <div className="p-2 border border-black rounded text-xs bg-gray-300">
                             <p>reply to</p>
                             <p className="pl-2 text-gray-700">
@@ -335,49 +382,47 @@ const Album = ({
                               </p>
                             </div>
                           </div>
-                        }
-                        <div className="flex flex-col pt-1 my-0.5"
-                          onClick={() => onSeekTo(comment.frame)}
-                        >
-                          <p className="p-1">
-                            { comment.text }
-                          </p>
-                          <div className="flex flex-row items-center">
-                            <p className="mx-2 text-xs text-blue-500 align-middle">
+                      }
+                      <div className="flex flex-col pt-1 my-0.5"
+                        onClick={() => onSeekTo(comment.frame)}
+                      >
+                        <p className="p-1">
+                          { comment.text }
+                        </p>
+                        <div className="flex flex-row items-center">
+                          <p className="mx-2 text-xs text-blue-500 align-middle">
                               @{ usersCache[comment.userId]?.userName || "..." }
-                            </p>
-                            <p className="mx-2 text-sm align-middle font-bold">
+                          </p>
+                          <p className="mx-2 text-sm align-middle font-bold">
                             |
-                            </p>
-                            <p className="mx-2 text-xs text-gray-500 align-middle">
-                              { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
-                            </p>
-                            <p className="mx-2 text-sm align-middle font-bold">
+                          </p>
+                          <p className="mx-2 text-xs text-gray-500 align-middle">
+                            { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
+                          </p>
+                          <p className="mx-2 text-sm align-middle font-bold">
                             |
-                            </p>
-                            <p className="text-xs align-middle font-medium">
+                          </p>
+                          <p className="text-xs align-middle font-medium">
                             frame {comment.frame || 0}
-                            </p>
-                            <p className="mx-2 text-sm align-middle font-bold">
+                          </p>
+                          <p className="mx-2 text-sm align-middle font-bold">
                             |
-                            </p>
-                            <input type='button'
-                              className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
-                              value='reply'
-                              onClick={() => {
-                                setReplyId(comment.id)
-                                setPlayerFrame(comment.frame)
-                                setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                              }}
-                            />
-                          </div>
+                          </p>
+                          <input type='button'
+                            className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
+                            value='reply'
+                            onClick={() => {
+                              setReplyId(comment.id)
+                              setPlayerFrame(comment.frame)
+                              setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                            }}
+                          />
                         </div>
                       </div>
-                    )
-                  })}
-                </div>
+                    </div>
+                  )
+                })}
               </div>
-
             </div>
           </div>
         </div>

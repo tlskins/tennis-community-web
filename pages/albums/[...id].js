@@ -17,6 +17,7 @@ import {
 import { SearchFriends } from "../..//behavior/coordinators/friends"
 import { setAlbum } from "../../state/album/action"
 import speechBubble from "../../public/speech-bubble.svg"
+import pencil from "../../public/pencil.svg"
 
 const SWING_FRAMES = 45
 const REPLY_PREVIEW_LEN = 50
@@ -584,22 +585,30 @@ const Album = ({
                               </div>
                             }
                             <textarea
-                              className="p-2 border border-black rounded"
+                              className="p-2 border border-black rounded bg-gray-100"
                               autoFocus={true}
                               placeholder={ replyId ? "Reply to comment" : "Comment"}
                               rows="4"
+                              maxLength={500}
                               onChange={e => setComment(e.target.value)}
                               value={comment}
                             />
-                            <div className="flex flex-row">
-                              <p className="mx-2 p-2 text-sm text-gray-500 align-middle">
+                            <div className="flex flex-row p-1">
+                              <p className="text-sm mr-2 text-gray-500 align-middle">
                                 { Moment().format("MMM D YYYY H:m a") }
                               </p>
-                              <p className="mx-2 p-2 text-sm align-middle font-bold">
+                              <p className="text-sm mr-2 align-middle font-bold">
                               |
                               </p>
+                              <p className="text-sm mr-2 align-middle font-medium">
+                              chars {comment.length}
+                              </p>
+                              <p className="text-sm mr-2 align-middle font-bold">
+                              |
+                              </p>
+
                               <input type='button'
-                                className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
+                                className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
                                 value='post'
                                 onClick={onPostComment}
                               />
@@ -607,7 +616,7 @@ const Album = ({
                           </div>
 
                           {/* Comments Filters / Sort */}
-                          <div className="flex flex-row my-2">
+                          <div className="flex flex-row my-2 content-center justify-center items-center">
                             <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
                               onChange={onSortComments}
                             >
@@ -615,7 +624,7 @@ const Album = ({
                               <option value="POSTED DESC">Sort by Last Posted</option>
                             </select>
 
-                            <select className="rounded py-0.5 px-1 ml-12 border border-black bg-blue-600 text-white text-xs"
+                            <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
                               onChange={onFilterComments}
                             >
                               <option value="ALL">All Users</option>
@@ -702,19 +711,18 @@ const Album = ({
         {/* Begin Album Videos */}
 
         <div className="p-4 flex flex-col w-3/4">
-          {/* <h2 className="m-4 text-xl underline text-center">
-            { album?.name }
-          </h2> */}
-
           <div className="mb-2 flex content-center justify-center items-center">
-            <input type="text"
-              className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border border-gray-200"
-              value={album?.name}
-              onChange={onUpdateAlbumName}
-            />
+            <div className="flex flex-row content-center justify-center items-center relative">
+              <input type="text"
+                className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
+                value={album?.name}
+                onChange={onUpdateAlbumName}
+              />
+              <img src={pencil} className="w-4 h-4 absolute right-2"/>
+            </div>
           </div>
 
-          <div className="flex flex-wrap rounded bg-white px-2 py-4 shadow-md mb-2">
+          <div className="flex flex-wrap rounded bg-white px-2 py-4 shadow-md mb-2 border-2 border-gray-200">
             { pageVideos.map( (swing, i) => {
               let width
               if (albumView === "video") {
@@ -799,12 +807,12 @@ const Album = ({
 
       {/* All Video Controls Footer */}
       <footer className="absolute bottom-0 sticky w-full bg-gray-200 border-t border-gray-400 mb-0">
-        <div className="p-4 w-full flex flex-row content-center justify-center items-center">
+        <div className="p-2 w-full flex flex-row content-center justify-center items-center">
           { album &&
             <div className="flex flex-col mr-8">
               <div className="flex flex-col">
                 <p className="text-sm underline font-semibold">
-                  Analysis Format
+                  Swing Format
                 </p>
                 <div className="flex flex-row">
                   <select
@@ -886,28 +894,26 @@ const Album = ({
             />
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-row">
+            { albumPage > 0 &&
+              <button
+                onClick={() => setAlbumPage(albumPage-1)}
+                className="border border-black rounder p-0.5 mx-1"
+              >
+                &lt;
+              </button>
+            }
             <h2 className="underline text-blue-500">
               Page { albumPage+1 }
             </h2>
-            <div className="flex flex-row">
-              { albumPage > 0 &&
-                <button
-                  onClick={() => setAlbumPage(albumPage-1)}
-                  className="border border-black rounder p-0.5 mx-1"
-                >
-                  &lt;
-                </button>
-              }
-              { (albumPage < (swingVideos.length / swingsPerPage)-1) &&
+            { (albumPage < (swingVideos.length / swingsPerPage)-1) &&
                 <button
                   onClick={() => setAlbumPage(albumPage+1)}
                   className="border border-black rounder p-0.5 mx-1"
                 >
                   &gt;
                 </button>
-              }
-            </div>
+            }
           </div>
         </div>
       </footer>

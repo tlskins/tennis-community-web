@@ -33,7 +33,7 @@ import {
   FooterInner,
 } from "../styles/styled-components"
 
-const SWING_FRAMES = 45
+const SWING_FRAMES = 60
 const albumsPerRow = 3
 
 const Index = ({ albums, loadAlbums }) => {

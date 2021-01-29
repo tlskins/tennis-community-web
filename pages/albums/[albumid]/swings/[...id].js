@@ -11,7 +11,7 @@ import { LoadAlbum, PostComment } from "../../../../behavior/coordinators/albums
 import { SearchFriends } from "../../../../behavior/coordinators/friends"
 
 
-const SWING_FRAMES = 45
+const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 50
 let commentsCache = {}
 let posting = false

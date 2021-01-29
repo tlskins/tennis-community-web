@@ -11,7 +11,7 @@ import Notifications from "../../components/Notifications"
 import { LoadAlbums, DeleteAlbum } from "../../behavior/coordinators/albums"
 import speechBubble from "../../public/speech-bubble.svg"
 
-const SWING_FRAMES = 45
+const SWING_FRAMES = 60
 const albumsPerRow = 3
 
 const filterAlbums = (albums, search, rgx, start, end) => {

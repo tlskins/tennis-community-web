@@ -322,7 +322,7 @@ const Album = ({
                   </p>
                   
                   <input type='button'
-                    className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center'
+                    className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
                     value='post'
                     onClick={onPostComment}
                   />

@@ -6,6 +6,7 @@ import { useRouter } from "next/router"
 import Moment from "moment"
 
 import Notifications from "../../../../components/Notifications"
+import ProComparison from "../../../../components/ProComparison"
 import { LoadAlbum, PostComment } from "../../../../behavior/coordinators/albums"
 import { SearchFriends } from "../../../../behavior/coordinators/friends"
 
@@ -38,6 +39,8 @@ const Album = ({
   const [comment, setComment] = useState("")
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
+
+  const [activeSideBar, setActiveSidebar] = useState("Pro Comparison")
 
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
@@ -252,16 +255,42 @@ const Album = ({
 
 
   return (
-    <div className="flex flex-col h-screen min-h-screen">
+    <div className="flex flex-col h-screen min-h-screen bg-gray-100">
       { (user && user.id) &&
         <Notifications />
       }
-      <main className="flex overflow-y-scroll bg-gray-100">
-        <div className="py-8 px-24 grid grid-cols-2 gap-8 w-full">
+      <main className="flex overflow-y-scroll">
+
+        {/* Begin Sidebar */}
+
+        <div className="h-screen top-0 sticky p-4 bg-white w-1/4 overflow-y-scroll border-r border-gray-400">
+          <div className="flex flex-col content-center justify-center items-center text-sm">
+
+            {/* Pro Comparison Sidebar */}
+            <div className="mb-2">
+              <h2 className="text-blue-400 underline cursor-pointer text-center"
+                onClick={() => {
+                  if (activeSideBar === "Pro Comparison") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("Pro Comparison")
+                  }
+                }}
+              >
+                Pro Comparison
+              </h2>
+              { activeSideBar === "Pro Comparison" &&
+                <ProComparison />
+              }
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8 grid grid-cols-10 gap-2 w-3/4">
           {/* Swing Video Column */}
-          <div className="flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative">
+          <div className="col-span-6 flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative">
             <a href={`/albums/${album?.id}`}
-              className="text-sm text-blue-500 underline cursor-pointer absolute left-2 top-2"
+              className="text-sm text-blue-500 underline cursor-pointer absolute left-3 top-3"
             >
               back to album
             </a>
@@ -278,7 +307,7 @@ const Album = ({
           </div>
 
           {/* Comments Column */}
-          <div className="flex flex-col w-4/5 p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
+          <div className="col-span-4 flex flex-col p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
             <div className="flex flex-col w-full">
               <div className="flex flex-col border-b-2 border-gray-400 mb-2">
                 { replyId &&
@@ -301,7 +330,7 @@ const Album = ({
                   onChange={e => setComment(e.target.value)}
                   value={comment}
                 />
-                <div className="flex flex-row p-2">
+                <div className="flex flex-row p-2 content-center justify-center items-center">
                   <p className="mx-2 text-sm text-gray-500 align-middle">
                     { Moment().format("MMM D YYYY H:m a") }
                   </p>

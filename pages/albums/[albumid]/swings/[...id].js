@@ -10,6 +10,7 @@ import ProComparison from "../../../../components/ProComparison"
 import VideoResources from "../../../../components/VideoResources"
 import { LoadAlbum, PostComment } from "../../../../behavior/coordinators/albums"
 import { SearchFriends } from "../../../../behavior/coordinators/friends"
+import speechBubble from "../../../../public/speech-bubble.svg"
 
 
 const SWING_FRAMES = 60
@@ -316,7 +317,7 @@ const Album = ({
           {/* Swing Video Column */}
           <div className={`${swingColSpan} flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative`}>
             <a href={`/albums/${album?.id}`}
-              className="text-sm text-blue-500 underline cursor-pointer absolute left-3 top-3"
+              className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-2"
             >
               back to album
             </a>
@@ -386,6 +387,11 @@ const Album = ({
                 </div>
 
                 <div className="flex flex-row my-2 content-center justify-center items-center">
+                  <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
+                    <p className="mr-1 text-center">{(comments?.length || 0)}</p>
+                    <img src={speechBubble} className="w-5 h-5"/>
+                  </div>
+
                   <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
                     onChange={onSortComments}
                   >
@@ -408,7 +414,7 @@ const Album = ({
 
                 {/* Comments List  */}
 
-                <div className="flex flex-col h-80 overflow-y-scroll">
+                <div className="flex flex-col h-96 overflow-y-scroll">
                   { comments.filter( com => !com.isHidden ).map( comment => {
                     return(
                       <div key={comment.id}

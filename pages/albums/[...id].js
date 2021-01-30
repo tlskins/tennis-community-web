@@ -7,6 +7,7 @@ import Moment from "moment"
 
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
+import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import {
@@ -62,6 +63,7 @@ const Album = ({
   const [pips, setPips] = useState([])
 
   const [activeSideBar, setActiveSidebar] = useState("Album Comments")
+  const [expandedSideBar, setExpandedSideBar] = useState(false)
 
   const [albumPage, setAlbumPage] = useState(0)
   const [hoveredSwing, setHoveredSwing] = useState(undefined)
@@ -351,6 +353,8 @@ const Album = ({
     )
   }
 
+  const sideBarWidth = expandedSideBar ? "w-1/2" : "w-1/4"
+  const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -362,7 +366,7 @@ const Album = ({
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/4 overflow-y-scroll border-r border-gray-400">
+        <div className={`h-screen top-0 sticky p-4 bg-white ${sideBarWidth} overflow-y-scroll border-r border-gray-400`}>
           <div className="flex flex-col content-center justify-center items-center text-sm">
 
             {/* Pro Comparison Sidebar */}
@@ -380,6 +384,27 @@ const Album = ({
               </h2>
               { activeSideBar === "Pro Comparison" &&
                 <ProComparison />
+              }
+            </div>
+
+            {/* Video Resources Sidebar */}
+            <div className="mb-2">
+              <h2 className="text-blue-400 underline cursor-pointer text-center"
+                onClick={() => {
+                  if (activeSideBar === "Video Resources") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("Video Resources")
+                  }
+                }}
+              >
+                Video Resources
+              </h2>
+              { activeSideBar === "Video Resources" &&
+                <VideoResources
+                  onExpand={playing => setExpandedSideBar(playing)}
+                  expanded={expandedSideBar}
+                />
               }
             </div>
 
@@ -574,7 +599,7 @@ const Album = ({
 
         {/* Begin Album Videos */}
 
-        <div className="p-4 flex flex-col w-3/4">
+        <div className={`p-4 flex flex-col ${mainWidth}`}>
           <div className="mb-2 flex content-center justify-center items-center">
             <div className="flex flex-row content-center justify-center items-center relative">
               <input type="text"
@@ -590,7 +615,7 @@ const Album = ({
             { pageVideos.map( (swing, i) => {
               let width
               if (albumView === "video") {
-                width = "w-1/3"
+                width = expandedSideBar ? "w-1/2" : "w-1/3"
               } else if (albumView === "gif") {
                 width = "w-1/6"
               } else if (albumView === "jpg") {

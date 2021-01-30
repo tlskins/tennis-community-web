@@ -257,7 +257,7 @@ const Album = ({
 
   const sideBarWidth = expandedSideBar ? "w-1/2" : "w-1/4"
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
-  const swingColSpan = expandedSideBar ? "5" : "3"
+  const swingColSpan = expandedSideBar ? "col-span-5" : "col-span-3"
 
   return (
     <div className="flex flex-col h-screen min-h-screen bg-gray-100">
@@ -314,7 +314,7 @@ const Album = ({
 
         <div className={`p-8 grid grid-cols-5 gap-2 ${mainWidth}`}>
           {/* Swing Video Column */}
-          <div className={`col-span-${swingColSpan} flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative`}>
+          <div className={`${swingColSpan} flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative`}>
             <a href={`/albums/${album?.id}`}
               className="text-sm text-blue-500 underline cursor-pointer absolute left-3 top-3"
             >

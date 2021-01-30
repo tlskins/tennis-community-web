@@ -62,7 +62,7 @@ const ProComparison = () => {
   return(
     <div className="mb-2">
       <div className="flex flex-col content-center justify-center items-center">
-        <select className="my-4"
+        <select className="my-4 p-0.5 border border-gray-500 rounded shadow-md"
           onChange={e => setSideVideo(e.target.value)}
         >
           { publicVideos.map((vid, i) => {
@@ -95,34 +95,34 @@ const ProComparison = () => {
         <div className="flex flex-row content-center justify-center items-center mt-4">
           {/* Picture in Picture */}
           { sideVideoPip &&
-                <input type='button'
-                  className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-                  value='-'
-                  onClick={() => setSideVideoPip(false)}
-                />
+            <input type='button'
+              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+              value='-'
+              onClick={() => setSideVideoPip(false)}
+            />
           }
           { !sideVideoPip &&
-                <input type='button'
-                  className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-                  value='+'
-                  onClick={() => setSideVideoPip(true)}
-                />
+            <input type='button'
+              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+              value='+'
+              onClick={() => setSideVideoPip(true)}
+            />
           }
 
           {/* Play / Pause */}
           { sideVideoPlaying &&
-                <input type='button'
-                  className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-                  value='pause'
-                  onClick={() => setSideVideoPlaying(false)}
-                />
+            <input type='button'
+              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
+              value='pause'
+              onClick={() => setSideVideoPlaying(false)}
+            />
           }
           { !sideVideoPlaying &&
-                <input type='button'
-                  className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-                  value='play'
-                  onClick={() => setSideVideoPlaying(true)}
-                />
+            <input type='button'
+              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
+              value='play'
+              onClick={() => setSideVideoPlaying(true)}
+            />
           }
         </div>
 

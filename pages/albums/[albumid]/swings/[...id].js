@@ -7,6 +7,7 @@ import Moment from "moment"
 
 import Notifications from "../../../../components/Notifications"
 import ProComparison from "../../../../components/ProComparison"
+import VideoResources from "../../../../components/VideoResources"
 import { LoadAlbum, PostComment } from "../../../../behavior/coordinators/albums"
 import { SearchFriends } from "../../../../behavior/coordinators/friends"
 
@@ -41,6 +42,7 @@ const Album = ({
   const [replyPreview, setReplyPreview] = useState("")
 
   const [activeSideBar, setActiveSidebar] = useState("Pro Comparison")
+  const [expandedSideBar, setExpandedSideBar] = useState(false)
 
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
@@ -253,6 +255,9 @@ const Album = ({
     )
   }
 
+  const sideBarWidth = expandedSideBar ? "w-1/2" : "w-1/4"
+  const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
+  const swingColSpan = expandedSideBar ? "10" : "6"
 
   return (
     <div className="flex flex-col h-screen min-h-screen bg-gray-100">
@@ -263,7 +268,7 @@ const Album = ({
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/4 overflow-y-scroll border-r border-gray-400">
+        <div className={`h-screen top-0 sticky p-4 bg-white ${sideBarWidth} overflow-y-scroll border-r border-gray-400`}>
           <div className="flex flex-col content-center justify-center items-center text-sm">
 
             {/* Pro Comparison Sidebar */}
@@ -283,12 +288,33 @@ const Album = ({
                 <ProComparison />
               }
             </div>
+
+            {/* Video Resources Sidebar */}
+            <div className="mb-2">
+              <h2 className="text-blue-400 underline cursor-pointer text-center"
+                onClick={() => {
+                  if (activeSideBar === "Video Resources") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("Video Resources")
+                  }
+                }}
+              >
+                Video Resources
+              </h2>
+              { activeSideBar === "Video Resources" &&
+                <VideoResources
+                  onExpand={playing => setExpandedSideBar(playing)}
+                  expanded={expandedSideBar}
+                />
+              }
+            </div>
           </div>
         </div>
 
-        <div className="p-8 grid grid-cols-10 gap-2 w-3/4">
+        <div className={`p-8 grid grid-cols-10 gap-2 ${mainWidth}`}>
           {/* Swing Video Column */}
-          <div className="col-span-6 flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative">
+          <div className={`col-span-${swingColSpan} flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative`}>
             <a href={`/albums/${album?.id}`}
               className="text-sm text-blue-500 underline cursor-pointer absolute left-3 top-3"
             >
@@ -307,10 +333,11 @@ const Album = ({
           </div>
 
           {/* Comments Column */}
-          <div className="col-span-4 flex flex-col p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
-            <div className="flex flex-col w-full">
-              <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                { replyId &&
+          { !expandedSideBar &&
+            <div className="col-span-4 flex flex-col p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
+              <div className="flex flex-col w-full">
+                <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                  { replyId &&
                     <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
                       onClick={() => {
                         setReplyPreview("")
@@ -320,74 +347,74 @@ const Album = ({
                       <p>reply to</p>
                       <p className="pl-2 text-gray-700">{ replyPreview }</p>
                     </div>
-                }
-                <textarea
-                  className="p-2 border border-black rounded bg-gray-100"
-                  autoFocus={true}
-                  placeholder={ replyId ? "Reply to comment" : "Comment on specific frame"}
-                  rows="4"
-                  maxLength={500}
-                  onChange={e => setComment(e.target.value)}
-                  value={comment}
-                />
-                <div className="flex flex-row p-2 content-center justify-center items-center">
-                  <p className="mx-2 text-sm text-gray-500 align-middle">
-                    { Moment().format("MMM D YYYY H:m a") }
-                  </p>
-                  <p className="mx-2 text-sm align-middle font-bold">
-                    |
-                  </p>
-                  <p className="text-sm text-gray-500 align-middle">
-                      chars {comment.length}
-                  </p>
-                  <p className="mx-2 text-sm align-middle font-bold">
-                    |
-                  </p>
-                  <p className="text-sm align-middle font-medium underline">
-                      frame {playerFrame}
-                  </p>
-                  <p className="mx-2 text-sm align-middle font-bold">
-                    |
-                  </p>
-                  
-                  <input type='button'
-                    className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
-                    value='post'
-                    onClick={onPostComment}
+                  }
+                  <textarea
+                    className="p-2 border border-black rounded bg-gray-100"
+                    autoFocus={true}
+                    placeholder={ replyId ? "Reply to comment" : "Comment on specific frame"}
+                    rows="4"
+                    maxLength={500}
+                    onChange={e => setComment(e.target.value)}
+                    value={comment}
                   />
+                  <div className="flex flex-row p-2 content-center justify-center items-center">
+                    <p className="mx-2 text-sm text-gray-500 align-middle">
+                      { Moment().format("MMM D YYYY H:m a") }
+                    </p>
+                    <p className="mx-2 text-sm align-middle font-bold">
+                    |
+                    </p>
+                    <p className="text-sm text-gray-500 align-middle">
+                      chars {comment.length}
+                    </p>
+                    <p className="mx-2 text-sm align-middle font-bold">
+                    |
+                    </p>
+                    <p className="text-sm align-middle font-medium underline">
+                      frame {playerFrame}
+                    </p>
+                    <p className="mx-2 text-sm align-middle font-bold">
+                    |
+                    </p>
+                  
+                    <input type='button'
+                      className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
+                      value='post'
+                      onClick={onPostComment}
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex flex-row my-2 content-center justify-center items-center">
-                <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                  onChange={onSortComments}
-                >
-                  <option value="POSTED ASC">Sort by First Posted</option>
-                  <option value="POSTED DESC">Sort by Last Posted</option>
-                  <option value="FRAME">Sort by Frame</option>
-                </select>
+                <div className="flex flex-row my-2 content-center justify-center items-center">
+                  <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                    onChange={onSortComments}
+                  >
+                    <option value="POSTED ASC">Sort by First Posted</option>
+                    <option value="POSTED DESC">Sort by Last Posted</option>
+                    <option value="FRAME">Sort by Frame</option>
+                  </select>
 
-                <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                  onChange={onFilterComments}
-                >
-                  <option value="ALL">Filter All Users</option>
-                  { commenters.map( usrId => {
+                  <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                    onChange={onFilterComments}
+                  >
+                    <option value="ALL">Filter All Users</option>
+                    { commenters.map( usrId => {
+                      return(
+                        <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
+                      )
+                    })}
+                  </select>
+                </div>
+
+                {/* Comments List  */}
+
+                <div className="flex flex-col h-80 overflow-y-scroll">
+                  { comments.filter( com => !com.isHidden ).map( comment => {
                     return(
-                      <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
-                    )
-                  })}
-                </select>
-              </div>
-
-              {/* Comments List  */}
-
-              <div className="flex flex-col h-80 overflow-y-scroll">
-                { comments.filter( com => !com.isHidden ).map( comment => {
-                  return(
-                    <div key={comment.id}
-                      className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100 cursor-pointer"
-                    >
-                      { comment.replyId &&
+                      <div key={comment.id}
+                        className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100 cursor-pointer"
+                      >
+                        { comment.replyId &&
                           <div className="p-2 border border-black rounded text-xs bg-gray-300">
                             <p>reply to</p>
                             <p className="pl-2 text-gray-700">
@@ -411,49 +438,50 @@ const Album = ({
                               </p>
                             </div>
                           </div>
-                      }
-                      <div className="flex flex-col pt-1 my-0.5"
-                        onClick={() => onSeekTo(comment.frame)}
-                      >
-                        <p className="p-1">
-                          { comment.text }
-                        </p>
-                        <div className="flex flex-row items-center">
-                          <p className="mx-2 text-xs text-blue-500 align-middle">
+                        }
+                        <div className="flex flex-col pt-1 my-0.5"
+                          onClick={() => onSeekTo(comment.frame)}
+                        >
+                          <p className="p-1">
+                            { comment.text }
+                          </p>
+                          <div className="flex flex-row items-center">
+                            <p className="mx-2 text-xs text-blue-500 align-middle">
                               @{ usersCache[comment.userId]?.userName || "..." }
-                          </p>
-                          <p className="mx-2 text-sm align-middle font-bold">
+                            </p>
+                            <p className="mx-2 text-sm align-middle font-bold">
                             |
-                          </p>
-                          <p className="mx-2 text-xs text-gray-500 align-middle">
-                            { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
-                          </p>
-                          <p className="mx-2 text-sm align-middle font-bold">
+                            </p>
+                            <p className="mx-2 text-xs text-gray-500 align-middle">
+                              { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
+                            </p>
+                            <p className="mx-2 text-sm align-middle font-bold">
                             |
-                          </p>
-                          <p className="text-xs align-middle font-medium">
+                            </p>
+                            <p className="text-xs align-middle font-medium">
                             frame {comment.frame || 0}
-                          </p>
-                          <p className="mx-2 text-sm align-middle font-bold">
+                            </p>
+                            <p className="mx-2 text-sm align-middle font-bold">
                             |
-                          </p>
-                          <input type='button'
-                            className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
-                            value='reply'
-                            onClick={() => {
-                              setReplyId(comment.id)
-                              setPlayerFrame(comment.frame)
-                              setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                            }}
-                          />
+                            </p>
+                            <input type='button'
+                              className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
+                              value='reply'
+                              onClick={() => {
+                                setReplyId(comment.id)
+                                setPlayerFrame(comment.frame)
+                                setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                              }}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          }
         </div>
       </main>
     </div>

@@ -506,6 +506,11 @@ const Album = ({
 
                           {/* Comments Filters / Sort */}
                           <div className="flex flex-row my-2 content-center justify-center items-center">
+                            <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
+                              <p className="mr-1 text-center">{(comments?.length || 0)}</p>
+                              <img src={speechBubble} className="w-5 h-5"/>
+                            </div>
+
                             <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
                               onChange={onSortComments}
                             >
@@ -527,7 +532,7 @@ const Album = ({
 
                           {/* Comments List  */}
 
-                          <div className="flex flex-col h-80 overflow-y-scroll">
+                          <div className="flex flex-col h-96 overflow-y-scroll">
                             { comments.filter( com => !com.isHidden ).map( comment => {
                               return(
                                 <div key={comment.id}

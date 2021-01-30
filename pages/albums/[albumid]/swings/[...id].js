@@ -257,7 +257,7 @@ const Album = ({
 
   const sideBarWidth = expandedSideBar ? "w-1/2" : "w-1/4"
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
-  const swingColSpan = expandedSideBar ? "10" : "6"
+  const swingColSpan = expandedSideBar ? "5" : "3"
 
   return (
     <div className="flex flex-col h-screen min-h-screen bg-gray-100">
@@ -312,7 +312,7 @@ const Album = ({
           </div>
         </div>
 
-        <div className={`p-8 grid grid-cols-10 gap-2 ${mainWidth}`}>
+        <div className={`p-8 grid grid-cols-5 gap-2 ${mainWidth}`}>
           {/* Swing Video Column */}
           <div className={`col-span-${swingColSpan} flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative`}>
             <a href={`/albums/${album?.id}`}
@@ -334,7 +334,7 @@ const Album = ({
 
           {/* Comments Column */}
           { !expandedSideBar &&
-            <div className="col-span-4 flex flex-col p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
+            <div className="col-span-2 flex flex-col p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
               <div className="flex flex-col w-full">
                 <div className="flex flex-col border-b-2 border-gray-400 mb-2">
                   { replyId &&

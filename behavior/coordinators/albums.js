@@ -88,3 +88,49 @@ export const PostComment = (dispatch) => async ({ albumId, swingId, replyId, tex
   }
   return true
 }
+
+export const FlagComment = (dispatch) => async ({
+  commentCreatedAt,
+  commentId,
+  commenterId,
+  albumId,
+  swingId,
+  text,
+}) => {
+  try {
+    await post("/moderation/comments", {
+      commentCreatedAt,
+      commentId,
+      commenterId,
+      albumId,
+      swingId,
+      text,
+    })
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+  return true
+}
+
+export const FlagAlbum = (dispatch) => async ({
+  albumCreatedAt,
+  albumUserId,
+  albumId,
+  albumName,
+}) => {
+  try {
+    await post("/moderation/albums", {
+      albumCreatedAt,
+      albumUserId,
+      albumId,
+      albumName,
+    })
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+  return true
+}

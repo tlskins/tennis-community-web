@@ -51,6 +51,9 @@ const NavBar = ({ user, signOut }) => {
             </div>
           </DropdownLink>
           <Link href="/friends">Friends</Link>
+          { user.isAdmin &&
+            <Link href="/admin">Admin</Link>
+          }
           <a href="#" onClick={ onSignOut }>Sign Out</a>
         </LinksContainer>
       }

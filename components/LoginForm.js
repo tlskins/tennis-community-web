@@ -6,6 +6,13 @@ import { useRouter } from "next/router"
 import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
 import { newNotification } from "../state/ui/action"
 
+
+import {
+  SignInForm,
+  SignInInputContainer,
+} from "../styles/styled-components"
+
+
 const LoginForm = ({ createUser, signIn, signOut, user, displayAlert }) => {
   const router = useRouter()
   const [isNewUser, setIsNewUser] = useState(false)
@@ -52,7 +59,7 @@ const LoginForm = ({ createUser, signIn, signOut, user, displayAlert }) => {
   }
 
   return (
-    <div className="flex flex-1 overflow-y-auto content-center justify-center items-center bg-white p-8 rounded shadow-lg">
+    <div>
       { user &&
         <div className="p-8">
           <button onClick={signOut}>
@@ -60,85 +67,105 @@ const LoginForm = ({ createUser, signIn, signOut, user, displayAlert }) => {
           </button>
         </div>
       }
-
-      <div>
-        { isNewUser &&
-          <div className="flex flex-col">
-            <h2 className="my-2 font-bold">
-              New User
-            </h2>
+      { isNewUser &&
+        <SignInForm>
+          <h2>
+            Sign Up
+          </h2>
+          <SignInInputContainer>
+            <label htmlFor="username">User Name</label>
             <input type="text"
-              className="border m-1 p-1 rounded"
-              placeholder="user name"
+              id="username"
               value={userName}
               onChange={e => setUserName(e.target.value)}
             />
+          </SignInInputContainer>
+          <SignInInputContainer>
+            <label htmlFor="email">Email</label>
             <input type="text"
-              className="border m-1 p-1 rounded"
-              placeholder="email"
+              id="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
+          </SignInInputContainer>
+          <SignInInputContainer>
+            <label htmlFor="firstname">First Name</label>
             <input type="text"
-              className="border m-1 p-1 rounded"
-              placeholder="first name"
+              id="firstname"
               value={firstName}
               onChange={e => setFirstName(e.target.value)}
             />
+          </SignInInputContainer>
+          <SignInInputContainer>
+            <label htmlFor="lastname">Last Name</label>
             <input type="text"
-              placeholder="last name"
-              className="border m-1 p-1 rounded"
+              id="lastname"
               value={lastName}
               onChange={e => setLastName(e.target.value)}
             />
+          </SignInInputContainer>
+          <SignInInputContainer>
+            <label htmlFor="password">Password</label>
             <input type="text"
-              placeholder="password"
-              className="border m-1 p-1 rounded"
+              id="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
-            <input type="button"
-              value="Submit"
-              onClick={onCreateUser}
-            />
-            <a className="cursor-pointer underline text-blue-300"
+          </SignInInputContainer>
+          <button
+            onClick={onCreateUser}
+          >
+            Sign Up
+          </button>
+          <p>Already have an account?
+            <a
+              href="#"
+              className="link"
               onClick={onToggleForm}
             >
               Sign In
             </a>
-          </div>
-        }
+          </p>
+        </SignInForm>
+      }
 
-        { !isNewUser &&
-          <div className="flex flex-col">
-            <h2 className="my-2 font-bold">
-              Sign In
-            </h2>
+      { !isNewUser &&
+        <SignInForm>
+          <h2>
+            Sign In
+          </h2>
+          <SignInInputContainer>
+            <label htmlFor="email">Email</label>
             <input type="text"
-              className="border m-1 p-1 rounded"
-              placeholder="email"
+              id="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
             />
+          </SignInInputContainer>
+          <SignInInputContainer>
+            <label htmlFor="password">Password</label>
             <input type="text"
-              placeholder="password"
-              className="border m-1 p-1 rounded"
+              id="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
             />
-            <input type="button"
-              value="Submit"
-              onClick={onSignIn}
-            />
-            <a className="cursor-pointer underline text-blue-300"
+          </SignInInputContainer>
+          <button
+            onClick={onSignIn}
+          >
+            Sign In
+          </button>
+          <p>Don't have an account?
+            <a
+              href="#"
+              className="link"
               onClick={onToggleForm}
             >
-              New User
+              Create Account
             </a>
-          </div>
-        }
-
-      </div>
+          </p>
+        </SignInForm>
+      }
     </div>
   )
 }

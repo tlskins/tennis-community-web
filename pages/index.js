@@ -48,7 +48,7 @@ const Index = ({ albums, loadAlbums }) => {
   const publicActiveAlbums = albums.publicAlbums.slice(0, albumsPerRow).filter( a => !!a )
 
   useEffect(() => {
-    loadAlbums()
+    loadAlbums(true)
   }, [])
 
   useEffect(() => {

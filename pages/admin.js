@@ -17,6 +17,7 @@ import {
   UpdateAlbumFlag,
   UpdateCommentFlag,
 } from "../behavior/coordinators/admin"
+import { UpdateAlbum } from "../behavior/coordinators/albums"
 import { SearchFriends } from "../behavior/coordinators/friends"
   
 const ALBUMS_LIMIT = 20
@@ -36,6 +37,7 @@ const Admin = ({
   getRecentSwingComments,
   getRecentUsers,
   searchFriends,
+  updateAlbum,
   updateAlbumFlag,
   updateCommentFlag,
 }) => {
@@ -155,6 +157,14 @@ const Admin = ({
     if (success) {
       const flags = await getRecentFlaggedComments({ start, end, resolved, limit: FLAGGED_COMMENTS_LIMIT, offset: page*FLAGGED_COMMENTS_LIMIT })
       setRecentFlaggedComments(flags)
+    }
+  }
+
+  const onUpdateAlbumHome = album => async () => {
+    const success = await updateAlbum({ id: album.id, name: album.name, homeApproved: !album.homeApproved })
+    if (success) {
+      const albums = await getRecentAlbums({ start, end, limit: ALBUMS_LIMIT, offset: page*ALBUMS_LIMIT })
+      setRecentAlbums(albums)
     }
   }
 
@@ -344,23 +354,36 @@ const Admin = ({
             <div className="p-4 flex flex-col bg-white rounded-lg">
               <p className="text-center mb-2 underline font-semibold">Recent Albums</p>
 
-              <div className="grid grid-cols-9 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+              <div className="grid grid-cols-10 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
                 <div className="border-r border-gray-400 col-span-3">Name</div>
                 <div className="border-r border-gray-400 col-span-2">Created</div>
                 <div className="border-r border-gray-400">Creator</div>
                 <div className="border-r border-gray-400">Public?</div>
+                <div className="border-r border-gray-400">Home Approved?</div>
                 <div className="border-r border-gray-400">Friends?</div>
                 <div>URL</div>
               </div>
               { recentAlbums.map(album => {
                 return(
                   <div key={album.id}
-                    className="grid grid-cols-9 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                    className="grid grid-cols-10 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
                   >
                     <div className="border-r border-gray-400 col-span-3">{ album.name }</div>
                     <div className="border-r border-gray-400 col-span-2">{ Moment(album.createdAt).format("LLL") }</div>
                     <div className="border-r border-gray-400">{ usersCache[album.userId]?.userName || "..." }</div>
                     <div className="border-r border-gray-400">{ album.isPublic ? "Yes" : "No" }</div>
+                    <div className="border-r border-gray-400">
+                      { album.isPublic ?
+                        <input type="button"
+                          className="rounded-md bg-blue-700 text-white py-0.5 px-1 cursor-pointer text-xs shadow-md border border-gray-400"
+                          value={album.homeApproved ? "Approved" : "UnApproved"}
+                          onClick={onUpdateAlbumHome(album)}
+                        />
+                        :
+                        "N/A"
+                      }
+                      
+                    </div>
                     <div className="border-r border-gray-400">{ album.isViewableByFriends ? "Yes" : "No" }</div>
                     <div>
                       <a className="text-blue-400 underline"
@@ -570,6 +593,7 @@ const mapDispatchToProps = (dispatch) => {
     getRecentSwingComments: GetRecentSwingComments(dispatch),
     getRecentUsers: GetRecentUsers(dispatch),
     searchFriends: SearchFriends(dispatch),
+    updateAlbum: UpdateAlbum(dispatch),
     updateAlbumFlag: UpdateAlbumFlag(dispatch),
     updateCommentFlag: UpdateCommentFlag(dispatch),
   }
@@ -586,6 +610,7 @@ Admin.propTypes = {
   getRecentSwingComments: PropTypes.func,
   getRecentUsers: PropTypes.func,
   searchFriends: PropTypes.func,
+  updateAlbum: PropTypes.func,
   updateAlbumFlag: PropTypes.func,
   updateCommentFlag: PropTypes.func,
 }

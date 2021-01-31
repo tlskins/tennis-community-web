@@ -5,9 +5,15 @@ import { newNotification } from "../../state/ui/action"
 import { setAlbums } from "../../state/album/action"
 
 
-export const LoadAlbums = (dispatch) => async () => {
+export const LoadAlbums = (dispatch) => async (homeApproved = undefined) => {
   try {
-    const response = await get("/albums")
+    const params = {}
+
+    if (homeApproved != null) {
+      params.homeApproved = homeApproved
+    }
+  
+    const response = await get("/albums", params)
     dispatch(setAlbums(response.data))
     return response.data
   }

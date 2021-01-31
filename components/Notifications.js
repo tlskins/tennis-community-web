@@ -30,8 +30,8 @@ const Notifications = ({
         id: note.id,
         alertType: "success",
         message: note.subject,
-        callback: () => {
-          removeNotification({ uploadNotificationId: note.id })
+        callback: async () => {
+          await removeNotification({ uploadNotificationId: note.id })
           if (note.type === "Upload Complete") {
             router.push(`/albums/${note.albumId}`)
           }
@@ -46,8 +46,8 @@ const Notifications = ({
         id: note.id,
         alertType: "success",
         message: note.subject,
-        callback: () => {
-          removeNotification({ friendNotificationId: note.id })
+        callback: async () => {
+          await removeNotification({ friendNotificationId: note.id })
           if (note.type === "New Friend Request") {
             router.push("/friends")
           }
@@ -66,8 +66,8 @@ const Notifications = ({
         id: note.id,
         alertType: "success",
         message,
-        callback: () => {
-          removeNotification({ commentNotificationId: note.id })
+        callback: async () => {
+          await removeNotification({ commentNotificationId: note.id })
           router.push(`/albums/${note.albumId}`)
         },
       })

@@ -33,21 +33,29 @@ const Admin = ({
 
   const [activeSideBar, setActiveSidebar] = useState("Recent Albums")
 
-  const [albumsStartDate, setAlbumsStartDate] = useState(Moment().add(-14, "days").toDate())
-  const [albumsEndDate, setAlbumsEndDate] = useState(new Date())
+  const [start, setStart] = useState(Moment().add(-14, "days").toDate())
+  const [end, setEnd] = useState(new Date())
+  const [page, setPage] = useState(0)
+
   const [recentAlbums, setRecentAlbums] = useState([])
-  const [albumsPage, setAlbumsPage] = useState(0)
-
-  const [usersStartDate, setUsersStartDate] = useState(Moment().add(-14, "days").toDate())
-  const [usersEndDate, setUsersEndDate] = useState(new Date())
   const [recentUsers, setRecentUsers] = useState([])
-  const [usersPage, setUsersPage] = useState(0)
-
-  const [commentsStartDate, setCommentsStartDate] = useState(Moment().add(-14, "days").toDate())
-  const [commentsEndDate, setCommentsEndDate] = useState(new Date())
   const [recentAlbumComments, setRecentAlbumComments] = useState([])
   const [recentSwingComments, setRecentSwingComments] = useState([])
-  const [commentsPage, setCommentsPage] = useState(0)
+
+  let showNextPage = false
+  switch(activeSideBar) {
+  case "Recent Comments":
+    showNextPage = recentAlbumComments.length === COMMENTS_LIMIT || recentSwingComments.length === COMMENTS_LIMIT
+    break
+  case "Recent Users":
+    showNextPage = recentUsers.length === USERS_LIMIT
+    break
+  case "Recent Albums":
+    showNextPage = recentAlbums.length === ALBUMS_LIMIT
+    break
+  default:
+    break
+  }
 
   useEffect(() => {
     if (!user || !user.id || !user.isAdmin) {
@@ -60,27 +68,27 @@ const Admin = ({
   }
 
   useEffect(async () => {
-    if (activeSideBar === "Recent Albums" && albumsStartDate && albumsEndDate) {
-      const albums = await getRecentAlbums({ start: albumsStartDate, end: albumsEndDate, limit: ALBUMS_LIMIT, offset: albumsPage*ALBUMS_LIMIT })
+    if (activeSideBar === "Recent Albums" && start && end) {
+      const albums = await getRecentAlbums({ start, end, limit: ALBUMS_LIMIT, offset: page*ALBUMS_LIMIT })
       setRecentAlbums(albums)
     }
-  }, [activeSideBar, albumsStartDate, albumsEndDate, albumsPage])
+  }, [activeSideBar, start, end, page])
 
   useEffect(async () => {
-    if (activeSideBar === "Recent Users" && usersStartDate && usersEndDate) {
-      const users = await getRecentUsers({ start: usersStartDate, end: usersEndDate, limit: USERS_LIMIT, offset: usersPage*USERS_LIMIT })
+    if (activeSideBar === "Recent Users" && start && end) {
+      const users = await getRecentUsers({ start, end, limit: USERS_LIMIT, offset: page*USERS_LIMIT })
       setRecentUsers(users)
     }
-  }, [activeSideBar, usersStartDate, usersEndDate, usersPage])
+  }, [activeSideBar, start, end, page])
 
   useEffect(async () => {
-    if (activeSideBar === "Recent Comments" && commentsStartDate && commentsEndDate) {
-      const albumComments = await getRecentAlbumComments({ start: commentsStartDate, end: commentsEndDate, limit: COMMENTS_LIMIT, offset: commentsPage*COMMENTS_LIMIT })
-      const swingComments = await getRecentSwingComments({ start: commentsStartDate, end: commentsEndDate, limit: COMMENTS_LIMIT, offset: commentsPage*COMMENTS_LIMIT })
+    if (activeSideBar === "Recent Comments" && start && end) {
+      const albumComments = await getRecentAlbumComments({ start, end, limit: COMMENTS_LIMIT, offset: page*COMMENTS_LIMIT })
+      const swingComments = await getRecentSwingComments({ start, end, limit: COMMENTS_LIMIT, offset: page*COMMENTS_LIMIT })
       setRecentAlbumComments(albumComments)
       setRecentSwingComments(swingComments)
     }
-  }, [activeSideBar, commentsStartDate, commentsEndDate, commentsPage])
+  }, [activeSideBar, start, end, page])
 
   useEffect(() => {
     if (recentAlbums.length > 0) {
@@ -112,76 +120,12 @@ const Admin = ({
                     setActiveSidebar(undefined)
                   } else {
                     setActiveSidebar("Recent Albums")
+                    setPage(0)
                   }
                 }}
               >
                 Recent Albums
               </h2>
-              <div className="mb-2">
-                { activeSideBar === "Recent Albums" &&
-                    <div className="flex flex-col content-center justify-center items-center p-4 w-full">
-                      <div className="flex flex-row">
-                        <div className="flex flex-col mx-1">
-                          <div className="flex flex-row m-0.5">
-                            <p className="text-center text-gray-400">
-                                Start
-                            </p>
-                            { albumsStartDate &&
-                                <input type='button'
-                                  className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                                  onClick={() => setAlbumsStartDate(undefined)}
-                                  value="x"
-                                />
-                            }
-                          </div>
-                          <DatePicker
-                            className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow"
-                            selected={albumsStartDate}
-                            onChange={date => setAlbumsStartDate(date)}
-                          />
-                        </div>
-                        <div className="flex flex-col mx-1">
-                          <div className="flex flex-row m-0.5">
-                            <p className="text-center text-gray-400">
-                                End
-                            </p>
-                            { albumsEndDate &&
-                                <input type='button'
-                                  className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                                  onClick={() => setAlbumsEndDate(undefined)}
-                                  value="x"
-                                />
-                            }
-                          </div>
-                          <DatePicker
-                            className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow z-100"
-                            selected={albumsEndDate}
-                            onChange={date => setAlbumsEndDate(date)}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-row m-0.5 mt-2">
-                        { albumsPage > 0 &&
-                            <button
-                              onClick={() => setAlbumsPage(albumsPage-1)}
-                              className="-0.5 mx-1"
-                            >
-                            &lt;
-                            </button>
-                        }
-                        <p>Page { albumsPage+1 }</p>
-                        { recentAlbums.length === ALBUMS_LIMIT &&
-                            <button
-                              onClick={() => setAlbumsPage(albumsPage+1)}
-                              className="-0.5 mx-1"
-                            >
-                            &gt;
-                            </button>
-                        }
-                      </div>
-                    </div>
-                }
-              </div>
             </div>
           
             {/* Recent Users Sidebar */}
@@ -192,76 +136,12 @@ const Admin = ({
                     setActiveSidebar(undefined)
                   } else {
                     setActiveSidebar("Recent Users")
+                    setPage(0)
                   }
                 }}
               >
                 Recent Users
               </h2>
-              <div className="mb-2">
-                { activeSideBar === "Recent Users" &&
-                    <div className="flex flex-col content-center justify-center items-center p-4 w-full">
-                      <div className="flex flex-row">
-                        <div className="flex flex-col mx-1">
-                          <div className="flex flex-row m-0.5">
-                            <p className="text-center text-gray-400">
-                                Start
-                            </p>
-                            { usersStartDate &&
-                                <input type='button'
-                                  className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                                  onClick={() => setUsersStartDate(undefined)}
-                                  value="x"
-                                />
-                            }
-                          </div>
-                          <DatePicker
-                            className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow"
-                            selected={usersStartDate}
-                            onChange={date => setUsersStartDate(date)}
-                          />
-                        </div>
-                        <div className="flex flex-col mx-1">
-                          <div className="flex flex-row m-0.5">
-                            <p className="text-center text-gray-400">
-                                End
-                            </p>
-                            { usersEndDate &&
-                                <input type='button'
-                                  className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                                  onClick={() => setUsersEndDate(undefined)}
-                                  value="x"
-                                />
-                            }
-                          </div>
-                          <DatePicker
-                            className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow z-100"
-                            selected={usersEndDate}
-                            onChange={date => setUsersEndDate(date)}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-row m-0.5 mt-2">
-                        { usersPage > 0 &&
-                            <button
-                              onClick={() => setUsersPage(usersPage-1)}
-                              className="-0.5 mx-1"
-                            >
-                            &lt;
-                            </button>
-                        }
-                        <p>Page { usersPage+1 }</p>
-                        { recentUsers.length === USERS_LIMIT &&
-                            <button
-                              onClick={() => setUsersPage(usersPage+1)}
-                              className="-0.5 mx-1"
-                            >
-                            &gt;
-                            </button>
-                        }
-                      </div>
-                    </div>
-                }
-              </div>
             </div>
           
             {/* Recent Comments Sidebar */}
@@ -272,78 +152,77 @@ const Admin = ({
                     setActiveSidebar(undefined)
                   } else {
                     setActiveSidebar("Recent Comments")
+                    setPage(0)
                   }
                 }}
               >
                 Recent Comments
               </h2>
-              <div className="mb-2">
-                { activeSideBar === "Recent Comments" &&
-                    <div className="flex flex-col content-center justify-center items-center p-4 w-full">
-                      <div className="flex flex-row">
-                        <div className="flex flex-col mx-1">
-                          <div className="flex flex-row m-0.5">
-                            <p className="text-center text-gray-400">
-                                Start
-                            </p>
-                            { commentsStartDate &&
-                                <input type='button'
-                                  className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                                  onClick={() => setCommentsStartDate(undefined)}
-                                  value="x"
-                                />
-                            }
-                          </div>
-                          <DatePicker
-                            className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow"
-                            selected={commentsStartDate}
-                            onChange={date => setCommentsStartDate(date)}
-                          />
-                        </div>
-                        <div className="flex flex-col mx-1">
-                          <div className="flex flex-row m-0.5">
-                            <p className="text-center text-gray-400">
-                                End
-                            </p>
-                            { commentsEndDate &&
-                                <input type='button'
-                                  className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                                  onClick={() => setCommentsStartDate(undefined)}
-                                  value="x"
-                                />
-                            }
-                          </div>
-                          <DatePicker
-                            className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow z-100"
-                            selected={commentsEndDate}
-                            onChange={date => setCommentsEndDate(date)}
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-row m-0.5 mt-2">
-                        { commentsPage > 0 &&
-                            <button
-                              onClick={() => setCommentsPage(commentsPage-1)}
-                              className="-0.5 mx-1"
-                            >
-                            &lt;
-                            </button>
-                        }
-                        <p>Page { commentsPage+1 }</p>
-                        { (recentAlbumComments.length === COMMENTS_LIMIT || recentSwingComments.length === COMMENTS_LIMIT) &&
-                            <button
-                              onClick={() => setCommentsPage(commentsPage+1)}
-                              className="-0.5 mx-1"
-                            >
-                            &gt;
-                            </button>
-                        }
-                      </div>
-                    </div>
-                }
-              </div>
             </div>
           
+            <div className="mb-2">
+              <div className="flex flex-col content-center justify-center items-center p-4 w-full">
+                <div className="flex flex-row">
+                  <div className="flex flex-col mx-1">
+                    <div className="flex flex-row m-0.5">
+                      <p className="text-center text-gray-400">
+                        Start
+                      </p>
+                      { start &&
+                        <input type='button'
+                          className="border w-6 rounded-full mx-1 text-xs bg-red-300"
+                          onClick={() => setStart(undefined)}
+                          value="x"
+                        />
+                      }
+                    </div>
+                    <DatePicker
+                      className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow"
+                      selected={start}
+                      onChange={date => setStart(date)}
+                    />
+                  </div>
+                  <div className="flex flex-col mx-1">
+                    <div className="flex flex-row m-0.5">
+                      <p className="text-center text-gray-400">
+                        End
+                      </p>
+                      { end &&
+                        <input type='button'
+                          className="border w-6 rounded-full mx-1 text-xs bg-red-300"
+                          onClick={() => setStart(undefined)}
+                          value="x"
+                        />
+                      }
+                    </div>
+                    <DatePicker
+                      className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow z-100"
+                      selected={end}
+                      onChange={date => setEnd(date)}
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-row m-0.5 mt-2">
+                  { page > 0 &&
+                    <button
+                      onClick={() => setPage(page-1)}
+                      className="-0.5 mx-1"
+                    >
+                    &lt;
+                    </button>
+                  }
+                  <p>Page { page+1 }</p>
+                  { showNextPage &&
+                    <button
+                      onClick={() => setPage(page+1)}
+                      className="-0.5 mx-1"
+                    >
+                    &gt;
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -467,7 +346,7 @@ const Admin = ({
                       <a className="text-blue-400 underline"
                         href={`/albums/${comment.albumId}/swings/${comment.swingId}`}
                       >
-                            Link
+                        Link
                       </a>
                     </div>
                     <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>

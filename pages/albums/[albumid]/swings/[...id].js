@@ -5,12 +5,14 @@ import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Moment from "moment"
 
+import { newNotification } from "../../../../state/ui/action"
 import Notifications from "../../../../components/Notifications"
 import ProComparison from "../../../../components/ProComparison"
 import VideoResources from "../../../../components/VideoResources"
-import { LoadAlbum, PostComment } from "../../../../behavior/coordinators/albums"
+import { LoadAlbum, PostComment, FlagComment } from "../../../../behavior/coordinators/albums"
 import { SearchFriends } from "../../../../behavior/coordinators/friends"
 import speechBubble from "../../../../public/speech-bubble.svg"
+import flag from "../../../../public/flag.svg"
 
 
 const SWING_FRAMES = 60
@@ -23,9 +25,11 @@ const Album = ({
   user,
   usersCache,
 
+  flagComment,
   loadAlbum,
   postComment,
   searchFriends,
+  toggleFlashMessage,
 }) => {
   const router = useRouter()
   const albumId = router.query.albumid
@@ -120,6 +124,31 @@ const Album = ({
       setComment("")
     }
     posting = false
+  }
+
+  const onFlagComment = comment => () => {
+    toggleFlashMessage({
+      id: comment.id,
+      alertType: "success",
+      message: `Flag Comment: "${comment.text}"?`,
+      callback: async () => {
+        const success = await flagComment({
+          commentCreatedAt: comment.createdAt,
+          commentId: comment.id,
+          commenterId: comment.userId,
+          albumId: album.id,
+          swingId,
+          text: comment.text,
+        })
+        if (success) {
+          toggleFlashMessage({
+            id: Moment().toString(),
+            alertType: "success",
+            message: "Comment Flagged!"
+          })
+        }
+      }
+    })
   }
 
   const onSortComments = e => {
@@ -451,33 +480,37 @@ const Album = ({
                           <p className="p-1">
                             { comment.text }
                           </p>
-                          <div className="flex flex-row items-center">
-                            <p className="mx-2 text-xs text-blue-500 align-middle">
+                          <div className="flex flex-row content-center justify-center items-center">
+                            <p className="mx-1 text-xs text-blue-500 align-middle">
                               @{ usersCache[comment.userId]?.userName || "..." }
                             </p>
-                            <p className="mx-2 text-sm align-middle font-bold">
+                            <p className="mx-1 text-sm align-middle font-bold">
                             |
                             </p>
-                            <p className="mx-2 text-xs text-gray-500 align-middle">
+                            <p className="mx-1 text-xs text-gray-500 align-middle">
                               { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
                             </p>
-                            <p className="mx-2 text-sm align-middle font-bold">
+                            <p className="mx-1 text-sm align-middle font-bold">
                             |
                             </p>
                             <p className="text-xs align-middle font-medium">
                             frame {comment.frame || 0}
                             </p>
-                            <p className="mx-2 text-sm align-middle font-bold">
+                            <p className="mx-1 text-sm align-middle font-bold">
                             |
                             </p>
                             <input type='button'
-                              className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
+                              className='border w-11 rounded py-0.5 px-2 mx-2 text-xs bg-green-700 text-white text-center'
                               value='reply'
                               onClick={() => {
                                 setReplyId(comment.id)
                                 setPlayerFrame(comment.frame)
                                 setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
                               }}
+                            />
+                            <img src={flag}
+                              className="w-4 h-4 mr-1 cursor-pointer"
+                              onClick={onFlagComment(comment)}
                             />
                           </div>
                         </div>
@@ -505,9 +538,15 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    flagComment: FlagComment(dispatch),
     loadAlbum: LoadAlbum(dispatch),
     postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
+    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
+      alertType,
+      callback,
+      message,
+    })),
   }
 }
   
@@ -516,9 +555,11 @@ Album.propTypes = {
   user: PropTypes.object,
   usersCache: PropTypes.object,
 
+  flagComment: PropTypes.func,
   loadAlbum: PropTypes.func,
   postComment: PropTypes.func,
   searchFriends: PropTypes.func,
+  toggleFlashMessage: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Album)

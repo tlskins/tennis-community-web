@@ -19,7 +19,6 @@ const Sharing = ({
   friendIds,
   setFriendIds,
 }) => {
-  console.log("sharing", isPublic, isViewableByFriends, friendIds)
   const [friendSearch, setFriendSearch] = useState("")
   const [isSearchingFriends, setIsSearchingFriends] = useState(friendIds.length > 0)
 
@@ -50,13 +49,20 @@ const Sharing = ({
       <p className="mb-2">Share with</p>
 
       <div className="flex flex-row">
-        <input id="public"
-          className="mr-2"
-          type="checkbox"
-          checked={isPublic}
-          onChange={e => setIsPublic(e.target.checked)}
-        />
-        <label htmlFor="public"> Public</label><br></br>
+        { user.disablePublicAlbums &&
+          <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your public sharing has been disabled</p>
+        }
+        { !user.disablePublicAlbums &&
+          <Fragment>
+            <input id="public"
+              className="mr-2"
+              type="checkbox"
+              checked={isPublic}
+              onChange={e => setIsPublic(e.target.checked)}
+            />
+            <label htmlFor="public"> Public</label><br></br>
+          </Fragment>
+        }
       </div>
 
       <div className="flex flex-row">

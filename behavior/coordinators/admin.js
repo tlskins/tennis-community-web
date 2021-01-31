@@ -46,6 +46,17 @@ export const GetRecentFlaggedAlbums = (dispatch) => async ({ start, end, resolve
   }
 }
 
+export const GetRecentUsers = (dispatch) => async ({ start, end, limit, offset }) => {
+  try {
+    const response = await get("/users/recent", { start, end, limit, offset })
+    return response.data
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return []
+  }
+}
+
 export const GetRecentAlbums = (dispatch) => async ({ start, end, limit, offset }) => {
   try {
     const response = await get("/albums/recent", { start, end, limit, offset })

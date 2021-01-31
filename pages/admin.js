@@ -9,25 +9,35 @@ import "react-datepicker/dist/react-datepicker.css"
 import Notifications from "../components/Notifications"
 import {
   GetRecentAlbums,
-  GetRecentUsers,
   GetRecentAlbumComments,
+  GetRecentFlaggedAlbums,
+  GetRecentFlaggedComments,
   GetRecentSwingComments,
+  GetRecentUsers,
+  UpdateAlbumFlag,
+  UpdateCommentFlag,
 } from "../behavior/coordinators/admin"
 import { SearchFriends } from "../behavior/coordinators/friends"
   
 const ALBUMS_LIMIT = 20
 const USERS_LIMIT = 20
 const COMMENTS_LIMIT = 20
+const FLAGGED_ALBUMS_LIMIT = 20
+const FLAGGED_COMMENTS_LIMIT = 20
 
 const Admin = ({
   user,
   usersCache,
   
   getRecentAlbums,
-  getRecentUsers,
   getRecentAlbumComments,
+  getRecentFlaggedAlbums,
+  getRecentFlaggedComments,
   getRecentSwingComments,
+  getRecentUsers,
   searchFriends,
+  updateAlbumFlag,
+  updateCommentFlag,
 }) => {
   const router = useRouter()
 
@@ -35,12 +45,15 @@ const Admin = ({
 
   const [start, setStart] = useState(Moment().add(-14, "days").toDate())
   const [end, setEnd] = useState(new Date())
+  const [resolved, setResolved] = useState(false)
   const [page, setPage] = useState(0)
 
   const [recentAlbums, setRecentAlbums] = useState([])
   const [recentUsers, setRecentUsers] = useState([])
   const [recentAlbumComments, setRecentAlbumComments] = useState([])
   const [recentSwingComments, setRecentSwingComments] = useState([])
+  const [recentFlaggedAlbums, setRecentFlaggedAlbums] = useState([])
+  const [recentFlaggedComments, setRecentFlaggedComments] = useState([])
 
   let showNextPage = false
   switch(activeSideBar) {
@@ -53,6 +66,13 @@ const Admin = ({
   case "Recent Albums":
     showNextPage = recentAlbums.length === ALBUMS_LIMIT
     break
+  case "Recent Flagged Albums":
+    showNextPage = recentFlaggedAlbums.length === FLAGGED_ALBUMS_LIMIT
+    break
+  case "Recent Flagged Comments":
+    showNextPage = recentFlaggedComments.length === FLAGGED_COMMENTS_LIMIT
+    break
+      
   default:
     break
   }
@@ -71,18 +91,10 @@ const Admin = ({
     if (activeSideBar === "Recent Albums" && start && end) {
       const albums = await getRecentAlbums({ start, end, limit: ALBUMS_LIMIT, offset: page*ALBUMS_LIMIT })
       setRecentAlbums(albums)
-    }
-  }, [activeSideBar, start, end, page])
-
-  useEffect(async () => {
-    if (activeSideBar === "Recent Users" && start && end) {
+    } else if (activeSideBar === "Recent Users" && start && end) {
       const users = await getRecentUsers({ start, end, limit: USERS_LIMIT, offset: page*USERS_LIMIT })
       setRecentUsers(users)
-    }
-  }, [activeSideBar, start, end, page])
-
-  useEffect(async () => {
-    if (activeSideBar === "Recent Comments" && start && end) {
+    } else if (activeSideBar === "Recent Comments" && start && end) {
       const albumComments = await getRecentAlbumComments({ start, end, limit: COMMENTS_LIMIT, offset: page*COMMENTS_LIMIT })
       const swingComments = await getRecentSwingComments({ start, end, limit: COMMENTS_LIMIT, offset: page*COMMENTS_LIMIT })
       setRecentAlbumComments(albumComments)
@@ -90,15 +102,61 @@ const Admin = ({
     }
   }, [activeSideBar, start, end, page])
 
+  useEffect(async () => {
+    if (activeSideBar === "Recent Flagged Albums" && start && end) {
+      const flags = await getRecentFlaggedAlbums({ start, end, resolved, limit: FLAGGED_ALBUMS_LIMIT, offset: page*FLAGGED_ALBUMS_LIMIT })
+      setRecentFlaggedAlbums(flags)
+    } else if (activeSideBar === "Recent Flagged Comments" && start && end) {
+      const flags = await getRecentFlaggedComments({ start, end, resolved, limit: FLAGGED_COMMENTS_LIMIT, offset: page*FLAGGED_COMMENTS_LIMIT })
+      setRecentFlaggedComments(flags)
+    } 
+  }, [activeSideBar, start, end, resolved, page])
+
   useEffect(() => {
+    const idsSet = new Set([])
+
     if (recentAlbums.length > 0) {
-      const idsSet = new Set([])
-      recentAlbums.forEach( album => idsSet.add(album.userId))
-      let ids = Array.from(idsSet)
-      ids = ids.filter( id => !usersCache[id])
-      searchFriends({ ids: [ ...ids] })
+      recentAlbums.forEach( album => {
+        if (!usersCache[album.userId]) {
+          idsSet.add(album.userId)
+        }
+      })
     }
-  }, [recentAlbums])
+    if (recentFlaggedAlbums.length > 0) {
+      recentFlaggedAlbums.forEach( flag => {
+        if (!usersCache[flag.albumUserId]) {
+          idsSet.add(flag.albumUserId)
+        }
+      })
+    }
+    if (recentFlaggedComments.length > 0) {
+      recentFlaggedComments.forEach( flag => {
+        if (!usersCache[flag.commenterId]) {
+          idsSet.add(flag.commenterId)
+        }
+      })
+    }
+
+    if (idsSet.size > 0) {
+      searchFriends({ ids: Array.from(idsSet) })
+    }
+  }, [recentAlbums, recentFlaggedAlbums, recentFlaggedComments])
+
+  const onUpdateAlbumFlag = flag => async () => {
+    const success = await updateAlbumFlag({ id: flag.id, resolved: !flag.resolved })
+    if (success) {
+      const flags = await getRecentFlaggedAlbums({ start, end, resolved, limit: FLAGGED_ALBUMS_LIMIT, offset: page*FLAGGED_ALBUMS_LIMIT })
+      setRecentFlaggedAlbums(flags)
+    }
+  }
+
+  const onUpdateCommentFlag = flag => async () => {
+    const success = await updateCommentFlag({ id: flag.id, resolved: !flag.resolved })
+    if (success) {
+      const flags = await getRecentFlaggedComments({ start, end, resolved, limit: FLAGGED_COMMENTS_LIMIT, offset: page*FLAGGED_COMMENTS_LIMIT })
+      setRecentFlaggedComments(flags)
+    }
+  }
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -159,9 +217,43 @@ const Admin = ({
                 Recent Comments
               </h2>
             </div>
+
+            {/* Recent Flagged Albums Sidebar */}
+            <div className="mb-2">
+              <h2 className="text-blue-400 underline cursor-pointer text-center"
+                onClick={() => {
+                  if (activeSideBar === "Recent Flagged Albums") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("Recent Flagged Albums")
+                    setPage(0)
+                  }
+                }}
+              >
+                Recent Flagged Albums
+              </h2>
+            </div>
+
+            {/* Recent Flagged Comments Sidebar */}
+            <div className="mb-2">
+              <h2 className="text-blue-400 underline cursor-pointer text-center"
+                onClick={() => {
+                  if (activeSideBar === "Recent Flagged Comments") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("Recent Flagged Comments")
+                    setPage(0)
+                  }
+                }}
+              >
+                Recent Flagged Comments
+              </h2>
+            </div>
           
             <div className="mb-2">
               <div className="flex flex-col content-center justify-center items-center p-4 w-full">
+
+                {/* Date Filters */}
                 <div className="flex flex-row">
                   <div className="flex flex-col mx-1">
                     <div className="flex flex-row m-0.5">
@@ -202,6 +294,20 @@ const Admin = ({
                     />
                   </div>
                 </div>
+
+                {/* Resolved Filter */}
+                { activeSideBar?.includes("Flagged") &&
+                  <div className="flex flex-row m-0.5 mt-2">
+                    <p>Resolved</p>
+                    <input type="checkbox"
+                      className="ml-2"
+                      checked={resolved}
+                      onChange={() => setResolved(!resolved)}
+                    />
+                  </div>
+                }
+
+                {/* Page Filter */}
                 <div className="flex flex-row m-0.5 mt-2">
                   { page > 0 &&
                     <button
@@ -221,6 +327,7 @@ const Admin = ({
                     </button>
                   }
                 </div>
+
               </div>
             </div>
           </div>
@@ -235,6 +342,8 @@ const Admin = ({
           {/* Recent Albums */}
           { activeSideBar === "Recent Albums" &&
             <div className="p-4 flex flex-col bg-white rounded-lg">
+              <p className="text-center mb-2 underline font-semibold">Recent Albums</p>
+
               <div className="grid grid-cols-9 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
                 <div className="border-r border-gray-400 col-span-3">Name</div>
                 <div className="border-r border-gray-400 col-span-2">Created</div>
@@ -269,6 +378,8 @@ const Admin = ({
           {/* Recent Users */}
           { activeSideBar === "Recent Users" &&
             <div className="p-4 flex flex-col bg-white rounded-lg">
+              <p className="text-center mb-2 underline font-semibold">Recent Users</p>
+
               <div className="grid grid-cols-5 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
                 <div className="border-r border-gray-400">Name</div>
                 <div className="border-r border-gray-400">UserName</div>
@@ -294,67 +405,147 @@ const Admin = ({
 
           {/* Recent Comments */}
           { activeSideBar === "Recent Comments" &&
-          <div className="flex flex-col">
-            <div className="p-4 flex flex-col bg-white rounded-lg">
-              <p className="text-center mb-2 underline font-semibold">Album Comments</p>
-              <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
-                <div className="border-r border-gray-400">Name</div>
-                <div className="border-r border-gray-400">User</div>
-                <div className="border-r border-gray-400 col-span-2">Posted</div>
-                <div className="border-r border-gray-400">Link</div>
-                <div className="col-span-7">Text</div>
-              </div>
-              { recentAlbumComments.map(comment => {
-                return(
-                  <div key={comment.id}
-                    className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
-                  >
-                    <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
-                    <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
-                    <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
-                    <div className="border-r border-gray-400">
-                      <a className="text-blue-400 underline"
-                        href={`/albums/${comment.albumId}`}
-                      >
-                            Link
-                      </a>
+            <div className="flex flex-col">
+              <div className="p-4 flex flex-col bg-white rounded-lg">
+                <p className="text-center mb-2 underline font-semibold">Album Comments</p>
+                <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                  <div className="border-r border-gray-400">Name</div>
+                  <div className="border-r border-gray-400">User</div>
+                  <div className="border-r border-gray-400 col-span-2">Posted</div>
+                  <div className="border-r border-gray-400">Link</div>
+                  <div className="col-span-7">Text</div>
+                </div>
+                { recentAlbumComments.map(comment => {
+                  return(
+                    <div key={comment.id}
+                      className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                    >
+                      <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
+                      <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
+                      <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
+                      <div className="border-r border-gray-400">
+                        <a className="text-blue-400 underline"
+                          href={`/albums/${comment.albumId}`}
+                        >
+                              Link
+                        </a>
+                      </div>
+                      <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
                     </div>
-                    <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
-                  </div>
-                )
-              })}
-            </div>
-
-            <div className="p-4 flex flex-col bg-white rounded-lg">
-              <p className="text-center mb-2 underline font-semibold">Swing Comments</p>
-              <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
-                <div className="border-r border-gray-400">Name</div>
-                <div className="border-r border-gray-400">User</div>
-                <div className="border-r border-gray-400 col-span-2">Posted</div>
-                <div className="border-r border-gray-400">Link</div>
-                <div className="col-span-7">Text</div>
+                  )
+                })}
               </div>
-              { recentSwingComments.map(comment => {
+
+              <div className="p-4 flex flex-col bg-white rounded-lg">
+                <p className="text-center mb-2 underline font-semibold">Swing Comments</p>
+                <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                  <div className="border-r border-gray-400">Name</div>
+                  <div className="border-r border-gray-400">User</div>
+                  <div className="border-r border-gray-400 col-span-2">Posted</div>
+                  <div className="border-r border-gray-400">Link</div>
+                  <div className="col-span-7">Text</div>
+                </div>
+                { recentSwingComments.map(comment => {
+                  return(
+                    <div key={comment.id}
+                      className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                    >
+                      <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
+                      <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
+                      <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
+                      <div className="border-r border-gray-400">
+                        <a className="text-blue-400 underline"
+                          href={`/albums/${comment.albumId}/swings/${comment.swingId}`}
+                        >
+                          Link
+                        </a>
+                      </div>
+                      <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          }
+
+          {/* Recent Flagged Albums */}
+          { activeSideBar === "Recent Flagged Albums" &&
+            <div className="p-4 flex flex-col bg-white rounded-lg">
+              <p className="text-center mb-2 underline font-semibold">Flagged Albums</p>
+
+              <div className="grid grid-cols-5 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                <div className="border-r border-gray-400">Album</div>
+                <div className="border-r border-gray-400">Creator</div>
+                <div className="border-r border-gray-400">Created</div>
+                <div className="border-r border-gray-400">Resolved</div>
+                <div>Link</div>
+              </div>
+              { recentFlaggedAlbums.map(flag => {
                 return(
-                  <div key={comment.id}
-                    className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                  <div key={flag.id}
+                    className="grid grid-cols-5 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
                   >
-                    <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
-                    <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
-                    <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
+                    <div className="border-r border-gray-400">{ flag.albumName }</div>
+                    <div className="border-r border-gray-400">{ usersCache[flag.albumUserId] ? `${usersCache[flag.albumUserId].firstName} ${usersCache[flag.albumUserId].lastName}` : "..." }</div>
+                    <div className="border-r border-gray-400">{ Moment(flag.createdAt).format("LLL") }</div>
                     <div className="border-r border-gray-400">
+                      <input type="button"
+                        className="rounded-md bg-blue-700 text-white py-0.5 px-1 cursor-pointer text-xs shadow-md border border-gray-400"
+                        value={flag.resolved ? "Resolved" : "Unresolved"}
+                        onClick={onUpdateAlbumFlag(flag)}
+                      />
+                    </div>
+                    <div>
                       <a className="text-blue-400 underline"
-                        href={`/albums/${comment.albumId}/swings/${comment.swingId}`}
+                        href={`/albums/${flag.albumId}`}
                       >
                         Link
                       </a>
                     </div>
-                    <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
                   </div>
                 )
               })}
             </div>
-          </div>
+          }
+
+          {/* Recent Flagged Comments */}
+          { activeSideBar === "Recent Flagged Comments" &&
+            <div className="p-4 flex flex-col bg-white rounded-lg">
+              <p className="text-center mb-2 underline font-semibold">Flagged Comments</p>
+
+              <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                <div className="border-r border-gray-400">Commentor</div>
+                <div className="border-r border-gray-400 col-span-2">Posted</div>
+                <div className="border-r border-gray-400">Resolved</div>
+                <div className="border-r border-gray-400">Link</div>
+                <div className="col-span-7">Text</div>
+              </div>
+              { recentFlaggedComments.map(flag => {
+                return(
+                  <div key={flag.id}
+                    className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                  >
+                    <div className="border-r border-gray-400">{ usersCache[flag.commenterId] ? `${usersCache[flag.commenterId].firstName} ${usersCache[flag.commenterId].lastName}` : "..." }</div>
+                    <div className="border-r border-gray-400 col-span-2">{ Moment(flag.createdAt).format("LLL") }</div>
+                    <div className="border-r border-gray-400">
+                      <input type="button"
+                        className="rounded-md bg-blue-700 text-white py-0.5 px-1 cursor-pointer text-xs shadow-md border border-gray-400"
+                        value={flag.resolved ? "Resolved" : "Unresolved"}
+                        onClick={onUpdateCommentFlag(flag)}
+                      />
+                    </div>
+                    <div className="border-r border-gray-400">
+                      <a className="text-blue-400 underline"
+                        href={flag.swingId ? `/albums/${flag.albumId}/swings/${flag.swingId}` : `/albums/${flag.albumId}`}
+                      >
+                        Link
+                      </a>
+                    </div>
+                    <div className="col-span-7 overflow-y-scroll">{ flag.text }</div>
+                  </div>
+                )
+              })}
+            </div>
           }
         </div>
         {/* End Main */}
@@ -373,10 +564,14 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     getRecentAlbums: GetRecentAlbums(dispatch),
-    getRecentUsers: GetRecentUsers(dispatch),
     getRecentAlbumComments: GetRecentAlbumComments(dispatch),
+    getRecentFlaggedAlbums: GetRecentFlaggedAlbums(dispatch),
+    getRecentFlaggedComments: GetRecentFlaggedComments(dispatch),
     getRecentSwingComments: GetRecentSwingComments(dispatch),
+    getRecentUsers: GetRecentUsers(dispatch),
     searchFriends: SearchFriends(dispatch),
+    updateAlbumFlag: UpdateAlbumFlag(dispatch),
+    updateCommentFlag: UpdateCommentFlag(dispatch),
   }
 }
   
@@ -385,10 +580,14 @@ Admin.propTypes = {
   usersCache: PropTypes.object,
 
   getRecentAlbums: PropTypes.func,
-  getRecentUsers: PropTypes.func,
   getRecentAlbumComments: PropTypes.func,
+  getRecentFlaggedAlbums: PropTypes.func,
+  getRecentFlaggedComments: PropTypes.func,
   getRecentSwingComments: PropTypes.func,
+  getRecentUsers: PropTypes.func,
   searchFriends: PropTypes.func,
+  updateAlbumFlag: PropTypes.func,
+  updateCommentFlag: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Admin)

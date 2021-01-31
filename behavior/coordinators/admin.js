@@ -4,7 +4,7 @@ import { HandleError } from "./errors"
 
 export const UpdateCommentFlag = (dispatch) => async ({ id, resolved }) => {
   try {
-    await put(`moderation/comments/${id}`, { resolved })
+    await put(`/moderation/comments/${id}`, { resolved })
     return true
   }
   catch( err ) {
@@ -15,7 +15,7 @@ export const UpdateCommentFlag = (dispatch) => async ({ id, resolved }) => {
 
 export const UpdateAlbumFlag = (dispatch) => async ({ id, resolved }) => {
   try {
-    await put(`moderation/albums/${id}`, { resolved })
+    await put(`/moderation/albums/${id}`, { resolved })
     return true
   }
   catch( err ) {
@@ -26,7 +26,7 @@ export const UpdateAlbumFlag = (dispatch) => async ({ id, resolved }) => {
 
 export const GetRecentFlaggedComments = (dispatch) => async ({ start, end, resolved, limit, offset }) => {
   try {
-    const response = await get("moderation/comments", { start, end, resolved, limit, offset })
+    const response = await get("/moderation/comments", { start, end, resolved, limit, offset })
     return response.data
   }
   catch( err ) {
@@ -37,7 +37,7 @@ export const GetRecentFlaggedComments = (dispatch) => async ({ start, end, resol
 
 export const GetRecentFlaggedAlbums = (dispatch) => async ({ start, end, resolved, limit, offset }) => {
   try {
-    const response = await get("moderation/albums", { start, end, resolved, limit, offset })
+    const response = await get("/moderation/albums", { start, end, resolved, limit, offset })
     return response.data
   }
   catch( err ) {

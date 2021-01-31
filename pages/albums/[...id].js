@@ -5,6 +5,7 @@ import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Moment from "moment"
 
+import { newNotification } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
 import VideoResources from "../../components/VideoResources"
@@ -15,11 +16,13 @@ import {
   LoadAlbum,
   UpdateAlbum,
   PostComment,
+  FlagComment,
 } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../..//behavior/coordinators/friends"
 import { setAlbum } from "../../state/album/action"
 import speechBubble from "../../public/speech-bubble.svg"
 import pencil from "../../public/pencil.svg"
+import flag from "../../public/flag.svg"
 
 const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 50
@@ -40,10 +43,12 @@ const Album = ({
   user,
   usersCache,
 
+  flagComment,
   getRecentUploads,
   loadAlbum,
   postComment,
   searchFriends,
+  toggleFlashMessage,
   updateAlbum,
   updateAlbumRedux,
 }) => {
@@ -197,6 +202,30 @@ const Album = ({
       setComment("")
     }
     posting = false
+  }
+
+  const onFlagComment = comment => () => {
+    toggleFlashMessage({
+      id: comment.id,
+      alertType: "success",
+      message: `Flag Comment: "${comment.text}"?`,
+      callback: async () => {
+        const success = await flagComment({
+          commentCreatedAt: comment.createdAt,
+          commentId: comment.id,
+          commenterId: comment.userId,
+          albumId: album.id,
+          text: comment.text,
+        })
+        if (success) {
+          toggleFlashMessage({
+            id: Moment().toString(),
+            alertType: "success",
+            message: "Comment Flagged!"
+          })
+        }
+      }
+    })
   }
 
   const onSortComments = e => {
@@ -455,142 +484,140 @@ const Album = ({
               </h2>
               <div className="mb-2">
                 { activeSideBar === "Album Comments" &&
-                  <div className="flex flex-col content-center justify-center items-center">
-                    <div className="p-4">
-                      <div className="flex flex-col p-4 items-center overscroll-contain">
-                        <div className="flex flex-col w-full">
+                  <div className="flex flex-col content-center justify-center items-center p-4 overscroll-contain">
+                    <div className="flex flex-col w-full">
 
-                          {/* Comment Form */}
-                          <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                            { replyId &&
-                              <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
-                                onClick={() => {
-                                  setReplyPreview("")
-                                  setReplyId(undefined)
-                                }}
-                              >
-                                <p>reply to</p>
-                                <p className="pl-2 text-gray-700">{ replyPreview }</p>
-                              </div>
-                            }
-                            <textarea
-                              className="p-2 border border-black rounded bg-gray-100"
-                              autoFocus={true}
-                              placeholder={ replyId ? "Reply to comment" : "Comment"}
-                              rows="4"
-                              maxLength={500}
-                              onChange={e => setComment(e.target.value)}
-                              value={comment}
-                            />
-                            <div className="flex flex-row p-1">
-                              <p className="text-sm mr-2 text-gray-500 align-middle">
-                                { Moment().format("MMM D YYYY H:m a") }
-                              </p>
-                              <p className="text-sm mr-2 align-middle font-bold">
+                      {/* Comment Form */}
+                      <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                        { replyId &&
+                          <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
+                            onClick={() => {
+                              setReplyPreview("")
+                              setReplyId(undefined)
+                            }}
+                          >
+                            <p>reply to</p>
+                            <p className="pl-2 text-gray-700">{ replyPreview }</p>
+                          </div>
+                        }
+                        <textarea
+                          className="p-2 border border-black rounded bg-gray-100"
+                          autoFocus={true}
+                          placeholder={ replyId ? "Reply to comment" : "Comment"}
+                          rows="4"
+                          maxLength={500}
+                          onChange={e => setComment(e.target.value)}
+                          value={comment}
+                        />
+                        <div className="flex flex-row p-1 content-center justify-center items-center">
+                          <p className="text-sm mr-2 text-gray-500 align-middle">
+                            { Moment().format("MMM D YYYY H:m a") }
+                          </p>
+                          <p className="text-sm mr-2 align-middle font-bold">
                               |
-                              </p>
-                              <p className="text-sm mr-2 align-middle font-medium">
+                          </p>
+                          <p className="text-sm mr-2 align-middle font-medium">
                               chars {comment.length}
-                              </p>
-                              <p className="text-sm mr-2 align-middle font-bold">
+                          </p>
+                          <p className="text-sm mr-2 align-middle font-bold">
                               |
-                              </p>
+                          </p>
+                          <input type='button'
+                            className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
+                            value='post'
+                            onClick={onPostComment}
+                          />
+                        </div>
+                      </div>
 
-                              <input type='button'
-                                className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
-                                value='post'
-                                onClick={onPostComment}
-                              />
-                            </div>
-                          </div>
-
-                          {/* Comments Filters / Sort */}
-                          <div className="flex flex-row my-2 content-center justify-center items-center">
-                            <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
-                              <p className="mr-1 text-center">{(comments?.length || 0)}</p>
-                              <img src={speechBubble} className="w-5 h-5"/>
-                            </div>
-
-                            <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                              onChange={onSortComments}
-                            >
-                              <option value="POSTED ASC">Sort by First Posted</option>
-                              <option value="POSTED DESC">Sort by Last Posted</option>
-                            </select>
-
-                            <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                              onChange={onFilterComments}
-                            >
-                              <option value="ALL">All Users</option>
-                              { commenters.map( usrId => {
-                                return(
-                                  <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
-                                )
-                              })}
-                            </select>
-                          </div>
-
-                          {/* Comments List  */}
-
-                          <div className="flex flex-col h-96 overflow-y-scroll">
-                            { comments.filter( com => !com.isHidden ).map( comment => {
-                              return(
-                                <div key={comment.id}
-                                  className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100 cursor-pointer"
-                                >
-                                  { comment.replyId &&
-                                    <div className="p-2 border border-black rounded text-xs bg-gray-300">
-                                      <p>reply to</p>
-                                      <p className="pl-2 text-gray-700">
-                                        { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
-                                      </p>
-                                      <div className="flex flex-row items-center">
-                                        <p className="mx-2 text-xs text-blue-500 align-middle">
-                                          @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
-                                        </p>
-                                        <p className="mx-2 text-sm align-middle font-bold">
-                                          |
-                                        </p>
-                                        <p className="mx-2 text-xs text-gray-500 align-middle">
-                                          { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY H:m a") }
-                                        </p>
-                                      </div>
-                                    </div>
-                                  }
-                                  <div className="flex flex-col pt-1 my-0.5"
-                                  >
-                                    <p className="p-1">
-                                      { comment.text }
-                                    </p>
-                                    <div className="flex flex-row items-center">
-                                      <p className="mx-2 text-xs text-blue-500 align-middle">
-                                        @{ usersCache[comment.userId]?.userName || "..." }
-                                      </p>
-                                      <p className="mx-2 text-sm align-middle font-bold">
-                                        |
-                                      </p>
-                                      <p className="mx-2 text-xs text-gray-500 align-middle">
-                                        { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
-                                      </p>
-                                      <p className="mx-2 text-sm align-middle font-bold">
-                                        |
-                                      </p>
-                                      <input type='button'
-                                        className='border w-12 rounded py-0.5 px-2 m-2 text-xs bg-green-700 text-white text-center'
-                                        value='reply'
-                                        onClick={() => {
-                                          setReplyId(comment.id)
-                                          setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                                        }}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
+                      {/* Comments Filters / Sort */}
+                      <div className="flex flex-row my-2 content-center justify-center items-center">
+                        <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
+                          <p className="mr-1 text-center">{(comments?.length || 0)}</p>
+                          <img src={speechBubble} className="w-5 h-5"/>
                         </div>
 
+                        <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                          onChange={onSortComments}
+                        >
+                          <option value="POSTED ASC">Sort by First Posted</option>
+                          <option value="POSTED DESC">Sort by Last Posted</option>
+                        </select>
+
+                        <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                          onChange={onFilterComments}
+                        >
+                          <option value="ALL">All Users</option>
+                          { commenters.map( usrId => {
+                            return(
+                              <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
+                            )
+                          })}
+                        </select>
+                      </div>
+
+                      {/* Comments List  */}
+
+                      <div className="flex flex-col h-96 pr-4 overflow-y-scroll">
+                        { comments.filter( com => !com.isHidden ).map( comment => {
+                          return(
+                            <div key={comment.id}
+                              className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100"
+                            >
+                              { comment.replyId &&
+                                <div className="p-2 border border-black rounded text-xs bg-gray-300">
+                                  <p>reply to</p>
+                                  <p className="pl-2 text-gray-700">
+                                    { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
+                                  </p>
+                                  <div className="flex flex-row items-center">
+                                    <p className="mx-2 text-xs text-blue-500 align-middle">
+                                      @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                    </p>
+                                    <p className="mx-2 text-sm align-middle font-bold">
+                                      |
+                                    </p>
+                                    <p className="mx-2 text-xs text-gray-500 align-middle">
+                                      { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY H:m a") }
+                                    </p>
+                                  </div>
+                                </div>
+                              }
+                              <div className="flex flex-col pt-1 my-0.5"
+                              >
+                                <p className="p-1">
+                                  { comment.text }
+                                </p>
+                                <div className="flex flex-row items-center">
+                                  <p className="mx-1 text-xs text-blue-500 align-middle">
+                                        @{ usersCache[comment.userId]?.userName || "..." }
+                                  </p>
+                                  <p className="mx-1 text-sm align-middle font-bold">
+                                        |
+                                  </p>
+                                  <p className="mx-1 text-xs text-gray-500 align-middle">
+                                    { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
+                                  </p>
+                                  <p className="mx-1 text-sm align-middle font-bold">
+                                        |
+                                  </p>
+                                  <input type='button'
+                                    className='border w-10 rounded py-0.5 px-1 mx-1 text-xs bg-green-700 text-white text-center cursor-pointer'
+                                    value='reply'
+                                    onClick={() => {
+                                      setReplyId(comment.id)
+                                      setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                                    }}
+                                  />
+                                  <img src={flag}
+                                    className="w-4 h-4 mr-1 cursor-pointer"
+                                    onClick={onFlagComment(comment)}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     </div>
                   </div>
@@ -827,11 +854,17 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    flagComment: FlagComment(dispatch),
     getAlbums: LoadAlbums(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     loadAlbum: LoadAlbum(dispatch),
     postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
+    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
+      alertType,
+      callback,
+      message,
+    })),
     updateAlbum: UpdateAlbum(dispatch),
     updateAlbumRedux: updatedAlbum => dispatch(setAlbum(updatedAlbum))
   }
@@ -843,11 +876,13 @@ Album.propTypes = {
   usersCache: PropTypes.object,
   recentUploads: PropTypes.arrayOf(PropTypes.object),
 
+  flagComment: PropTypes.func,
   getAlbums: PropTypes.func,
   getRecentUploads: PropTypes.func,
   loadAlbum: PropTypes.func,
   postComment: PropTypes.func,
   searchFriends: PropTypes.func,
+  toggleFlashMessage: PropTypes.func,
   updateAlbum: PropTypes.func,
   updateAlbumRedux: PropTypes.func,
 }

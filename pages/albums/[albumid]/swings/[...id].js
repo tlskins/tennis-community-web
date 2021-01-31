@@ -366,54 +366,57 @@ const Album = ({
           { !expandedSideBar &&
             <div className="col-span-2 flex flex-col p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
               <div className="flex flex-col w-full">
-                <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                  { replyId &&
-                    <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
-                      onClick={() => {
-                        setReplyPreview("")
-                        setReplyId(undefined)
-                      }}
-                    >
-                      <p>reply to</p>
-                      <p className="pl-2 text-gray-700">{ replyPreview }</p>
-                    </div>
-                  }
-                  <textarea
-                    className="p-2 border border-black rounded bg-gray-100"
-                    autoFocus={true}
-                    placeholder={ replyId ? "Reply to comment" : "Comment on specific frame"}
-                    rows="4"
-                    maxLength={500}
-                    onChange={e => setComment(e.target.value)}
-                    value={comment}
-                  />
-                  <div className="flex flex-row p-2 content-center justify-center items-center">
-                    <p className="mx-2 text-sm text-gray-500 align-middle">
-                      { Moment().format("MMM D YYYY H:m a") }
-                    </p>
-                    <p className="mx-2 text-sm align-middle font-bold">
-                    |
-                    </p>
-                    <p className="text-sm text-gray-500 align-middle">
-                      chars {comment.length}
-                    </p>
-                    <p className="mx-2 text-sm align-middle font-bold">
-                    |
-                    </p>
-                    <p className="text-sm align-middle font-medium underline">
-                      frame {playerFrame}
-                    </p>
-                    <p className="mx-2 text-sm align-middle font-bold">
-                    |
-                    </p>
-                  
-                    <input type='button'
-                      className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
-                      value='post'
-                      onClick={onPostComment}
+
+                { (user && !user.disableComments) &&
+                  <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                    { replyId &&
+                      <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
+                        onClick={() => {
+                          setReplyPreview("")
+                          setReplyId(undefined)
+                        }}
+                      >
+                        <p>reply to</p>
+                        <p className="pl-2 text-gray-700">{ replyPreview }</p>
+                      </div>
+                    }
+                    <textarea
+                      className="p-2 border border-black rounded bg-gray-100"
+                      autoFocus={true}
+                      placeholder={ replyId ? "Reply to comment" : "Comment on specific frame"}
+                      rows="4"
+                      maxLength={500}
+                      onChange={e => setComment(e.target.value)}
+                      value={comment}
                     />
+                    <div className="flex flex-row p-2 content-center justify-center items-center">
+                      <p className="mx-2 text-sm text-gray-500 align-middle">
+                        { Moment().format("MMM D YYYY H:m a") }
+                      </p>
+                      <p className="mx-2 text-sm align-middle font-bold">
+                      |
+                      </p>
+                      <p className="text-sm text-gray-500 align-middle">
+                        chars {comment.length}
+                      </p>
+                      <p className="mx-2 text-sm align-middle font-bold">
+                      |
+                      </p>
+                      <p className="text-sm align-middle font-medium underline">
+                        frame {playerFrame}
+                      </p>
+                      <p className="mx-2 text-sm align-middle font-bold">
+                      |
+                      </p>
+                    
+                      <input type='button'
+                        className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
+                        value='post'
+                        onClick={onPostComment}
+                      />
+                    </div>
                   </div>
-                </div>
+                }
 
                 <div className="flex flex-row my-2 content-center justify-center items-center">
                   <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
@@ -499,19 +502,25 @@ const Album = ({
                             <p className="mx-1 text-sm align-middle font-bold">
                             |
                             </p>
-                            <input type='button'
-                              className='border w-11 rounded py-0.5 px-2 mx-2 text-xs bg-green-700 text-white text-center'
-                              value='reply'
-                              onClick={() => {
-                                setReplyId(comment.id)
-                                setPlayerFrame(comment.frame)
-                                setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                              }}
-                            />
-                            <img src={flag}
-                              className="w-4 h-4 mr-1 cursor-pointer"
-                              onClick={onFlagComment(comment)}
-                            />
+
+                            { (user && !user.disableComments) &&
+                              <input type='button'
+                                className='border w-11 rounded py-0.5 px-2 mx-2 text-xs bg-green-700 text-white text-center'
+                                value='reply'
+                                onClick={() => {
+                                  setReplyId(comment.id)
+                                  setPlayerFrame(comment.frame)
+                                  setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                                }}
+                              />
+                            }
+                            
+                            { user &&
+                              <img src={flag}
+                                className="w-4 h-4 mr-1 cursor-pointer"
+                                onClick={onFlagComment(comment)}
+                              />
+                            }
                           </div>
                         </div>
                       </div>

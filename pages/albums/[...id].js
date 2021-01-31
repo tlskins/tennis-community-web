@@ -132,10 +132,10 @@ const Album = ({
   }, [album?.id, albumPage])
 
   useEffect(() => {
-    if (recentUploads === null) {
+    if (user && recentUploads === null) {
       getRecentUploads()
     }
-  }, [recentUploads])
+  }, [recentUploads, user])
 
   const handleAllSeekChange = e => {
     const frame = parseFloat(e.target.value)
@@ -438,19 +438,20 @@ const Album = ({
             </div>
 
             {/* Sharing Sidebar */}
-            <div className="mb-2">
-              <h2 className="text-blue-400 underline cursor-pointer text-center"
-                onClick={() => {
-                  if (activeSideBar === "Sharing") {
-                    setActiveSidebar(undefined)
-                  } else {
-                    setActiveSidebar("Sharing")
-                  }
-                }}
-              >
+            { (user && user.id == album.userId) &&
+              <div className="mb-2">
+                <h2 className="text-blue-400 underline cursor-pointer text-center"
+                  onClick={() => {
+                    if (activeSideBar === "Sharing") {
+                      setActiveSidebar(undefined)
+                    } else {
+                      setActiveSidebar("Sharing")
+                    }
+                  }}
+                >
                 Sharing
-              </h2>
-              { activeSideBar === "Sharing" &&
+                </h2>
+                { activeSideBar === "Sharing" &&
                 <div className="flex flex-col content-center justify-center items-center">
                   <Sharing
                     isPublic={isPublic}
@@ -466,8 +467,9 @@ const Album = ({
                     value="Share"
                   />
                 </div>
-              }
-            </div>
+                }
+              </div>
+            }
 
             {/* Comments Sidebar */}
             <div className="mb-2">
@@ -488,8 +490,12 @@ const Album = ({
                     <div className="flex flex-col w-full">
 
                       {/* Comment Form */}
-                      <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                        { replyId &&
+                      { user?.disableComments &&
+                        <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your commenting has been disabled</p>
+                      }
+                      { (user && !user.disableComments) &&
+                        <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                          { replyId &&
                           <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
                             onClick={() => {
                               setReplyPreview("")
@@ -499,36 +505,37 @@ const Album = ({
                             <p>reply to</p>
                             <p className="pl-2 text-gray-700">{ replyPreview }</p>
                           </div>
-                        }
-                        <textarea
-                          className="p-2 border border-black rounded bg-gray-100"
-                          autoFocus={true}
-                          placeholder={ replyId ? "Reply to comment" : "Comment"}
-                          rows="4"
-                          maxLength={500}
-                          onChange={e => setComment(e.target.value)}
-                          value={comment}
-                        />
-                        <div className="flex flex-row p-1 content-center justify-center items-center">
-                          <p className="text-sm mr-2 text-gray-500 align-middle">
-                            { Moment().format("MMM D YYYY H:m a") }
-                          </p>
-                          <p className="text-sm mr-2 align-middle font-bold">
-                              |
-                          </p>
-                          <p className="text-sm mr-2 align-middle font-medium">
-                              chars {comment.length}
-                          </p>
-                          <p className="text-sm mr-2 align-middle font-bold">
-                              |
-                          </p>
-                          <input type='button'
-                            className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
-                            value='post'
-                            onClick={onPostComment}
+                          }
+                          <textarea
+                            className="p-2 border border-black rounded bg-gray-100"
+                            autoFocus={true}
+                            placeholder={ replyId ? "Reply to comment" : "Comment"}
+                            rows="4"
+                            maxLength={500}
+                            onChange={e => setComment(e.target.value)}
+                            value={comment}
                           />
+                          <div className="flex flex-row p-1 content-center justify-center items-center">
+                            <p className="text-sm mr-2 text-gray-500 align-middle">
+                              { Moment().format("MMM D YYYY H:m a") }
+                            </p>
+                            <p className="text-sm mr-2 align-middle font-bold">
+                              |
+                            </p>
+                            <p className="text-sm mr-2 align-middle font-medium">
+                              chars {comment.length}
+                            </p>
+                            <p className="text-sm mr-2 align-middle font-bold">
+                              |
+                            </p>
+                            <input type='button'
+                              className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
+                              value='post'
+                              onClick={onPostComment}
+                            />
+                          </div>
                         </div>
-                      </div>
+                      }
 
                       {/* Comments Filters / Sort */}
                       <div className="flex flex-row my-2 content-center justify-center items-center">
@@ -601,20 +608,24 @@ const Album = ({
                                   <p className="mx-1 text-sm align-middle font-bold">
                                         |
                                   </p>
-                                  <input type='button'
-                                    className='border w-10 rounded py-0.5 px-1 mx-1 text-xs bg-green-700 text-white text-center cursor-pointer'
-                                    value='reply'
-                                    onClick={() => {
-                                      setReplyId(comment.id)
-                                      setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                                    }}
-                                  />
-                                  <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100">
-                                    <img src={flag}
-                                      className="w-4 h-4 cursor-pointer"
-                                      onClick={onFlagComment(comment)}
+                                  { (user && !user.disableComments) &&
+                                    <input type='button'
+                                      className='border w-10 rounded py-0.5 px-1 mx-1 text-xs bg-green-700 text-white text-center cursor-pointer'
+                                      value='reply'
+                                      onClick={() => {
+                                        setReplyId(comment.id)
+                                        setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                                      }}
                                     />
-                                  </div>
+                                  }
+                                  { user &&
+                                    <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100">
+                                      <img src={flag}
+                                        className="w-4 h-4 cursor-pointer"
+                                        onClick={onFlagComment(comment)}
+                                      />
+                                    </div>
+                                  }
                                 </div>
                               </div>
                             </div>
@@ -646,8 +657,11 @@ const Album = ({
                 className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
                 value={album?.name}
                 onChange={onUpdateAlbumName}
+                disabled={!user || user.id !== album.userId}
               />
-              <img src={pencil} className="w-4 h-4 absolute right-2"/>
+              { (user && user.id === album.userId) &&
+                <img src={pencil} className="w-4 h-4 absolute right-2"/>
+              }
             </div>
           </div>
 

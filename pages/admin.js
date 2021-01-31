@@ -10,13 +10,14 @@ import Notifications from "../components/Notifications"
 import {
   GetRecentAlbums,
   GetRecentUsers,
+  GetRecentAlbumComments,
+  GetRecentSwingComments,
 } from "../behavior/coordinators/admin"
 import { SearchFriends } from "../behavior/coordinators/friends"
   
-let timer
-
 const ALBUMS_LIMIT = 20
 const USERS_LIMIT = 20
+const COMMENTS_LIMIT = 20
 
 const Admin = ({
   user,
@@ -24,6 +25,8 @@ const Admin = ({
   
   getRecentAlbums,
   getRecentUsers,
+  getRecentAlbumComments,
+  getRecentSwingComments,
   searchFriends,
 }) => {
   const router = useRouter()
@@ -39,6 +42,12 @@ const Admin = ({
   const [usersEndDate, setUsersEndDate] = useState(new Date())
   const [recentUsers, setRecentUsers] = useState([])
   const [usersPage, setUsersPage] = useState(0)
+
+  const [commentsStartDate, setCommentsStartDate] = useState(Moment().add(-14, "days").toDate())
+  const [commentsEndDate, setCommentsEndDate] = useState(new Date())
+  const [recentAlbumComments, setRecentAlbumComments] = useState([])
+  const [recentSwingComments, setRecentSwingComments] = useState([])
+  const [commentsPage, setCommentsPage] = useState(0)
 
   useEffect(() => {
     if (!user || !user.id || !user.isAdmin) {
@@ -63,6 +72,15 @@ const Admin = ({
       setRecentUsers(users)
     }
   }, [activeSideBar, usersStartDate, usersEndDate, usersPage])
+
+  useEffect(async () => {
+    if (activeSideBar === "Recent Comments" && commentsStartDate && commentsEndDate) {
+      const albumComments = await getRecentAlbumComments({ start: commentsStartDate, end: commentsEndDate, limit: COMMENTS_LIMIT, offset: commentsPage*COMMENTS_LIMIT })
+      const swingComments = await getRecentSwingComments({ start: commentsStartDate, end: commentsEndDate, limit: COMMENTS_LIMIT, offset: commentsPage*COMMENTS_LIMIT })
+      setRecentAlbumComments(albumComments)
+      setRecentSwingComments(swingComments)
+    }
+  }, [activeSideBar, commentsStartDate, commentsEndDate, commentsPage])
 
   useEffect(() => {
     if (recentAlbums.length > 0) {
@@ -245,6 +263,87 @@ const Admin = ({
                 }
               </div>
             </div>
+          
+            {/* Recent Comments Sidebar */}
+            <div className="mb-2">
+              <h2 className="text-blue-400 underline cursor-pointer text-center"
+                onClick={() => {
+                  if (activeSideBar === "Recent Comments") {
+                    setActiveSidebar(undefined)
+                  } else {
+                    setActiveSidebar("Recent Comments")
+                  }
+                }}
+              >
+                Recent Comments
+              </h2>
+              <div className="mb-2">
+                { activeSideBar === "Recent Comments" &&
+                    <div className="flex flex-col content-center justify-center items-center p-4 w-full">
+                      <div className="flex flex-row">
+                        <div className="flex flex-col mx-1">
+                          <div className="flex flex-row m-0.5">
+                            <p className="text-center text-gray-400">
+                                Start
+                            </p>
+                            { commentsStartDate &&
+                                <input type='button'
+                                  className="border w-6 rounded-full mx-1 text-xs bg-red-300"
+                                  onClick={() => setCommentsStartDate(undefined)}
+                                  value="x"
+                                />
+                            }
+                          </div>
+                          <DatePicker
+                            className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow"
+                            selected={commentsStartDate}
+                            onChange={date => setCommentsStartDate(date)}
+                          />
+                        </div>
+                        <div className="flex flex-col mx-1">
+                          <div className="flex flex-row m-0.5">
+                            <p className="text-center text-gray-400">
+                                End
+                            </p>
+                            { commentsEndDate &&
+                                <input type='button'
+                                  className="border w-6 rounded-full mx-1 text-xs bg-red-300"
+                                  onClick={() => setCommentsStartDate(undefined)}
+                                  value="x"
+                                />
+                            }
+                          </div>
+                          <DatePicker
+                            className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow z-100"
+                            selected={commentsEndDate}
+                            onChange={date => setCommentsEndDate(date)}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-row m-0.5 mt-2">
+                        { commentsPage > 0 &&
+                            <button
+                              onClick={() => setCommentsPage(commentsPage-1)}
+                              className="-0.5 mx-1"
+                            >
+                            &lt;
+                            </button>
+                        }
+                        <p>Page { commentsPage+1 }</p>
+                        { (recentAlbumComments.length === COMMENTS_LIMIT || recentSwingComments.length === COMMENTS_LIMIT) &&
+                            <button
+                              onClick={() => setCommentsPage(commentsPage+1)}
+                              className="-0.5 mx-1"
+                            >
+                            &gt;
+                            </button>
+                        }
+                      </div>
+                    </div>
+                }
+              </div>
+            </div>
+          
           </div>
         </div>
 
@@ -313,6 +412,71 @@ const Admin = ({
               })}
             </div>
           }
+
+          {/* Recent Comments */}
+          { activeSideBar === "Recent Comments" &&
+          <div className="flex flex-col">
+            <div className="p-4 flex flex-col bg-white rounded-lg">
+              <p className="text-center mb-2 underline font-semibold">Album Comments</p>
+              <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                <div className="border-r border-gray-400">Name</div>
+                <div className="border-r border-gray-400">User</div>
+                <div className="border-r border-gray-400 col-span-2">Posted</div>
+                <div className="border-r border-gray-400">Link</div>
+                <div className="col-span-7">Text</div>
+              </div>
+              { recentAlbumComments.map(comment => {
+                return(
+                  <div key={comment.id}
+                    className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                  >
+                    <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
+                    <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
+                    <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
+                    <div className="border-r border-gray-400">
+                      <a className="text-blue-400 underline"
+                        href={`/albums/${comment.albumId}`}
+                      >
+                            Link
+                      </a>
+                    </div>
+                    <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div className="p-4 flex flex-col bg-white rounded-lg">
+              <p className="text-center mb-2 underline font-semibold">Swing Comments</p>
+              <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                <div className="border-r border-gray-400">Name</div>
+                <div className="border-r border-gray-400">User</div>
+                <div className="border-r border-gray-400 col-span-2">Posted</div>
+                <div className="border-r border-gray-400">Link</div>
+                <div className="col-span-7">Text</div>
+              </div>
+              { recentSwingComments.map(comment => {
+                return(
+                  <div key={comment.id}
+                    className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                  >
+                    <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
+                    <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
+                    <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
+                    <div className="border-r border-gray-400">
+                      <a className="text-blue-400 underline"
+                        href={`/albums/${comment.albumId}/swings/${comment.swingId}`}
+                      >
+                            Link
+                      </a>
+                    </div>
+                    <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          }
         </div>
         {/* End Main */}
       </main>
@@ -331,6 +495,8 @@ const mapDispatchToProps = (dispatch) => {
   return {
     getRecentAlbums: GetRecentAlbums(dispatch),
     getRecentUsers: GetRecentUsers(dispatch),
+    getRecentAlbumComments: GetRecentAlbumComments(dispatch),
+    getRecentSwingComments: GetRecentSwingComments(dispatch),
     searchFriends: SearchFriends(dispatch),
   }
 }
@@ -341,6 +507,8 @@ Admin.propTypes = {
 
   getRecentAlbums: PropTypes.func,
   getRecentUsers: PropTypes.func,
+  getRecentAlbumComments: PropTypes.func,
+  getRecentSwingComments: PropTypes.func,
   searchFriends: PropTypes.func,
 }
 

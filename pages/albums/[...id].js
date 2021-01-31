@@ -609,10 +609,12 @@ const Album = ({
                                       setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
                                     }}
                                   />
-                                  <img src={flag}
-                                    className="w-4 h-4 mr-1 cursor-pointer"
-                                    onClick={onFlagComment(comment)}
-                                  />
+                                  <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100">
+                                    <img src={flag}
+                                      className="w-4 h-4 cursor-pointer"
+                                      onClick={onFlagComment(comment)}
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
@@ -631,7 +633,13 @@ const Album = ({
 
         {/* Begin Album Videos */}
 
-        <div className={`p-4 flex flex-col ${mainWidth}`}>
+        <div className={`p-4 flex flex-col ${mainWidth} relative`}>
+          <a href="/albums"
+            className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-4"
+          >
+            back to albums
+          </a>
+
           <div className="mb-2 flex content-center justify-center items-center">
             <div className="flex flex-row content-center justify-center items-center relative">
               <input type="text"

@@ -7,9 +7,11 @@ import { useRouter } from "next/router"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 
+import { newNotification } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
-import { LoadAlbums, DeleteAlbum } from "../../behavior/coordinators/albums"
+import { LoadAlbums, DeleteAlbum, FlagAlbum } from "../../behavior/coordinators/albums"
 import speechBubble from "../../public/speech-bubble.svg"
+import flag from "../../public/flag.svg"
 
 const SWING_FRAMES = 60
 const albumsPerRow = 3
@@ -25,7 +27,9 @@ const AlbumsIndex = ({
   user,
 
   deleteAlbum,
+  flagAlbum,
   loadAlbums,
+  toggleFlashMessage,
 }) => {
   const router = useRouter()
   const [playerRefs, setPlayerRefs] = useState([])
@@ -75,7 +79,7 @@ const AlbumsIndex = ({
     }
   }
 
-  const renderVideo = ({ swing, i, ref, playing, pip, duration, comments }) => {
+  const renderVideo = ({ album, swing, i, ref, playing, pip, duration, flaggable }) => {
     if (!swing) {
       return null
     }
@@ -177,10 +181,20 @@ const AlbumsIndex = ({
             <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
           </div>
 
-          <div className="flex flex-row bg-white rounded mx-1 text-xs py-0.5 w-8">
-            <p className="mr-1 text-center">{ comments }</p>
+          <div className="flex flex-row bg-white rounded-lg mx-1 text-xs p-0.5 w-10">
+            <p className="mr-0.5 text-center">{ (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0) }</p>
             <img src={speechBubble} className="w-5 h-5"/>
           </div>
+
+          { flaggable &&
+            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100">
+              <img src={flag}
+                className="w-4 h-4 cursor-pointer"
+                onClick={onFlagAlbum(album)}
+              />
+            </div>
+          }
+          
         </div>
       </Fragment>
     )
@@ -191,6 +205,29 @@ const AlbumsIndex = ({
     setMyAlbumsPage(0)
     setFriendsAlbumsPage(0)
     setPublicAlbumsPage(0)
+  }
+
+  const onFlagAlbum = album => () => {
+    toggleFlashMessage({
+      id: album.id,
+      alertType: "success",
+      message: `Flag Album: "${album.name}"?`,
+      callback: async () => {
+        const success = await flagAlbum({
+          albumCreatedAt: album.createdAt,
+          albumUserId: album.userId,
+          albumId: album.id,
+          albumName: album.name,
+        })
+        if (success) {
+          toggleFlashMessage({
+            id: Moment().toString(),
+            alertType: "success",
+            message: "Album Flagged!"
+          })
+        }
+      }
+    })
   }
 
   return (
@@ -348,13 +385,13 @@ const AlbumsIndex = ({
                       </p>
                       { 
                         renderVideo({
+                          album,
                           swing: album.swingVideos[0],
                           i,
                           ref: playerRefs[i],
                           playing: playings[i],
                           pip: pips[i],
                           duration: playerFrames[i],
-                          comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
                         })
                       }
                     </div>
@@ -411,13 +448,14 @@ const AlbumsIndex = ({
                       </p>
                       { 
                         renderVideo({
+                          album,
                           swing: album.swingVideos[0],
                           i: idx,
                           ref: playerRefs[idx],
                           playing: playings[idx],
                           pip: pips[idx],
                           duration: playerFrames[idx],
-                          comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
+                          flaggable: true,
                         })
                       }
                     </div>
@@ -432,21 +470,21 @@ const AlbumsIndex = ({
           <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
             <div className="flex flex-row content-center justify-center items-center mb-2">
               { publicAlbumsPage > 0 &&
-                    <button
-                      onClick={() => setPublicAlbumsPage(publicAlbumsPage-1)}
-                      className="p-0.5 mx-1"
-                    >
-                      &lt;
-                    </button>
+                  <button
+                    onClick={() => setPublicAlbumsPage(publicAlbumsPage-1)}
+                    className="p-0.5 mx-1"
+                  >
+                    &lt;
+                  </button>
               }
               <h2 className="font-medium underline mx-2">Public Albums</h2>
               { (publicAlbumsPage < (albums.publicAlbums.length / albumsPerRow)-1) &&
-                    <button
-                      onClick={() => setMyAlbumsPage(publicAlbumsPage+1)}
-                      className="-0.5 mx-1"
-                    >
-                      &gt;
-                    </button>
+                  <button
+                    onClick={() => setMyAlbumsPage(publicAlbumsPage+1)}
+                    className="-0.5 mx-1"
+                  >
+                    &gt;
+                  </button>
               }
             </div>
 
@@ -473,13 +511,14 @@ const AlbumsIndex = ({
                     </p>
                     { 
                       renderVideo({
+                        album,
                         swing: album.swingVideos[0],
                         i: idx,
                         ref: playerRefs[idx],
                         playing: playings[idx],
                         pip: pips[idx],
                         duration: playerFrames[idx],
-                        comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
+                        flaggable: true,
                       })
                     }
                   </div>
@@ -507,7 +546,14 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     deleteAlbum: DeleteAlbum(dispatch),
+    flagAlbum: FlagAlbum(dispatch),
     loadAlbums: LoadAlbums(dispatch),
+    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
+      alertType,
+      callback,
+      message,
+    })),
+
   }
 }
   
@@ -516,7 +562,9 @@ AlbumsIndex.propTypes = {
   user: PropTypes.object,
 
   deleteAlbum: PropTypes.func,
+  flagAlbum: PropTypes.func,
   loadAlbums: PropTypes.func,
+  toggleFlashMessage: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(AlbumsIndex)

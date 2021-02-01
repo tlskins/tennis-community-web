@@ -6,6 +6,7 @@ import { useRouter } from "next/router"
 import Moment from "moment"
 
 import { LoadAlbums } from "../behavior/coordinators/albums"
+import { toggleShowNewUser } from "../state/ui/action"
 
 import bg from "../public/homepage-bg.jpg"
 import mobileBg from "../public/homepage-mobile.jpg"
@@ -36,34 +37,27 @@ import {
 const SWING_FRAMES = 60
 const albumsPerRow = 3
 
-const Index = ({ albums, loadAlbums }) => {
-  console.log(
-    "env",
-    process.env.VERCEL_GITHUB_COMMIT_REF,
-    process.env.VERCEL_GIT_COMMIT_REF,
-    process.env.VERCEL_ENV,
-    process.env.ENV_TYPE,
-    process.env.NEXT_PUBLIC_PROD_API_HOST,
-    process.env.NEXT_PUBLIC_API_HOST,
-  )
+const Index = ({ albums, loadAlbums, onShowNewUser }) => {
   const router = useRouter()
 
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([]) // Picture in picture for each player
-  const publicActiveAlbums = albums.publicAlbums.slice(0, albumsPerRow).filter( a => !!a )
+  const publicActiveAlbums = albums?.publicAlbums.slice(0, albumsPerRow).filter( a => !!a ) || []
 
   useEffect(() => {
     loadAlbums(true)
   }, [])
 
   useEffect(() => {
-    const activeAlbums = [...publicActiveAlbums]
-    setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
-    setPlayings(activeAlbums.map(() => true))
-    setPips(activeAlbums.map(() => false))
-  }, [albums.publicAlbums])
+    if (albums?.publicAlbums) {
+      const activeAlbums = [...publicActiveAlbums]
+      setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
+      setPlayings(activeAlbums.map(() => true))
+      setPips(activeAlbums.map(() => false))
+    }
+  }, [albums?.publicAlbums])
 
   const handleSeekChange = (playerRef, i) => e => {
     const frame = parseFloat(e.target.value)
@@ -192,8 +186,11 @@ const Index = ({ albums, loadAlbums }) => {
     <div>
       <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>
-          <HeaderTitle>Upload videos from your phone & get feedback from your coach or the community!</HeaderTitle>
-          <CTAButton>Get Started</CTAButton>
+          <HeaderTitle>Clip every swing from your tennis videos!</HeaderTitle>
+          <HeaderTitle>Analyze & get feedback from the community!</HeaderTitle>
+          <CTAButton onClick={onShowNewUser}>
+            Get Started
+          </CTAButton>
         </HeaderTitleContainer>
       </Header>
       <Section>
@@ -280,7 +277,6 @@ const Index = ({ albums, loadAlbums }) => {
 
 
 const mapStateToProps = (state) => {
-  console.log("mapStateToProps", state)
   return {
     albums: state.albums,
   }
@@ -289,6 +285,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     loadAlbums: LoadAlbums(dispatch),
+    onShowNewUser: () => dispatch(toggleShowNewUser()),
   }
 }
   
@@ -296,6 +293,7 @@ Index.propTypes = {
   albums: PropTypes.object,
 
   loadAlbums: PropTypes.func,
+  onShowNewUser: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Index)

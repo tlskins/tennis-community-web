@@ -2,7 +2,7 @@ import { createStore, applyMiddleware, combineReducers } from "redux"
 import { HYDRATE, createWrapper } from "next-redux-wrapper"
 import thunkMiddleware from "redux-thunk"
 
-import { flashNotificationReducer } from "./ui/reducer"
+import { flashNotificationReducer, navBarReducer } from "./ui/reducer"
 import { userReducer, usersCacheReducer } from "./user/reducer"
 import { recentUploadsReducer } from "./upload/reducer"
 import { albumReducer, albumsReducer } from "./album/reducer"
@@ -23,6 +23,7 @@ const combinedReducer = combineReducers({
   recentUploads: recentUploadsReducer,
   album: albumReducer,
   albums: albumsReducer,
+  navBar: navBarReducer,
 })
 
 export const LOG_OUT = "LOG_OUT"

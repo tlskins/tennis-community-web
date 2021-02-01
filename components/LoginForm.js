@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react"
+import React, { useState, useEffect } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
@@ -13,7 +13,15 @@ import {
 } from "../styles/styled-components"
 
 
-const LoginForm = ({ createUser, signIn, signOut, user, displayAlert }) => {
+const LoginForm = ({
+  createUser,
+  displayAlert,
+  signIn,
+  signOut,
+
+  showNewUser,
+  user,
+}) => {
   const router = useRouter()
   const [isNewUser, setIsNewUser] = useState(false)
   const [firstName, setFirstName] = useState("")
@@ -21,6 +29,12 @@ const LoginForm = ({ createUser, signIn, signOut, user, displayAlert }) => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [userName, setUserName] = useState("")
+
+  useEffect(() => {
+    if (showNewUser) {
+      setIsNewUser(true)
+    }
+  }, [showNewUser])
 
   const clearForm = () => {
     setFirstName("")
@@ -174,6 +188,7 @@ const LoginForm = ({ createUser, signIn, signOut, user, displayAlert }) => {
 const mapStateToProps = (state) => {
   return {
     user: state.user,
+    showNewUser: state.navBar.showNewUser,
   }
 }
 
@@ -191,6 +206,7 @@ const mapDispatchToProps = (dispatch) => {
 
 
 LoginForm.propTypes = {
+  showNewUser: PropTypes.bool,
   user: PropTypes.object,
 
   createUser: PropTypes.func,

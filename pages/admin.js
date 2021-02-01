@@ -359,7 +359,7 @@ const Admin = ({
                 <div className="border-r border-gray-400 col-span-2">Created</div>
                 <div className="border-r border-gray-400">Creator</div>
                 <div className="border-r border-gray-400">Public?</div>
-                <div className="border-r border-gray-400">Home Approved?</div>
+                <div className="border-r border-gray-400">Home?</div>
                 <div className="border-r border-gray-400">Friends?</div>
                 <div>URL</div>
               </div>

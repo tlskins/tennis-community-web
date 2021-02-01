@@ -186,7 +186,7 @@ const Index = ({ albums, loadAlbums, onShowNewUser }) => {
     <div>
       <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>
-          <HeaderTitle>Clip every swing from your tennis videos!</HeaderTitle>
+          <HeaderTitle>Export every swing from your tennis videos!</HeaderTitle>
           <HeaderTitle>Analyze & get feedback from the community!</HeaderTitle>
           <CTAButton onClick={onShowNewUser}>
             Get Started
@@ -197,18 +197,23 @@ const Index = ({ albums, loadAlbums, onShowNewUser }) => {
         <IconSection>
           <IconContainer>
             <img src={ camera }/>
+            <h3>Record Tennis Playing</h3>
+            <p>Record videos of yourself playing tennis with your mobile phone.</p>
+          </IconContainer>
+          <IconContainer>
+            <img src={ camera }/>
             <h3>Upload Videos</h3>
-            <p>Upload videos of yourself playing tennis and automatically have all swings exported with our AI.</p>
+            <p>Upload videos and automatically have all swings exported with our AI into an Album.</p>
           </IconContainer>
           <IconContainer>
             <img src={ racket }/>
             <h3>Analyze Swings</h3>
-            <p>Watch your swings on our state of the art video analysis platform and compare your swings frame by frame with the pros.</p>
+            <p>Use our Swing Analysis platform to slow down & analyze your swings frame by frame against the pros!</p>
           </IconContainer>
           <IconContainer>
             <img src={ speech }/>
             <h3>Get Feedback</h3>
-            <p>Share your swings with friends, coaches, or the community to get frame by frame feedback on your swings.</p>
+            <p>Share your Albums with friends, coaches, or the community to get frame by frame feedback on your swings!</p>
           </IconContainer>
         </IconSection>
       </Section>

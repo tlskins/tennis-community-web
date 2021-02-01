@@ -10,6 +10,7 @@ import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
+import { getUserIcon, getUserType } from "../../behavior/users"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import {
   LoadAlbums,
@@ -472,8 +473,8 @@ const Album = ({
             }
 
             {/* Comments Sidebar */}
-            <div className="mb-2">
-              <h2 className="text-blue-400 underline cursor-pointer text-center"
+            <div className="mb-2 w-full">
+              <h2 className="text-blue-400 underline cursor-pointer text-center mb-2"
                 onClick={() => {
                   if (activeSideBar === "Album Comments") {
                     setActiveSidebar(undefined)
@@ -486,7 +487,7 @@ const Album = ({
               </h2>
               <div className="mb-2">
                 { activeSideBar === "Album Comments" &&
-                  <div className="flex flex-col content-center justify-center items-center p-4 overscroll-contain">
+                  <div className="flex flex-col content-center justify-center items-center overscroll-contain">
                     <div className="flex flex-col w-full">
 
                       {/* Comment Form */}
@@ -596,17 +597,25 @@ const Album = ({
                                   { comment.text }
                                 </p>
                                 <div className="flex flex-row items-center">
+                                  <div className="tooltip">
+                                    <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 border border-yellow-300 -mt-6 rounded'>
+                                      { getUserType(user) }
+                                    </span>
+                                    <img src={getUserIcon(user)}
+                                      className="w-5 h-5 ml-1 cursor-pointer"
+                                    />
+                                  </div>
                                   <p className="mx-1 text-xs text-blue-500 align-middle">
-                                        @{ usersCache[comment.userId]?.userName || "..." }
+                                    @{ usersCache[comment.userId]?.userName || "..." }
                                   </p>
                                   <p className="mx-1 text-sm align-middle font-bold">
-                                        |
+                                    |
                                   </p>
                                   <p className="mx-1 text-xs text-gray-500 align-middle">
                                     { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
                                   </p>
                                   <p className="mx-1 text-sm align-middle font-bold">
-                                        |
+                                    |
                                   </p>
                                   { (user && !user.disableComments) &&
                                     <input type='button'
@@ -619,7 +628,10 @@ const Album = ({
                                     />
                                   }
                                   { user &&
-                                    <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100">
+                                    <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100 tooltip">
+                                      <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 w-32 border border-yellow-300 -mt-11 -ml-28 rounded'>
+                                        flag inappropriate comment
+                                      </span>
                                       <img src={flag}
                                         className="w-4 h-4 cursor-pointer"
                                         onClick={onFlagComment(comment)}

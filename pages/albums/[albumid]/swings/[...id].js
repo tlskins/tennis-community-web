@@ -9,6 +9,7 @@ import { newNotification } from "../../../../state/ui/action"
 import Notifications from "../../../../components/Notifications"
 import ProComparison from "../../../../components/ProComparison"
 import VideoResources from "../../../../components/VideoResources"
+import { getUserIcon, getUserType } from "../../../../behavior/users"
 import { LoadAlbum, PostComment, FlagComment } from "../../../../behavior/coordinators/albums"
 import { SearchFriends } from "../../../../behavior/coordinators/friends"
 import speechBubble from "../../../../public/speech-bubble.svg"
@@ -484,6 +485,14 @@ const Album = ({
                             { comment.text }
                           </p>
                           <div className="flex flex-row content-center justify-center items-center">
+                            <div className="tooltip">
+                              <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 border border-yellow-300 -mt-6 rounded'>
+                                { getUserType(usersCache[comment.userId]) }
+                              </span>
+                              <img src={getUserIcon(usersCache[comment.userId])}
+                                className="w-5 h-5 ml-1 cursor-pointer"
+                              />
+                            </div>
                             <p className="mx-1 text-xs text-blue-500 align-middle">
                               @{ usersCache[comment.userId]?.userName || "..." }
                             </p>
@@ -516,10 +525,15 @@ const Album = ({
                             }
                             
                             { user &&
-                              <img src={flag}
-                                className="w-4 h-4 mr-1 cursor-pointer"
-                                onClick={onFlagComment(comment)}
-                              />
+                              <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100 tooltip">
+                                <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 w-32 border border-yellow-300 -mt-11 -ml-28 rounded'>
+                                flag inappropriate comment
+                                </span>
+                                <img src={flag}
+                                  className="w-4 h-4 cursor-pointer"
+                                  onClick={onFlagComment(comment)}
+                                />
+                              </div>
                             }
                           </div>
                         </div>

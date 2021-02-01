@@ -1,7 +1,6 @@
 import { SET_RECENT_UPLOADS } from "./action"
 
-const recentUploadsInitialState = null
-  
+export const recentUploadsInitialState = null
 
 export function recentUploadsReducer(
   state = recentUploadsInitialState,

@@ -1,7 +1,7 @@
 import { SET_ALBUM, SET_ALBUMS } from "./action"
 
-const albumInitialState = null
-const albumsInitialState = {
+export const albumInitialState = null
+export const albumsInitialState = {
   lastRequestAt: undefined,
   myAlbums: [],
   friendsAlbums: [],

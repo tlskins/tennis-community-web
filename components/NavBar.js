@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Link from "next/link"
@@ -15,10 +15,16 @@ import {
 } from "../styles/styled-components"
 
 
-const NavBar = ({ user, signOut }) => {
+const NavBar = ({ user, showNewUser, signOut }) => {
   const router = useRouter()
 
   const [showModal, setShowModal] = useState(false)
+
+  useEffect(() => {
+    if (showNewUser) {
+      setShowModal(true)
+    }
+  }, [showNewUser])
 
   const onSignOut = async () => {
     await signOut()
@@ -64,6 +70,7 @@ const NavBar = ({ user, signOut }) => {
 
 const mapStateToProps = (state) => {
   return {
+    showNewUser: state.navBar.showNewUser,
     user: state.user,
   }
 }
@@ -75,6 +82,7 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 NavBar.propTypes = {
+  showNewUser: PropTypes.bool,
   user: PropTypes.object,
 
   signOut: PropTypes.func,

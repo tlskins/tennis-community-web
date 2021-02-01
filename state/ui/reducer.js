@@ -1,6 +1,21 @@
 import { NEW_NOTIFICATION, REMOVE_NOTIFICATION, TOGGLE_SHOW_NEW_USER } from "./action"
 
-export const flashNotificationInitialState = []
+export const flashNotificationInitialState = [
+  {
+    id: "1",
+    message: "Test Message about something stupid",
+    buttons: [
+      {
+        buttonText: "view something",
+        callback: () => console.log("1"),
+      },
+      {
+        buttonText: "ignore something",
+        callback: () => console.log("2"),
+      }
+    ]
+  }
+]
 export const navBarInitialState = { showNewUser: 0 }
 
 export function navBarReducer(

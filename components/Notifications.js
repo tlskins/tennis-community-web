@@ -28,14 +28,22 @@ const Notifications = ({
       getRecentUploads()
       user.uploadNotifications.forEach( note => toggleFlashMessage({
         id: note.id,
-        alertType: "success",
         message: note.subject,
-        callback: async () => {
-          await removeNotification({ uploadNotificationId: note.id })
-          if (note.type === "Upload Complete") {
-            router.push(`/albums/${note.albumId}`)
-          }
-        }
+        buttons: [
+          {
+            buttonText: "ok",
+            callback: () => removeNotification({ uploadNotificationId: note.id })
+          },
+          {
+            buttonText: "View Album",
+            callback: async () => {
+              await removeNotification({ uploadNotificationId: note.id })
+              if (note.type === "Upload Complete") {
+                router.push(`/albums/${note.albumId}`)
+              }
+            }
+          },
+        ],
       }))
     }
   }, [uploadNoteIds])
@@ -44,14 +52,22 @@ const Notifications = ({
     user.friendNotifications.forEach( note => {
       toggleFlashMessage({
         id: note.id,
-        alertType: "success",
         message: note.subject,
-        callback: async () => {
-          await removeNotification({ friendNotificationId: note.id })
-          if (note.type === "New Friend Request") {
-            router.push("/friends")
-          }
-        },
+        buttons: [
+          {
+            buttonText: "ok",
+            callback: () => removeNotification({ friendNotificationId: note.id }),
+          },
+          {
+            buttonText: "View",
+            callback: async () => {
+              await removeNotification({ friendNotificationId: note.id })
+              if (note.type === "New Friend Request") {
+                router.push("/friends")
+              }
+            },
+          },
+        ],
       })
     })
   }, [friendNoteIds])
@@ -64,12 +80,20 @@ const Notifications = ({
       }
       toggleFlashMessage({
         id: note.id,
-        alertType: "success",
         message,
-        callback: async () => {
-          await removeNotification({ commentNotificationId: note.id })
-          router.push(`/albums/${note.albumId}`)
-        },
+        buttons: [
+          {
+            buttonText: "ok",
+            callback: () => removeNotification({ commentNotificationId: note.id }),
+          },
+          {
+            buttonText: "View",
+            callback: async () => {
+              await removeNotification({ commentNotificationId: note.id })
+              router.push(`/albums/${note.albumId}`)
+            },
+          },
+        ],
       })
     })
   }, [commentNoteIds])
@@ -91,11 +115,7 @@ const mapDispatchToProps = (dispatch) => {
     removeNotification: RemoveNotification(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     loadUser: LoadUser(dispatch),
-    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
-      alertType,
-      callback,
-      message,
-    })),
+    toggleFlashMessage: args => dispatch(newNotification(args)),
   }
 }
   

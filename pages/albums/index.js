@@ -210,23 +210,26 @@ const AlbumsIndex = ({
   const onFlagAlbum = album => () => {
     toggleFlashMessage({
       id: album.id,
-      alertType: "success",
       message: `Flag Album: "${album.name}"?`,
-      callback: async () => {
-        const success = await flagAlbum({
-          albumCreatedAt: album.createdAt,
-          albumUserId: album.userId,
-          albumId: album.id,
-          albumName: album.name,
-        })
-        if (success) {
-          toggleFlashMessage({
-            id: Moment().toString(),
-            alertType: "success",
-            message: "Album Flagged!"
-          })
+      buttons: [
+        {
+          buttonText: "Confirm",
+          callback: async () => {
+            const success = await flagAlbum({
+              albumCreatedAt: album.createdAt,
+              albumUserId: album.userId,
+              albumId: album.id,
+              albumName: album.name,
+            })
+            if (success) {
+              toggleFlashMessage({
+                id: Moment().toString(),
+                message: "Album Flagged!"
+              })
+            }
+          },
         }
-      }
+      ]
     })
   }
 
@@ -548,11 +551,7 @@ const mapDispatchToProps = (dispatch) => {
     deleteAlbum: DeleteAlbum(dispatch),
     flagAlbum: FlagAlbum(dispatch),
     loadAlbums: LoadAlbums(dispatch),
-    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
-      alertType,
-      callback,
-      message,
-    })),
+    toggleFlashMessage: args => dispatch(newNotification(args)),
 
   }
 }

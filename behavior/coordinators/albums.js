@@ -52,10 +52,7 @@ export const UpdateAlbum = (dispatch) => async (album, shareAlbum = false) => {
   try {
     const response = await put(`/albums/${album.id}`, { ...album, shareAlbum })
     dispatch(setAlbum(response.data))
-    dispatch(newNotification({
-      alertType: "success",
-      message: `Album ${album.name} updated!`,
-    }))
+    dispatch(newNotification({ message: `Album ${album.name} updated!` }))
   }
   catch( err ) {
     HandleError(dispatch, err)

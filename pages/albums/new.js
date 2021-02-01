@@ -81,10 +81,7 @@ const NewAlbum = ({
       isViewableByFriends,
       friendIds,
     })) {
-      displayAlert({
-        alertType: "success",
-        message: `Album ${newAlbumName} Successfully Created`,
-      })
+      displayAlert({ message: `Album ${newAlbumName} Successfully Created` })
       clearForm()
     }
   }
@@ -283,10 +280,7 @@ const mapDispatchToProps = (dispatch) => {
     createAlbum: CreateAlbum(dispatch),
     loadAlbums: LoadAlbums(dispatch),
     searchFriends: SearchFriends(dispatch),
-    displayAlert: ({ alertType, message }) => dispatch(newNotification({
-      alertType,
-      message,
-    }))
+    displayAlert: args => dispatch(newNotification(args))
   }
 }
   

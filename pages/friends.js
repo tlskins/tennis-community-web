@@ -86,30 +86,21 @@ const Friends = ({
 
   const onSendFriendRequest = ({ id, userName }) => async () => {
     if (await sendFriendRequest({ id })) {
-      displayAlert({
-        alertType: "success",
-        message: `Friend request sent to ${userName}`,
-      })
+      displayAlert({ message: `Friend request sent to ${userName}` })
       loadUser()
     }
   }
 
   const onAcceptFriendRequest = (requestId, accept) => async () => {
     if (await acceptFriendRequest({ requestId, accept })) {
-      displayAlert({
-        alertType: "success",
-        message: "Friend request accepted",
-      })
+      displayAlert({ message: "Friend request accepted" })
     }
   }
 
   const onUnfriend = (friendId, friendName) => async () => {
     if (await unfriend({ friendId })) {
       loadUser()
-      displayAlert({
-        alertType: "success",
-        message: `Unfriended ${friendName}`,
-      })
+      displayAlert({ message: `Unfriended ${friendName}` })
     }
   } 
 
@@ -314,10 +305,7 @@ const mapDispatchToProps = (dispatch) => {
     acceptFriendRequest: AcceptFriendRequest(dispatch),
     loadUser: LoadUser(dispatch),
     unfriend: Unfriend(dispatch),
-    displayAlert: ({ alertType, message }) => dispatch(newNotification({
-      alertType,
-      message,
-    }))
+    displayAlert: args => dispatch(newNotification(args))
   }
 }
   

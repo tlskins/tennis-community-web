@@ -130,25 +130,28 @@ const Album = ({
   const onFlagComment = comment => () => {
     toggleFlashMessage({
       id: comment.id,
-      alertType: "success",
       message: `Flag Comment: "${comment.text}"?`,
-      callback: async () => {
-        const success = await flagComment({
-          commentCreatedAt: comment.createdAt,
-          commentId: comment.id,
-          commenterId: comment.userId,
-          albumId: album.id,
-          swingId,
-          text: comment.text,
-        })
-        if (success) {
-          toggleFlashMessage({
-            id: Moment().toString(),
-            alertType: "success",
-            message: "Comment Flagged!"
-          })
+      buttons: [
+        {
+          buttonText: "Confirm",
+          callback: async () => {
+            const success = await flagComment({
+              commentCreatedAt: comment.createdAt,
+              commentId: comment.id,
+              commenterId: comment.userId,
+              albumId: album.id,
+              swingId,
+              text: comment.text,
+            })
+            if (success) {
+              toggleFlashMessage({
+                id: Moment().toString(),
+                message: "Comment Flagged!"
+              })
+            }
+          },
         }
-      }
+      ]
     })
   }
 
@@ -565,11 +568,7 @@ const mapDispatchToProps = (dispatch) => {
     loadAlbum: LoadAlbum(dispatch),
     postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
-    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
-      alertType,
-      callback,
-      message,
-    })),
+    toggleFlashMessage: args => dispatch(newNotification(args)),
   }
 }
   

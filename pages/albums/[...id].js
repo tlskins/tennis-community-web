@@ -438,7 +438,7 @@ const Album = ({
             </div>
 
             {/* Sharing Sidebar */}
-            { (user && user.id == album.userId) &&
+            { (user && user.id == album?.userId) &&
               <div className="mb-2">
                 <h2 className="text-blue-400 underline cursor-pointer text-center"
                   onClick={() => {
@@ -657,9 +657,9 @@ const Album = ({
                 className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
                 value={album?.name}
                 onChange={onUpdateAlbumName}
-                disabled={!user || user.id !== album.userId}
+                disabled={!user || user.id !== album?.userId}
               />
-              { (user && user.id === album.userId) &&
+              { (user && user.id === album?.userId) &&
                 <img src={pencil} className="w-4 h-4 absolute right-2"/>
               }
             </div>

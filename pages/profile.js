@@ -312,7 +312,9 @@ const Profile = ({
               <p className="text-center text-xs tracking-widest underline">Member since { Moment(user.createdAt).format("LLL") }</p>
 
               <div className="flex flex-col content-center justify-center items-center my-5">
-                <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
+                <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
+                  <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
+                </div>
                 <div className="flex flex-row mt-4">
                   { getUserIcons(user).map((icon, i) => {
                     return(
@@ -441,7 +443,7 @@ const Profile = ({
 
               { myActiveAlbums.map((album, i) => {
                 return(
-                  <div key={i} className="flex flex-row bg-gray-100 mb-4 py-2 pr-2 border-2 border-gray-200 rounded-lg shadow-md">
+                  <div key={i} className="flex flex-row bg-gray-100 mb-6 py-2 pr-2 border-2 border-gray-200 rounded-lg shadow-md">
                     <div className="flex flex-col w-3/5 content-center justify-center items-center pr-1">
                       <p href={`/albums/${album.id}`}
                         className="flex text-xs font-semibold text-blue-400 text-center underline mb-1 px-2 cursor-pointer"

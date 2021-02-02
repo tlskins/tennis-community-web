@@ -43,6 +43,8 @@ const Profile = ({
   const [iconNumber, setIconNumber] = useState(user.iconNumber)
   const [isPublic, setIsPublic] = useState(user.isPublic)
   const [birthYear, setBirthYear] = useState(user.birthYear)
+  const [gender, setGender] = useState(user.gender)
+  const [ustaLevel, setUstaLevel] = useState(user.ustaLevel)
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -166,6 +168,8 @@ const Profile = ({
 
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Public?</p>
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Birth Year</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Gender</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">USTA Level</p>
                 </div>
 
                 <div className="flex flex-col">
@@ -207,19 +211,54 @@ const Profile = ({
                     />
                   </div>
                   <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                    <input type="number"
+                    <input type="text"
                       className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                      value={birthYear}
-                      onChange={e => setBirthYear(parseInt(e.target.value))}
+                      value={birthYear || ""}
+                      onChange={e => {
+                        let val = parseInt(e.target.value)
+                        if (!val) val = undefined
+                        setBirthYear(val)
+                      }}
                     />
                     { birthYear &&
-                        <input type="button"
-                          className="w-6 h-6 px-1 py-0.5 ml-1 shadow-md rounded-md bg-black text-yellow-300 text-xs font-bold cursor-pointer"
-                          value="x"
-                          onClick={() => setBirthYear(null)}
-                        />
+                      <input type="button"
+                        className="w-6 h-6 px-1.5 ml-1 shadow-md rounded-xl bg-black text-yellow-300 text-xs font-bold cursor-pointer"
+                        value="X"
+                        min="1900"
+                        maxLength="4"
+                        onClick={() => setBirthYear(null)}
+                      />
                     }
                   </div>
+                  <div className="flex flex-row rounded-md px-2 py-1 w-44">
+                    <select onSelect={e => setGender(e.target.value)}
+                      value={gender}
+                      className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                    >
+                      <option value={undefined}>-</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
+                  <div className="flex flex-row rounded-md px-2 py-1 w-44">
+                    <select onSelect={e => setUstaLevel(e.target.value)}
+                      value={ustaLevel}
+                      className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                    >
+                      <option value={undefined}>-</option>
+                      <option value={2.5}>2.5</option>
+                      <option value={3.0}>3.0</option>
+                      <option value={3.5}>3.5</option>
+                      <option value={4.0}>4.0</option>
+                      <option value={4.5}>4.5</option>
+                      <option value={5.0}>5.0</option>
+                      <option value={5.5}>5.5</option>
+                      <option value={6.0}>6.0</option>
+                      <option value={6.5}>6.5</option>
+                      <option value={7.0}>7.0</option>
+                    </select>
+                  </div>
+                
                 </div>
               </div>
             </div>

@@ -293,23 +293,25 @@ const Profile = ({
           <div className="grid grid-cols-3 gap-6 content-center justify-center items-start">
                 
             {/* Profile */}
-            <div className="flex flex-col col-span-2 pt-6 pb-20 px-10 bg-white rounded shadow-lg static">
-              <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
+            <div className="flex flex-col col-span-2 pt-6 pb-20 px-10 bg-white rounded shadow-lg content-center justify-center items-center static">
+              <div className="w-full">
+                <h2 className="font-bold text-lg text-center tracking-wider mb-1">
                 Profile
-              </h2>
-              <img src={hoverUploadButton ? uploadBlue : uploadYellow}
-                className="w-10 h-8 relative cursor-pointer"
-                onMouseEnter={() => {
-                  setHoverUpload(true)
-                  setHoverUploadButton(true)
-                }}
-                onMouseLeave={() => {
-                  setHoverUpload(false)
-                  setHoverUploadButton(false)
-                }}
-                onClick={() => setShowHowTo(!showHowTo)}
-              />
-              <p className="text-center text-xs tracking-widest underline">Member since { Moment(user.createdAt).format("LLL") }</p>
+                </h2>
+                <p className="text-center text-xs tracking-widest underline">Member since { Moment(user.createdAt).format("LLL") }</p>
+                <img src={hoverUploadButton ? uploadBlue : uploadYellow}
+                  className="w-10 h-8 relative -top-8 cursor-pointer"
+                  onMouseEnter={() => {
+                    setHoverUpload(true)
+                    setHoverUploadButton(true)
+                  }}
+                  onMouseLeave={() => {
+                    setHoverUpload(false)
+                    setHoverUploadButton(false)
+                  }}
+                  onClick={() => setShowHowTo(!showHowTo)}
+                />
+              </div>
 
               <div className="flex flex-col content-center justify-center items-center my-5">
                 <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
@@ -331,17 +333,13 @@ const Profile = ({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* Standard Profile */}
+              <div className="grid grid-cols-2 gap-4 mb-10">
                 <div className="flex flex-col content-center justify-center items-end">
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Email</p>
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">User Name</p>
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">First Name</p>
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide mb-4">Last Name</p>
-
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Public?</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Birth Year</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Gender</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">USTA Level</p>
                 </div>
 
                 <div className="flex flex-col">
@@ -374,7 +372,22 @@ const Profile = ({
                       onChange={e => setLastName(e.target.value)}
                     />
                   </div>
-                
+                </div>
+              </div>
+
+              {/* Expanded Profile */}
+              <p className="text-left align-center px-2 py-1 float-right rounded-md tracking-wide text-sm text-gray-700 text-center">
+                This profile data helps us connect you with other tennis players and relevant topics
+              </p>
+              <div className="grid grid-cols-2 gap-4 rounded-lg shadow-md border border-gray-400 py-4 w-3/4">
+                <div className="flex flex-col content-center justify-center items-end">
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Public?</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Birth Year</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Gender</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">USTA Level</p>
+                </div>
+
+                <div className="flex flex-col">
                   <div className="flex flex-row px-2 py-3 w-10 h-10 content-center justify-center">
                     <input type="checkbox"
                       className="shadow-md"

@@ -41,13 +41,15 @@ const Profile = ({
   const [firstName, setFirstName] = useState(user.firstName)
   const [lastName, setLastName] = useState(user.lastName)
   const [iconNumber, setIconNumber] = useState(user.iconNumber)
+  const [isPublic, setIsPublic] = useState(user.isPublic)
+  const [birthYear, setBirthYear] = useState(user.birthYear)
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
       { (user && user.id) &&
         <Notifications />
       }
-      <main className="flex flex-1 overflow-y-auto">
+      <main className="flex flex-1 overflow-y-auto bg-gray-100">
 
         {/* Begin Sidebar */}
 
@@ -69,7 +71,7 @@ const Profile = ({
 
         {/* Begin Main */}
 
-        <div className="p-4 flex flex-col w-4/5 bg-gray-100">
+        <div className="p-4 flex flex-col w-4/5">
 
           {/* How to upload first album */}
           { albums.myAlbums.length !== 0 &&
@@ -131,7 +133,7 @@ const Profile = ({
           <div className="grid grid-cols-3 gap-6 content-center justify-center items-center">
                 
             {/* Profile */}
-            <div className="flex flex-col col-span-2 py-6 px-10 bg-white rounded shadow-lg">
+            <div className="flex flex-col col-span-2 pt-6 pb-20 px-10 bg-white rounded shadow-lg">
               <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
                 Profile
               </h2>
@@ -160,7 +162,10 @@ const Profile = ({
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Email</p>
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">UserName</p>
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">First Name</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Last Name</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide mb-4">Last Name</p>
+
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Public?</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Birth Year</p>
                 </div>
 
                 <div className="flex flex-col">
@@ -192,6 +197,28 @@ const Profile = ({
                       value={lastName}
                       onChange={e => setLastName(e.target.value)}
                     />
+                  </div>
+                
+                  <div className="flex flex-row px-2 py-3 w-10 h-10 content-center justify-center">
+                    <input type="checkbox"
+                      className="shadow-md"
+                      checked={isPublic}
+                      onChange={() => setIsPublic(!isPublic)}
+                    />
+                  </div>
+                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                    <input type="number"
+                      className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                      value={birthYear}
+                      onChange={e => setBirthYear(parseInt(e.target.value))}
+                    />
+                    { birthYear &&
+                        <input type="button"
+                          className="w-6 h-6 px-1 py-0.5 ml-1 shadow-md rounded-md bg-black text-yellow-300 text-xs font-bold cursor-pointer"
+                          value="x"
+                          onClick={() => setBirthYear(null)}
+                        />
+                    }
                   </div>
                 </div>
               </div>

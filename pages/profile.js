@@ -443,16 +443,26 @@ const Profile = ({
                 return(
                   <div key={i} className="flex flex-row bg-gray-100 mb-4 py-2 pr-2 border-2 border-gray-200 rounded-lg shadow-md">
                     <div className="flex flex-col w-3/5 content-center justify-center items-center pr-1">
+                      <p href={`/albums/${album.id}`}
+                        className="flex text-xs font-semibold text-blue-400 text-center underline mb-1 px-2 cursor-pointer"
+                      >
+                        {album.name}
+                      </p>
                       { renderAlbum({ album, i }) }
                     </div>
 
-                    <div className="flex flex-col w-2/5 content-center py-4">
-                      <div className="w-4/5">
-                        <input type="button"
-                          value={album.name}
-                          className="flex text-xs font-semibold text-yellow-300 bg-black border border-yellow-300 shadow-md rounded-lg underline mb-1 px-2 cursor-pointer"
-                          onClick={() => router.push(`/albums/${album.id}`)}
-                        />
+                    <div className="flex flex-col w-2/5 content-center text-center py-4">
+
+                      <div className="flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
+                        { album.userId === user.id && 
+                          <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">owner</div>
+                        }
+                        { album.isPublic && 
+                          <div className="px-2 mx-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs">public</div>
+                        }
+                        { album.isViewableByFriends &&
+                          <div className="px-2 mx-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs">friends</div>
+                        }
                       </div>
 
                       <p className="text-xs w-full mb-1">

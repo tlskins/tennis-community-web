@@ -70,13 +70,15 @@ const Profile = ({
     setShowHowTo(albums?.myAlbums?.length === 0)
   }, [albums?.myAlbums])
 
+  console.log("myActiveAlbums", myActiveAlbums)
+
   useEffect(() => {
     setPlayerRefs(ref => myActiveAlbums.map((_, i) => ref[i] || createRef()))
     setPlayings(myActiveAlbums.map(() => false))
     setPips(myActiveAlbums.map(() => false))
     setCurrentSwings(myActiveAlbums.map(() => 0))
     setCurrentComments(myActiveAlbums.map(album => {
-      let comments = [...album.comments, ...(album.swingVideos.map(swing => swing.comments).flat())]
+      let comments = [...(album.comments || []), ...(album.swingVideos.map(swing => (swing.comments || [])).flat())]
       comments = comments.filter( comment => comment.userId !== user.id )
       comments = comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
       return comments.slice(0,3).filter( c => !!c )
@@ -495,6 +497,26 @@ const Profile = ({
                   </div>
                 )
               })}
+
+              { myAlbumsPage > 0 &&
+                <div className="w-full content-center justify-center items-center mb-1">
+                  <input type="button"
+                    className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                    value={`Previous Page (${myAlbumsPage})`}
+                    onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
+                  />
+                </div>
+              }
+
+              { myActiveAlbums.length === albumsPerColumn &&
+                <div className="w-full content-center justify-center items-center">
+                  <input type="button"
+                    className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                    value={`Next Page (${myAlbumsPage+2})`}
+                    onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
+                  />
+                </div>
+              }
             </div>
           </div>
        

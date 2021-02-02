@@ -35,7 +35,9 @@ const Profile = ({
     loadAlbums()
   }, [])
 
+  const [showHowTo, setShowHowTo] = useState(albums?.myAlbums?.length === 0)
   const [hoverUpload, setHoverUpload] = useState(false)
+  const [hoverUploadButton, setHoverUploadButton] = useState(false)
   const [email, setEmail] = useState(user.email)
   const [userName, setUserName] = useState(user.userName)
   const [firstName, setFirstName] = useState(user.firstName)
@@ -45,6 +47,12 @@ const Profile = ({
   const [birthYear, setBirthYear] = useState(user.birthYear)
   const [gender, setGender] = useState(user.gender)
   const [ustaLevel, setUstaLevel] = useState(user.ustaLevel)
+
+  useEffect(() => {
+    if (albums?.myAlbums?.length === 0) {
+      setShowHowTo(true)
+    }
+  }, [albums?.myAlbums])
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -76,7 +84,7 @@ const Profile = ({
         <div className="p-4 flex flex-col w-4/5">
 
           {/* How to upload first album */}
-          { albums.myAlbums.length !== 0 &&
+          { showHowTo &&
             <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md mb-3">
               <div className="flex flex-col">
                 <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
@@ -135,10 +143,22 @@ const Profile = ({
           <div className="grid grid-cols-3 gap-6 content-center justify-center items-center">
                 
             {/* Profile */}
-            <div className="flex flex-col col-span-2 pt-6 pb-20 px-10 bg-white rounded shadow-lg">
+            <div className="flex flex-col col-span-2 pt-6 pb-20 px-10 bg-white rounded shadow-lg static">
               <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
                 Profile
               </h2>
+              <img src={hoverUploadButton ? uploadBlue : uploadYellow}
+                className="w-10 h-8 absolute cursor-pointer"
+                onMouseEnter={() => {
+                  setHoverUpload(true)
+                  setHoverUploadButton(true)
+                }}
+                onMouseLeave={() => {
+                  setHoverUpload(false)
+                  setHoverUploadButton(false)
+                }}
+                onClick={() => setShowHowTo(!showHowTo)}
+              />
               <p className="text-center text-xs tracking-widest underline">Member since { Moment(user.createdAt).format("LLL") }</p>
 
               <div className="flex flex-col content-center justify-center items-center my-5">
@@ -162,7 +182,7 @@ const Profile = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col content-center justify-center items-end">
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Email</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">UserName</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">User Name</p>
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">First Name</p>
                   <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide mb-4">Last Name</p>
 

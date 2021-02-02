@@ -7,6 +7,7 @@ import { useRouter } from "next/router"
 import Notifications from "../components/Notifications"
 import SwingUploader from "../components/SwingUploader"
 import { UpdateUserProfile } from "../behavior/coordinators/users"
+import { getUserIcons, getUserIcon } from "../behavior/users"
 import { LoadAlbums, DeleteAlbum } from "../behavior/coordinators/albums"
 import uploadYellow from "../public/upload-yellow.svg"
 import uploadBlue from "../public/upload-blue.svg"
@@ -35,6 +36,11 @@ const Profile = ({
   }, [])
 
   const [hoverUpload, setHoverUpload] = useState(false)
+  const [email, setEmail] = useState(user.email)
+  const [userName, setUserName] = useState(user.userName)
+  const [firstName, setFirstName] = useState(user.firstName)
+  const [lastName, setLastName] = useState(user.lastName)
+  const [iconNumber, setIconNumber] = useState(user.iconNumber)
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -63,14 +69,14 @@ const Profile = ({
 
         {/* Begin Main */}
 
-        <div className="p-4 flex flex-col flex-wrap w-4/5 bg-gray-100">
+        <div className="p-4 flex flex-col w-4/5 bg-gray-100">
 
           {/* How to upload first album */}
           { albums.myAlbums.length !== 0 &&
-            <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md">
+            <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md mb-3">
               <div className="flex flex-col">
                 <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
-                Upload your first album!
+                    Upload your first album!
                 </h2>
 
                 <div className="flex flex-row">
@@ -122,7 +128,80 @@ const Profile = ({
             </div>
           }
 
-          
+          <div className="grid grid-cols-3 gap-6 content-center justify-center items-center">
+                
+            {/* Profile */}
+            <div className="flex flex-col col-span-2 py-6 px-10 bg-white rounded shadow-lg">
+              <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
+                Profile
+              </h2>
+              <p className="text-center text-xs tracking-widest underline">Member since { Moment(user.createdAt).format("LLL") }</p>
+
+              <div className="flex flex-col content-center justify-center items-center my-5">
+                <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
+                <div className="flex flex-row mt-4">
+                  { getUserIcons(user).map((icon, i) => {
+                    return(
+                      <div key={i}
+                        className="hover:bg-blue-200 rounded-xl p-3 mx-2 cursor-pointer"
+                      >
+                        <img src={icon.image}
+                          className="w-8 h-8"
+                          onClick={() => setIconNumber(icon.number)}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col content-center justify-center items-end">
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Email</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">UserName</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">First Name</p>
+                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Last Name</p>
+                </div>
+
+                <div className="flex flex-col">
+                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                    <input type="text"
+                      className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                      value={email}
+                      onChange={e => setEmail(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                    <p className="mr-0.5">@</p>
+                    <input type="text"
+                      className="w-36 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                      value={userName}
+                      onChange={e => setUserName(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                    <input type="text"
+                      className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                      value={firstName}
+                      onChange={e => setFirstName(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                    <input type="text"
+                      className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                      value={lastName}
+                      onChange={e => setLastName(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Albums */}
+            <div className="flex flex-col">
+
+            </div>
+          </div>
         </div>
         {/* End Main */}
       </main>

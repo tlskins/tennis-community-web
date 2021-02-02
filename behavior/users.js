@@ -5,6 +5,22 @@ import hive1 from "../public/hive_1.svg"
 import hive2 from "../public/hive_2.svg"
 import hive3 from "../public/hive_3.svg"
 
+export const getUserIcons = user => {
+  if (user?.isAdmin) {
+    return [
+      { image: hive1, number: 1 },
+      { image: hive2, number: 2 },
+      { image: hive3, number: 3 },
+    ]
+  } else {
+    return [
+      { image: bee1, number: 1 },
+      { image: bee2, number: 2 },
+      { image: bee3, number: 3 },
+    ]
+  }
+}
+
 export const getUserIcon = (user) => {
   if (user?.isAdmin) {
     switch(user?.iconNumber) {

@@ -1,22 +1,30 @@
-import React, { useEffect, useState, Fragment } from "react"
+import React, { useEffect, useState, createRef, Fragment } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment-timezone"
 import { useRouter } from "next/router"
+import ReactPlayer from "react-player"
 
 import Notifications from "../components/Notifications"
 import SwingUploader from "../components/SwingUploader"
 import { UpdateUserProfile } from "../behavior/coordinators/users"
+import { SearchFriends } from "../behavior/coordinators/friends"
 import { getUserIcons, getUserIcon } from "../behavior/users"
-import { LoadAlbums, DeleteAlbum } from "../behavior/coordinators/albums"
+import { LoadAlbums } from "../behavior/coordinators/albums"
 import uploadYellow from "../public/upload-yellow.svg"
 import uploadBlue from "../public/upload-blue.svg"
+import speechBubble from "../public/speech-bubble.svg"
+
+const SWING_FRAMES = 60
+const albumsPerColumn = 3
 
 const Profile = ({
   albums,
   user,
+  usersCache,
   
   loadAlbums,
+  searchFriends,
   updateUserProfile,
 }) => {
   const router = useRouter()
@@ -31,10 +39,6 @@ const Profile = ({
     return(<Fragment/>)
   }
 
-  useEffect(() => {
-    loadAlbums()
-  }, [])
-
   const [showHowTo, setShowHowTo] = useState(albums?.myAlbums?.length === 0)
   const [hoverUpload, setHoverUpload] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
@@ -48,11 +52,173 @@ const Profile = ({
   const [gender, setGender] = useState(user.gender)
   const [ustaLevel, setUstaLevel] = useState(user.ustaLevel)
 
+  const [playerRefs, setPlayerRefs] = useState([])
+  const [playerFrames, setPlayerFrames] = useState({})
+  const [playings, setPlayings] = useState([])
+  const [pips, setPips] = useState([])
+  const [currentSwings, setCurrentSwings] = useState([])
+  const [currentComments, setCurrentComments] = useState([])
+
+  const [myAlbumsPage, setMyAlbumsPage] = useState(0)
+  const myActiveAlbums = albums?.myAlbums?.slice(myAlbumsPage * albumsPerColumn, (myAlbumsPage+1) * albumsPerColumn).filter( a => !!a ) || []
+
   useEffect(() => {
-    if (albums?.myAlbums?.length === 0) {
-      setShowHowTo(true)
-    }
+    loadAlbums()
+  }, [])
+
+  useEffect(() => {
+    setShowHowTo(albums?.myAlbums?.length === 0)
   }, [albums?.myAlbums])
+
+  useEffect(() => {
+    setPlayerRefs(ref => myActiveAlbums.map((_, i) => ref[i] || createRef()))
+    setPlayings(myActiveAlbums.map(() => false))
+    setPips(myActiveAlbums.map(() => false))
+    setCurrentSwings(myActiveAlbums.map(() => 0))
+    setCurrentComments(myActiveAlbums.map(album => {
+      let comments = [...album.comments, ...(album.swingVideos.map(swing => swing.comments).flat())]
+      comments = comments.filter( comment => comment.userId !== user.id )
+      comments = comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
+      return comments.slice(0,3).filter( c => !!c )
+    }))
+  }, [albums.myAlbums, myAlbumsPage])
+
+  useEffect(() => {
+    if (currentComments.length > 0) {
+      const commentersSet = new Set([])
+      currentComments.forEach( comments => {
+        comments.forEach( comment => {
+          if (!usersCache[comment.userId]) commentersSet.add(comment.userId)
+        })
+      })
+      const ids = Array.from(commentersSet)
+      if (ids.length > 0) searchFriends({ ids })
+    }
+  }, [currentComments])
+
+  const handleSeekChange = (playerRef, i) => e => {
+    const frame = parseFloat(e.target.value)
+    if (frame != null) {
+      const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
+      playerRef.current.seekTo(seekTo)
+      setPlayerFrames({
+        ...playerFrames,
+        [i]: frame,
+      })
+    }
+  }
+
+  const renderAlbum = ({ album, i }) => {
+    if (!album) {
+      return null
+    }
+    const ref = playerRefs[i]
+    const playing = playings[i]
+    const pip = pips[i]
+    const duration = playerFrames[i]
+    const swingIdx = currentSwings[i]
+    return(
+      <Fragment>
+        <ReactPlayer
+          className="rounded-md overflow-hidden"
+          ref={ref}
+          url={album.swingVideos[swingIdx]?.videoURL} 
+          playing={playing}
+          pip={pip}
+          volume={0}
+          muted={true}
+          loop={true}
+          progressInterval={200}
+          onProgress={({ played }) => {
+            const frame = Math.round(played*SWING_FRAMES)
+            setPlayerFrames({
+              ...playerFrames,
+              [i]: frame,
+            })
+          }}
+          height="200px"
+          width="240px"
+        />
+
+        {/* Controls Panel */}
+        <div className="flex flex-row content-center justify-center py-1 mb-2 bg-gray-300 rounded w-4/5">
+
+          {/* Picture in Picture */}
+          { pip &&
+            <input type='button'
+              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+              value='-'
+              tabIndex={(i*3)+1}
+              onClick={() => {
+                const newPips = pips.map((p,j) => j === i ? false : p)
+                setPips(newPips)
+              }}
+            />
+          }
+          { !pip &&
+            <input type='button'
+              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+              value='+'
+              tabIndex={(i*3)+1}
+              onClick={() => {
+                const newPips = pips.map((p,j) => j === i ? true : p)
+                setPips(newPips)
+              }}
+            />
+          }
+
+          {/* Play / Pause */}
+          { playing &&
+            <input type='button'
+              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
+              value='pause'
+              tabIndex={(i*3)+2}
+              onClick={() => {
+                const newPlayings = playings.map((p,j) => j === i ? false : p)
+                setPlayings(newPlayings)
+              }}
+            />
+          }
+          { !playing &&
+            <input type='button'
+              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
+              value='play'
+              tabIndex={(i*3)+2}
+              onClick={() => {
+                const newPlayings = playings.map((p,j) => j === i ? true : p)
+                setPlayings(newPlayings)
+                setPlayerFrames({
+                  ...playerFrames,
+                  [i]: undefined,
+                })
+              }}
+            />
+          }
+          
+          {/* Seek */}
+          <input
+            type='range'
+            tabIndex={(i*3)+3}
+            value={duration}
+            min={0}
+            max={SWING_FRAMES}
+            step='1'
+            onChange={handleSeekChange(ref, i)}
+            onFocus={ e => {
+              console.log("focus!")
+              e.stopPropagation()
+              e.preventDefault()
+            }}
+          />
+
+          <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
+            <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
+          </div>
+          
+        </div>
+      </Fragment>
+    )
+  }
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -61,34 +227,16 @@ const Profile = ({
       }
       <main className="flex flex-1 overflow-y-auto bg-gray-100">
 
-        {/* Begin Sidebar */}
-
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll border-r border-gray-400">
-          <div className="flex flex-col content-center justify-center items-center text-sm">
-
-            {/* Search Users Sidebar */}
-            <Fragment>
-              <h2 className="text-blue-400 underline mb-2">
-                Sidebar
-              </h2>
-              <div className="mb-2 flex flex-col">
-              </div>
-            </Fragment>
-          </div>
-        </div>
-
-        {/* End Sidebar */}
-
         {/* Begin Main */}
 
-        <div className="p-4 flex flex-col w-4/5">
+        <div className="p-4 flex flex-col w-full">
 
           {/* How to upload first album */}
           { showHowTo &&
             <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md mb-3">
               <div className="flex flex-col">
                 <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
-                    Upload your first album!
+                    Upload {albums?.myAlbums?.length > 0 ? "an" : "your first"} album!
                 </h2>
 
                 <div className="flex flex-row">
@@ -140,7 +288,7 @@ const Profile = ({
             </div>
           }
 
-          <div className="grid grid-cols-3 gap-6 content-center justify-center items-center">
+          <div className="grid grid-cols-3 gap-6 content-center justify-center items-start">
                 
             {/* Profile */}
             <div className="flex flex-col col-span-2 pt-6 pb-20 px-10 bg-white rounded shadow-lg static">
@@ -148,7 +296,7 @@ const Profile = ({
                 Profile
               </h2>
               <img src={hoverUploadButton ? uploadBlue : uploadYellow}
-                className="w-10 h-8 absolute cursor-pointer"
+                className="w-10 h-8 relative cursor-pointer"
                 onMouseEnter={() => {
                   setHoverUpload(true)
                   setHoverUploadButton(true)
@@ -284,10 +432,72 @@ const Profile = ({
             </div>
 
             {/* Recent Albums */}
-            <div className="flex flex-col">
+            <div className="flex flex-col pt-6 pb-20 px-4 h-full bg-white rounded shadow-lg">
+              <h2 className="font-bold text-lg text-center tracking-wider mb-4 w-full">
+                Recent Albums
+              </h2>
 
+              { myActiveAlbums.map((album, i) => {
+                return(
+                  <div key={i} className="flex flex-row bg-gray-100 mb-4 py-2 pr-2 border-2 border-gray-200 rounded-lg shadow-md">
+                    <div className="flex flex-col w-3/5 content-center justify-center items-center pr-1">
+                      { renderAlbum({ album, i }) }
+                    </div>
+
+                    <div className="flex flex-col w-2/5 content-center py-4">
+                      <div className="w-4/5">
+                        <input type="button"
+                          value={album.name}
+                          className="flex text-xs font-semibold text-yellow-300 bg-black border border-yellow-300 shadow-md rounded-lg underline mb-1 px-2 cursor-pointer"
+                          onClick={() => router.push(`/albums/${album.id}`)}
+                        />
+                      </div>
+
+                      <p className="text-xs w-full mb-1">
+                        <span className="font-semibold">Updated</span> { Moment(album.updatedAt).format("lll") }
+                      </p>
+
+                      <div className="flex flex-row content-center justify-center items-center">
+                        <p className="text-xs bg-white rounded-lg mx-1 mb-1 text-xs px-1">
+                          { album.swingVideos.length } <span className="font-semibold">swings</span>
+                        </p>
+
+                        <div className="flex flex-row bg-white rounded-lg mx-1 mb-1 text-xs px-1 w-10">
+                          <p className="mr-0.5 text-center">{ (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0) }</p>
+                          <img src={speechBubble} className="w-5 h-5"/>
+                        </div>
+                      </div>
+
+                      <div className="h-40 overflow-y-scroll bg-gray-300 p-1 rounded-lg">
+                        { (currentComments[i] || []).map((comment, j) => {
+                          const poster = usersCache[comment.userId]
+                          return(
+                            <div key={j} className="px-2 pt-1 mb-1 bg-yellow-300 rounded-lg border border-gray-400 shadow">
+                              <textarea disabled={true}
+                                className="text-xs bg-gray-100 rounded-md shadow-md w-full"
+                                value={comment.text}
+                                rows={2}
+                              />
+                              <p className="text-xs w-full">
+                                <span className="font-semibold">poster:</span> { poster ? poster.userName : "..." }
+                              </p>
+                              <p className="text-xs w-full">
+                                <span className="font-semibold">posted:</span> { Moment(album.updatedAt).format("lll") }
+                              </p>
+                            </div>
+                          )
+                        })}
+                        { (currentComments[i] || []).length === 0 &&
+                          <p className="text-xs w-full rounded-lg bg-yellow-300 text-center">No Comments</p>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
+       
         </div>
         {/* End Main */}
       </main>
@@ -307,6 +517,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     loadAlbums: LoadAlbums(dispatch),
+    searchFriends: SearchFriends(dispatch),
     updateUserProfile: UpdateUserProfile(dispatch),
   }
 }
@@ -317,6 +528,7 @@ Profile.propTypes = {
   usersCache: PropTypes.object,
 
   loadAlbums: PropTypes.func,
+  searchFriends: PropTypes.func,
   updateUserProfile: PropTypes.func,
 }
 

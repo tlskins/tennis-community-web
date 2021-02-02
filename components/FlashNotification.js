@@ -32,7 +32,7 @@ const FlashNotif = ({ notifications, onRemoveNotification }) => {
             <div className="flex flex-col items-center w-full pt-3 tracking-wide font-bold">
               <p id="notif_message px-3">{ message }</p>
               <div className="flex flex-row">
-                { buttons.map( ({ callback, buttonText }, i) => {
+                { (buttons || []).map( ({ callback, buttonText }, i) => {
                   return(
                     <button key={i}
                       onClick={ callback }

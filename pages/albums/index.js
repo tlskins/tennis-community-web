@@ -35,7 +35,7 @@ const AlbumsIndex = ({
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
-  const [pips, setPips] = useState([]) // Picture in picture for each player
+  const [pips, setPips] = useState([])
 
   const [hoveredAlbum, setHoveredAlbum] = useState(undefined)
   const [toDeleteAlbum, setToDeleteAlbum] = useState(undefined)

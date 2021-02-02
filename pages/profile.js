@@ -11,6 +11,7 @@ import { UpdateUserProfile } from "../behavior/coordinators/users"
 import { SearchFriends } from "../behavior/coordinators/friends"
 import { getUserIcons, getUserIcon } from "../behavior/users"
 import { LoadAlbums } from "../behavior/coordinators/albums"
+import { newNotification } from "../state/ui/action"
 import uploadYellow from "../public/upload-yellow.svg"
 import uploadBlue from "../public/upload-blue.svg"
 import speechBubble from "../public/speech-bubble.svg"
@@ -24,6 +25,7 @@ const Profile = ({
   usersCache,
   
   loadAlbums,
+  newFlashMessage,
   searchFriends,
   updateUserProfile,
 }) => {
@@ -32,7 +34,9 @@ const Profile = ({
   const [showHowTo, setShowHowTo] = useState(albums?.myAlbums?.length === 0)
   const [hoverUpload, setHoverUpload] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
-  const [email, setEmail] = useState(user?.email)
+  const [pressingSave, setPressingSave] = useState(false)
+
+  const [email,] = useState(user?.email)
   const [userName, setUserName] = useState(user?.userName)
   const [firstName, setFirstName] = useState(user?.firstName)
   const [lastName, setLastName] = useState(user?.lastName)
@@ -51,6 +55,7 @@ const Profile = ({
 
   const [myAlbumsPage, setMyAlbumsPage] = useState(0)
   const myActiveAlbums = albums?.myAlbums?.slice(myAlbumsPage * albumsPerColumn, (myAlbumsPage+1) * albumsPerColumn).filter( a => !!a ) || []
+  const saveButtonStyle = pressingSave ? "bg-yellow-300 text-black" : "bg-black text-yellow-300"
 
   useEffect(() => {
     if (!user || !user?.id) {
@@ -101,6 +106,22 @@ const Profile = ({
         ...playerFrames,
         [i]: frame,
       })
+    }
+  }
+
+  const onUpdateUserProfile = async () => {
+    const success = updateUserProfile({
+      userName,
+      firstName,
+      lastName,
+      iconNumber,
+      isPublic,
+      birthYear,
+      gender,
+      ustaLevel,
+    })
+    if (success) {
+      newFlashMessage({ message: "Profile successfully updated"})
     }
   }
 
@@ -239,7 +260,7 @@ const Profile = ({
                     Upload {albums?.myAlbums?.length > 0 ? "an" : "your first"} album!
                 </h2>
 
-                <div className="flex flex-row">
+                <div className="flex flex-row content-center">
                   <img src={hoverUpload ? uploadBlue : uploadYellow}
                     className="w-80 h-72 mr-10"
                     onMouseEnter={() => setHoverUpload(true)}
@@ -294,7 +315,7 @@ const Profile = ({
             <div className="flex flex-col col-span-2 pt-6 pb-20 px-10 bg-white rounded shadow-lg content-center justify-center items-center static">
               <div className="w-full">
                 <h2 className="font-bold text-lg text-center tracking-wider mb-1">
-                Profile
+                  Profile
                 </h2>
                 <p className="text-center text-xs tracking-widest underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
                 <img src={hoverUploadButton ? uploadBlue : uploadYellow}
@@ -343,9 +364,10 @@ const Profile = ({
                 <div className="flex flex-col">
                   <div className="flex flex-row rounded-md px-2 py-1 w-40">
                     <input type="text"
-                      className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                      className="w-40 px-1 rounded-md bg-gray-300 border border-gray-400 shadow-md"
                       value={email}
-                      onChange={e => setEmail(e.target.value)}
+                      disabled={true}
+                      // onChange={e => setEmail(e.target.value)}
                     />
                   </div>
                   <div className="flex flex-row rounded-md px-2 py-1 w-40">
@@ -443,6 +465,16 @@ const Profile = ({
                   </div>
                 
                 </div>
+              </div>
+            
+              <div className="flex flex-col w-full content-center justify-center items-center mt-12">
+                <input type="button"
+                  onMouseDown={() => setPressingSave(true)}
+                  onMouseUp={() => setPressingSave(false)}
+                  className={`w-22 px-2 rounded-lg ${saveButtonStyle} border border-gray-400 shadow-md tracking-widest font-semibold cursor-pointer`}
+                  value="SAVE PROFILE"
+                  onClick={onUpdateUserProfile}
+                />
               </div>
             </div>
 
@@ -562,6 +594,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     loadAlbums: LoadAlbums(dispatch),
+    newFlashMessage: args => dispatch(newNotification(args)),
     searchFriends: SearchFriends(dispatch),
     updateUserProfile: UpdateUserProfile(dispatch),
   }
@@ -573,6 +606,7 @@ Profile.propTypes = {
   usersCache: PropTypes.object,
 
   loadAlbums: PropTypes.func,
+  newFlashMessage: PropTypes.func,
   searchFriends: PropTypes.func,
   updateUserProfile: PropTypes.func,
 }

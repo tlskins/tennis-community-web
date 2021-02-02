@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 
 import { SignOut } from "../behavior/coordinators/users"
+import { getUserIcon } from "../behavior/users"
 import LoginForm from "./LoginForm"
 import Modal from "./Modal"
 
@@ -58,10 +59,15 @@ const NavBar = ({ user, showNewUser, signOut }) => {
             </div>
           </DropdownLink>
           <Link href="/friends">Friends</Link>
+          <DropdownLink>
+            <Link href="/profile">Profile</Link>
+            <div className="dropdown-container">
+              <a href="#" onClick={ onSignOut }>Sign Out</a>
+            </div>
+          </DropdownLink>
           { user.isAdmin &&
             <Link href="/admin">Admin</Link>
           }
-          <a href="#" onClick={ onSignOut }>Sign Out</a>
         </LinksContainer>
       }
     </NavigationBar>

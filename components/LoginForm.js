@@ -68,7 +68,7 @@ const LoginForm = ({
     const success = await signIn({ email, password })
     if (success) {
       clearForm()
-      router.push("/albums")
+      router.push("/profile")
     }
   }
 

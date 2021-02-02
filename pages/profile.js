@@ -29,28 +29,18 @@ const Profile = ({
 }) => {
   const router = useRouter()
 
-  useEffect(() => {
-    if (!user || !user.id) {
-      router.push("/")
-    }
-  }, [user])
-
-  if (!user) {
-    return(<Fragment/>)
-  }
-
   const [showHowTo, setShowHowTo] = useState(albums?.myAlbums?.length === 0)
   const [hoverUpload, setHoverUpload] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
-  const [email, setEmail] = useState(user.email)
-  const [userName, setUserName] = useState(user.userName)
-  const [firstName, setFirstName] = useState(user.firstName)
-  const [lastName, setLastName] = useState(user.lastName)
-  const [iconNumber, setIconNumber] = useState(user.iconNumber)
-  const [isPublic, setIsPublic] = useState(user.isPublic)
-  const [birthYear, setBirthYear] = useState(user.birthYear)
-  const [gender, setGender] = useState(user.gender)
-  const [ustaLevel, setUstaLevel] = useState(user.ustaLevel)
+  const [email, setEmail] = useState(user?.email)
+  const [userName, setUserName] = useState(user?.userName)
+  const [firstName, setFirstName] = useState(user?.firstName)
+  const [lastName, setLastName] = useState(user?.lastName)
+  const [iconNumber, setIconNumber] = useState(user?.iconNumber)
+  const [isPublic, setIsPublic] = useState(user?.isPublic)
+  const [birthYear, setBirthYear] = useState(user?.birthYear)
+  const [gender, setGender] = useState(user?.gender)
+  const [ustaLevel, setUstaLevel] = useState(user?.ustaLevel)
 
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
@@ -63,14 +53,18 @@ const Profile = ({
   const myActiveAlbums = albums?.myAlbums?.slice(myAlbumsPage * albumsPerColumn, (myAlbumsPage+1) * albumsPerColumn).filter( a => !!a ) || []
 
   useEffect(() => {
+    if (!user || !user?.id) {
+      router.push("/")
+    }
+  }, [user])
+
+  useEffect(() => {
     loadAlbums()
   }, [])
 
   useEffect(() => {
     setShowHowTo(albums?.myAlbums?.length === 0)
   }, [albums?.myAlbums])
-
-  console.log("myActiveAlbums", myActiveAlbums)
 
   useEffect(() => {
     setPlayerRefs(ref => myActiveAlbums.map((_, i) => ref[i] || createRef()))
@@ -79,7 +73,7 @@ const Profile = ({
     setCurrentSwings(myActiveAlbums.map(() => 0))
     setCurrentComments(myActiveAlbums.map(album => {
       let comments = [...(album.comments || []), ...(album.swingVideos.map(swing => (swing.comments || [])).flat())]
-      comments = comments.filter( comment => comment.userId !== user.id )
+      comments = comments.filter( comment => comment.userId !== user?.id )
       comments = comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
       return comments.slice(0,3).filter( c => !!c )
     }))
@@ -222,6 +216,10 @@ const Profile = ({
     )
   }
 
+  if (!user) {
+    return(<Fragment/>)
+  }
+
   return (
     <div className="flex flex-col h-screen min-h-screen">
       { (user && user.id) &&
@@ -298,7 +296,7 @@ const Profile = ({
                 <h2 className="font-bold text-lg text-center tracking-wider mb-1">
                 Profile
                 </h2>
-                <p className="text-center text-xs tracking-widest underline">Member since { Moment(user.createdAt).format("LLL") }</p>
+                <p className="text-center text-xs tracking-widest underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
                 <img src={hoverUploadButton ? uploadBlue : uploadYellow}
                   className="w-10 h-8 relative -top-8 cursor-pointer"
                   onMouseEnter={() => {
@@ -469,7 +467,7 @@ const Profile = ({
                     <div className="flex flex-col w-2/5 content-center text-center py-4">
 
                       <div className="flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
-                        { album.userId === user.id && 
+                        { album.userId === user?.id && 
                           <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">owner</div>
                         }
                         { album.isPublic && 

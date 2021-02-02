@@ -3,15 +3,28 @@ import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import Moment from "moment"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 
 import { newNotification } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
+import Sidebar from "../../components/Sidebar"
 import { LoadAlbums, DeleteAlbum, FlagAlbum } from "../../behavior/coordinators/albums"
 import speechBubble from "../../public/speech-bubble.svg"
 import flag from "../../public/flag.svg"
+import { GrSearch, GrFormClose } from 'react-icons/gr'
+
+import {
+  DateContainer,
+  DatePickerContainer,
+  LinkButton,
+  SearchBox,
+  SearchBoxContainer,
+} from "../../styles/styled-components"
+
+
 
 const SWING_FRAMES = 60
 const albumsPerRow = 3
@@ -88,7 +101,7 @@ const AlbumsIndex = ({
         <ReactPlayer
           className="rounded-md overflow-hidden"
           ref={ref}
-          url={swing.videoURL} 
+          url={swing.videoURL}
           playing={playing}
           pip={pip}
           volume={0}
@@ -160,7 +173,7 @@ const AlbumsIndex = ({
               }}
             />
           }
-          
+
           {/* Seek */}
           <input
             type='range'
@@ -194,7 +207,7 @@ const AlbumsIndex = ({
               />
             </div>
           }
-          
+
         </div>
       </Fragment>
     )
@@ -243,63 +256,46 @@ const AlbumsIndex = ({
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll border-r border-gray-400">
-          <div className="flex flex-col content-center justify-center items-center text-sm">
+        <Sidebar>
+          <LinkButton>
+            <Link href="/albums/new">Create New Album</Link>
+          </LinkButton>
+          <div style={{ height: '30px', width: '100%' }}/>
+          <SearchBoxContainer>
+            <SearchBox
+              placeholder="Search Albums"
+              value={search}
+              onChange={onSearch}
+            />
+            <GrSearch/>
+          </SearchBoxContainer>
 
-            <h2 className="text-blue-400 underline mb-2">
-                Search Albums
-            </h2>
-            <div className="mb-2 flex flex-col">
-              <input type="text"
-                placeholder="search"
-                className="rounded border border-gray-400 m-1 p-1 text-center shadow"
-                value={search}
-                onChange={onSearch}
+          <DateContainer>
+            <p className="date-label">Upload Date (Start)</p>
+            <DatePickerContainer>
+              <DatePicker
+                selected={startDate}
+                onChange={date => setStartDate(date)}
               />
-            </div>
-            <div className="flex flex-row">
-              <div className="flex flex-col mx-1">
-                <div className="flex flex-row m-0.5">
-                  <p className="text-center text-gray-400">
-                  Start
-                  </p>
-                  { startDate &&
-                    <input type='button'
-                      className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                      onClick={() => setStartDate(undefined)}
-                      value="x"
-                    />
-                  }
-                </div>
+              { startDate &&
+                <GrFormClose onClick={() => setStartDate(undefined)}/>
+              }
+            </DatePickerContainer>
+            </DateContainer>
+            <div style={{ height: '20px', width: '100%' }}/>
+            <DateContainer>
+              <p className="date-label">Upload Date (End)</p>
+              <DatePickerContainer>
                 <DatePicker
-                  className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow"
-                  selected={startDate}
-                  onChange={date => setStartDate(date)}
-                />
-              </div>
-              <div className="flex flex-col mx-1">
-                <div className="flex flex-row m-0.5">
-                  <p className="text-center text-gray-400">
-                    End
-                  </p>
-                  { endDate &&
-                    <input type='button'
-                      className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                      onClick={() => setEndDate(undefined)}
-                      value="x"
-                    />
-                  }
-                </div>
-                <DatePicker
-                  className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow z-100"
                   selected={endDate}
                   onChange={date => setEndDate(date)}
                 />
-              </div>
-            </div>
-            
-          </div>
-        </div>
+                { endDate &&
+                  <GrFormClose onClick={() => setEndDate(undefined)}/>
+                }
+              </DatePickerContainer>
+            </DateContainer>
+        </Sidebar>
 
         {/* End Sidebar */}
 
@@ -376,17 +372,17 @@ const AlbumsIndex = ({
                           Confirm?
                         </button>
                       }
-                  
+
                       <p className="font-semibold text-blue-700 underline cursor-pointer"
                         onClick={() => router.push(`/albums/${album.id}`)}
                       >
                         { album.name }
                       </p>
                       <p>
-                        <span className="font-semibold text-xs"> Created: </span> 
+                        <span className="font-semibold text-xs"> Created: </span>
                         <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
                       </p>
-                      { 
+                      {
                         renderVideo({
                           album,
                           swing: album.swingVideos[0],
@@ -446,10 +442,10 @@ const AlbumsIndex = ({
                         { album.name }
                       </p>
                       <p>
-                        <span className="font-semibold text-xs"> Created: </span> 
+                        <span className="font-semibold text-xs"> Created: </span>
                         <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
                       </p>
-                      { 
+                      {
                         renderVideo({
                           album,
                           swing: album.swingVideos[0],
@@ -509,10 +505,10 @@ const AlbumsIndex = ({
                       { album.name }
                     </p>
                     <p>
-                      <span className="font-semibold text-xs"> Created: </span> 
+                      <span className="font-semibold text-xs"> Created: </span>
                       <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
                     </p>
-                    { 
+                    {
                       renderVideo({
                         album,
                         swing: album.swingVideos[0],
@@ -529,7 +525,7 @@ const AlbumsIndex = ({
               })}
             </div>
           </div>
-          
+
         </div>
         {/* End Album Videos */}
       </main>
@@ -555,7 +551,7 @@ const mapDispatchToProps = (dispatch) => {
 
   }
 }
-  
+
 AlbumsIndex.propTypes = {
   albums: PropTypes.object,
   user: PropTypes.object,

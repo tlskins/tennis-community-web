@@ -150,8 +150,6 @@ const Profile = ({
     return(<Fragment/>)
   }
 
-  console.log("playerRefs", playerRefs)
-
   return (
     <div className="flex flex-col h-screen min-h-screen">
       { (user && user.id) &&
@@ -220,12 +218,12 @@ const Profile = ({
             </div>
           }
 
-          <div className="grid grid-cols-3 gap-6 content-center justify-center items-start">
+          <div className="grid grid-cols-3 gap-6">
                 
             {/* Main */}
             <div className="flex flex-col col-span-2">
               {/* Profile */}
-              <div className="pt-6 pb-20 px-10 bg-white rounded shadow-lg content-center justify-center items-center static mb-6">
+              <div className="pt-6 pb-20 px-10 bg-white rounded shadow-lg static mb-6">
                 <div className="w-full">
                   <h2 className="font-bold text-lg text-center tracking-wider mb-1">
                   Profile
@@ -277,10 +275,9 @@ const Profile = ({
                   <div className="flex flex-col">
                     <div className="flex flex-row rounded-md px-2 py-1 w-40">
                       <input type="text"
-                        className="w-40 px-1 rounded-md bg-gray-300 border border-gray-400 shadow-md"
+                        className="w-40 px-1 rounded-md"
                         value={email}
                         disabled={true}
-                      // onChange={e => setEmail(e.target.value)}
                       />
                     </div>
                     <div className="flex flex-row rounded-md px-2 py-1 w-40">
@@ -309,10 +306,10 @@ const Profile = ({
                 </div>
 
                 {/* Expanded Profile */}
-                <p className="text-left align-center px-2 py-1 float-right rounded-md tracking-wide text-sm text-gray-700 text-center">
-                This profile data helps us connect you with other tennis players and relevant topics
+                <p className="align-center px-2 py-1 rounded-md tracking-wide text-sm text-gray-700 text-center">
+                  This profile data helps us connect you with other tennis players and relevant topics
                 </p>
-                <div className="grid grid-cols-2 gap-4 rounded-lg shadow-md border border-gray-400 py-4 w-3/4">
+                <div className="grid grid-cols-2 gap-4 rounded-lg shadow-md border border-gray-400 py-4">
                   <div className="flex flex-col content-center justify-center items-end">
                     <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Public?</p>
                     <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Birth Year</p>

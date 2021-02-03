@@ -10,16 +10,28 @@ import Notifications from "../../../../components/Notifications"
 import ProComparison from "../../../../components/ProComparison"
 import VideoResources from "../../../../components/VideoResources"
 import { getUserIcon, getUserType } from "../../../../behavior/users"
-import { LoadAlbum, PostComment, FlagComment } from "../../../../behavior/coordinators/albums"
+import { LoadAlbum, PostComment, FlagComment, UpdateSwing } from "../../../../behavior/coordinators/albums"
 import { SearchFriends } from "../../../../behavior/coordinators/friends"
 import speechBubble from "../../../../public/speech-bubble.svg"
 import flag from "../../../../public/flag.svg"
+import pencil from "../../../../public/pencil.svg"
 
 
 const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 50
 let commentsCache = {}
 let posting = false
+let timer
+
+const executeAfterTimeout = (func, timeout) => {
+  if ( timer ) {
+    clearTimeout( timer )
+  }
+  timer = undefined
+  timer = setTimeout(() => {
+    func()
+  }, timeout )
+}
 
 const Album = ({
   album,
@@ -31,10 +43,15 @@ const Album = ({
   postComment,
   searchFriends,
   toggleFlashMessage,
+  updateSwing,
 }) => {
   const router = useRouter()
   const albumId = router.query.albumid
   const swingId = router.query.id && router.query.id[0]
+  const swingVideos = album?.swingVideos || []
+  const swing = swingVideos.find( sw => sw.id === swingId )
+
+  const [name, setName] = useState(swing?.name)
 
   const [playing, setPlaying] = useState(true)
   const [playerRef, setPlayerRef] = useState(undefined)
@@ -50,8 +67,6 @@ const Album = ({
   const [activeSideBar, setActiveSidebar] = useState("Pro Comparison")
   const [expandedSideBar, setExpandedSideBar] = useState(false)
 
-  const swingVideos = album?.swingVideos || []
-  const swing = swingVideos.find( sw => sw.id === swingId )
 
   useEffect(() => {
     if (albumId && (!album || album.id !== albumId)) {
@@ -66,7 +81,10 @@ const Album = ({
   }, [album?.id])
 
   useEffect(() => {
-    setComments(swing?.comments || [])
+    if (swing) {
+      setComments(swing.comments || [])
+      setName(swing.name)
+    }
   }, [swing])
 
   useEffect(() => {
@@ -105,9 +123,15 @@ const Album = ({
       return
     }
     const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
-    console.log("seekto", seekTo, frame)
     playerRef.current.seekTo(seekTo)
     setPlayerFrame(frame)
+  }
+
+  const onUpdateSwingName = e => {
+    setName(e.target.value)
+    executeAfterTimeout(() => {
+      updateSwing({ ...swing, albumId: album.id, name: e.target.value })
+    }, 700)
   }
 
   const onPostComment = async () => {
@@ -130,7 +154,7 @@ const Album = ({
   const onFlagComment = comment => () => {
     toggleFlashMessage({
       id: comment.id,
-      message: `Flag Comment: "${comment.text}"?`,
+      message: `Flag Comment: "${comment.text}" as inappropriate?`,
       buttons: [
         {
           buttonText: "Confirm",
@@ -353,6 +377,21 @@ const Album = ({
             >
               back to album
             </a>
+
+            <div className="mb-2 flex content-center justify-center items-center">
+              <div className="flex flex-row content-center justify-center items-center relative">
+                <input type="text"
+                  className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
+                  value={name}
+                  onChange={onUpdateSwingName}
+                  disabled={!user || user.id !== album?.userId}
+                />
+                { (user && user.id === album?.userId) &&
+                  <img src={pencil} className="w-4 h-4 absolute right-2"/>
+                }
+              </div>
+            </div>
+          
             <div className="mt-4">
               {
                 renderVideo({
@@ -568,6 +607,7 @@ const mapDispatchToProps = (dispatch) => {
     postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
     toggleFlashMessage: args => dispatch(newNotification(args)),
+    updateSwing: UpdateSwing(dispatch),
   }
 }
   
@@ -581,6 +621,7 @@ Album.propTypes = {
   postComment: PropTypes.func,
   searchFriends: PropTypes.func,
   toggleFlashMessage: PropTypes.func,
+  updateSwing: PropTypes.func,
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Album)

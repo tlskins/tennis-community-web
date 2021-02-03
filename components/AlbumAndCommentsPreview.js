@@ -28,14 +28,19 @@ const AlbumAndCommentsPreview = ({
   return(
     <div key={album.id} className="flex flex-row bg-gray-100 mb-6 p-2 border-2 border-gray-200 rounded-lg shadow-md w-full">
       <div className="flex flex-col w-3/5 content-center justify-center items-center pr-1">
-        <p href={`/albums/${album.id}`}
+        <a href={`/albums/${album.id}`}
           className="flex text-xs font-semibold text-blue-400 text-center underline mb-1 px-2 cursor-pointer"
         >
           {album.name}
-        </p>
+        </a>
 
         {/* Video Player */}
         <Fragment>
+          <a href={`/albums/${album.id}/swings/${album.swingVideos[swingIdx]?.id}`}
+            className="flex text-xs font-semibold text-blue-400 text-center underline mb-1 px-2 cursor-pointer"
+          >
+            swing: {album.swingVideos[swingIdx]?.name}
+          </a>
           <ReactPlayer
             className="rounded-md overflow-hidden"
             ref={playerRef}

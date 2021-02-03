@@ -207,7 +207,7 @@ const Album = ({
   const onFlagComment = comment => () => {
     toggleFlashMessage({
       id: comment.id,
-      message: `Flag Comment: "${comment.text}"?`,
+      message: `Flag Comment: "${comment.text}" as inappropriate?`,
       buttons: [
         {
           buttonText: "Confirm",

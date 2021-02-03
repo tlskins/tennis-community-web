@@ -84,7 +84,20 @@ export const UpdateAlbum = (dispatch) => async (album, shareAlbum = false) => {
   try {
     const response = await put(`/albums/${album.id}`, { ...album, shareAlbum })
     dispatch(setAlbum(response.data))
-    dispatch(newNotification({ message: `Album ${album.name} updated!` }))
+    dispatch(newNotification({ message: `Album "${album.name}" updated!` }))
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+  return true
+}
+
+export const UpdateSwing = (dispatch) => async (data) => {
+  try {
+    const response = await put("/albums/swings", data)
+    dispatch(setAlbum(response.data))
+    dispatch(newNotification({ message: `Swing "${data.name}" updated!` }))
   }
   catch( err ) {
     HandleError(dispatch, err)

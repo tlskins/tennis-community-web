@@ -174,7 +174,7 @@ const AlbumsIndex = ({
   const onFlagAlbum = album => () => {
     toggleFlashMessage({
       id: album.id,
-      message: `Flag Album: "${album.name}"?`,
+      message: `Flag Album: "${album.name}" as inappropriate?`,
       buttons: [
         {
           buttonText: "Confirm",
@@ -372,11 +372,26 @@ const AlbumsIndex = ({
                         </button>
                         }
 
-                        <p className="font-semibold text-blue-700 underline cursor-pointer"
-                          onClick={() => router.push(`/albums/${album.id}`)}
-                        >
-                          { album.name }
-                        </p>
+                        <div className="flex flex row">
+                          <p className="font-semibold text-blue-700 underline cursor-pointer"
+                            onClick={() => router.push(`/albums/${album.id}`)}
+                          >
+                            { album.name }
+                          </p>
+
+                          { (user && album.userId != user.id) &&
+                            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100 tooltip">
+                              <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 w-32 border border-yellow-300 -mt-11 -ml-28 rounded'>
+                                flag inappropriate album
+                              </span>
+                              <img src={flag}
+                                className="w-4 h-4 cursor-pointer"
+                                onClick={onFlagAlbum(album)}
+                              />
+                            </div>
+                          }
+                        </div>
+
                         <p>
                           <span className="font-semibold text-xs"> Created: </span>
                           <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>

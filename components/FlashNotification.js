@@ -19,7 +19,7 @@ import { removeNotification } from "../state/ui/action"
 
 const FlashNotif = ({ notifications, onRemoveNotification }) => {
   return (
-    <div className="fixed absolute right-2 w-1/2 z-10 ml-12 mt-2 flex flex-col space-y-6 items-start">
+    <div className="fixed absolute right-2 w-1/2 z-50 ml-12 mt-2 flex flex-col space-y-6 items-start">
       { (notifications || []).map( ({ id, bgColor, message, buttons }, i) => {
         if (!bgColor) {
           bgColor = "bg-yellow-300"
@@ -29,9 +29,9 @@ const FlashNotif = ({ notifications, onRemoveNotification }) => {
             onClick={ () => onRemoveNotification(id) }
             className={ `${ bgColor } w-full shadow-md rounded-xl justify-between text-center flex px-3 py-2 text-gray-700 border border-white rounded text-lg` }
           >
-            <div className="flex flex-col items-center w-full pt-3 tracking-wide font-bold">
+            <div className="flex flex-col items-center w-full py-6 tracking-wide font-bold">
               <p id="notif_message px-3">{ message }</p>
-              <div className="flex flex-row">
+              <div className="flex flex-row px-5">
                 { (buttons || []).map( ({ callback, buttonText }, i) => {
                   return(
                     <button key={i}

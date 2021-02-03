@@ -79,16 +79,6 @@ const Admin = ({
     break
   }
 
-  useEffect(() => {
-    if (!user || !user.id || !user.isAdmin) {
-      router.push("/")
-    }
-  }, [user])
-
-  if (!user) {
-    return(<Fragment/>)
-  }
-
   useEffect(async () => {
     if (activeSideBar === "Recent Albums" && start && end) {
       const albums = await getRecentAlbums({ start, end, limit: ALBUMS_LIMIT, offset: page*ALBUMS_LIMIT })
@@ -166,6 +156,16 @@ const Admin = ({
       const albums = await getRecentAlbums({ start, end, limit: ALBUMS_LIMIT, offset: page*ALBUMS_LIMIT })
       setRecentAlbums(albums)
     }
+  }
+
+  useEffect(() => {
+    if (!user || !user.id || !user.isAdmin) {
+      router.push("/")
+    }
+  }, [user])
+
+  if (!user) {
+    return(<Fragment/>)
   }
 
   return (

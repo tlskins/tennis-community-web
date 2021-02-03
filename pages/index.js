@@ -5,7 +5,7 @@ import ReactPlayer from "react-player"
 import { useRouter } from "next/router"
 import Moment from "moment"
 
-import { LoadAlbums } from "../behavior/coordinators/albums"
+import { LoadPublicAlbums } from "../behavior/coordinators/albums"
 import { toggleShowNewUser } from "../state/ui/action"
 
 import bg from "../public/homepage-bg.jpg"
@@ -35,29 +35,26 @@ import {
 } from "../styles/styled-components"
 
 const SWING_FRAMES = 60
-const albumsPerRow = 3
 
-const Index = ({ albums, loadAlbums, onShowNewUser }) => {
+const Index = ({ publicAlbums, loadPublicAlbums, onShowNewUser }) => {
   const router = useRouter()
 
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
-  const [pips, setPips] = useState([]) // Picture in picture for each player
-  const publicActiveAlbums = albums?.publicAlbums.slice(0, albumsPerRow).filter( a => !!a ) || []
+  const [pips, setPips] = useState([])
 
   useEffect(() => {
-    loadAlbums(true)
+    loadPublicAlbums({ homeApproved: true, limit: 3 })
   }, [])
 
   useEffect(() => {
-    if (albums?.publicAlbums) {
-      const activeAlbums = [...publicActiveAlbums]
-      setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
-      setPlayings(activeAlbums.map(() => true))
-      setPips(activeAlbums.map(() => false))
+    if (publicAlbums.length > 0) {
+      setPlayerRefs(ref => publicAlbums.map((_, i) => ref[i] || createRef()))
+      setPlayings(publicAlbums.map(() => true))
+      setPips(publicAlbums.map(() => false))
     }
-  }, [albums?.publicAlbums])
+  }, [publicAlbums])
 
   const handleSeekChange = (playerRef, i) => e => {
     const frame = parseFloat(e.target.value)
@@ -186,7 +183,7 @@ const Index = ({ albums, loadAlbums, onShowNewUser }) => {
     <div>
       <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>
-          <HeaderTitle>Clip every swing from your tennis videos!</HeaderTitle>
+          <HeaderTitle>Export every swing from your tennis videos!</HeaderTitle>
           <HeaderTitle>Analyze & get feedback from the community!</HeaderTitle>
           <CTAButton onClick={onShowNewUser}>
             Get Started
@@ -197,18 +194,23 @@ const Index = ({ albums, loadAlbums, onShowNewUser }) => {
         <IconSection>
           <IconContainer>
             <img src={ camera }/>
+            <h3>Record Tennis Playing</h3>
+            <p>Record videos of yourself playing tennis with your mobile phone.</p>
+          </IconContainer>
+          <IconContainer>
+            <img src={ camera }/>
             <h3>Upload Videos</h3>
-            <p>Upload videos of yourself playing tennis and automatically have all swings exported with our AI.</p>
+            <p>Upload videos and automatically have all swings exported with our AI into an Album.</p>
           </IconContainer>
           <IconContainer>
             <img src={ racket }/>
             <h3>Analyze Swings</h3>
-            <p>Watch your swings on our state of the art video analysis platform and compare your swings frame by frame with the pros.</p>
+            <p>Use our Swing Analysis platform to slow down & analyze your swings frame by frame against the pros!</p>
           </IconContainer>
           <IconContainer>
             <img src={ speech }/>
             <h3>Get Feedback</h3>
-            <p>Share your swings with friends, coaches, or the community to get frame by frame feedback on your swings.</p>
+            <p>Share your Albums with friends, coaches, or the community to get frame by frame feedback on your swings!</p>
           </IconContainer>
         </IconSection>
       </Section>
@@ -232,7 +234,7 @@ const Index = ({ albums, loadAlbums, onShowNewUser }) => {
               Latest Community Uploads
               </h2>
               <div className="flex flex-row">
-                { publicActiveAlbums.map( (album, idx) => {
+                { publicAlbums.map( (album, idx) => {
                   return (
                     <div key={idx}
                       className="flex flex-col content-center justify-center items-center hover:bg-green-200 rounded-md p-2 mr-2"
@@ -278,21 +280,21 @@ const Index = ({ albums, loadAlbums, onShowNewUser }) => {
 
 const mapStateToProps = (state) => {
   return {
-    albums: state.albums,
+    publicAlbums: state.albums.publicAlbums,
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    loadAlbums: LoadAlbums(dispatch),
+    loadPublicAlbums: LoadPublicAlbums(dispatch),
     onShowNewUser: () => dispatch(toggleShowNewUser()),
   }
 }
   
 Index.propTypes = {
-  albums: PropTypes.object,
+  publicAlbums: PropTypes.arrayOf(PropTypes.object),
 
-  loadAlbums: PropTypes.func,
+  loadPublicAlbums: PropTypes.func,
   onShowNewUser: PropTypes.func,
 }
 

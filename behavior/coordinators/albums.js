@@ -2,20 +2,54 @@ import { get, put, post, del } from "../api/rest"
 import { setAlbum } from "../../state/album/action"
 import { HandleError } from "./errors"
 import { newNotification } from "../../state/ui/action"
-import { setAlbums } from "../../state/album/action"
+import { setMyAlbums, setFriendsAlbums, setSharedAlbums, setPublicAlbums } from "../../state/album/action"
 
 
-export const LoadAlbums = (dispatch) => async (homeApproved = undefined) => {
+export const LoadMyAlbums = (dispatch) => async ({ limit, offset } = {}) => {
   try {
-    const params = {}
+    const response = await put("/albums/search", { my: true, limit, offset })
+    dispatch(setMyAlbums(response.data))
+    return true
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+}
 
+export const LoadFriendsAlbums = (dispatch) => async ({ limit, offset } = {}) => {
+  try {
+    const response = await put("/albums/search", { friends: true, limit, offset })
+    dispatch(setFriendsAlbums(response.data))
+    return true
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+}
+
+export const LoadSharedAlbums = (dispatch) => async ({ limit, offset } = {}) => {
+  try {
+    const response = await put("/albums/search", { shared: true, limit, offset })
+    dispatch(setSharedAlbums(response.data))
+    return true
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+}
+
+export const LoadPublicAlbums = (dispatch) => async ({ homeApproved, limit, offset } = {}) => {
+  try {
+    const params = { isPublic: true, limit, offset }
     if (homeApproved != null) {
       params.homeApproved = homeApproved
     }
-  
-    const response = await get("/albums", params)
-    dispatch(setAlbums(response.data))
-    return response.data
+    const response = await put("/albums/search", params)
+    dispatch(setPublicAlbums(response.data))
+    return true
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -38,8 +72,6 @@ export const LoadAlbum = (dispatch) => async (albumId) => {
 export const DeleteAlbum = (dispatch) => async (albumId) => {
   try {
     await del(`/albums/${albumId}`)
-    const response = await get("/albums")
-    dispatch(setAlbums(response.data))
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -52,10 +84,20 @@ export const UpdateAlbum = (dispatch) => async (album, shareAlbum = false) => {
   try {
     const response = await put(`/albums/${album.id}`, { ...album, shareAlbum })
     dispatch(setAlbum(response.data))
-    dispatch(newNotification({
-      alertType: "success",
-      message: `Album ${album.name} updated!`,
-    }))
+    dispatch(newNotification({ message: `Album "${album.name}" updated!` }))
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+  return true
+}
+
+export const UpdateSwing = (dispatch) => async (data) => {
+  try {
+    const response = await put("/albums/swings", data)
+    dispatch(setAlbum(response.data))
+    dispatch(newNotification({ message: `Swing "${data.name}" updated!` }))
   }
   catch( err ) {
     HandleError(dispatch, err)

@@ -13,6 +13,12 @@ export const NavigationBar = styled.nav`
   color: ${ props => props.theme.gray800 };
 `
 
+export const LinkClass = styled.div`
+  a {
+    font-family: ${ props => props.active ? 'black' : 'regular' };
+  }
+`
+
 export const DropdownLink = styled.div`
   position: relative;
   height: 100%;

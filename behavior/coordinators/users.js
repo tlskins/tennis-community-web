@@ -14,6 +14,18 @@ export const CreateUser = (dispatch) => async ({ firstName, lastName, email, pas
   return true
 }
 
+export const UpdateUserProfile = (dispatch) => async updates => {
+  try {
+    const response = await put("/users/profile", updates)
+    dispatch(setUser(response.data))
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+  return true
+}
+
 export const SignIn = (dispatch) => async ({ email, password }) => {
   try {
     const response = await post("/users/sign_in", { email, password })

@@ -26,36 +26,48 @@ body {
 
 /* font weight 100 */
 @font-face {
- font-family: 'thin';
- src: url('./fonts/Roboto-Thin.ttf');
+  font-family: "thin";
+  src: url("./fonts/Roboto-Thin.ttf");
 }
 
 /* font weight 300 */
 @font-face {
- font-family: 'light';
- src: url('./fonts/Roboto-Light.ttf');
+  font-family: "light";
+  src: url("./fonts/Roboto-Light.ttf");
 }
 
 /* font weight 400 */
 @font-face {
- font-family: 'regular';
- src: url('./fonts/Roboto-Regular.ttf');
+  font-family: "regular";
+  src: url("./fonts/Roboto-Regular.ttf");
 }
 
 /* font weight 500 */
 @font-face {
- font-family: 'medium';
- src: url('./fonts/Roboto-Medium.ttf');
+  font-family: "medium";
+  src: url("./fonts/Roboto-Medium.ttf");
 }
 
 /* font weight 700 */
 @font-face {
- font-family: 'bold';
- src: url('./fonts/Roboto-Bold.ttf');
+  font-family: "bold";
+  src: url("./fonts/Roboto-Bold.ttf");
 }
 
 /* font weight 900 */
 @font-face {
- font-family: 'black';
- src: url('./fonts/Roboto-Black.ttf');
+  font-family: "black";
+  src: url("./fonts/Roboto-Black.ttf");
+}
+
+/* tooltips */
+.tooltip .tooltip-text {
+  visibility: hidden;
+  text-align: center;
+  padding: 2px 6px;
+  position: absolute;
+  z-index: 100;
+}
+.tooltip:hover .tooltip-text {
+  visibility: visible;
 }

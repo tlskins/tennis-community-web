@@ -3,8 +3,10 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment-timezone"
 import { useRouter } from "next/router"
+import { GrSearch, GrFormClose } from "react-icons/gr"
 
 import Notifications from "../components/Notifications"
+import Sidebar from "../components/Sidebar"
 import {
   SearchFriends,
   SendFriendRequest,
@@ -14,12 +16,20 @@ import {
 import { LoadUser } from "../behavior/coordinators/users"
 import { newNotification } from "../state/ui/action"
 
+import {
+  SearchBox,
+  SearchBoxContainer,
+  UserResultBox,
+} from "../styles/styled-components"
+
+
+
 let timer
 
 const Friends = ({
   user,
   usersCache,
-  
+
   acceptFriendRequest,
   loadUser,
   searchFriends,
@@ -36,23 +46,13 @@ const Friends = ({
   const displayUser = usersCache[displayUserId]
 
   useEffect(() => {
-    if (!user || !user.id) {
-      router.push("/")
-    }
-  }, [user])
-
-  if (!user) {
-    return(<Fragment/>)
-  }
-
-  useEffect(() => {
     if (user.friendRequests.length > 0 || user.friendIds.length > 0) {
       let ids = user.friendRequests.map( r => r.fromUserId === user.id ? r.toUserId : r.fromUserId)
       ids = ids.filter( id => !usersCache[id])
       searchFriends({ ids: [ ...ids, ...user.friendIds] })
     }
   }, [user.friendRequests, user.friendIds])
-  
+
   useEffect(() => {
     if (user.friendRequests.length > 0 || user.friendIds.length > 0) {
       let ids = user.friendRequests.map( r => r.fromUserId === user.id ? r.toUserId : r.fromUserId)
@@ -86,32 +86,33 @@ const Friends = ({
 
   const onSendFriendRequest = ({ id, userName }) => async () => {
     if (await sendFriendRequest({ id })) {
-      displayAlert({
-        alertType: "success",
-        message: `Friend request sent to ${userName}`,
-      })
+      displayAlert({ message: `Friend request sent to ${userName}` })
       loadUser()
     }
   }
 
   const onAcceptFriendRequest = (requestId, accept) => async () => {
     if (await acceptFriendRequest({ requestId, accept })) {
-      displayAlert({
-        alertType: "success",
-        message: "Friend request accepted",
-      })
+      displayAlert({ message: "Friend request accepted" })
     }
   }
 
   const onUnfriend = (friendId, friendName) => async () => {
     if (await unfriend({ friendId })) {
       loadUser()
-      displayAlert({
-        alertType: "success",
-        message: `Unfriended ${friendName}`,
-      })
+      displayAlert({ message: `Unfriended ${friendName}` })
     }
-  } 
+  }
+
+  useEffect(() => {
+    if (!user || !user.id) {
+      router.push("/")
+    }
+  }, [user])
+
+  if (!user) {
+    return(<Fragment/>)
+  }
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -122,48 +123,37 @@ const Friends = ({
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll border-r border-gray-400">
-          <div className="flex flex-col content-center justify-center items-center text-sm">
+        <Sidebar>
 
-            {/* Search Users Sidebar */}
-            <Fragment>
-              <h2 className="text-blue-400 underline mb-2">
-                Search Users
-              </h2>
-              <div className="mb-2 flex flex-col">
-                <input type="text"
-                  placeholder="search"
-                  className="rounded border border-gray-400 m-1 p-1 text-center shadow"
-                  value={search}
-                  onChange={onSearchUsers}
-                />
-                <div>
-                  { foundUsers.map(({ id, userName, firstName, lastName }, i) => {
-                    const isFriend = user.friendIds.includes(id)
-                    const isRequested = user.friendRequests.find( req => req.toUserId === id || req.fromUserId === id )
-                    return(
-                      <div key={i}
-                        className="rounded border border-gray my-1 p-1 bg-gray-200 hover:bg-indigo-200 cursor-pointer flex content-center justify-center items-center"
-                      >
-                        <div className="flex flex-col">
-                          <p className="text-center text-blue-800 text-sm underline">@{ userName }</p>
-                          <p className="text-center text-xs">{ firstName } {lastName}</p>
-                        </div>
-                        { (!isFriend && !isRequested && id !== user.id) &&
-                            <button className="rounded border border-black bg-green-200 p-1 ml-2 text-xs"
-                              onClick={onSendFriendRequest({ id, userName })}
-                            >
-                              Request
-                            </button>
-                        }
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            </Fragment>
-          </div>
-        </div>
+          {/* Search Users Sidebar */}
+          <Fragment>
+            <SearchBoxContainer>
+              <SearchBox
+                placeholder="Search Users"
+                value={search}
+                onChange={onSearchUsers}
+              />
+              <GrSearch/>
+            </SearchBoxContainer>
+            { foundUsers.map(({ id, userName, firstName, lastName }, i) => {
+              const isFriend = user.friendIds.includes(id)
+              const isRequested = user.friendRequests.find( req => req.toUserId === id || req.fromUserId === id )
+              return(
+                <UserResultBox key={i}>
+                  <p className="username">@{ userName }</p>
+                  <p className="fullname">{ firstName } {lastName}</p>
+                  { (!isFriend && !isRequested && id !== user.id) &&
+                        <button
+                          onClick={onSendFriendRequest({ id, userName })}
+                        >
+                          Request
+                        </button>
+                  }
+                </UserResultBox>
+              )
+            })}
+          </Fragment>
+        </Sidebar>
 
         {/* End Sidebar */}
 
@@ -172,7 +162,7 @@ const Friends = ({
         <div className="p-4 flex flex-col flex-wrap w-4/5 bg-gray-100">
           { displayUser &&
             <div className="p-4 mb-4 bg-white rounded shadow-md">
-              <h2> 
+              <h2>
                 <span className="font-semibold mr-1">Username:</span>
                 { displayUser.userName }
               </h2>
@@ -276,7 +266,7 @@ const Friends = ({
                           { cache ? cache.userName : "..." } ({ cache ? `${cache.firstName} ${cache.lastName}` : "..." })
                         </span>
                       </div>
-                    
+
                       { activeFriendReq === friendId &&
                         <div className="flex flex-row">
                           <button className="rounded ml-2 px-2 py-0.5 underline bg-red-400 cursor-pointer"
@@ -314,13 +304,10 @@ const mapDispatchToProps = (dispatch) => {
     acceptFriendRequest: AcceptFriendRequest(dispatch),
     loadUser: LoadUser(dispatch),
     unfriend: Unfriend(dispatch),
-    displayAlert: ({ alertType, message }) => dispatch(newNotification({
-      alertType,
-      message,
-    }))
+    displayAlert: args => dispatch(newNotification(args))
   }
 }
-  
+
 Friends.propTypes = {
   user: PropTypes.object,
   usersCache: PropTypes.object,

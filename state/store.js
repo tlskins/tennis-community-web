@@ -2,10 +2,25 @@ import { createStore, applyMiddleware, combineReducers } from "redux"
 import { HYDRATE, createWrapper } from "next-redux-wrapper"
 import thunkMiddleware from "redux-thunk"
 
-import { flashNotificationReducer, navBarReducer } from "./ui/reducer"
-import { userReducer, usersCacheReducer } from "./user/reducer"
-import { recentUploadsReducer } from "./upload/reducer"
-import { albumReducer, albumsReducer } from "./album/reducer"
+import {
+  flashNotificationReducer,
+  flashNotificationInitialState,
+  navBarReducer,
+  navBarInitialState,
+} from "./ui/reducer"
+import {
+  userReducer,
+  userInitialState,
+  usersCacheReducer,
+  usersCacheInitialState,
+} from "./user/reducer"
+import { recentUploadsReducer, recentUploadsInitialState } from "./upload/reducer"
+import {
+  albumReducer,
+  albumInitialState,
+  albumsReducer,
+  albumsInitialState,
+} from "./album/reducer"
 
 
 const bindMiddleware = (middleware) => {
@@ -40,7 +55,19 @@ const reducer = (state, action) => {
       ...action.payload, // apply delta from hydration
     }
   } else if (action.type === LOG_OUT) {
-    return {}
+    return {
+      // UI
+      flashNotification: flashNotificationInitialState,
+      navBar: navBarInitialState,
+      // user
+      user: userInitialState,
+      usersCache: usersCacheInitialState,
+      // uploads
+      recentUploads: recentUploadsInitialState,
+      // albums
+      album: albumInitialState,
+      albums: albumsInitialState,
+    }
   }
   else {
     return combinedReducer(state, action)

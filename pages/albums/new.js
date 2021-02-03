@@ -5,8 +5,10 @@ import Moment from "moment-timezone"
 
 import Notifications from "../../components/Notifications"
 import SwingUploader from "../../components/SwingUploader"
+import HowToUpload from "../../components/HowToUpload"
+
 import Sharing from "../../components/Sharing"
-import { LoadAlbums, CreateAlbum } from "../../behavior/coordinators/albums"
+import { LoadMyAlbums, CreateAlbum } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
 import { newNotification } from "../../state/ui/action"
 
@@ -16,11 +18,11 @@ const SwingsPerPage = 6
 const NewAlbum = ({
   user,
   usersCache,
-  albums,
+  myAlbums,
   
   createAlbum,
   displayAlert,
-  loadAlbums,
+  loadMyAlbums,
   searchFriends,
 }) => {
   const [uploadType, setUploadType] = useState("File")
@@ -34,21 +36,21 @@ const NewAlbum = ({
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
 
-  const activeAlbums = albums.myAlbums.slice(albumsPage * AlbumsPerPage, (albumsPage+1) * AlbumsPerPage)
+  const activeAlbums = myAlbums.slice(albumsPage * AlbumsPerPage, (albumsPage+1) * AlbumsPerPage)
   const activeSwings = activeAlbum?.swingVideos.slice(albumPage * SwingsPerPage, (albumPage+1) * SwingsPerPage) || []
 
   useEffect(() => {
-    loadAlbums()
+    loadMyAlbums()
   }, [])
 
   useEffect(() => {
-    if (user.friendIds.length > 0) {
+    if (user?.friendIds.length > 0) {
       const ids = user.friendIds.filter( id => !usersCache[id])
       if (ids.length > 0) {
         searchFriends({ ids: [ ...ids, ...user.friendIds] })
       }
     }
-  }, [user.friendIds])
+  }, [user?.friendIds])
 
   const onSelectAlbum = album => () => {
     setAlbumPage(0)
@@ -81,10 +83,7 @@ const NewAlbum = ({
       isViewableByFriends,
       friendIds,
     })) {
-      displayAlert({
-        alertType: "success",
-        message: `Album ${newAlbumName} Successfully Created`,
-      })
+      displayAlert({ message: `Album "${newAlbumName}" Successfully Created` })
       clearForm()
     }
   }
@@ -112,14 +111,16 @@ const NewAlbum = ({
 
         {/* Begin Main */}
 
+        <HowToUpload isFirst={myAlbums.length === 0} />
+
         <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-6 border border-black shadow-md">
-          <div className="p-4 flex flex-row">
-            <h2>Create Album From</h2>
-            <select className="ml-1 border rounded border-black p-1"
+          <div className="p-4 flex flex-col content-center justify-center items-center">
+            <h2 className="text-center underline text-lg font-semibold mb-2">Create Album From</h2>
+            <select className="mt-2 border rounded border-black p-1"
               onChange={e => setUploadType(e.target.value)}
             >
               <option value="File">File</option>
-              <option value="Album">Album</option>
+              <option value="Album">Existing Album(s)</option>
             </select>
           </div>
 
@@ -274,29 +275,26 @@ const mapStateToProps = (state) => {
   return {
     user: state.user,
     usersCache: state.usersCache,
-    albums: state.albums,
+    myAlbums: state.albums.myAlbums,
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     createAlbum: CreateAlbum(dispatch),
-    loadAlbums: LoadAlbums(dispatch),
+    loadMyAlbums: LoadMyAlbums(dispatch),
     searchFriends: SearchFriends(dispatch),
-    displayAlert: ({ alertType, message }) => dispatch(newNotification({
-      alertType,
-      message,
-    }))
+    displayAlert: args => dispatch(newNotification(args))
   }
 }
   
 NewAlbum.propTypes = {
   user: PropTypes.object,
-  albums: PropTypes.object,
+  myAlbums: PropTypes.arrayOf(PropTypes.object),
   usersCache: PropTypes.object,
 
   createAlbum: PropTypes.func,
-  loadAlbums: PropTypes.func,
+  loadMyAlbums: PropTypes.func,
   searchFriends: PropTypes.func,
   displayAlert: PropTypes.func,
 }

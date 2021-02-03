@@ -1,20 +1,39 @@
-import React, { useEffect, useState, createRef, Fragment } from "react"
+import React, { useEffect, useState, createRef } from "react"
 import { connect } from "react-redux"
-import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import Moment from "moment"
+import Link from "next/link"
 import { useRouter } from "next/router"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 
 import { newNotification } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
-import { LoadAlbums, DeleteAlbum, FlagAlbum } from "../../behavior/coordinators/albums"
-import speechBubble from "../../public/speech-bubble.svg"
+import AlbumAndCommentsPreview from "../../components/AlbumAndCommentsPreview"
+import Sidebar from "../../components/Sidebar"
+import {
+  LoadMyAlbums,
+  LoadFriendsAlbums,
+  LoadSharedAlbums,
+  LoadPublicAlbums,
+  DeleteAlbum,
+  FlagAlbum,
+} from "../../behavior/coordinators/albums"
+import { SearchFriends } from "../../behavior/coordinators/friends"
 import flag from "../../public/flag.svg"
+import { GrSearch, GrFormClose } from "react-icons/gr"
+
+import {
+  DateContainer,
+  DatePickerContainer,
+  LinkButton,
+  SearchBox,
+  SearchBoxContainer,
+} from "../../styles/styled-components"
+
 
 const SWING_FRAMES = 60
-const albumsPerRow = 3
+const albumsPerRow = 4
 
 const filterAlbums = (albums, search, rgx, start, end) => {
   let filtered = albums.filter( alb => search ? rgx.test(alb.name) : true)
@@ -23,51 +42,93 @@ const filterAlbums = (albums, search, rgx, start, end) => {
 }
 
 const AlbumsIndex = ({
-  albums,
+  myAlbums,
+  friendsAlbums,
+  sharedAlbums,
+  publicAlbums,
   user,
+  usersCache,
 
   deleteAlbum,
   flagAlbum,
-  loadAlbums,
+  loadMyAlbums,
+  loadFriendsAlbums,
+  loadSharedAlbums,
+  loadPublicAlbums,
+  searchFriends,
   toggleFlashMessage,
 }) => {
   const router = useRouter()
+
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
-  const [pips, setPips] = useState([]) // Picture in picture for each player
+  const [pips, setPips] = useState([])
+  const [currentSwings, setCurrentSwings] = useState([])
+  const [currentComments, setCurrentComments] = useState([])
 
   const [hoveredAlbum, setHoveredAlbum] = useState(undefined)
   const [toDeleteAlbum, setToDeleteAlbum] = useState(undefined)
 
-  const [myAlbumsPage, setMyAlbumsPage] = useState(0)
-  const [friendsAlbumsPage, setFriendsAlbumsPage] = useState(0)
-  const [publicAlbumsPage, setPublicAlbumsPage] = useState(0)
+  const [page, setPage] = useState(0)
+  const [albumType, setAlbumType] = useState("personal")
   const [search, setSearch] = useState("")
   const [startDate, setStartDate] = useState(undefined)
   const [endDate, setEndDate] = useState(undefined)
 
-  const searchRgx = new RegExp(search, "gi")
-  const myFilteredAlbums = filterAlbums(albums.myAlbums, search, searchRgx, startDate, endDate)
-  const friendsFilteredAlbums = filterAlbums(albums.friendsAlbums, search, searchRgx, startDate, endDate)
-  const publicFilteredAlbums = filterAlbums(albums.publicAlbums, search, searchRgx, startDate, endDate)
+  var sourceAlbums
+  switch(albumType) {
+  case "personal": sourceAlbums = myAlbums
+    break
+  case "friends": sourceAlbums = friendsAlbums
+    break
+  case "shared": sourceAlbums = sharedAlbums
+    break
+  case "public": sourceAlbums = publicAlbums
+    break
+  default: sourceAlbums = myAlbums
+  }
 
-  const myActiveAlbums = myFilteredAlbums.slice(myAlbumsPage * albumsPerRow, (myAlbumsPage+1) * albumsPerRow).filter( a => !!a )
-  const friendsActiveAlbums = friendsFilteredAlbums.slice(friendsAlbumsPage * albumsPerRow, (friendsAlbumsPage+1) * albumsPerRow).filter( a => !!a )
-  const publicActiveAlbums = publicFilteredAlbums.slice(publicAlbumsPage * albumsPerRow, (publicAlbumsPage+1) * albumsPerRow).filter( a => !!a )
+  const searchRgx = new RegExp(search, "gi")
+  const filteredAlbums = filterAlbums(sourceAlbums, search, searchRgx, startDate, endDate)
+  const activeAlbums = filteredAlbums.slice(page * albumsPerRow, (page+1) * albumsPerRow).filter( a => !!a )
 
   useEffect(() => {
-    loadAlbums()
+    if (user) {
+      loadMyAlbums()
+      loadFriendsAlbums()
+      loadPublicAlbums()
+      loadSharedAlbums()
+    }
   }, [])
 
   useEffect(() => {
-    const activeAlbums = [...myActiveAlbums, ...friendsActiveAlbums, ...publicActiveAlbums]
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
     setPlayings(activeAlbums.map(() => false))
     setPips(activeAlbums.map(() => false))
-  }, [albums.myAlbums, myAlbumsPage, albums.friendsAlbums, friendsAlbumsPage, albums.publicAlbums, publicAlbumsPage])
+    setCurrentSwings(activeAlbums.map(() => 0))
+    setCurrentComments(activeAlbums.map(album => {
+      let comments = [...(album.comments || []), ...(album.swingVideos.map(swing => (swing.comments || [])).flat())]
+      comments = comments.filter( comment => comment.userId !== user?.id )
+      comments = comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
+      return comments.slice(0,3).filter( c => !!c )
+    }))
+  }, [myAlbums, friendsAlbums, publicAlbums, page])
 
-  const handleSeekChange = (playerRef, i) => e => {
+  useEffect(() => {
+    if (currentComments.length > 0) {
+      const commentersSet = new Set([])
+      currentComments.forEach( comments => {
+        comments.forEach( comment => {
+          if (!usersCache[comment.userId]) commentersSet.add(comment.userId)
+        })
+      })
+      const ids = Array.from(commentersSet)
+      if (ids.length > 0) searchFriends({ ids })
+    }
+  }, [currentComments, usersCache])
+
+  const onHandleSeekChange = (playerRef, i) => e => {
     const frame = parseFloat(e.target.value)
     if (frame != null) {
       const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
@@ -79,154 +140,60 @@ const AlbumsIndex = ({
     }
   }
 
-  const renderVideo = ({ album, swing, i, ref, playing, pip, duration, flaggable }) => {
-    if (!swing) {
-      return null
-    }
-    return(
-      <Fragment>
-        <ReactPlayer
-          className="rounded-md overflow-hidden"
-          ref={ref}
-          url={swing.videoURL} 
-          playing={playing}
-          pip={pip}
-          volume={0}
-          muted={true}
-          loop={true}
-          progressInterval={200}
-          onProgress={({ played }) => {
-            const frame = Math.round(played*SWING_FRAMES)
-            setPlayerFrames({
-              ...playerFrames,
-              [i]: frame,
-            })
-          }}
-          height="226px"
-          width="285px"
-        />
+  const onSetCurrentSwings = i => swingIdx => () => {
+    setCurrentSwings([
+      ...currentSwings.slice(0, i),
+      swingIdx,
+      ...currentSwings.slice(i+1, currentSwings.length),
+    ])
+  }
 
-        {/* Controls Panel */}
-        <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
+  const onTogglePlay = i => isPlaying => () => {
+    const newPlayings = playings.map((p,j) => j === i ? isPlaying : p)
+    setPlayings(newPlayings)
+  }
 
-          {/* Picture in Picture */}
-          { pip &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='-'
-              tabIndex={(i*3)+1}
-              onClick={() => {
-                const newPips = pips.map((p,j) => j === i ? false : p)
-                setPips(newPips)
-              }}
-            />
-          }
-          { !pip &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='+'
-              tabIndex={(i*3)+1}
-              onClick={() => {
-                const newPips = pips.map((p,j) => j === i ? true : p)
-                setPips(newPips)
-              }}
-            />
-          }
+  const onTogglePip = i => isPip => () => {
+    const newPips = pips.map((p,j) => j === i ? isPip : p)
+    setPips(newPips)
+  }
 
-          {/* Play / Pause */}
-          { playing &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-              value='pause'
-              tabIndex={(i*3)+2}
-              onClick={() => {
-                const newPlayings = playings.map((p,j) => j === i ? false : p)
-                setPlayings(newPlayings)
-              }}
-            />
-          }
-          { !playing &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-              value='play'
-              tabIndex={(i*3)+2}
-              onClick={() => {
-                const newPlayings = playings.map((p,j) => j === i ? true : p)
-                setPlayings(newPlayings)
-                setPlayerFrames({
-                  ...playerFrames,
-                  [i]: undefined,
-                })
-              }}
-            />
-          }
-          
-          {/* Seek */}
-          <input
-            type='range'
-            tabIndex={(i*3)+3}
-            value={duration}
-            min={0}
-            max={SWING_FRAMES}
-            step='1'
-            onChange={handleSeekChange(ref, i)}
-            onFocus={ e => {
-              console.log("focus!")
-              e.stopPropagation()
-              e.preventDefault()
-            }}
-          />
-
-          <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
-            <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
-          </div>
-
-          <div className="flex flex-row bg-white rounded-lg mx-1 text-xs p-0.5 w-10">
-            <p className="mr-0.5 text-center">{ (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0) }</p>
-            <img src={speechBubble} className="w-5 h-5"/>
-          </div>
-
-          { flaggable &&
-            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100">
-              <img src={flag}
-                className="w-4 h-4 cursor-pointer"
-                onClick={onFlagAlbum(album)}
-              />
-            </div>
-          }
-          
-        </div>
-      </Fragment>
-    )
+  const onPlayerProgress = i => played => {
+    const frame = Math.round(played*SWING_FRAMES)
+    setPlayerFrames({
+      ...playerFrames,
+      [i]: frame,
+    })
   }
 
   const onSearch = e => {
     setSearch(e.target.value)
-    setMyAlbumsPage(0)
-    setFriendsAlbumsPage(0)
-    setPublicAlbumsPage(0)
+    setPage(0)
   }
 
   const onFlagAlbum = album => () => {
     toggleFlashMessage({
       id: album.id,
-      alertType: "success",
-      message: `Flag Album: "${album.name}"?`,
-      callback: async () => {
-        const success = await flagAlbum({
-          albumCreatedAt: album.createdAt,
-          albumUserId: album.userId,
-          albumId: album.id,
-          albumName: album.name,
-        })
-        if (success) {
-          toggleFlashMessage({
-            id: Moment().toString(),
-            alertType: "success",
-            message: "Album Flagged!"
-          })
+      message: `Flag Album: "${album.name}" as inappropriate?`,
+      buttons: [
+        {
+          buttonText: "Confirm",
+          callback: async () => {
+            const success = await flagAlbum({
+              albumCreatedAt: album.createdAt,
+              albumUserId: album.userId,
+              albumId: album.id,
+              albumName: album.name,
+            })
+            if (success) {
+              toggleFlashMessage({
+                id: Moment().toString(),
+                message: "Album Flagged!"
+              })
+            }
+          },
         }
-      }
+      ]
     })
   }
 
@@ -240,111 +207,142 @@ const AlbumsIndex = ({
 
         {/* Begin Sidebar */}
 
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll border-r border-gray-400">
-          <div className="flex flex-col content-center justify-center items-center text-sm">
+        <Sidebar>
+          <LinkButton>
+            <Link href="/albums/new">Create New Album</Link>
+          </LinkButton>
+          <div style={{ height: "30px", width: "100%" }}/>
+          <SearchBoxContainer>
+            <SearchBox
+              placeholder="Search Albums"
+              value={search}
+              onChange={onSearch}
+            />
+            <GrSearch/>
+          </SearchBoxContainer>
 
-            <h2 className="text-blue-400 underline mb-2">
-                Search Albums
-            </h2>
-            <div className="mb-2 flex flex-col">
-              <input type="text"
-                placeholder="search"
-                className="rounded border border-gray-400 m-1 p-1 text-center shadow"
-                value={search}
-                onChange={onSearch}
+          <DateContainer>
+            <p className="date-label">Upload Date (Start)</p>
+            <DatePickerContainer>
+              <DatePicker
+                selected={startDate}
+                onChange={date => setStartDate(date)}
               />
-            </div>
-            <div className="flex flex-row">
-              <div className="flex flex-col mx-1">
-                <div className="flex flex-row m-0.5">
-                  <p className="text-center text-gray-400">
-                  Start
-                  </p>
-                  { startDate &&
-                    <input type='button'
-                      className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                      onClick={() => setStartDate(undefined)}
-                      value="x"
-                    />
-                  }
-                </div>
-                <DatePicker
-                  className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow"
-                  selected={startDate}
-                  onChange={date => setStartDate(date)}
-                />
+              { startDate &&
+                <GrFormClose onClick={() => setStartDate(undefined)}/>
+              }
+            </DatePickerContainer>
+          </DateContainer>
+
+          <div style={{ height: "20px", width: "100%" }}/>
+
+          <DateContainer>
+            <p className="date-label">Upload Date (End)</p>
+            <DatePickerContainer>
+              <DatePicker
+                selected={endDate}
+                onChange={date => setEndDate(date)}
+              />
+              { endDate &&
+                  <GrFormClose onClick={() => setEndDate(undefined)}/>
+              }
+            </DatePickerContainer>
+          </DateContainer>
+
+          <div style={{ height: "20px", width: "100%" }}/>
+
+          <div className="content-center justify-center items-center">
+            <p className="text-white tracking-wide uppercase text-sm underline mb-2 text-center">Album Type</p>
+            <div className="flex flex-col content-center justify-center items-start px-8">
+              <div>
+                <input type="radio" id="personal" name="albumType" value="personal" className="mr-2" onChange={() => setAlbumType("personal")} checked={albumType === "personal"}/>
+                <label htmlFor="personal"
+                  className="text-white tracking-wide uppercase text-sm"
+                >
+                personal
+                </label>
               </div>
-              <div className="flex flex-col mx-1">
-                <div className="flex flex-row m-0.5">
-                  <p className="text-center text-gray-400">
-                    End
-                  </p>
-                  { endDate &&
-                    <input type='button'
-                      className="border w-6 rounded-full mx-1 text-xs bg-red-300"
-                      onClick={() => setEndDate(undefined)}
-                      value="x"
-                    />
-                  }
-                </div>
-                <DatePicker
-                  className="rounded border border-gray-400 p-0.5 w-20 text-xs text-center shadow z-100"
-                  selected={endDate}
-                  onChange={date => setEndDate(date)}
-                />
+
+              <div>
+                <input type="radio" id="shared" name="albumType" value="shared" className="mr-2" onChange={() => setAlbumType("shared")} checked={albumType === "shared"}/>
+                <label htmlFor="shared"
+                  className="text-white tracking-wide uppercase text-sm"
+                >
+                shared
+                </label>
+              </div>
+
+              <div>
+                <input type="radio" id="friends" name="albumType" value="friends" className="mr-2" onChange={() => setAlbumType("friends")} checked={albumType === "friends"}/>
+                <label htmlFor="friends"
+                  className="text-white tracking-wide uppercase text-sm"
+                >
+                friends
+                </label>
+              </div>
+
+              <div>
+                <input type="radio" id="public" name="albumType" value="public" className="mr-2" onChange={() => setAlbumType("public")} checked={albumType === "public"}/>
+                <label htmlFor="public"
+                  className="text-white tracking-wide uppercase text-sm"
+                >
+                public
+                </label>
               </div>
             </div>
-            
           </div>
-        </div>
+        </Sidebar>
 
         {/* End Sidebar */}
 
         {/* Begin Album Videos */}
 
-        <div className="p-4 flex flex-col w-4/5 bg-gray-100">
+        <div className="p-4 flex flex-col w-full bg-gray-100 h-full">
 
           {/* Start My Albums */}
 
           { (user && user.id) &&
-            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
-              <div className="flex flex-row content-center justify-center items-center mb-2">
-                { myAlbumsPage > 0 &&
-                <button
-                  onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
-                  className="p-0.5 mx-1"
-                >
-                  &lt;
-                </button>
+            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 w-full h-full">
+              <div className="flex flex-row content-center justify-center items-center mb-4">
+                { page > 0 &&
+                  <button
+                    onClick={() => setPage(page-1)}
+                    className="p-0.5 mx-1"
+                  >
+                    &lt;
+                  </button>
                 }
-                <h2 className="font-medium underline mx-2">My Albums</h2>
-                { (myAlbumsPage < (albums.myAlbums.length / albumsPerRow)-1) &&
-                <button
-                  onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
-                  className="-0.5 mx-1"
-                >
-                  &gt;
-                </button>
+                <h2 className="font-medium underline mx-2 text-center">
+                  Page { page+1 }
+                </h2>
+                { (page < (activeAlbums.length / albumsPerRow)-1) &&
+                  <button
+                    onClick={() => setPage(page+1)}
+                    className="-0.5 mx-1"
+                  >
+                    &gt;
+                  </button>
                 }
               </div>
 
-              <div className="flex flex-row">
-                { myActiveAlbums.length === 0 &&
-                <div className="w-full py-2 px-12 content-center justify-center items-center">
-                  <h2 className="font-semibold text-center">None</h2>
-                </div>
+              <div className="flex flex-col content-center justify-center items-center">
+                { activeAlbums.length === 0 &&
+                  <div className="w-full py-2 px-12 content-center justify-center items-center">
+                    <h2 className="font-semibold text-center">None</h2>
+                  </div>
                 }
-                { myActiveAlbums.map( (album, i) => {
-                  return (
-                    <div key={i}
-                      className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
-                      onMouseOver={() => setHoveredAlbum(album.id)}
-                      onMouseLeave={() => {
-                        setHoveredAlbum(undefined)
-                        setToDeleteAlbum(undefined)
-                      }}
-                    >
-                      { (hoveredAlbum === album.id && !toDeleteAlbum) &&
+                <div className="grid grid-cols-2 gap-4 w-full py-4 px-40">
+                  { activeAlbums.map( (album, i) => {
+                    return (
+                      <div key={i}
+                        className="flex flex-col relative content-center justify-center items-center hover:bg-blue-100 rounded-md mb-6 p-2"
+                        onMouseOver={() => setHoveredAlbum(album.id)}
+                        onMouseLeave={() => {
+                          setHoveredAlbum(undefined)
+                          setToDeleteAlbum(undefined)
+                        }}
+                      >
+                        { (hoveredAlbum === album.id && !toDeleteAlbum) &&
                         <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
                           onClick={() => {
                             setHoveredAlbum(undefined)
@@ -353,8 +351,8 @@ const AlbumsIndex = ({
                         >
                           Delete
                         </button>
-                      }
-                      { toDeleteAlbum === album.id &&
+                        }
+                        { toDeleteAlbum === album.id &&
                         <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
                           onClick={() => {
                             setToDeleteAlbum(undefined)
@@ -362,8 +360,8 @@ const AlbumsIndex = ({
                         >
                           Cancel?
                         </button>
-                      }
-                      { toDeleteAlbum === album.id &&
+                        }
+                        { toDeleteAlbum === album.id &&
                         <button className="absolute top-6 right-4 underline text-sm text-blue-400 cursor-pointer"
                           onClick={() => {
                             setToDeleteAlbum(undefined)
@@ -372,161 +370,57 @@ const AlbumsIndex = ({
                         >
                           Confirm?
                         </button>
-                      }
-                  
-                      <p className="font-semibold text-blue-700 underline cursor-pointer"
-                        onClick={() => router.push(`/albums/${album.id}`)}
-                      >
-                        { album.name }
-                      </p>
-                      <p>
-                        <span className="font-semibold text-xs"> Created: </span> 
-                        <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
-                      </p>
-                      { 
-                        renderVideo({
-                          album,
-                          swing: album.swingVideos[0],
-                          i,
-                          ref: playerRefs[i],
-                          playing: playings[i],
-                          pip: pips[i],
-                          duration: playerFrames[i],
-                        })
-                      }
-                    </div>
-                  )
-                })}
+                        }
+
+                        <div className="flex flex row">
+                          <p className="font-semibold text-blue-700 underline cursor-pointer"
+                            onClick={() => router.push(`/albums/${album.id}`)}
+                          >
+                            { album.name }
+                          </p>
+
+                          { (user && album.userId != user.id) &&
+                            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100 tooltip">
+                              <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 w-32 border border-yellow-300 -mt-11 -ml-28 rounded'>
+                                flag inappropriate album
+                              </span>
+                              <img src={flag}
+                                className="w-4 h-4 cursor-pointer"
+                                onClick={onFlagAlbum(album)}
+                              />
+                            </div>
+                          }
+                        </div>
+
+                        <p>
+                          <span className="font-semibold text-xs"> Created: </span>
+                          <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                        </p>
+
+                        <AlbumAndCommentsPreview
+                          album={album}
+                          comments={currentComments[i] || []}
+                          duration={playerFrames[i]}
+                          pip={pips[i]}
+                          playing={playings[i]}
+                          playerRef={playerRefs[i]}
+                          swingIdx={currentSwings[i]}
+                          swingFrames={SWING_FRAMES}
+                          user={user}
+
+                          onSetSwingIndex={onSetCurrentSwings(i)}
+                          onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                          onTogglePlay={onTogglePlay(i)}
+                          onTogglePip={onTogglePip(i)}
+                          onPlayerProgress={onPlayerProgress(i)}
+                        />
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             </div>
           }
-
-          {/* Start Friends Albums */}
-
-          { (user && user.id) &&
-            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md my-2">
-              <div className="flex flex-row content-center justify-center items-center mb-2">
-                { friendsAlbumsPage > 0 &&
-                <button
-                  onClick={() => setFriendsAlbumsPage(friendsAlbumsPage-1)}
-                  className="p-0.5 mx-1"
-                >
-                  &lt;
-                </button>
-                }
-                <h2 className="font-medium underline mx-2">Friends Albums</h2>
-                { (friendsAlbumsPage < (albums.friendsAlbums.length / albumsPerRow)-1) &&
-                <button
-                  onClick={() => setMyAlbumsPage(friendsAlbumsPage+1)}
-                  className="-0.5 mx-1"
-                >
-                  &gt;
-                </button>
-                }
-              </div>
-
-              <div className="flex flex-row">
-                { friendsActiveAlbums.length === 0 &&
-                <div className="w-full py-2 px-12 content-center justify-center items-center">
-                  <h2 className="font-semibold text-center">None</h2>
-                </div>
-                }
-                { friendsActiveAlbums.map( (album, i) => {
-                  const idx = i + myActiveAlbums.length
-                  return (
-                    <div key={i}
-                      className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
-                    >
-                      <p className="font-semibold text-blue-700 underline cursor-pointer"
-                        onClick={() => router.push(`/albums/${album.id}`)}
-                      >
-                        { album.name }
-                      </p>
-                      <p>
-                        <span className="font-semibold text-xs"> Created: </span> 
-                        <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
-                      </p>
-                      { 
-                        renderVideo({
-                          album,
-                          swing: album.swingVideos[0],
-                          i: idx,
-                          ref: playerRefs[idx],
-                          playing: playings[idx],
-                          pip: pips[idx],
-                          duration: playerFrames[idx],
-                          flaggable: true,
-                        })
-                      }
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          }
-
-          {/* Start Public Albums */}
-
-          <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
-            <div className="flex flex-row content-center justify-center items-center mb-2">
-              { publicAlbumsPage > 0 &&
-                  <button
-                    onClick={() => setPublicAlbumsPage(publicAlbumsPage-1)}
-                    className="p-0.5 mx-1"
-                  >
-                    &lt;
-                  </button>
-              }
-              <h2 className="font-medium underline mx-2">Public Albums</h2>
-              { (publicAlbumsPage < (albums.publicAlbums.length / albumsPerRow)-1) &&
-                  <button
-                    onClick={() => setMyAlbumsPage(publicAlbumsPage+1)}
-                    className="-0.5 mx-1"
-                  >
-                    &gt;
-                  </button>
-              }
-            </div>
-
-            <div className="flex flex-row">
-              { publicActiveAlbums.length === 0 &&
-                <div className="w-full py-2 px-12 content-center justify-center items-center">
-                  <h2 className="font-semibold text-center">None</h2>
-                </div>
-              }
-              { publicActiveAlbums.map( (album, i) => {
-                const idx = i + (myActiveAlbums.length) + (friendsActiveAlbums.length)
-                return (
-                  <div key={i}
-                    className="flex flex-col relative w-1/3 content-center justify-center items-center hover:bg-green-200 rounded-md p-2"
-                  >
-                    <p className="font-semibold text-blue-700 underline cursor-pointer"
-                      onClick={() => router.push(`/albums/${album.id}`)}
-                    >
-                      { album.name }
-                    </p>
-                    <p>
-                      <span className="font-semibold text-xs"> Created: </span> 
-                      <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
-                    </p>
-                    { 
-                      renderVideo({
-                        album,
-                        swing: album.swingVideos[0],
-                        i: idx,
-                        ref: playerRefs[idx],
-                        playing: playings[idx],
-                        pip: pips[idx],
-                        duration: playerFrames[idx],
-                        flaggable: true,
-                      })
-                    }
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-          
         </div>
         {/* End Album Videos */}
       </main>
@@ -538,8 +432,12 @@ const AlbumsIndex = ({
 const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
-    albums: state.albums,
+    myAlbums: state.albums.myAlbums,
+    friendsAlbums: state.albums.friendsAlbums,
+    sharedAlbums: state.albums.sharedAlbums,
+    publicAlbums: state.albums.publicAlbums,
     user: state.user,
+    usersCache: state.usersCache,
   }
 }
 
@@ -547,23 +445,30 @@ const mapDispatchToProps = (dispatch) => {
   return {
     deleteAlbum: DeleteAlbum(dispatch),
     flagAlbum: FlagAlbum(dispatch),
-    loadAlbums: LoadAlbums(dispatch),
-    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
-      alertType,
-      callback,
-      message,
-    })),
-
+    loadMyAlbums: LoadMyAlbums(dispatch),
+    loadFriendsAlbums: LoadFriendsAlbums(dispatch),
+    loadSharedAlbums: LoadSharedAlbums(dispatch),
+    loadPublicAlbums: LoadPublicAlbums(dispatch),
+    searchFriends: SearchFriends(dispatch),
+    toggleFlashMessage: args => dispatch(newNotification(args)),
   }
 }
-  
+
 AlbumsIndex.propTypes = {
-  albums: PropTypes.object,
+  myAlbums: PropTypes.arrayOf(PropTypes.object),
+  sharedAlbums: PropTypes.arrayOf(PropTypes.object),
+  friendsAlbums: PropTypes.arrayOf(PropTypes.object),
+  publicAlbums: PropTypes.arrayOf(PropTypes.object),
   user: PropTypes.object,
+  usersCache: PropTypes.object,
 
   deleteAlbum: PropTypes.func,
   flagAlbum: PropTypes.func,
-  loadAlbums: PropTypes.func,
+  loadMyAlbums: PropTypes.func,
+  loadSharedAlbums: PropTypes.func,
+  loadFriendsAlbums: PropTypes.func,
+  loadPublicAlbums: PropTypes.func,
+  searchFriends: PropTypes.func,
   toggleFlashMessage: PropTypes.func,
 }
 

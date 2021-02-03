@@ -10,9 +10,9 @@ import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
+import { getUserIcon, getUserType } from "../../behavior/users"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import {
-  LoadAlbums,
   LoadAlbum,
   UpdateAlbum,
   PostComment,
@@ -207,24 +207,27 @@ const Album = ({
   const onFlagComment = comment => () => {
     toggleFlashMessage({
       id: comment.id,
-      alertType: "success",
-      message: `Flag Comment: "${comment.text}"?`,
-      callback: async () => {
-        const success = await flagComment({
-          commentCreatedAt: comment.createdAt,
-          commentId: comment.id,
-          commenterId: comment.userId,
-          albumId: album.id,
-          text: comment.text,
-        })
-        if (success) {
-          toggleFlashMessage({
-            id: Moment().toString(),
-            alertType: "success",
-            message: "Comment Flagged!"
-          })
+      message: `Flag Comment: "${comment.text}" as inappropriate?`,
+      buttons: [
+        {
+          buttonText: "Confirm",
+          callback: async () => {
+            const success = await flagComment({
+              commentCreatedAt: comment.createdAt,
+              commentId: comment.id,
+              commenterId: comment.userId,
+              albumId: album.id,
+              text: comment.text,
+            })
+            if (success) {
+              toggleFlashMessage({
+                id: Moment().toString(),
+                message: "Comment Flagged!"
+              })
+            }
+          },
         }
-      }
+      ],
     })
   }
 
@@ -432,7 +435,6 @@ const Album = ({
               { activeSideBar === "Video Resources" &&
                 <VideoResources
                   onExpand={playing => setExpandedSideBar(playing)}
-                  expanded={expandedSideBar}
                 />
               }
             </div>
@@ -472,8 +474,8 @@ const Album = ({
             }
 
             {/* Comments Sidebar */}
-            <div className="mb-2">
-              <h2 className="text-blue-400 underline cursor-pointer text-center"
+            <div className="mb-2 w-full">
+              <h2 className="text-blue-400 underline cursor-pointer text-center mb-2"
                 onClick={() => {
                   if (activeSideBar === "Album Comments") {
                     setActiveSidebar(undefined)
@@ -486,7 +488,7 @@ const Album = ({
               </h2>
               <div className="mb-2">
                 { activeSideBar === "Album Comments" &&
-                  <div className="flex flex-col content-center justify-center items-center p-4 overscroll-contain">
+                  <div className="flex flex-col content-center justify-center items-center overscroll-contain">
                     <div className="flex flex-col w-full">
 
                       {/* Comment Form */}
@@ -595,18 +597,26 @@ const Album = ({
                                 <p className="p-1">
                                   { comment.text }
                                 </p>
-                                <div className="flex flex-row items-center">
+                                <div className="flex flex-row content-center justify-center items-center">
+                                  <div className="tooltip">
+                                    <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 border border-yellow-300 -mt-6 rounded'>
+                                      { getUserType(user) }
+                                    </span>
+                                    <img src={getUserIcon(user)}
+                                      className="w-5 h-5 ml-1 cursor-pointer"
+                                    />
+                                  </div>
                                   <p className="mx-1 text-xs text-blue-500 align-middle">
-                                        @{ usersCache[comment.userId]?.userName || "..." }
+                                    @{ usersCache[comment.userId]?.userName || "..." }
                                   </p>
                                   <p className="mx-1 text-sm align-middle font-bold">
-                                        |
+                                    |
                                   </p>
                                   <p className="mx-1 text-xs text-gray-500 align-middle">
                                     { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
                                   </p>
                                   <p className="mx-1 text-sm align-middle font-bold">
-                                        |
+                                    |
                                   </p>
                                   { (user && !user.disableComments) &&
                                     <input type='button'
@@ -619,7 +629,10 @@ const Album = ({
                                     />
                                   }
                                   { user &&
-                                    <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100">
+                                    <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100 tooltip">
+                                      <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 w-32 border border-yellow-300 -mt-11 -ml-28 rounded'>
+                                        flag inappropriate comment
+                                      </span>
                                       <img src={flag}
                                         className="w-4 h-4 cursor-pointer"
                                         onClick={onFlagComment(comment)}
@@ -877,16 +890,11 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     flagComment: FlagComment(dispatch),
-    getAlbums: LoadAlbums(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     loadAlbum: LoadAlbum(dispatch),
     postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
-    toggleFlashMessage: ({ alertType, message, callback, }) => dispatch(newNotification({
-      alertType,
-      callback,
-      message,
-    })),
+    toggleFlashMessage: args => dispatch(newNotification(args)),
     updateAlbum: UpdateAlbum(dispatch),
     updateAlbumRedux: updatedAlbum => dispatch(setAlbum(updatedAlbum))
   }
@@ -899,7 +907,6 @@ Album.propTypes = {
   recentUploads: PropTypes.arrayOf(PropTypes.object),
 
   flagComment: PropTypes.func,
-  getAlbums: PropTypes.func,
   getRecentUploads: PropTypes.func,
   loadAlbum: PropTypes.func,
   postComment: PropTypes.func,

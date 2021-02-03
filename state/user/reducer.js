@@ -1,7 +1,7 @@
 import { CACHE_USERS, SET_USER } from "./action"
 
-const userInitialState = null
-const usersCacheInitialState = {}
+export const userInitialState = null
+export const usersCacheInitialState = {}
 
 
 export function userReducer(

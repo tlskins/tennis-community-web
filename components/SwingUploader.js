@@ -65,7 +65,7 @@ const SwingUploader = ({ uploadVideo, user }) => {
               />
             </div>
 
-            <div className="mt-12">
+            <div className="mt-2">
               <Sharing
                 isPublic={isPublic}
                 setIsPublic={setIsPublic}
@@ -76,7 +76,7 @@ const SwingUploader = ({ uploadVideo, user }) => {
               />
 
               <div className="flex flex-col content-center justify-center items-center mx-1 p-2">
-                <button className="border-black border rounded m-2 p-1"
+                <button className="border-gray-400 border rounded shadow-lg bg-black text-yellow-300 tracking-wide m-2 p-1"
                   onClick={onUploadVideo}
                 >
                   Upload

@@ -59,7 +59,7 @@ const LoginForm = ({
     })
     if (success) {
       clearForm()
-      displayAlert({ alertType: "success", message: `Confirmation email sent to ${email}`})
+      displayAlert({ message: `Confirmation email sent to ${email}`})
       setIsNewUser(false)
     }
   }
@@ -68,7 +68,7 @@ const LoginForm = ({
     const success = await signIn({ email, password })
     if (success) {
       clearForm()
-      router.push("/albums")
+      router.push("/profile")
     }
   }
 
@@ -197,10 +197,7 @@ const mapDispatchToProps = (dispatch) => {
     createUser: CreateUser(dispatch),
     signIn: SignIn(dispatch),
     signOut: SignOut(dispatch),
-    displayAlert: ({ alertType, message }) => dispatch(newNotification({
-      alertType,
-      message,
-    }))
+    displayAlert: args => dispatch(newNotification(args))
   }
 }
 

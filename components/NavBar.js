@@ -5,11 +5,13 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 
 import { SignOut } from "../behavior/coordinators/users"
+import { getUserIcon } from "../behavior/users"
 import LoginForm from "./LoginForm"
 import Modal from "./Modal"
 
 import {
   DropdownLink,
+  LinkClass,
   LinksContainer,
   NavigationBar,
 } from "../styles/styled-components"
@@ -50,18 +52,23 @@ const NavBar = ({ user, showNewUser, signOut }) => {
         </LinksContainer>
         :
         <LinksContainer>
-          <DropdownLink>
-            <a href="#">Albums</a>
-            <div className="dropdown-container">
-              <Link href="/albums/new">Create New</Link>
-              <Link href="/albums">View</Link>
-            </div>
-          </DropdownLink>
-          <Link href="/friends">Friends</Link>
+          <LinkClass active={ router.pathname === "/profile" }>
+            <Link href="/profile">Profile</Link>
+          </LinkClass>
+          <LinkClass active={ router.pathname === "/albums" }>
+            <Link href="/albums">Albums</Link>
+          </LinkClass>
+          <LinkClass active={ router.pathname === "/friends" }>
+            <Link href="/friends">Friends</Link>
+          </LinkClass>
           { user.isAdmin &&
-            <Link href="/admin">Admin</Link>
+            <LinkClass active={ router.pathname === "/admin" }>
+              <Link href="/admin">Admin</Link>
+            </LinkClass>
           }
-          <a href="#" onClick={ onSignOut }>Sign Out</a>
+          <LinkClass>
+            <a href="#" onClick={ onSignOut }>Sign Out</a>
+          </LinkClass>
         </LinksContainer>
       }
     </NavigationBar>

@@ -85,9 +85,14 @@ const publicVideos = {
 const PLAYING_VIDEO_HEIGHT = "450px"
 const PLAYING_VIDEO_WIDTH = "675px"
 
-const VideoResources = ({ expanded, onExpand }) => {
-  const [sideVideoGroup, setSideVideoGroup] = useState("-")
-  const [sideVideo, setSideVideo] = useState("-")
+const VideoResources = ({
+  defaultVideoGroup,
+  defaultVideo,
+
+  onExpand,
+}) => {
+  const [sideVideoGroup, setSideVideoGroup] = useState(defaultVideoGroup || "-")
+  const [sideVideo, setSideVideo] = useState(defaultVideo || "-")
 
   const video = publicVideos[sideVideoGroup][sideVideo]
   
@@ -98,6 +103,7 @@ const VideoResources = ({ expanded, onExpand }) => {
   const [sideVideoPlaying, setSideVideoPlaying] = useState(false)
   const [sideVideoHeight, setSideVideoHeight] = useState("")
   const [sideVideoWidth, setSideVideoWidth] = useState("")
+  const [sideVideoExpanded, setSideVideoExpanded] = useState(false)
   
   const handleSideSeekChange = e => {
     const seekTo = parseFloat(e.target.value)
@@ -128,7 +134,8 @@ const VideoResources = ({ expanded, onExpand }) => {
   }
 
   const onExpandVideo = isExpand => {
-    onExpand(isExpand)
+    onExpand && onExpand(isExpand)
+    setSideVideoExpanded(isExpand)
     if (isExpand) {
       setSideVideoHeight(PLAYING_VIDEO_HEIGHT)
       setSideVideoWidth(PLAYING_VIDEO_WIDTH)
@@ -143,6 +150,7 @@ const VideoResources = ({ expanded, onExpand }) => {
       <div className="flex flex-col content-center justify-center items-center">
         <select className="mt-4 p-0.5 border border-gray-500 rounded shadow-md"
           onChange={onSelectVideoGroup}
+          value={sideVideoGroup}
         >
           { Object.keys(publicVideos).map((name, i) => {
             return(
@@ -154,6 +162,7 @@ const VideoResources = ({ expanded, onExpand }) => {
         { sideVideoGroup !== "-" &&
           <select className="mt-1 mb-4 p-0.5 border border-gray-500 rounded shadow-md"
             onChange={onSelectVideo}
+            value={sideVideo}
           >
             { Object.keys(publicVideos[sideVideoGroup]).map((name, i) => {
               return(
@@ -191,14 +200,14 @@ const VideoResources = ({ expanded, onExpand }) => {
           
         <div className="flex flex-row content-center justify-center items-center mt-4">
           {/* Expand */}
-          { expanded &&
+          { sideVideoExpanded &&
             <input type='button'
               className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
               value='-'
               onClick={() => onExpandVideo(false)}
             />
           }
-          { !expanded &&
+          { !sideVideoExpanded &&
             <input type='button'
               className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
               value='+'
@@ -276,7 +285,8 @@ const VideoResources = ({ expanded, onExpand }) => {
 }
 
 VideoResources.propTypes = {
-  expanded: PropTypes.bool,
+  defaultVideoGroup: PropTypes.string,
+  defaultVideo: PropTypes.string,
 
   onExpand: PropTypes.func,
 }

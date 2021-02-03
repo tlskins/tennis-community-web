@@ -6,7 +6,7 @@ import Moment from "moment-timezone"
 import Notifications from "../../components/Notifications"
 import SwingUploader from "../../components/SwingUploader"
 import Sharing from "../../components/Sharing"
-import { LoadAlbums, CreateAlbum } from "../../behavior/coordinators/albums"
+import { LoadMyAlbums, CreateAlbum } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
 import { newNotification } from "../../state/ui/action"
 
@@ -20,7 +20,7 @@ const NewAlbum = ({
   
   createAlbum,
   displayAlert,
-  loadAlbums,
+  loadMyAlbums,
   searchFriends,
 }) => {
   const [uploadType, setUploadType] = useState("File")
@@ -38,7 +38,7 @@ const NewAlbum = ({
   const activeSwings = activeAlbum?.swingVideos.slice(albumPage * SwingsPerPage, (albumPage+1) * SwingsPerPage) || []
 
   useEffect(() => {
-    loadAlbums()
+    loadMyAlbums()
   }, [])
 
   useEffect(() => {
@@ -278,7 +278,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     createAlbum: CreateAlbum(dispatch),
-    loadAlbums: LoadAlbums(dispatch),
+    loadMyAlbums: LoadMyAlbums(dispatch),
     searchFriends: SearchFriends(dispatch),
     displayAlert: args => dispatch(newNotification(args))
   }
@@ -290,7 +290,7 @@ NewAlbum.propTypes = {
   usersCache: PropTypes.object,
 
   createAlbum: PropTypes.func,
-  loadAlbums: PropTypes.func,
+  loadMyAlbums: PropTypes.func,
   searchFriends: PropTypes.func,
   displayAlert: PropTypes.func,
 }

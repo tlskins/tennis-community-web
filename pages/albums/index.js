@@ -11,10 +11,16 @@ import "react-datepicker/dist/react-datepicker.css"
 import { newNotification } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sidebar from "../../components/Sidebar"
-import { LoadAlbums, DeleteAlbum, FlagAlbum } from "../../behavior/coordinators/albums"
+import {
+  LoadMyAlbums,
+  LoadFriendsAlbums,
+  LoadPublicAlbums,
+  DeleteAlbum,
+  FlagAlbum,
+} from "../../behavior/coordinators/albums"
 import speechBubble from "../../public/speech-bubble.svg"
 import flag from "../../public/flag.svg"
-import { GrSearch, GrFormClose } from 'react-icons/gr'
+import { GrSearch, GrFormClose } from "react-icons/gr"
 
 import {
   DateContainer,
@@ -23,7 +29,6 @@ import {
   SearchBox,
   SearchBoxContainer,
 } from "../../styles/styled-components"
-
 
 
 const SWING_FRAMES = 60
@@ -36,12 +41,16 @@ const filterAlbums = (albums, search, rgx, start, end) => {
 }
 
 const AlbumsIndex = ({
-  albums,
+  myAlbums,
+  friendsAlbums,
+  publicAlbums,
   user,
 
   deleteAlbum,
   flagAlbum,
-  loadAlbums,
+  loadMyAlbums,
+  loadFriendsAlbums,
+  loadPublicAlbums,
   toggleFlashMessage,
 }) => {
   const router = useRouter()
@@ -61,16 +70,20 @@ const AlbumsIndex = ({
   const [endDate, setEndDate] = useState(undefined)
 
   const searchRgx = new RegExp(search, "gi")
-  const myFilteredAlbums = filterAlbums(albums.myAlbums, search, searchRgx, startDate, endDate)
-  const friendsFilteredAlbums = filterAlbums(albums.friendsAlbums, search, searchRgx, startDate, endDate)
-  const publicFilteredAlbums = filterAlbums(albums.publicAlbums, search, searchRgx, startDate, endDate)
+  const myFilteredAlbums = filterAlbums(myAlbums, search, searchRgx, startDate, endDate)
+  const friendsFilteredAlbums = filterAlbums(friendsAlbums, search, searchRgx, startDate, endDate)
+  const publicFilteredAlbums = filterAlbums(publicAlbums, search, searchRgx, startDate, endDate)
 
   const myActiveAlbums = myFilteredAlbums.slice(myAlbumsPage * albumsPerRow, (myAlbumsPage+1) * albumsPerRow).filter( a => !!a )
   const friendsActiveAlbums = friendsFilteredAlbums.slice(friendsAlbumsPage * albumsPerRow, (friendsAlbumsPage+1) * albumsPerRow).filter( a => !!a )
   const publicActiveAlbums = publicFilteredAlbums.slice(publicAlbumsPage * albumsPerRow, (publicAlbumsPage+1) * albumsPerRow).filter( a => !!a )
 
   useEffect(() => {
-    loadAlbums()
+    if (user) {
+      loadMyAlbums()
+      loadFriendsAlbums()
+      loadPublicAlbums()
+    }
   }, [])
 
   useEffect(() => {
@@ -78,7 +91,7 @@ const AlbumsIndex = ({
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
     setPlayings(activeAlbums.map(() => false))
     setPips(activeAlbums.map(() => false))
-  }, [albums.myAlbums, myAlbumsPage, albums.friendsAlbums, friendsAlbumsPage, albums.publicAlbums, publicAlbumsPage])
+  }, [myAlbums, myAlbumsPage, friendsAlbums, friendsAlbumsPage, publicAlbums, publicAlbumsPage])
 
   const handleSeekChange = (playerRef, i) => e => {
     const frame = parseFloat(e.target.value)
@@ -260,7 +273,7 @@ const AlbumsIndex = ({
           <LinkButton>
             <Link href="/albums/new">Create New Album</Link>
           </LinkButton>
-          <div style={{ height: '30px', width: '100%' }}/>
+          <div style={{ height: "30px", width: "100%" }}/>
           <SearchBoxContainer>
             <SearchBox
               placeholder="Search Albums"
@@ -281,32 +294,32 @@ const AlbumsIndex = ({
                 <GrFormClose onClick={() => setStartDate(undefined)}/>
               }
             </DatePickerContainer>
-            </DateContainer>
-            <div style={{ height: '20px', width: '100%' }}/>
-            <DateContainer>
-              <p className="date-label">Upload Date (End)</p>
-              <DatePickerContainer>
-                <DatePicker
-                  selected={endDate}
-                  onChange={date => setEndDate(date)}
-                />
-                { endDate &&
+          </DateContainer>
+          <div style={{ height: "20px", width: "100%" }}/>
+          <DateContainer>
+            <p className="date-label">Upload Date (End)</p>
+            <DatePickerContainer>
+              <DatePicker
+                selected={endDate}
+                onChange={date => setEndDate(date)}
+              />
+              { endDate &&
                   <GrFormClose onClick={() => setEndDate(undefined)}/>
-                }
-              </DatePickerContainer>
-            </DateContainer>
+              }
+            </DatePickerContainer>
+          </DateContainer>
         </Sidebar>
 
         {/* End Sidebar */}
 
         {/* Begin Album Videos */}
 
-        <div className="p-4 flex flex-col w-4/5 bg-gray-100">
+        <div className="p-4 flex flex-col w-full bg-gray-100">
 
           {/* Start My Albums */}
 
           { (user && user.id) &&
-            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
+            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 w-full">
               <div className="flex flex-row content-center justify-center items-center mb-2">
                 { myAlbumsPage > 0 &&
                 <button
@@ -317,7 +330,7 @@ const AlbumsIndex = ({
                 </button>
                 }
                 <h2 className="font-medium underline mx-2">My Albums</h2>
-                { (myAlbumsPage < (albums.myAlbums.length / albumsPerRow)-1) &&
+                { (myAlbumsPage < (myAlbums.length / albumsPerRow)-1) &&
                 <button
                   onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
                   className="-0.5 mx-1"
@@ -414,7 +427,7 @@ const AlbumsIndex = ({
                 </button>
                 }
                 <h2 className="font-medium underline mx-2">Friends Albums</h2>
-                { (friendsAlbumsPage < (albums.friendsAlbums.length / albumsPerRow)-1) &&
+                { (friendsAlbumsPage < (friendsAlbums.length / albumsPerRow)-1) &&
                 <button
                   onClick={() => setMyAlbumsPage(friendsAlbumsPage+1)}
                   className="-0.5 mx-1"
@@ -477,7 +490,7 @@ const AlbumsIndex = ({
                   </button>
               }
               <h2 className="font-medium underline mx-2">Public Albums</h2>
-              { (publicAlbumsPage < (albums.publicAlbums.length / albumsPerRow)-1) &&
+              { (publicAlbumsPage < (publicAlbums.length / albumsPerRow)-1) &&
                   <button
                     onClick={() => setMyAlbumsPage(publicAlbumsPage+1)}
                     className="-0.5 mx-1"
@@ -537,7 +550,9 @@ const AlbumsIndex = ({
 const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
-    albums: state.albums,
+    myAlbums: state.albums.myAlbums,
+    friendsAlbums: state.albums.friendsAlbums,
+    publicAlbums: state.albums.publicAlbums,
     user: state.user,
   }
 }
@@ -546,19 +561,24 @@ const mapDispatchToProps = (dispatch) => {
   return {
     deleteAlbum: DeleteAlbum(dispatch),
     flagAlbum: FlagAlbum(dispatch),
-    loadAlbums: LoadAlbums(dispatch),
+    loadMyAlbums: LoadMyAlbums(dispatch),
+    loadFriendsAlbums: LoadFriendsAlbums(dispatch),
+    loadPublicAlbums: LoadPublicAlbums(dispatch),
     toggleFlashMessage: args => dispatch(newNotification(args)),
-
   }
 }
 
 AlbumsIndex.propTypes = {
-  albums: PropTypes.object,
+  myAlbums: PropTypes.arrayOf(PropTypes.object),
+  friendsAlbums: PropTypes.arrayOf(PropTypes.object),
+  publicAlbums: PropTypes.arrayOf(PropTypes.object),
   user: PropTypes.object,
 
   deleteAlbum: PropTypes.func,
   flagAlbum: PropTypes.func,
-  loadAlbums: PropTypes.func,
+  loadMyAlbums: PropTypes.func,
+  loadFriendsAlbums: PropTypes.func,
+  loadPublicAlbums: PropTypes.func,
   toggleFlashMessage: PropTypes.func,
 }
 

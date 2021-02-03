@@ -2,20 +2,42 @@ import { get, put, post, del } from "../api/rest"
 import { setAlbum } from "../../state/album/action"
 import { HandleError } from "./errors"
 import { newNotification } from "../../state/ui/action"
-import { setAlbums } from "../../state/album/action"
+import { setMyAlbums, setFriendsAlbums, setPublicAlbums } from "../../state/album/action"
 
 
-export const LoadAlbums = (dispatch) => async (homeApproved = undefined) => {
+export const LoadMyAlbums = (dispatch) => async ({ limit, offset } = {}) => {
   try {
-    const params = {}
+    const response = await put("/albums/search", { my: true, limit, offset })
+    dispatch(setMyAlbums(response.data))
+    return true
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+}
 
+export const LoadFriendsAlbums = (dispatch) => async ({ limit, offset } = {}) => {
+  try {
+    const response = await put("/albums/search", { friends: true, limit, offset })
+    dispatch(setFriendsAlbums(response.data))
+    return true
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+}
+
+export const LoadPublicAlbums = (dispatch) => async ({ homeApproved, limit, offset } = {}) => {
+  try {
+    const params = { limit, offset }
     if (homeApproved != null) {
       params.homeApproved = homeApproved
     }
-  
-    const response = await get("/albums", params)
-    dispatch(setAlbums(response.data))
-    return response.data
+    const response = await put("/albums/search", params)
+    dispatch(setPublicAlbums(response.data))
+    return true
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -38,8 +60,6 @@ export const LoadAlbum = (dispatch) => async (albumId) => {
 export const DeleteAlbum = (dispatch) => async (albumId) => {
   try {
     await del(`/albums/${albumId}`)
-    const response = await get("/albums")
-    dispatch(setAlbums(response.data))
   }
   catch( err ) {
     HandleError(dispatch, err)

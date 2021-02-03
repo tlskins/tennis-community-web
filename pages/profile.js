@@ -10,7 +10,7 @@ import SwingUploader from "../components/SwingUploader"
 import { UpdateUserProfile } from "../behavior/coordinators/users"
 import { SearchFriends } from "../behavior/coordinators/friends"
 import { getUserIcons, getUserIcon } from "../behavior/users"
-import { LoadAlbums } from "../behavior/coordinators/albums"
+import { LoadMyAlbums } from "../behavior/coordinators/albums"
 import { newNotification } from "../state/ui/action"
 import uploadYellow from "../public/upload-yellow.svg"
 import uploadBlue from "../public/upload-blue.svg"
@@ -20,18 +20,18 @@ const SWING_FRAMES = 60
 const albumsPerColumn = 3
 
 const Profile = ({
-  albums,
+  myAlbums,
   user,
   usersCache,
   
-  loadAlbums,
+  loadMyAlbums,
   newFlashMessage,
   searchFriends,
   updateUserProfile,
 }) => {
   const router = useRouter()
 
-  const [showHowTo, setShowHowTo] = useState(albums?.myAlbums?.length === 0)
+  const [showHowTo, setShowHowTo] = useState(myAlbums.length === 0)
   const [hoverUpload, setHoverUpload] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
   const [pressingSave, setPressingSave] = useState(false)
@@ -54,7 +54,7 @@ const Profile = ({
   const [currentComments, setCurrentComments] = useState([])
 
   const [myAlbumsPage, setMyAlbumsPage] = useState(0)
-  const myActiveAlbums = albums?.myAlbums?.slice(myAlbumsPage * albumsPerColumn, (myAlbumsPage+1) * albumsPerColumn).filter( a => !!a ) || []
+  const myActiveAlbums = myAlbums.slice(myAlbumsPage * albumsPerColumn, (myAlbumsPage+1) * albumsPerColumn).filter( a => !!a ) || []
   const saveButtonStyle = pressingSave ? "bg-yellow-300 text-black" : "bg-black text-yellow-300"
 
   useEffect(() => {
@@ -64,12 +64,14 @@ const Profile = ({
   }, [user])
 
   useEffect(() => {
-    loadAlbums()
-  }, [])
+    if (user) {
+      loadMyAlbums()
+    }
+  }, [user])
 
   useEffect(() => {
-    setShowHowTo(albums?.myAlbums?.length === 0)
-  }, [albums?.myAlbums])
+    setShowHowTo(myAlbums.length === 0)
+  }, [myAlbums])
 
   useEffect(() => {
     setPlayerRefs(ref => myActiveAlbums.map((_, i) => ref[i] || createRef()))
@@ -82,7 +84,7 @@ const Profile = ({
       comments = comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
       return comments.slice(0,3).filter( c => !!c )
     }))
-  }, [albums.myAlbums, myAlbumsPage])
+  }, [myAlbums, myAlbumsPage, user])
 
   useEffect(() => {
     if (currentComments.length > 0) {
@@ -95,7 +97,7 @@ const Profile = ({
       const ids = Array.from(commentersSet)
       if (ids.length > 0) searchFriends({ ids })
     }
-  }, [currentComments])
+  }, [currentComments, usersCache])
 
   const handleSeekChange = (playerRef, i) => e => {
     const frame = parseFloat(e.target.value)
@@ -257,7 +259,7 @@ const Profile = ({
             <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md mb-3">
               <div className="flex flex-col">
                 <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
-                    Upload {albums?.myAlbums?.length > 0 ? "an" : "your first"} album!
+                    Upload {myAlbums.length > 0 ? "an" : "your first"} album!
                 </h2>
 
                 <div className="flex flex-row content-center">
@@ -436,7 +438,7 @@ const Profile = ({
                     }
                   </div>
                   <div className="flex flex-row rounded-md px-2 py-1 w-44">
-                    <select onSelect={e => setGender(e.target.value)}
+                    <select onChange={e => setGender(e.target.value)}
                       value={gender}
                       className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
                     >
@@ -446,7 +448,7 @@ const Profile = ({
                     </select>
                   </div>
                   <div className="flex flex-row rounded-md px-2 py-1 w-44">
-                    <select onSelect={e => setUstaLevel(e.target.value)}
+                    <select onChange={e => setUstaLevel(parseFloat(e.target.value))}
                       value={ustaLevel}
                       className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
                     >
@@ -471,7 +473,7 @@ const Profile = ({
                 <input type="button"
                   onMouseDown={() => setPressingSave(true)}
                   onMouseUp={() => setPressingSave(false)}
-                  className={`w-22 px-2 rounded-lg ${saveButtonStyle} border border-gray-400 shadow-md tracking-widest font-semibold cursor-pointer`}
+                  className={`w-22 px-2 py-3 rounded-lg ${saveButtonStyle} border border-gray-400 shadow-md tracking-widest font-semibold cursor-pointer`}
                   value="SAVE PROFILE"
                   onClick={onUpdateUserProfile}
                 />
@@ -585,7 +587,7 @@ const Profile = ({
 const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
-    albums: state.albums,
+    myAlbums: state.albums.myAlbums,
     user: state.user,
     usersCache: state.usersCache,
   }
@@ -593,7 +595,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    loadAlbums: LoadAlbums(dispatch),
+    loadMyAlbums: LoadMyAlbums(dispatch),
     newFlashMessage: args => dispatch(newNotification(args)),
     searchFriends: SearchFriends(dispatch),
     updateUserProfile: UpdateUserProfile(dispatch),
@@ -601,11 +603,11 @@ const mapDispatchToProps = (dispatch) => {
 }
   
 Profile.propTypes = {
-  albums: PropTypes.object,
+  myAlbums: PropTypes.arrayOf(PropTypes.object),
   user: PropTypes.object,
   usersCache: PropTypes.object,
 
-  loadAlbums: PropTypes.func,
+  loadMyAlbums: PropTypes.func,
   newFlashMessage: PropTypes.func,
   searchFriends: PropTypes.func,
   updateUserProfile: PropTypes.func,

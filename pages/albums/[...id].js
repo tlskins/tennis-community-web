@@ -13,7 +13,6 @@ import ProComparison from "../../components/ProComparison"
 import { getUserIcon, getUserType } from "../../behavior/users"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import {
-  LoadAlbums,
   LoadAlbum,
   UpdateAlbum,
   PostComment,
@@ -892,7 +891,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     flagComment: FlagComment(dispatch),
-    getAlbums: LoadAlbums(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     loadAlbum: LoadAlbum(dispatch),
     postComment: PostComment(dispatch),
@@ -910,7 +908,6 @@ Album.propTypes = {
   recentUploads: PropTypes.arrayOf(PropTypes.object),
 
   flagComment: PropTypes.func,
-  getAlbums: PropTypes.func,
   getRecentUploads: PropTypes.func,
   loadAlbum: PropTypes.func,
   postComment: PropTypes.func,

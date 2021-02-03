@@ -1,8 +1,12 @@
-import { SET_ALBUM, SET_ALBUMS } from "./action"
+import {
+  SET_ALBUM,
+  SET_MY_ALBUMS,
+  SET_FRIENDS_ALBUMS,
+  SET_PUBLIC_ALBUMS,
+} from "./action"
 
 export const albumInitialState = null
 export const albumsInitialState = {
-  lastRequestAt: undefined,
   myAlbums: [],
   friendsAlbums: [],
   publicAlbums: [],
@@ -28,9 +32,17 @@ export function albumsReducer(
   action
 ) {
   switch (action.type) {
-  case SET_ALBUMS: {
+  case SET_MY_ALBUMS: {
     const { payload } = action  
-    return payload
+    return { ...state, myAlbums: [...payload] }
+  }
+  case SET_FRIENDS_ALBUMS: {
+    const { payload } = action  
+    return { ...state, friendsAlbums: [...payload] }
+  }
+  case SET_PUBLIC_ALBUMS: {
+    const { payload } = action  
+    return { ...state, publicAlbums: [...payload] }
   }
   default:
     return state

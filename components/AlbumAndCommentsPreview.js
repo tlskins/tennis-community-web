@@ -140,17 +140,14 @@ const AlbumAndCommentsPreview = ({
           { comments.map((comment, j) => {
             const poster = usersCache[comment.userId]
             return(
-              <div key={j} className="px-2 pt-1 mb-1 bg-yellow-300 rounded-lg border border-gray-400 shadow">
+              <div key={j} className="px-2 pt-1 mb-1 bg-white rounded-lg border border-gray-400 shadow">
                 <textarea disabled={true}
-                  className="text-xs bg-gray-100 rounded-md shadow-md w-full"
+                  className="text-xs bg-gray-100 rounded-md shadow-md w-full p-0.5"
                   value={comment.text}
                   rows={2}
                 />
                 <p className="text-xs w-full">
-                  <span className="font-semibold">poster:</span> { poster ? poster.userName : "..." }
-                </p>
-                <p className="text-xs w-full">
-                  <span className="font-semibold">posted:</span> { Moment(album.updatedAt).format("lll") }
+                  <span className="text-blue-400 underline">{ poster ? `@${poster.userName}` : "..." }</span> | { Moment(album.updatedAt).format("lll") }
                 </p>
               </div>
             )

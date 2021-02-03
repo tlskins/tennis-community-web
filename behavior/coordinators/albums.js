@@ -31,7 +31,7 @@ export const LoadFriendsAlbums = (dispatch) => async ({ limit, offset } = {}) =>
 
 export const LoadPublicAlbums = (dispatch) => async ({ homeApproved, limit, offset } = {}) => {
   try {
-    const params = { limit, offset }
+    const params = { isPublic: true, limit, offset }
     if (homeApproved != null) {
       params.homeApproved = homeApproved
     }

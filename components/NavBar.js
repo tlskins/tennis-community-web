@@ -52,14 +52,14 @@ const NavBar = ({ user, showNewUser, signOut }) => {
         </LinksContainer>
         :
         <LinksContainer>
+          <LinkClass active={ router.pathname === "/profile" }>
+            <Link href="/profile">Profile</Link>
+          </LinkClass>
           <LinkClass active={ router.pathname === "/albums" }>
             <Link href="/albums">Albums</Link>
           </LinkClass>
           <LinkClass active={ router.pathname === "/friends" }>
             <Link href="/friends">Friends</Link>
-          </LinkClass>
-          <LinkClass active={ router.pathname === "/profile" }>
-            <Link href="/profile">Profile</Link>
           </LinkClass>
           { user.isAdmin &&
             <LinkClass active={ router.pathname === "/admin" }>

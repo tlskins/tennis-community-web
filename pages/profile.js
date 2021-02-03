@@ -3,10 +3,10 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment-timezone"
 import { useRouter } from "next/router"
-import ReactPlayer from "react-player"
 
 import Notifications from "../components/Notifications"
 import SwingUploader from "../components/SwingUploader"
+import AlbumAndCommentsPreview from "../components/AlbumAndCommentsPreview"
 import { UpdateUserProfile } from "../behavior/coordinators/users"
 import { SearchFriends } from "../behavior/coordinators/friends"
 import { getUserIcons, getUserIcon } from "../behavior/users"
@@ -14,7 +14,6 @@ import { LoadMyAlbums } from "../behavior/coordinators/albums"
 import { newNotification } from "../state/ui/action"
 import uploadYellow from "../public/upload-yellow.svg"
 import uploadBlue from "../public/upload-blue.svg"
-import speechBubble from "../public/speech-bubble.svg"
 
 const SWING_FRAMES = 60
 const albumsPerColumn = 3
@@ -74,6 +73,7 @@ const Profile = ({
   }, [myAlbums])
 
   useEffect(() => {
+    console.log("setting player info...")
     setPlayerRefs(ref => myActiveAlbums.map((_, i) => ref[i] || createRef()))
     setPlayings(myActiveAlbums.map(() => false))
     setPips(myActiveAlbums.map(() => false))
@@ -99,7 +99,7 @@ const Profile = ({
     }
   }, [currentComments, usersCache])
 
-  const handleSeekChange = (playerRef, i) => e => {
+  const onHandleSeekChange = (playerRef, i) => e => {
     const frame = parseFloat(e.target.value)
     if (frame != null) {
       const seekTo = frame === SWING_FRAMES ? 0.9999 : parseFloat((frame/SWING_FRAMES).toFixed(4))
@@ -109,6 +109,24 @@ const Profile = ({
         [i]: frame,
       })
     }
+  }
+
+  const onTogglePlay = i => isPlaying => () => {
+    const newPlayings = playings.map((p,j) => j === i ? isPlaying : p)
+    setPlayings(newPlayings)
+  }
+
+  const onTogglePip = i => isPip => () => {
+    const newPips = pips.map((p,j) => j === i ? isPip : p)
+    setPips(newPips)
+  }
+
+  const onPlayerProgress = i => played => {
+    const frame = Math.round(played*SWING_FRAMES)
+    setPlayerFrames({
+      ...playerFrames,
+      [i]: frame,
+    })
   }
 
   const onUpdateUserProfile = async () => {
@@ -127,121 +145,11 @@ const Profile = ({
     }
   }
 
-  const renderAlbum = ({ album, i }) => {
-    if (!album) {
-      return null
-    }
-    const ref = playerRefs[i]
-    const playing = playings[i]
-    const pip = pips[i]
-    const duration = playerFrames[i]
-    const swingIdx = currentSwings[i]
-    return(
-      <Fragment>
-        <ReactPlayer
-          className="rounded-md overflow-hidden"
-          ref={ref}
-          url={album.swingVideos[swingIdx]?.videoURL} 
-          playing={playing}
-          pip={pip}
-          volume={0}
-          muted={true}
-          loop={true}
-          progressInterval={200}
-          onProgress={({ played }) => {
-            const frame = Math.round(played*SWING_FRAMES)
-            setPlayerFrames({
-              ...playerFrames,
-              [i]: frame,
-            })
-          }}
-          height="200px"
-          width="240px"
-        />
-
-        {/* Controls Panel */}
-        <div className="flex flex-row content-center justify-center py-1 mb-2 bg-gray-300 rounded w-4/5">
-
-          {/* Picture in Picture */}
-          { pip &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='-'
-              tabIndex={(i*3)+1}
-              onClick={() => {
-                const newPips = pips.map((p,j) => j === i ? false : p)
-                setPips(newPips)
-              }}
-            />
-          }
-          { !pip &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='+'
-              tabIndex={(i*3)+1}
-              onClick={() => {
-                const newPips = pips.map((p,j) => j === i ? true : p)
-                setPips(newPips)
-              }}
-            />
-          }
-
-          {/* Play / Pause */}
-          { playing &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-              value='pause'
-              tabIndex={(i*3)+2}
-              onClick={() => {
-                const newPlayings = playings.map((p,j) => j === i ? false : p)
-                setPlayings(newPlayings)
-              }}
-            />
-          }
-          { !playing &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-              value='play'
-              tabIndex={(i*3)+2}
-              onClick={() => {
-                const newPlayings = playings.map((p,j) => j === i ? true : p)
-                setPlayings(newPlayings)
-                setPlayerFrames({
-                  ...playerFrames,
-                  [i]: undefined,
-                })
-              }}
-            />
-          }
-          
-          {/* Seek */}
-          <input
-            type='range'
-            tabIndex={(i*3)+3}
-            value={duration}
-            min={0}
-            max={SWING_FRAMES}
-            step='1'
-            onChange={handleSeekChange(ref, i)}
-            onFocus={ e => {
-              console.log("focus!")
-              e.stopPropagation()
-              e.preventDefault()
-            }}
-          />
-
-          <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
-            <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
-          </div>
-          
-        </div>
-      </Fragment>
-    )
-  }
-
   if (!user) {
     return(<Fragment/>)
   }
+
+  console.log("playerRefs", playerRefs)
 
   return (
     <div className="flex flex-col h-screen min-h-screen">
@@ -486,74 +394,25 @@ const Profile = ({
                 Recent Albums
               </h2>
 
-              { myActiveAlbums.map((album, i) => {
-                return(
-                  <div key={i} className="flex flex-row bg-gray-100 mb-6 py-2 pr-2 border-2 border-gray-200 rounded-lg shadow-md">
-                    <div className="flex flex-col w-3/5 content-center justify-center items-center pr-1">
-                      <p href={`/albums/${album.id}`}
-                        className="flex text-xs font-semibold text-blue-400 text-center underline mb-1 px-2 cursor-pointer"
-                      >
-                        {album.name}
-                      </p>
-                      { renderAlbum({ album, i }) }
-                    </div>
+              { myActiveAlbums.map((album, i) => 
+                <AlbumAndCommentsPreview
+                  key={i}
+                  album={album}
+                  comments={currentComments[i] || []}
+                  duration={playerFrames[i]}
+                  pip={pips[i]}
+                  playing={playings[i]}
+                  playerRef={playerRefs[i]}
+                  swingIdx={currentSwings[i]}
+                  swingFrames={SWING_FRAMES}
+                  user={user}
 
-                    <div className="flex flex-col w-2/5 content-center text-center py-4">
-
-                      <div className="flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
-                        { album.userId === user?.id && 
-                          <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">owner</div>
-                        }
-                        { album.isPublic && 
-                          <div className="px-2 mx-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs">public</div>
-                        }
-                        { album.isViewableByFriends &&
-                          <div className="px-2 mx-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs">friends</div>
-                        }
-                      </div>
-
-                      <p className="text-xs w-full mb-1">
-                        <span className="font-semibold">Updated</span> { Moment(album.updatedAt).format("lll") }
-                      </p>
-
-                      <div className="flex flex-row content-center justify-center items-center">
-                        <p className="text-xs bg-white rounded-lg mx-1 mb-1 text-xs px-1">
-                          { album.swingVideos.length } <span className="font-semibold">swings</span>
-                        </p>
-
-                        <div className="flex flex-row bg-white rounded-lg mx-1 mb-1 text-xs px-1 w-10">
-                          <p className="mr-0.5 text-center">{ (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0) }</p>
-                          <img src={speechBubble} className="w-5 h-5"/>
-                        </div>
-                      </div>
-
-                      <div className="h-40 overflow-y-scroll bg-gray-300 p-1 rounded-lg">
-                        { (currentComments[i] || []).map((comment, j) => {
-                          const poster = usersCache[comment.userId]
-                          return(
-                            <div key={j} className="px-2 pt-1 mb-1 bg-yellow-300 rounded-lg border border-gray-400 shadow">
-                              <textarea disabled={true}
-                                className="text-xs bg-gray-100 rounded-md shadow-md w-full"
-                                value={comment.text}
-                                rows={2}
-                              />
-                              <p className="text-xs w-full">
-                                <span className="font-semibold">poster:</span> { poster ? poster.userName : "..." }
-                              </p>
-                              <p className="text-xs w-full">
-                                <span className="font-semibold">posted:</span> { Moment(album.updatedAt).format("lll") }
-                              </p>
-                            </div>
-                          )
-                        })}
-                        { (currentComments[i] || []).length === 0 &&
-                          <p className="text-xs w-full rounded-lg bg-yellow-300 text-center">No Comments</p>
-                        }
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
+                  onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                  onTogglePlay={onTogglePlay(i)}
+                  onTogglePip={onTogglePip(i)}
+                  onPlayerProgress={onPlayerProgress(i)}
+                />
+              )}
 
               { myAlbumsPage > 0 &&
                 <div className="w-full content-center justify-center items-center mb-1">

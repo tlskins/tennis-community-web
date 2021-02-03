@@ -5,7 +5,7 @@ import Moment from "moment-timezone"
 import { useRouter } from "next/router"
 
 import Notifications from "../components/Notifications"
-import SwingUploader from "../components/SwingUploader"
+import HowToUpload from "../components/HowToUpload"
 import AlbumAndCommentsPreview from "../components/AlbumAndCommentsPreview"
 import VideoResources from "../components/VideoResources"
 import ProComparison from "../components/ProComparison"
@@ -33,7 +33,6 @@ const Profile = ({
   const router = useRouter()
 
   const [showHowTo, setShowHowTo] = useState(myAlbums.length === 0)
-  const [hoverUpload, setHoverUpload] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
   const [pressingSave, setPressingSave] = useState(false)
 
@@ -112,6 +111,14 @@ const Profile = ({
     }
   }
 
+  const onSetCurrentSwings = i => swingIdx => () => {
+    setCurrentSwings([
+      ...currentSwings.slice(0, i),
+      swingIdx,
+      ...currentSwings.slice(i+1, currentSwings.length),
+    ])
+  }
+
   const onTogglePlay = i => isPlaying => () => {
     const newPlayings = playings.map((p,j) => j === i ? isPlaying : p)
     setPlayings(newPlayings)
@@ -163,59 +170,7 @@ const Profile = ({
 
           {/* How to upload first album */}
           { showHowTo &&
-            <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md mb-3">
-              <div className="flex flex-col">
-                <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
-                    Upload {myAlbums.length > 0 ? "an" : "your first"} album!
-                </h2>
-
-                <div className="flex flex-row content-center">
-                  <img src={hoverUpload ? uploadBlue : uploadYellow}
-                    className="w-80 h-72 mr-10"
-                    onMouseEnter={() => setHoverUpload(true)}
-                    onMouseLeave={() => setHoverUpload(false)}
-                  />
-                  <div className="flex-flex-row w-full content-center justify-center items-center">
-                    <ol className="list-decimal">
-                      <li className="mb-5">
-                        <span className="font-semibold">Record yourself playing tennis</span>
-                        <div className="pl-6">
-                          <ul className="list-disc">
-                            <li>Using a mobile phone, or camera, record yourself playing a match, rallying, or hitting against the wall.</li>
-                            <li>Aim your phone so that you get a good profile view of yourself. This gives you a better angle of your body for swing analysis.</li>
-                            <li>Prop your phone up to get a good angle.</li>
-                          </ul>
-                        </div>
-                      </li>
-
-                      <li className="mb-5">
-                        <span className="font-semibold">Upload your video</span>
-                        <div className="pl-6">
-                          <ul className="list-disc">
-                            <li>The upload will take about 10 minutes for the AI to export all the swings into an Album.</li>
-                          </ul>
-                          <div className="w-96 mt-2">
-                            <SwingUploader />
-                          </div>
-                        </div>
-                      </li>
-
-                      <li className="mb-5">
-                        <span className="font-semibold">Analyze & comment on your albums</span>
-                        <div className="pl-6">
-                          <ul className="list-disc">
-                            <li>
-                            After the upload has finished processing, find your newly created Album here, or on the
-                              <a href="/albums" className="text-blue-700 underline ml-1">albums</a> page
-                            </li>
-                          </ul>
-                        </div>
-                      </li>
-                    </ol>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <HowToUpload isFirst={myAlbums.length > 0} />
           }
 
           <div className="grid grid-cols-3 gap-6">
@@ -231,14 +186,8 @@ const Profile = ({
                   <p className="text-center text-xs tracking-widest underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
                   <img src={hoverUploadButton ? uploadBlue : uploadYellow}
                     className="w-10 h-8 relative -top-8 cursor-pointer"
-                    onMouseEnter={() => {
-                      setHoverUpload(true)
-                      setHoverUploadButton(true)
-                    }}
-                    onMouseLeave={() => {
-                      setHoverUpload(false)
-                      setHoverUploadButton(false)
-                    }}
+                    onMouseEnter={() => setHoverUploadButton(true)}
+                    onMouseLeave={() => setHoverUploadButton(false)}
                     onClick={() => setShowHowTo(!showHowTo)}
                   />
                 </div>
@@ -427,6 +376,7 @@ const Profile = ({
                   swingFrames={SWING_FRAMES}
                   user={user}
 
+                  onSetSwingIndex={onSetCurrentSwings(i)}
                   onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
                   onTogglePlay={onTogglePlay(i)}
                   onTogglePip={onTogglePip(i)}

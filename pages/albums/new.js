@@ -5,6 +5,8 @@ import Moment from "moment-timezone"
 
 import Notifications from "../../components/Notifications"
 import SwingUploader from "../../components/SwingUploader"
+import HowToUpload from "../../components/HowToUpload"
+
 import Sharing from "../../components/Sharing"
 import { LoadMyAlbums, CreateAlbum } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
@@ -16,7 +18,7 @@ const SwingsPerPage = 6
 const NewAlbum = ({
   user,
   usersCache,
-  albums,
+  myAlbums,
   
   createAlbum,
   displayAlert,
@@ -34,7 +36,7 @@ const NewAlbum = ({
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
 
-  const activeAlbums = albums.myAlbums.slice(albumsPage * AlbumsPerPage, (albumsPage+1) * AlbumsPerPage)
+  const activeAlbums = myAlbums.slice(albumsPage * AlbumsPerPage, (albumsPage+1) * AlbumsPerPage)
   const activeSwings = activeAlbum?.swingVideos.slice(albumPage * SwingsPerPage, (albumPage+1) * SwingsPerPage) || []
 
   useEffect(() => {
@@ -109,14 +111,16 @@ const NewAlbum = ({
 
         {/* Begin Main */}
 
+        <HowToUpload isFirst={myAlbums.length === 0} />
+
         <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-6 border border-black shadow-md">
-          <div className="p-4 flex flex-row">
-            <h2>Create Album From</h2>
-            <select className="ml-1 border rounded border-black p-1"
+          <div className="p-4 flex flex-col content-center justify-center items-center">
+            <h2 className="text-center underline text-lg font-semibold mb-2">Create Album From</h2>
+            <select className="mt-2 border rounded border-black p-1"
               onChange={e => setUploadType(e.target.value)}
             >
               <option value="File">File</option>
-              <option value="Album">Album</option>
+              <option value="Album">Existing Album(s)</option>
             </select>
           </div>
 
@@ -271,7 +275,7 @@ const mapStateToProps = (state) => {
   return {
     user: state.user,
     usersCache: state.usersCache,
-    albums: state.albums,
+    myAlbums: state.albums.myAlbums,
   }
 }
 
@@ -286,7 +290,7 @@ const mapDispatchToProps = (dispatch) => {
   
 NewAlbum.propTypes = {
   user: PropTypes.object,
-  albums: PropTypes.object,
+  myAlbums: PropTypes.arrayOf(PropTypes.object),
   usersCache: PropTypes.object,
 
   createAlbum: PropTypes.func,

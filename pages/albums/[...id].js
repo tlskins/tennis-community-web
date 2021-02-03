@@ -597,7 +597,7 @@ const Album = ({
                                 <p className="p-1">
                                   { comment.text }
                                 </p>
-                                <div className="flex flex-row items-center">
+                                <div className="flex flex-row content-center justify-center items-center">
                                   <div className="tooltip">
                                     <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 border border-yellow-300 -mt-6 rounded'>
                                       { getUserType(user) }

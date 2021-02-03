@@ -19,13 +19,15 @@ const AlbumAndCommentsPreview = ({
   user,
   usersCache,
 
+  onSetSwingIndex,
   onTogglePlay,
   onHandleSeekChange,
   onTogglePip,
   onPlayerProgress,
 }) => {
+  console.log("swing",swingIdx, album.swingVideos[swingIdx])
   return(
-    <div key={album.id} className="flex flex-row bg-gray-100 mb-6 py-2 pr-2 border-2 border-gray-200 rounded-lg shadow-md">
+    <div key={album.id} className="flex flex-row bg-gray-100 mb-6 p-2 border-2 border-gray-200 rounded-lg shadow-md w-full">
       <div className="flex flex-col w-3/5 content-center justify-center items-center pr-1">
         <p href={`/albums/${album.id}`}
           className="flex text-xs font-semibold text-blue-400 text-center underline mb-1 px-2 cursor-pointer"
@@ -52,6 +54,14 @@ const AlbumAndCommentsPreview = ({
 
           {/* Controls Panel */}
           <div className="flex flex-row content-center justify-center py-1 mb-2 bg-gray-300 rounded w-4/5">
+
+            { swingIdx > 0 &&
+              <input type='button'
+                className='border rounded p-0.5 mx-1 text-xs font-bold bg-black text-white cursor-pointer'
+                value='<'
+                onClick={onSetSwingIndex(swingIdx-1)}
+              />
+            }
 
             {/* Picture in Picture */}
             { pip &&
@@ -103,6 +113,14 @@ const AlbumAndCommentsPreview = ({
             <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
               <p className="text-center"> { duration ? duration : "0" }/{swingFrames}</p>
             </div>
+
+            { swingIdx < album.swingVideos.length-1 &&
+              <input type='button'
+                className='border rounded p-0.5 mx-1 text-xs font-bold bg-black text-white cursor-pointer'
+                value='>'
+                onClick={onSetSwingIndex(swingIdx+1)}
+              />
+            }
           </div>
         </Fragment>
       </div>
@@ -136,7 +154,7 @@ const AlbumAndCommentsPreview = ({
           </div>
         </div>
 
-        <div className="h-40 overflow-y-scroll bg-gray-300 p-1 rounded-lg">
+        <div className="h-40 w-full overflow-y-scroll bg-gray-300 p-1 rounded-lg">
           { comments.map((comment, j) => {
             const poster = usersCache[comment.userId]
             return(
@@ -183,6 +201,7 @@ AlbumAndCommentsPreview.propTypes = {
   onHandleSeekChange: PropTypes.func,
   onTogglePip: PropTypes.func,
   onPlayerProgress: PropTypes.func,
+  onSetSwingIndex: PropTypes.func,
 }
     
 export default connect(mapStateToProps, undefined)(AlbumAndCommentsPreview)

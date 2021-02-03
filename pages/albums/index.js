@@ -134,6 +134,14 @@ const AlbumsIndex = ({
     }
   }
 
+  const onSetCurrentSwings = i => swingIdx => () => {
+    setCurrentSwings([
+      ...currentSwings.slice(0, i),
+      swingIdx,
+      ...currentSwings.slice(i+1, currentSwings.length),
+    ])
+  }
+
   const onTogglePlay = i => isPlaying => () => {
     const newPlayings = playings.map((p,j) => j === i ? isPlaying : p)
     setPlayings(newPlayings)
@@ -283,12 +291,12 @@ const AlbumsIndex = ({
 
         {/* Begin Album Videos */}
 
-        <div className="p-4 flex flex-col w-full bg-gray-100">
+        <div className="p-4 flex flex-col w-full bg-gray-100 h-full">
 
           {/* Start My Albums */}
 
           { (user && user.id) &&
-            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 w-full">
+            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 w-full h-full">
               <div className="flex flex-row content-center justify-center items-center mb-4">
                 { page > 0 &&
                   <button
@@ -301,7 +309,7 @@ const AlbumsIndex = ({
                 <h2 className="font-medium underline mx-2 text-center">
                   Page { page+1 }
                 </h2>
-                { (page < (myAlbums.length / albumsPerRow)-1) &&
+                { (page < (activeAlbums.length / albumsPerRow)-1) &&
                   <button
                     onClick={() => setPage(page+1)}
                     className="-0.5 mx-1"
@@ -317,7 +325,7 @@ const AlbumsIndex = ({
                     <h2 className="font-semibold text-center">None</h2>
                   </div>
                 }
-                <div className="grid grid-cols-2 gap-1 w-full py-4 px-20">
+                <div className="grid grid-cols-2 gap-4 w-full py-4 px-40">
                   { activeAlbums.map( (album, i) => {
                     return (
                       <div key={i}
@@ -379,6 +387,7 @@ const AlbumsIndex = ({
                           swingFrames={SWING_FRAMES}
                           user={user}
 
+                          onSetSwingIndex={onSetCurrentSwings(i)}
                           onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
                           onTogglePlay={onTogglePlay(i)}
                           onTogglePip={onTogglePip(i)}

@@ -25,7 +25,6 @@ const AlbumAndCommentsPreview = ({
   onTogglePip,
   onPlayerProgress,
 }) => {
-  console.log("swing",swingIdx, album.swingVideos[swingIdx])
   return(
     <div key={album.id} className="flex flex-row bg-gray-100 mb-6 p-2 border-2 border-gray-200 rounded-lg shadow-md w-full">
       <div className="flex flex-col w-3/5 content-center justify-center items-center pr-1">

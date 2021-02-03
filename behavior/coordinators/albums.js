@@ -2,7 +2,7 @@ import { get, put, post, del } from "../api/rest"
 import { setAlbum } from "../../state/album/action"
 import { HandleError } from "./errors"
 import { newNotification } from "../../state/ui/action"
-import { setMyAlbums, setFriendsAlbums, setPublicAlbums } from "../../state/album/action"
+import { setMyAlbums, setFriendsAlbums, setSharedAlbums, setPublicAlbums } from "../../state/album/action"
 
 
 export const LoadMyAlbums = (dispatch) => async ({ limit, offset } = {}) => {
@@ -21,6 +21,18 @@ export const LoadFriendsAlbums = (dispatch) => async ({ limit, offset } = {}) =>
   try {
     const response = await put("/albums/search", { friends: true, limit, offset })
     dispatch(setFriendsAlbums(response.data))
+    return true
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+}
+
+export const LoadSharedAlbums = (dispatch) => async ({ limit, offset } = {}) => {
+  try {
+    const response = await put("/albums/search", { shared: true, limit, offset })
+    dispatch(setSharedAlbums(response.data))
     return true
   }
   catch( err ) {

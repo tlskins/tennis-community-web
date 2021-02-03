@@ -14,6 +14,7 @@ import Sidebar from "../../components/Sidebar"
 import {
   LoadMyAlbums,
   LoadFriendsAlbums,
+  LoadSharedAlbums,
   LoadPublicAlbums,
   DeleteAlbum,
   FlagAlbum,
@@ -43,6 +44,7 @@ const filterAlbums = (albums, search, rgx, start, end) => {
 const AlbumsIndex = ({
   myAlbums,
   friendsAlbums,
+  sharedAlbums,
   publicAlbums,
   user,
   usersCache,
@@ -51,6 +53,7 @@ const AlbumsIndex = ({
   flagAlbum,
   loadMyAlbums,
   loadFriendsAlbums,
+  loadSharedAlbums,
   loadPublicAlbums,
   searchFriends,
   toggleFlashMessage,
@@ -79,6 +82,8 @@ const AlbumsIndex = ({
     break
   case "friends": sourceAlbums = friendsAlbums
     break
+  case "shared": sourceAlbums = sharedAlbums
+    break
   case "public": sourceAlbums = publicAlbums
     break
   default: sourceAlbums = myAlbums
@@ -93,6 +98,7 @@ const AlbumsIndex = ({
       loadMyAlbums()
       loadFriendsAlbums()
       loadPublicAlbums()
+      loadSharedAlbums()
     }
   }, [])
 
@@ -413,6 +419,7 @@ const mapStateToProps = (state) => {
   return {
     myAlbums: state.albums.myAlbums,
     friendsAlbums: state.albums.friendsAlbums,
+    sharedAlbums: state.albums.sharedAlbums,
     publicAlbums: state.albums.publicAlbums,
     user: state.user,
     usersCache: state.usersCache,
@@ -425,6 +432,7 @@ const mapDispatchToProps = (dispatch) => {
     flagAlbum: FlagAlbum(dispatch),
     loadMyAlbums: LoadMyAlbums(dispatch),
     loadFriendsAlbums: LoadFriendsAlbums(dispatch),
+    loadSharedAlbums: LoadSharedAlbums(dispatch),
     loadPublicAlbums: LoadPublicAlbums(dispatch),
     searchFriends: SearchFriends(dispatch),
     toggleFlashMessage: args => dispatch(newNotification(args)),
@@ -433,6 +441,7 @@ const mapDispatchToProps = (dispatch) => {
 
 AlbumsIndex.propTypes = {
   myAlbums: PropTypes.arrayOf(PropTypes.object),
+  sharedAlbums: PropTypes.arrayOf(PropTypes.object),
   friendsAlbums: PropTypes.arrayOf(PropTypes.object),
   publicAlbums: PropTypes.arrayOf(PropTypes.object),
   user: PropTypes.object,
@@ -441,6 +450,7 @@ AlbumsIndex.propTypes = {
   deleteAlbum: PropTypes.func,
   flagAlbum: PropTypes.func,
   loadMyAlbums: PropTypes.func,
+  loadSharedAlbums: PropTypes.func,
   loadFriendsAlbums: PropTypes.func,
   loadPublicAlbums: PropTypes.func,
   searchFriends: PropTypes.func,

@@ -44,13 +44,13 @@ const NewAlbum = ({
   }, [])
 
   useEffect(() => {
-    if (user.friendIds.length > 0) {
+    if (user?.friendIds.length > 0) {
       const ids = user.friendIds.filter( id => !usersCache[id])
       if (ids.length > 0) {
         searchFriends({ ids: [ ...ids, ...user.friendIds] })
       }
     }
-  }, [user.friendIds])
+  }, [user?.friendIds])
 
   const onSelectAlbum = album => () => {
     setAlbumPage(0)
@@ -83,7 +83,7 @@ const NewAlbum = ({
       isViewableByFriends,
       friendIds,
     })) {
-      displayAlert({ message: `Album ${newAlbumName} Successfully Created` })
+      displayAlert({ message: `Album "${newAlbumName}" Successfully Created` })
       clearForm()
     }
   }

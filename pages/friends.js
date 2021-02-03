@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment-timezone"
 import { useRouter } from "next/router"
-import { GrSearch, GrFormClose } from 'react-icons/gr'
+import { GrSearch, GrFormClose } from "react-icons/gr"
 
 import Notifications from "../components/Notifications"
 import Sidebar from "../components/Sidebar"
@@ -44,16 +44,6 @@ const Friends = ({
   const [displayUserId, setDisplayUserId] = useState(undefined)
   const [activeFriendReq, setActiveFriendReq] = useState(undefined)
   const displayUser = usersCache[displayUserId]
-
-  useEffect(() => {
-    if (!user || !user.id) {
-      router.push("/")
-    }
-  }, [user])
-
-  if (!user) {
-    return(<Fragment/>)
-  }
 
   useEffect(() => {
     if (user.friendRequests.length > 0 || user.friendIds.length > 0) {
@@ -114,6 +104,16 @@ const Friends = ({
     }
   }
 
+  useEffect(() => {
+    if (!user || !user.id) {
+      router.push("/")
+    }
+  }, [user])
+
+  if (!user) {
+    return(<Fragment/>)
+  }
+
   return (
     <div className="flex flex-col h-screen min-h-screen">
       { (user && user.id) &&
@@ -123,37 +123,37 @@ const Friends = ({
 
         {/* Begin Sidebar */}
 
-          <Sidebar>
+        <Sidebar>
 
-            {/* Search Users Sidebar */}
-            <Fragment>
-              <SearchBoxContainer>
-                <SearchBox
-                  placeholder="Search Users"
-                  value={search}
-                  onChange={onSearchUsers}
-                />
-                <GrSearch/>
-              </SearchBoxContainer>
-              { foundUsers.map(({ id, userName, firstName, lastName }, i) => {
-                const isFriend = user.friendIds.includes(id)
-                const isRequested = user.friendRequests.find( req => req.toUserId === id || req.fromUserId === id )
-                return(
-                  <UserResultBox key={i}>
-                    <p className="username">@{ userName }</p>
-                    <p className="fullname">{ firstName } {lastName}</p>
-                    { (!isFriend && !isRequested && id !== user.id) &&
+          {/* Search Users Sidebar */}
+          <Fragment>
+            <SearchBoxContainer>
+              <SearchBox
+                placeholder="Search Users"
+                value={search}
+                onChange={onSearchUsers}
+              />
+              <GrSearch/>
+            </SearchBoxContainer>
+            { foundUsers.map(({ id, userName, firstName, lastName }, i) => {
+              const isFriend = user.friendIds.includes(id)
+              const isRequested = user.friendRequests.find( req => req.toUserId === id || req.fromUserId === id )
+              return(
+                <UserResultBox key={i}>
+                  <p className="username">@{ userName }</p>
+                  <p className="fullname">{ firstName } {lastName}</p>
+                  { (!isFriend && !isRequested && id !== user.id) &&
                         <button
                           onClick={onSendFriendRequest({ id, userName })}
                         >
                           Request
                         </button>
-                    }
-                  </UserResultBox>
-                )
-              })}
-            </Fragment>
-          </Sidebar>
+                  }
+                </UserResultBox>
+              )
+            })}
+          </Fragment>
+        </Sidebar>
 
         {/* End Sidebar */}
 

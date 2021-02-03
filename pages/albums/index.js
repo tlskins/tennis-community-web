@@ -340,7 +340,7 @@ const AlbumsIndex = ({
                 }
               </div>
 
-              <div className="flex flex-row">
+              <div className="flex flex-col">
                 { myActiveAlbums.length === 0 &&
                 <div className="w-full py-2 px-12 content-center justify-center items-center">
                   <h2 className="font-semibold text-center">None</h2>
@@ -415,7 +415,7 @@ const AlbumsIndex = ({
 
           {/* Start Friends Albums */}
 
-          { (user && user.id) &&
+          {/* { (user && user.id) &&
             <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md my-2">
               <div className="flex flex-row content-center justify-center items-center mb-2">
                 { friendsAlbumsPage > 0 &&
@@ -475,11 +475,11 @@ const AlbumsIndex = ({
                 })}
               </div>
             </div>
-          }
+          } */}
 
           {/* Start Public Albums */}
 
-          <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
+          {/* <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2">
             <div className="flex flex-row content-center justify-center items-center mb-2">
               { publicAlbumsPage > 0 &&
                   <button
@@ -537,7 +537,7 @@ const AlbumsIndex = ({
                 )
               })}
             </div>
-          </div>
+          </div> */}
 
         </div>
         {/* End Album Videos */}

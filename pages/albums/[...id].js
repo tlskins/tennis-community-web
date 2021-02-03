@@ -435,7 +435,6 @@ const Album = ({
               { activeSideBar === "Video Resources" &&
                 <VideoResources
                   onExpand={playing => setExpandedSideBar(playing)}
-                  expanded={expandedSideBar}
                 />
               }
             </div>

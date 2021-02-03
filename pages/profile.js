@@ -7,6 +7,8 @@ import { useRouter } from "next/router"
 import Notifications from "../components/Notifications"
 import SwingUploader from "../components/SwingUploader"
 import AlbumAndCommentsPreview from "../components/AlbumAndCommentsPreview"
+import VideoResources from "../components/VideoResources"
+import ProComparison from "../components/ProComparison"
 import { UpdateUserProfile } from "../behavior/coordinators/users"
 import { SearchFriends } from "../behavior/coordinators/friends"
 import { getUserIcons, getUserIcon } from "../behavior/users"
@@ -73,7 +75,6 @@ const Profile = ({
   }, [myAlbums])
 
   useEffect(() => {
-    console.log("setting player info...")
     setPlayerRefs(ref => myActiveAlbums.map((_, i) => ref[i] || createRef()))
     setPlayings(myActiveAlbums.map(() => false))
     setPips(myActiveAlbums.map(() => false))
@@ -221,121 +222,123 @@ const Profile = ({
 
           <div className="grid grid-cols-3 gap-6 content-center justify-center items-start">
                 
-            {/* Profile */}
-            <div className="flex flex-col col-span-2 pt-6 pb-20 px-10 bg-white rounded shadow-lg content-center justify-center items-center static">
-              <div className="w-full">
-                <h2 className="font-bold text-lg text-center tracking-wider mb-1">
+            {/* Main */}
+            <div className="flex flex-col col-span-2">
+              {/* Profile */}
+              <div className="pt-6 pb-20 px-10 bg-white rounded shadow-lg content-center justify-center items-center static mb-6">
+                <div className="w-full">
+                  <h2 className="font-bold text-lg text-center tracking-wider mb-1">
                   Profile
-                </h2>
-                <p className="text-center text-xs tracking-widest underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
-                <img src={hoverUploadButton ? uploadBlue : uploadYellow}
-                  className="w-10 h-8 relative -top-8 cursor-pointer"
-                  onMouseEnter={() => {
-                    setHoverUpload(true)
-                    setHoverUploadButton(true)
-                  }}
-                  onMouseLeave={() => {
-                    setHoverUpload(false)
-                    setHoverUploadButton(false)
-                  }}
-                  onClick={() => setShowHowTo(!showHowTo)}
-                />
-              </div>
-
-              <div className="flex flex-col content-center justify-center items-center my-5">
-                <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
-                  <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
-                </div>
-                <div className="flex flex-row mt-4">
-                  { getUserIcons(user).map((icon, i) => {
-                    return(
-                      <div key={i}
-                        className="hover:bg-blue-200 rounded-xl p-3 mx-2 cursor-pointer"
-                      >
-                        <img src={icon.image}
-                          className="w-8 h-8"
-                          onClick={() => setIconNumber(icon.number)}
-                        />
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {/* Standard Profile */}
-              <div className="grid grid-cols-2 gap-4 mb-10">
-                <div className="flex flex-col content-center justify-center items-end">
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Email</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">User Name</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">First Name</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide mb-4">Last Name</p>
+                  </h2>
+                  <p className="text-center text-xs tracking-widest underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
+                  <img src={hoverUploadButton ? uploadBlue : uploadYellow}
+                    className="w-10 h-8 relative -top-8 cursor-pointer"
+                    onMouseEnter={() => {
+                      setHoverUpload(true)
+                      setHoverUploadButton(true)
+                    }}
+                    onMouseLeave={() => {
+                      setHoverUpload(false)
+                      setHoverUploadButton(false)
+                    }}
+                    onClick={() => setShowHowTo(!showHowTo)}
+                  />
                 </div>
 
-                <div className="flex flex-col">
-                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                    <input type="text"
-                      className="w-40 px-1 rounded-md bg-gray-300 border border-gray-400 shadow-md"
-                      value={email}
-                      disabled={true}
+                <div className="flex flex-col content-center justify-center items-center my-5">
+                  <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
+                    <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
+                  </div>
+                  <div className="flex flex-row mt-4">
+                    { getUserIcons(user).map((icon, i) => {
+                      return(
+                        <div key={i}
+                          className="hover:bg-blue-200 rounded-xl p-3 mx-2 cursor-pointer"
+                        >
+                          <img src={icon.image}
+                            className="w-8 h-8"
+                            onClick={() => setIconNumber(icon.number)}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Standard Profile */}
+                <div className="grid grid-cols-2 gap-4 mb-10">
+                  <div className="flex flex-col content-center justify-center items-end">
+                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Email</p>
+                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">User Name</p>
+                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">First Name</p>
+                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide mb-4">Last Name</p>
+                  </div>
+
+                  <div className="flex flex-col">
+                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                      <input type="text"
+                        className="w-40 px-1 rounded-md bg-gray-300 border border-gray-400 shadow-md"
+                        value={email}
+                        disabled={true}
                       // onChange={e => setEmail(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                    <p className="mr-0.5">@</p>
-                    <input type="text"
-                      className="w-36 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                      value={userName}
-                      onChange={e => setUserName(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                    <input type="text"
-                      className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                      value={firstName}
-                      onChange={e => setFirstName(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                    <input type="text"
-                      className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                      value={lastName}
-                      onChange={e => setLastName(e.target.value)}
-                    />
+                      />
+                    </div>
+                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                      <p className="mr-0.5">@</p>
+                      <input type="text"
+                        className="w-36 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                        value={userName}
+                        onChange={e => setUserName(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                      <input type="text"
+                        className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                        value={firstName}
+                        onChange={e => setFirstName(e.target.value)}
+                      />
+                    </div>
+                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                      <input type="text"
+                        className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                        value={lastName}
+                        onChange={e => setLastName(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Expanded Profile */}
-              <p className="text-left align-center px-2 py-1 float-right rounded-md tracking-wide text-sm text-gray-700 text-center">
+                {/* Expanded Profile */}
+                <p className="text-left align-center px-2 py-1 float-right rounded-md tracking-wide text-sm text-gray-700 text-center">
                 This profile data helps us connect you with other tennis players and relevant topics
-              </p>
-              <div className="grid grid-cols-2 gap-4 rounded-lg shadow-md border border-gray-400 py-4 w-3/4">
-                <div className="flex flex-col content-center justify-center items-end">
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Public?</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Birth Year</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Gender</p>
-                  <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">USTA Level</p>
-                </div>
-
-                <div className="flex flex-col">
-                  <div className="flex flex-row px-2 py-3 w-10 h-10 content-center justify-center">
-                    <input type="checkbox"
-                      className="shadow-md"
-                      checked={isPublic}
-                      onChange={() => setIsPublic(!isPublic)}
-                    />
+                </p>
+                <div className="grid grid-cols-2 gap-4 rounded-lg shadow-md border border-gray-400 py-4 w-3/4">
+                  <div className="flex flex-col content-center justify-center items-end">
+                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Public?</p>
+                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Birth Year</p>
+                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Gender</p>
+                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">USTA Level</p>
                   </div>
-                  <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                    <input type="text"
-                      className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                      value={birthYear || ""}
-                      onChange={e => {
-                        let val = parseInt(e.target.value)
-                        if (!val) val = undefined
-                        setBirthYear(val)
-                      }}
-                    />
-                    { birthYear &&
+
+                  <div className="flex flex-col">
+                    <div className="flex flex-row px-2 py-3 w-10 h-10 content-center justify-center">
+                      <input type="checkbox"
+                        className="shadow-md"
+                        checked={isPublic}
+                        onChange={() => setIsPublic(!isPublic)}
+                      />
+                    </div>
+                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                      <input type="text"
+                        className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                        value={birthYear || ""}
+                        onChange={e => {
+                          let val = parseInt(e.target.value)
+                          if (!val) val = undefined
+                          setBirthYear(val)
+                        }}
+                      />
+                      { birthYear &&
                       <input type="button"
                         className="w-6 h-6 px-1.5 ml-1 shadow-md rounded-xl bg-black text-yellow-300 text-xs font-bold cursor-pointer"
                         value="X"
@@ -343,48 +346,68 @@ const Profile = ({
                         maxLength="4"
                         onClick={() => setBirthYear(null)}
                       />
-                    }
-                  </div>
-                  <div className="flex flex-row rounded-md px-2 py-1 w-44">
-                    <select onChange={e => setGender(e.target.value)}
-                      value={gender}
-                      className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                    >
-                      <option value={undefined}>-</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                    </select>
-                  </div>
-                  <div className="flex flex-row rounded-md px-2 py-1 w-44">
-                    <select onChange={e => setUstaLevel(parseFloat(e.target.value))}
-                      value={ustaLevel}
-                      className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                    >
-                      <option value={undefined}>-</option>
-                      <option value={2.5}>2.5</option>
-                      <option value={3.0}>3.0</option>
-                      <option value={3.5}>3.5</option>
-                      <option value={4.0}>4.0</option>
-                      <option value={4.5}>4.5</option>
-                      <option value={5.0}>5.0</option>
-                      <option value={5.5}>5.5</option>
-                      <option value={6.0}>6.0</option>
-                      <option value={6.5}>6.5</option>
-                      <option value={7.0}>7.0</option>
-                    </select>
-                  </div>
+                      }
+                    </div>
+                    <div className="flex flex-row rounded-md px-2 py-1 w-44">
+                      <select onChange={e => setGender(e.target.value)}
+                        value={gender}
+                        className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                      >
+                        <option value={undefined}>-</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
+                    <div className="flex flex-row rounded-md px-2 py-1 w-44">
+                      <select onChange={e => setUstaLevel(parseFloat(e.target.value))}
+                        value={ustaLevel}
+                        className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                      >
+                        <option value={undefined}>-</option>
+                        <option value={2.5}>2.5</option>
+                        <option value={3.0}>3.0</option>
+                        <option value={3.5}>3.5</option>
+                        <option value={4.0}>4.0</option>
+                        <option value={4.5}>4.5</option>
+                        <option value={5.0}>5.0</option>
+                        <option value={5.5}>5.5</option>
+                        <option value={6.0}>6.0</option>
+                        <option value={6.5}>6.5</option>
+                        <option value={7.0}>7.0</option>
+                      </select>
+                    </div>
                 
+                  </div>
+                </div>
+            
+                <div className="flex flex-col w-full content-center justify-center items-center mt-12 mb-4">
+                  <input type="button"
+                    onMouseDown={() => setPressingSave(true)}
+                    onMouseUp={() => setPressingSave(false)}
+                    className={`w-22 px-2 py-3 rounded-lg ${saveButtonStyle} border border-gray-400 shadow-md tracking-widest font-semibold cursor-pointer`}
+                    value="SAVE PROFILE"
+                    onClick={onUpdateUserProfile}
+                  />
                 </div>
               </div>
-            
-              <div className="flex flex-col w-full content-center justify-center items-center mt-12">
-                <input type="button"
-                  onMouseDown={() => setPressingSave(true)}
-                  onMouseUp={() => setPressingSave(false)}
-                  className={`w-22 px-2 py-3 rounded-lg ${saveButtonStyle} border border-gray-400 shadow-md tracking-widest font-semibold cursor-pointer`}
-                  value="SAVE PROFILE"
-                  onClick={onUpdateUserProfile}
-                />
+
+              <div className="grid grid-cols-3 gap-8 bg-white rounded shadow-lg p-4">
+                {/* Video Resources */}
+                <div className="p-4 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md">
+                  <h2 className="font-bold text-lg text-center tracking-wider w-full">
+                    Pro Swings
+                  </h2>
+                  <ProComparison />
+                </div>
+                <div className="flex flex-col col-span-2 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md">
+                  <h2 className="font-bold text-lg text-center tracking-wider w-full">
+                    Tutorials
+                  </h2>
+                  <VideoResources
+                    defaultVideoGroup="Forehands"
+                    defaultVideo="Forehand Form Basics"
+                  />
+                </div>
               </div>
             </div>
 

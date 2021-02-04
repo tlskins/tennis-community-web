@@ -218,7 +218,7 @@ const Profile = ({
                   <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
                     <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
                   </div>
-                  <div className="flex flex-row mt-4">
+                  <div className="flex flex-row mt-4 mb-1">
                     { getUserIcons(user).map((icon, i) => {
                       return(
                         <div key={i}
@@ -232,6 +232,7 @@ const Profile = ({
                       )
                     })}
                   </div>
+                  <p className="text-xs tracking-wider text-gray-700">Choose your avatar icon</p>
                 </div>
 
                 {/* Standard Profile */}
@@ -419,6 +420,12 @@ const Profile = ({
                 </div>
               </div>
 
+              { activeAlbums.length === 0 &&
+                <div className="px-20 mt-4">
+                  <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
+                </div>
+              }
+
               { activeAlbums.map((album, i) => 
                 <AlbumAndCommentsPreview
                   key={i}
@@ -495,6 +502,9 @@ const mapDispatchToProps = (dispatch) => {
   
 Profile.propTypes = {
   myAlbums: PropTypes.arrayOf(PropTypes.object),
+  friendsAlbums: PropTypes.arrayOf(PropTypes.object),
+  sharedAlbums: PropTypes.arrayOf(PropTypes.object),
+  publicAlbums: PropTypes.arrayOf(PropTypes.object),
   user: PropTypes.object,
   usersCache: PropTypes.object,
 

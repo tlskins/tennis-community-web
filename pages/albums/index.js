@@ -9,7 +9,7 @@ import "react-datepicker/dist/react-datepicker.css"
 
 import { newNotification } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
-import AlbumAndCommentsPreview from "../../components/AlbumAndCommentsPreview"
+import AlbumAndComments from "../../components/AlbumAndComments"
 import Sidebar from "../../components/Sidebar"
 import {
   LoadMyAlbums,
@@ -33,12 +33,13 @@ import {
 
 
 const SWING_FRAMES = 60
-const albumsPerRow = 4
+const ALBUMS_PER_COL = 3
 
 const filterAlbums = (albums, search, rgx, start, end) => {
   let filtered = albums.filter( alb => search ? rgx.test(alb.name) : true)
   filtered = filtered.filter( alb => start ? Moment(alb.createdAt).isAfter(Moment(start)) : true)
-  return filtered.filter( alb => end ? Moment(alb.createdAt).isBefore(Moment(end)) : true)
+  filtered = filtered.filter( alb => end ? Moment(alb.createdAt).isBefore(Moment(end)) : true)
+  return filtered.filter( alb => !!alb )
 }
 
 const AlbumsIndex = ({
@@ -65,20 +66,19 @@ const AlbumsIndex = ({
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([])
   const [currentSwings, setCurrentSwings] = useState([])
-  const [currentComments, setCurrentComments] = useState([])
 
   const [hoveredAlbum, setHoveredAlbum] = useState(undefined)
   const [toDeleteAlbum, setToDeleteAlbum] = useState(undefined)
 
   const [page, setPage] = useState(0)
-  const [albumType, setAlbumType] = useState("personal")
+  const [albumType, setAlbumType] = useState("owner")
   const [search, setSearch] = useState("")
   const [startDate, setStartDate] = useState(undefined)
   const [endDate, setEndDate] = useState(undefined)
 
   var sourceAlbums
   switch(albumType) {
-  case "personal": sourceAlbums = myAlbums
+  case "owner": sourceAlbums = myAlbums
     break
   case "friends": sourceAlbums = friendsAlbums
     break
@@ -91,7 +91,7 @@ const AlbumsIndex = ({
 
   const searchRgx = new RegExp(search, "gi")
   const filteredAlbums = filterAlbums(sourceAlbums, search, searchRgx, startDate, endDate)
-  const activeAlbums = filteredAlbums.slice(page * albumsPerRow, (page+1) * albumsPerRow).filter( a => !!a )
+  const activeAlbums = filteredAlbums.slice(page * ALBUMS_PER_COL, (page+1) * ALBUMS_PER_COL).filter( a => !!a )
 
   useEffect(() => {
     if (user) {
@@ -103,30 +103,29 @@ const AlbumsIndex = ({
   }, [])
 
   useEffect(() => {
+    // set video players
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
     setPlayings(activeAlbums.map(() => false))
     setPips(activeAlbums.map(() => false))
     setCurrentSwings(activeAlbums.map(() => 0))
-    setCurrentComments(activeAlbums.map(album => {
-      let comments = [...(album.comments || []), ...(album.swingVideos.map(swing => (swing.comments || [])).flat())]
-      comments = comments.filter( comment => comment.userId !== user?.id )
-      comments = comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
-      return comments.slice(0,3).filter( c => !!c )
-    }))
-  }, [myAlbums, friendsAlbums, publicAlbums, page])
 
-  useEffect(() => {
-    if (currentComments.length > 0) {
+    // load users cache
+    if (activeAlbums.length > 0) {
       const commentersSet = new Set([])
-      currentComments.forEach( comments => {
-        comments.forEach( comment => {
+      activeAlbums.forEach( album => {
+        (album.comments || []).forEach( comment => {
           if (!usersCache[comment.userId]) commentersSet.add(comment.userId)
+        })
+        album.swingVideos.forEach( swing => {
+          (swing.comments || []).forEach( comment => {
+            if (!usersCache[comment.userId]) commentersSet.add(comment.userId)
+          })
         })
       })
       const ids = Array.from(commentersSet)
       if (ids.length > 0) searchFriends({ ids })
     }
-  }, [currentComments, usersCache])
+  }, [myAlbums, friendsAlbums, publicAlbums, page])
 
   const onHandleSeekChange = (playerRef, i) => e => {
     const frame = parseFloat(e.target.value)
@@ -203,93 +202,111 @@ const AlbumsIndex = ({
         <Notifications />
       }
 
-      <main className="flex flex-1 overflow-y-auto">
-
+      <main className="flex flex-row">
         {/* Begin Sidebar */}
-
         <Sidebar>
-          <LinkButton>
-            <Link href="/albums/new">Create New Album</Link>
-          </LinkButton>
-          <div style={{ height: "30px", width: "100%" }}/>
-          <SearchBoxContainer>
-            <SearchBox
-              placeholder="Search Albums"
-              value={search}
-              onChange={onSearch}
-            />
-            <GrSearch/>
-          </SearchBoxContainer>
+          <div className="fixed w-44">
+            <LinkButton>
+              <Link href="/albums/new">Create New Album</Link>
+            </LinkButton>
+            <div style={{ height: "30px", width: "100%" }}/>
 
-          <DateContainer>
-            <p className="date-label">Upload Date (Start)</p>
-            <DatePickerContainer>
-              <DatePicker
-                selected={startDate}
-                onChange={date => setStartDate(date)}
-              />
-              { startDate &&
-                <GrFormClose onClick={() => setStartDate(undefined)}/>
-              }
-            </DatePickerContainer>
-          </DateContainer>
-
-          <div style={{ height: "20px", width: "100%" }}/>
-
-          <DateContainer>
-            <p className="date-label">Upload Date (End)</p>
-            <DatePickerContainer>
-              <DatePicker
-                selected={endDate}
-                onChange={date => setEndDate(date)}
-              />
-              { endDate &&
-                  <GrFormClose onClick={() => setEndDate(undefined)}/>
-              }
-            </DatePickerContainer>
-          </DateContainer>
-
-          <div style={{ height: "20px", width: "100%" }}/>
-
-          <div className="content-center justify-center items-center">
-            <p className="text-white tracking-wide uppercase text-sm underline mb-2 text-center">Album Type</p>
-            <div className="flex flex-col content-center justify-center items-start px-8">
-              <div>
-                <input type="radio" id="personal" name="albumType" value="personal" className="mr-2" onChange={() => setAlbumType("personal")} checked={albumType === "personal"}/>
-                <label htmlFor="personal"
-                  className="text-white tracking-wide uppercase text-sm"
-                >
-                personal
-                </label>
+            {/* Album Filters */}
+            <div className="flex flex-row flex-wrap mb-3 content-center justify-center items-center">
+              <div className={`m-1 px-0.5 rounded-lg ${albumType === "owner" && "bg-gray-300"}`}>
+                <input type="button"
+                  value="owner"
+                  onClick={() => setAlbumType("owner")}
+                  className={`px-2 m-1 rounded-lg ${albumType === "owner" ? "bg-black text-yellow-300 underline" : "bg-yellow-300"} shadow-md border border-gray-400 font-semibold text-xs tracking-wide cursor-pointer`}
+                />
               </div>
 
-              <div>
-                <input type="radio" id="shared" name="albumType" value="shared" className="mr-2" onChange={() => setAlbumType("shared")} checked={albumType === "shared"}/>
-                <label htmlFor="shared"
-                  className="text-white tracking-wide uppercase text-sm"
-                >
-                shared
-                </label>
+              <div className={`m-1 px-0.5 rounded-lg ${albumType === "shared" && "bg-gray-300"}`}>
+                <input type="button"
+                  value="shared"
+                  onClick={() => setAlbumType("shared")}
+                  className={`px-2 m-1 rounded-lg ${albumType === "shared" ? "bg-black text-yellow-300 underline" : "bg-red-300"} shadow-md border border-gray-400 font-semibold text-xs tracking-wide cursor-pointer`}
+                />
               </div>
 
-              <div>
-                <input type="radio" id="friends" name="albumType" value="friends" className="mr-2" onChange={() => setAlbumType("friends")} checked={albumType === "friends"}/>
-                <label htmlFor="friends"
-                  className="text-white tracking-wide uppercase text-sm"
-                >
-                friends
-                </label>
+              <div className={`m-1 px-0.5 rounded-lg ${albumType === "friends" && "bg-gray-300"}`}>
+                <input type="button"
+                  value="friends"
+                  onClick={() => setAlbumType("friends")}
+                  className={`px-2 m-1 rounded-lg ${albumType === "friends" ? "bg-black text-yellow-300 underline" : "bg-green-300"} shadow-md border border-gray-400 font-semibold text-xs tracking-wide cursor-pointer`}
+                />
               </div>
 
-              <div>
-                <input type="radio" id="public" name="albumType" value="public" className="mr-2" onChange={() => setAlbumType("public")} checked={albumType === "public"}/>
-                <label htmlFor="public"
-                  className="text-white tracking-wide uppercase text-sm"
-                >
-                public
-                </label>
+              <div className={`m-1 px-0.5 rounded-lg ${albumType === "public" && "bg-gray-300"}`}>
+                <input type="button"
+                  value="public"
+                  onClick={() => setAlbumType("public")}
+                  className={`px-2 m-1 rounded-lg ${albumType === "public" ? "bg-black text-yellow-300 underline" : "bg-blue-300"} shadow-md border border-gray-400 font-semibold text-xs tracking-wide cursor-pointer`}
+                />
               </div>
             </div>
+
+            {/* Page Nav */}
+            <div className="flex flex-row content-center justify-center items-center p-2 w-40 mb-2">
+              { page > 0 &&
+                  <button
+                    onClick={() => setPage(page-1)}
+                    className="p-0.5 mx-1 cursor-pointer text-white tracking-wide"
+                  >
+                    &lt;
+                  </button>
+              }
+
+              <h2 className="font-medium mx-2 text-center text-white tracking-wide uppercase">
+                Page { page+1 }
+              </h2>
+
+              { (page < (filteredAlbums.length / ALBUMS_PER_COL)-1) &&
+                  <button
+                    onClick={() => setPage(page+1)}
+                    className="-0.5 mx-1 cursor-pointer text-white tracking-wide"
+                  >
+                    &gt;
+                  </button>
+              }
+            </div>
+
+            <SearchBoxContainer>
+              <SearchBox
+                placeholder="Search Albums"
+                value={search}
+                onChange={onSearch}
+              />
+              <GrSearch/>
+            </SearchBoxContainer>
+
+            <DateContainer>
+              <p className="date-label">Upload Date (Start)</p>
+              <DatePickerContainer>
+                <DatePicker
+                  selected={startDate}
+                  onChange={date => setStartDate(date)}
+                />
+                { startDate &&
+                <GrFormClose onClick={() => setStartDate(undefined)}/>
+                }
+              </DatePickerContainer>
+            </DateContainer>
+
+            <div style={{ height: "20px", width: "100%" }}/>
+
+            <DateContainer>
+              <p className="date-label">Upload Date (End)</p>
+              <DatePickerContainer>
+                <DatePicker
+                  selected={endDate}
+                  onChange={date => setEndDate(date)}
+                />
+                { endDate &&
+                  <GrFormClose onClick={() => setEndDate(undefined)}/>
+                }
+              </DatePickerContainer>
+            </DateContainer>
           </div>
         </Sidebar>
 
@@ -297,41 +314,20 @@ const AlbumsIndex = ({
 
         {/* Begin Album Videos */}
 
-        <div className="p-4 flex flex-col w-full bg-gray-100 h-full">
+        <div className="p-4 flex flex-col w-full bg-gray-100 min-h-full">
 
           {/* Start My Albums */}
 
           { (user && user.id) &&
-            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 w-full h-full">
-              <div className="flex flex-row content-center justify-center items-center mb-4">
-                { page > 0 &&
-                  <button
-                    onClick={() => setPage(page-1)}
-                    className="p-0.5 mx-1"
-                  >
-                    &lt;
-                  </button>
-                }
-                <h2 className="font-medium underline mx-2 text-center">
-                  Page { page+1 }
-                </h2>
-                { (page < (activeAlbums.length / albumsPerRow)-1) &&
-                  <button
-                    onClick={() => setPage(page+1)}
-                    className="-0.5 mx-1"
-                  >
-                    &gt;
-                  </button>
-                }
-              </div>
+            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 w-full h-full content-center justify-center items-center">              
 
-              <div className="flex flex-col content-center justify-center items-center">
+              <div className="flex flex-col content-center justify-center items-center w-full">
                 { activeAlbums.length === 0 &&
                   <div className="w-full py-2 px-12 content-center justify-center items-center">
                     <h2 className="font-semibold text-center">None</h2>
                   </div>
                 }
-                <div className="grid grid-cols-2 gap-4 w-full py-4 px-40">
+                <div className="w-4/5 py-4 px-40">
                   { activeAlbums.map( (album, i) => {
                     return (
                       <div key={i}
@@ -392,14 +388,16 @@ const AlbumsIndex = ({
                           }
                         </div>
 
-                        <p>
-                          <span className="font-semibold text-xs"> Created: </span>
-                          <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                        <p className="text-xs">
+                          <span className="font-semibold text-xs"> Created: </span> { Moment(album.createdAt).format("lll") }
                         </p>
 
-                        <AlbumAndCommentsPreview
+                        <p className="text-xs">
+                          <span className="font-semibold text-xs"> Updated: </span> { Moment(album.updatedAt).format("lll") }
+                        </p>
+
+                        <AlbumAndComments
                           album={album}
-                          comments={currentComments[i] || []}
                           duration={playerFrames[i]}
                           pip={pips[i]}
                           playing={playings[i]}
@@ -424,7 +422,6 @@ const AlbumsIndex = ({
         </div>
         {/* End Album Videos */}
       </main>
-
     </div>
   )
 }

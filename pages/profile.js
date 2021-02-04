@@ -12,7 +12,12 @@ import ProComparison from "../components/ProComparison"
 import { UpdateUserProfile } from "../behavior/coordinators/users"
 import { SearchFriends } from "../behavior/coordinators/friends"
 import { getUserIcons, getUserIcon } from "../behavior/users"
-import { LoadMyAlbums } from "../behavior/coordinators/albums"
+import {
+  LoadMyAlbums,
+  LoadFriendsAlbums,
+  LoadSharedAlbums,
+  LoadPublicAlbums,
+} from "../behavior/coordinators/albums"
 import { newNotification } from "../state/ui/action"
 import uploadYellow from "../public/upload-yellow.svg"
 import uploadBlue from "../public/upload-blue.svg"
@@ -22,6 +27,9 @@ const albumsPerColumn = 3
 
 const Profile = ({
   myAlbums,
+  friendsAlbums,
+  sharedAlbums,
+  publicAlbums,
   user,
   usersCache,
   
@@ -54,7 +62,21 @@ const Profile = ({
   const [currentComments, setCurrentComments] = useState([])
 
   const [myAlbumsPage, setMyAlbumsPage] = useState(0)
-  const myActiveAlbums = myAlbums.slice(myAlbumsPage * albumsPerColumn, (myAlbumsPage+1) * albumsPerColumn).filter( a => !!a ) || []
+  const [albumType, setAlbumType] = useState("owner")
+
+  let sourceAlbums
+  switch(albumType) {
+  case "owner": sourceAlbums = myAlbums
+    break
+  case "friends": sourceAlbums = friendsAlbums
+    break
+  case "shared": sourceAlbums = sharedAlbums
+    break
+  case "public": sourceAlbums = publicAlbums
+    break
+  default: sourceAlbums = myAlbums
+  }
+  const activeAlbums = sourceAlbums.slice(myAlbumsPage * albumsPerColumn, (myAlbumsPage+1) * albumsPerColumn).filter( a => !!a ) || []
   const saveButtonStyle = pressingSave ? "bg-yellow-300 text-black" : "bg-black text-yellow-300"
 
   useEffect(() => {
@@ -74,11 +96,11 @@ const Profile = ({
   }, [myAlbums])
 
   useEffect(() => {
-    setPlayerRefs(ref => myActiveAlbums.map((_, i) => ref[i] || createRef()))
-    setPlayings(myActiveAlbums.map(() => false))
-    setPips(myActiveAlbums.map(() => false))
-    setCurrentSwings(myActiveAlbums.map(() => 0))
-    setCurrentComments(myActiveAlbums.map(album => {
+    setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
+    setPlayings(activeAlbums.map(() => false))
+    setPips(activeAlbums.map(() => false))
+    setCurrentSwings(activeAlbums.map(() => 0))
+    setCurrentComments(activeAlbums.map(album => {
       let comments = [...(album.comments || []), ...(album.swingVideos.map(swing => (swing.comments || [])).flat())]
       comments = comments.filter( comment => comment.userId !== user?.id )
       comments = comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
@@ -196,7 +218,7 @@ const Profile = ({
                   <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
                     <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
                   </div>
-                  <div className="flex flex-row mt-4">
+                  <div className="flex flex-row mt-4 mb-1">
                     { getUserIcons(user).map((icon, i) => {
                       return(
                         <div key={i}
@@ -210,6 +232,7 @@ const Profile = ({
                       )
                     })}
                   </div>
+                  <p className="text-xs tracking-wider text-gray-700">Choose your avatar icon</p>
                 </div>
 
                 {/* Standard Profile */}
@@ -359,11 +382,51 @@ const Profile = ({
 
             {/* Recent Albums */}
             <div className="flex flex-col pt-6 pb-20 px-4 h-full bg-white rounded shadow-lg">
-              <h2 className="font-bold text-lg text-center tracking-wider mb-4 w-full">
+              <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
                 Recent Albums
               </h2>
 
-              { myActiveAlbums.map((album, i) => 
+              <div className="flex flex-row content-center justify-center items-center mb-3">
+                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "owner" && "bg-gray-300 shadow-md"}`}>
+                  <input type="button"
+                    value="owner"
+                    onClick={() => setAlbumType("owner")}
+                    className="px-2 m-1 rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                  />
+                </div>
+
+                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "shared" && "bg-gray-300 shadow-md"}`}>
+                  <input type="button"
+                    value="shared"
+                    onClick={() => setAlbumType("shared")}
+                    className="px-2 m-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                  />
+                </div>
+
+                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "friends" && "bg-gray-300 shadow-md"}`}>
+                  <input type="button"
+                    value="friends"
+                    onClick={() => setAlbumType("friends")}
+                    className="px-2 m-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                  />
+                </div>
+
+                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "public" && "bg-gray-300 shadow-md"}`}>
+                  <input type="button"
+                    value="public"
+                    onClick={() => setAlbumType("public")}
+                    className="px-2 m-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                  />
+                </div>
+              </div>
+
+              { activeAlbums.length === 0 &&
+                <div className="px-20 mt-4">
+                  <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
+                </div>
+              }
+
+              { activeAlbums.map((album, i) => 
                 <AlbumAndCommentsPreview
                   key={i}
                   album={album}
@@ -394,7 +457,7 @@ const Profile = ({
                 </div>
               }
 
-              { myActiveAlbums.length === albumsPerColumn &&
+              { activeAlbums.length === albumsPerColumn &&
                 <div className="w-full content-center justify-center items-center">
                   <input type="button"
                     className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
@@ -417,6 +480,9 @@ const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
     myAlbums: state.albums.myAlbums,
+    friendsAlbums: state.albums.friendsAlbums,
+    sharedAlbums: state.albums.sharedAlbums,
+    publicAlbums: state.albums.publicAlbums,
     user: state.user,
     usersCache: state.usersCache,
   }
@@ -425,6 +491,9 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     loadMyAlbums: LoadMyAlbums(dispatch),
+    loadFriendsAlbums: LoadFriendsAlbums(dispatch),
+    loadSharedAlbums: LoadSharedAlbums(dispatch),
+    loadPublicAlbums: LoadPublicAlbums(dispatch),
     newFlashMessage: args => dispatch(newNotification(args)),
     searchFriends: SearchFriends(dispatch),
     updateUserProfile: UpdateUserProfile(dispatch),
@@ -433,10 +502,16 @@ const mapDispatchToProps = (dispatch) => {
   
 Profile.propTypes = {
   myAlbums: PropTypes.arrayOf(PropTypes.object),
+  friendsAlbums: PropTypes.arrayOf(PropTypes.object),
+  sharedAlbums: PropTypes.arrayOf(PropTypes.object),
+  publicAlbums: PropTypes.arrayOf(PropTypes.object),
   user: PropTypes.object,
   usersCache: PropTypes.object,
 
   loadMyAlbums: PropTypes.func,
+  loadFriendsAlbums: PropTypes.func,
+  loadSharedAlbums: PropTypes.func,
+  loadPublicAlbums: PropTypes.func,
   newFlashMessage: PropTypes.func,
   searchFriends: PropTypes.func,
   updateUserProfile: PropTypes.func,

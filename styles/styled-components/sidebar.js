@@ -4,6 +4,9 @@ export const SidebarContainer = styled.div`
   width: 250px;
   background: ${ props => props.theme.gray800 };
   height: 100vh;
+  min-height: 100%;
+  position: sticky;
+  top: 0;
   padding: 40px 20px;
   box-sizing: border-box;
 `

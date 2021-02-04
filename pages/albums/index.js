@@ -388,9 +388,12 @@ const AlbumsIndex = ({
                           }
                         </div>
 
-                        <p>
-                          <span className="font-semibold text-xs"> Created: </span>
-                          <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
+                        <p className="text-xs">
+                          <span className="font-semibold text-xs"> Created: </span> { Moment(album.createdAt).format("lll") }
+                        </p>
+
+                        <p className="text-xs">
+                          <span className="font-semibold text-xs"> Updated: </span> { Moment(album.updatedAt).format("lll") }
                         </p>
 
                         <AlbumAndComments

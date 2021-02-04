@@ -29,42 +29,19 @@ const AlbumAndComments = ({
     <div key={album.id} className="flex flex-row grid grid-cols-7 gap-4 bg-gray-100 mb-6 p-2 border-2 border-gray-200 rounded-lg shadow-md w-full">
       {/* Left Panel */}
       <div className="flex flex-col col-span-2 content-center text-center py-4">
-        <div className="flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
-          { album.userId === user?.id && 
-            <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">
-              owner
-            </div>
-          }
-          { (album.friendIds || []).includes(user.id) && 
-            <div className="px-2 mx-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs">
-              shared
-            </div>
-          }
-          { album.isViewableByFriends &&
-            <div className="px-2 mx-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs">
-              friends
-            </div>
-          }
-          { album.isPublic && 
-            <div className="px-2 mx-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs">
-              public
-            </div>
-          }
-        </div>
-
-        <p className="text-xs w-full mb-1">
-          <span className="font-semibold">Updated</span> { Moment(album.updatedAt).format("lll") }
+        <p className="text-xs w-full mb-1 tracking-wide font-semibold underline">
+          Album Comments
         </p>
 
-        <div className="flex flex-row content-center justify-center items-center">
-          <p className="text-xs bg-white rounded-lg mx-1 mb-1 text-xs px-1">
-            { album.swingVideos.length } <span className="font-semibold">swings</span>
-          </p>
-
+        <div className="flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
           <div className="flex flex-row bg-white rounded-lg mx-1 mb-1 text-xs px-1 w-10">
             <p className="mr-0.5 text-center">{ album.comments?.length || 0 }</p>
             <img src={speechBubble} className="w-5 h-5"/>
           </div>
+
+          <p className="text-xs bg-white rounded-lg mx-1 mb-1 text-xs px-1">
+            { album.swingVideos.length } <span className="font-semibold">swings</span>
+          </p>
         </div>
 
         <div className="h-40 w-full overflow-y-scroll bg-gray-300 p-1 rounded-lg">
@@ -91,19 +68,31 @@ const AlbumAndComments = ({
 
       {/* Middle Panel */}
       <div className="flex flex-col col-span-3 content-center justify-center items-center pr-1">
-        <a href={`/albums/${album.id}`}
-          className="flex text-xs font-semibold text-blue-400 text-center underline mb-1 px-2 cursor-pointer"
-        >
-          {album.name}
-        </a>
+        <div className="flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
+          { album.userId === user?.id && 
+            <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">
+              owner
+            </div>
+          }
+          { (album.friendIds || []).includes(user.id) && 
+            <div className="px-2 mx-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs">
+              shared
+            </div>
+          }
+          { album.isViewableByFriends &&
+            <div className="px-2 mx-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs">
+              friends
+            </div>
+          }
+          { album.isPublic && 
+            <div className="px-2 mx-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs">
+              public
+            </div>
+          }
+        </div>
 
         {/* Video Player */}
         <Fragment>
-          <a href={`/albums/${album.id}/swings/${swing?.id}`}
-            className="flex text-xs font-semibold text-blue-400 text-center underline mb-1 px-2 cursor-pointer"
-          >
-            swing: {swing?.name}
-          </a>
           <ReactPlayer
             className="rounded-md overflow-hidden"
             ref={playerRef}
@@ -195,37 +184,17 @@ const AlbumAndComments = ({
       {/* Right Panel */}
       <div className="flex flex-col col-span-2 content-center text-center py-4">
 
-        <div className="flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
-          { album.userId === user?.id && 
-            <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">
-              owner
-            </div>
-          }
-          { (album.friendIds || []).includes(user.id) && 
-            <div className="px-2 mx-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs">
-              shared
-            </div>
-          }
-          { album.isViewableByFriends &&
-            <div className="px-2 mx-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs">
-              friends
-            </div>
-          }
-          { album.isPublic && 
-            <div className="px-2 mx-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs">
-              public
-            </div>
-          }
+        <div className="flex flex-row content-center justify-center items-center">
+          <p className="text-xs font-semibold underline">Swing Comments</p>
         </div>
 
-        <p className="text-xs w-full mb-1">
-          <span className="font-semibold">Updated</span> { Moment(album.updatedAt).format("lll") }
-        </p>
-
         <div className="flex flex-row content-center justify-center items-center">
-          <p className="text-xs bg-white rounded-lg mx-1 mb-1 text-xs px-1">
-            { album.swingVideos.length } <span className="font-semibold">swings</span>
-          </p>
+          <p className="text-xs font-semibold">Swing:</p>
+          <a href={`/albums/${album.id}/swings/${swing?.id}`}
+            className="flex text-xs text-blue-400 text-center underline my-1 px-2 cursor-pointer"
+          >
+            {swing?.name}
+          </a>
 
           <div className="flex flex-row bg-white rounded-lg mx-1 mb-1 text-xs px-1 w-10">
             <p className="mr-0.5 text-center">{ album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0) }</p>

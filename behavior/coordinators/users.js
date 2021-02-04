@@ -111,3 +111,16 @@ export const AcceptInvite = (dispatch) => async ({ id, userName, password, first
   }
   return true
 }
+
+export const ConfirmUser = (dispatch) => async id => {
+  try {
+    const response = await post("/confirmations", { id })
+    dispatch(setUser(response.data))
+    dispatch(setConfirmation(null))
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+  return true
+}

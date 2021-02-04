@@ -3,8 +3,9 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Link from "next/link"
 import { useRouter } from "next/router"
+import Moment from "moment"
 
-import { SignOut, LoadConfirmation } from "../behavior/coordinators/users"
+import { ConfirmUser, SignOut, LoadConfirmation } from "../behavior/coordinators/users"
 import { getUserIcon } from "../behavior/users"
 import LoginForm from "./LoginForm"
 import Modal from "./Modal"
@@ -20,6 +21,8 @@ const NavBar = ({
   confirmation,
   user,
   
+  confirmUser,
+  displayAlert,
   loadConfirmation,
   showNewUser,
   showInviteForm,
@@ -28,13 +31,31 @@ const NavBar = ({
   const router = useRouter()
   const { confirmation: confirmationID } = router.query
 
+  const [showModal, setShowModal] = useState(false)
+
   useEffect(() => {
     if (confirmationID) {
       loadConfirmation(confirmationID)
     }
   }, [confirmationID])
 
-  const [showModal, setShowModal] = useState(false)
+  useEffect(async () => {
+    if (confirmation && !confirmation.email) {
+      displayAlert({
+        id: Moment().toString(),
+        bgColor: "bg-yellow-700",
+        message: "Confirming user..."
+      })
+      if (await confirmUser(confirmation.id)) {
+        displayAlert({
+          id: Moment().toString(),
+          message: "User confirmed!"
+        })
+        router.push("/profile")
+      }
+    }
+  }, [confirmation])
+
 
   useEffect(() => {
     if (showNewUser || showInviteForm) {
@@ -100,6 +121,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    confirmUser: ConfirmUser(dispatch),
+    displayAlert: args => dispatch(newNotification(args)),
     loadConfirmation: LoadConfirmation(dispatch),
     signOut: SignOut(dispatch),
   }
@@ -111,6 +134,8 @@ NavBar.propTypes = {
   showInviteForm: PropTypes.bool,
   user: PropTypes.object,
 
+  confirmUser: PropTypes.func,
+  displayAlert: PropTypes.func,
   loadConfirmation: PropTypes.func,
   signOut: PropTypes.func,
 }

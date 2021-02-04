@@ -14,16 +14,16 @@ import {
 
 
 const LoginForm = ({
+  confirmation,
+  user,
+
   acceptInvite,
   createUser,
   displayAlert,
   signIn,
   signOut,
-
-  confirmation,
   showNewUser,
   showInviteForm,
-  user,
 }) => {
   const router = useRouter()
   const [formType, setFormType] = useState("SIGN_IN") // SIGN_IN - REGISTER - INVITE
@@ -45,8 +45,8 @@ const LoginForm = ({
     }
   }, [showInviteForm])
   
-  useEffect(() => {
-    if (confirmation) {
+  useEffect(async () => {
+    if (confirmation?.email) {
       setFormType("INVITE")
       setFirstName(confirmation.firstName)
       setLastName(confirmation.lastName)
@@ -325,6 +325,7 @@ LoginForm.propTypes = {
 
   acceptInvite: PropTypes.func,
   createUser: PropTypes.func,
+  confirmUser: PropTypes.func,
   displayAlert: PropTypes.func,
   signIn: PropTypes.func,
   signOut: PropTypes.func,

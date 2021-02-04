@@ -4,29 +4,43 @@ import PropTypes from "prop-types"
 import Link from "next/link"
 import { useRouter } from "next/router"
 
-import { SignOut } from "../behavior/coordinators/users"
+import { SignOut, LoadConfirmation } from "../behavior/coordinators/users"
 import { getUserIcon } from "../behavior/users"
 import LoginForm from "./LoginForm"
 import Modal from "./Modal"
 
 import {
-  DropdownLink,
   LinkClass,
   LinksContainer,
   NavigationBar,
 } from "../styles/styled-components"
 
 
-const NavBar = ({ user, showNewUser, signOut }) => {
+const NavBar = ({
+  confirmation,
+  user,
+  
+  loadConfirmation,
+  showNewUser,
+  showInviteForm,
+  signOut,
+}) => {
   const router = useRouter()
+  const { confirmation: confirmationID } = router.query
+
+  useEffect(() => {
+    if (confirmationID) {
+      loadConfirmation(confirmationID)
+    }
+  }, [confirmationID])
 
   const [showModal, setShowModal] = useState(false)
 
   useEffect(() => {
-    if (showNewUser) {
+    if (showNewUser || showInviteForm) {
       setShowModal(true)
     }
-  }, [showNewUser])
+  }, [showNewUser, showInviteForm])
 
   const onSignOut = async () => {
     await signOut()
@@ -42,7 +56,7 @@ const NavBar = ({ user, showNewUser, signOut }) => {
       { !user || !user.id ?
         <LinksContainer>
           <div className="static">
-            <a href="#" onClick={() => setShowModal(!showModal)}>Sign In</a>
+            <a href="#" onClick={() => setShowModal(!showModal)}>{ confirmation?.email ? "Accept Invitation" : "Sign In" }</a>
             { showModal &&
               <Modal width="400" hideModal={ () => setShowModal(false)}>
                 <LoginForm/>
@@ -77,21 +91,27 @@ const NavBar = ({ user, showNewUser, signOut }) => {
 
 const mapStateToProps = (state) => {
   return {
+    confirmation: state.confirmation,
     showNewUser: state.navBar.showNewUser,
+    showInviteForm: state.navBar.showInviteForm,
     user: state.user,
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    loadConfirmation: LoadConfirmation(dispatch),
     signOut: SignOut(dispatch),
   }
 }
 
 NavBar.propTypes = {
+  confirmation: PropTypes.object,
   showNewUser: PropTypes.bool,
+  showInviteForm: PropTypes.bool,
   user: PropTypes.object,
 
+  loadConfirmation: PropTypes.func,
   signOut: PropTypes.func,
 }
 

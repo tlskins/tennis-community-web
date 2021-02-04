@@ -1,8 +1,8 @@
-import { CACHE_USERS, SET_USER } from "./action"
+import { CACHE_USERS, SET_USER, SET_CONFIRMATION } from "./action"
 
 export const userInitialState = null
 export const usersCacheInitialState = {}
-
+export const confirmationInitialState = null
 
 export function userReducer(
   state = userInitialState,
@@ -33,3 +33,16 @@ export function usersCacheReducer(
   }
 }
   
+export function confirmationReducer(
+  state = confirmationInitialState,
+  action
+) {
+  switch (action.type) {
+  case SET_CONFIRMATION: {
+    const { payload } = action
+    return payload
+  }
+  default:
+    return state
+  }
+}

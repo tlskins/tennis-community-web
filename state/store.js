@@ -9,6 +9,8 @@ import {
   navBarInitialState,
 } from "./ui/reducer"
 import {
+  confirmationReducer,
+  confirmationInitialState,
   userReducer,
   userInitialState,
   usersCacheReducer,
@@ -32,6 +34,7 @@ const bindMiddleware = (middleware) => {
 }
 
 const combinedReducer = combineReducers({
+  confirmation: confirmationReducer,
   flashNotification: flashNotificationReducer,
   user: userReducer,
   usersCache: usersCacheReducer,
@@ -60,6 +63,7 @@ const reducer = (state, action) => {
       flashNotification: flashNotificationInitialState,
       navBar: navBarInitialState,
       // user
+      confirmation: confirmationInitialState,
       user: userInitialState,
       usersCache: usersCacheInitialState,
       // uploads

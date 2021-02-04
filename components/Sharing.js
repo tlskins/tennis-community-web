@@ -13,14 +13,22 @@ const Sharing = ({
   searchFriends,
   // inherited
   isPublic,
-  setIsPublic,
   isViewableByFriends,
   setIsViewableByFriends,
   friendIds,
+  invEmail,
+  invFirstName,
+  invLastName,
+
+  setIsPublic,
   setFriendIds,
+  setInvEmail,
+  setInvFirstName,
+  setInvLastName,
 }) => {
   const [friendSearch, setFriendSearch] = useState("")
   const [isSearchingFriends, setIsSearchingFriends] = useState(friendIds.length > 0)
+  const [isInviting, setIsInviting] = useState(false)
 
   useEffect(() => {
     if (friendIds.length > 0) {
@@ -75,6 +83,45 @@ const Sharing = ({
         <label htmlFor="public"> All Friends</label><br></br>
       </div>
 
+      {/* Invite User */}
+      { setInvEmail &&
+        <div className="flex flex-col">
+          <div className="flex flex-row mb-2">
+            <input id="inviteUser"
+              className="mr-2"
+              type="checkbox"
+              checked={isInviting}
+              onChange={() => setIsInviting(!isInviting)}
+            />
+            <label htmlFor="inviteUser"> Share by email</label><br></br>
+          </div>
+
+          { isInviting &&
+              <div className="flex flex-col mb-2">
+                <input type="text"
+                  className="rounded border border-black p-1 mb-1"
+                  placeholder="email"
+                  value={invEmail}
+                  onChange={e => setInvEmail(e.target.value)}
+                />
+                <input type="text"
+                  className="rounded border border-black p-1 mb-1"
+                  placeholder="first name (optional)"
+                  value={invFirstName}
+                  onChange={e => setInvFirstName(e.target.value)}
+                />
+                <input type="text"
+                  className="rounded border border-black p-1 mb-1"
+                  placeholder="last name (optional)"
+                  value={invLastName}
+                  onChange={e => setInvLastName(e.target.value)}
+                />
+              </div>
+          }
+        </div>
+      }
+
+      {/* Specific Friends */}
       <div className="flex flex-col">
         <div className="flex flex-row">
           <input id="specificFriends"
@@ -152,6 +199,9 @@ Sharing.propTypes = {
   isPublic: PropTypes.bool,
   isViewableByFriends: PropTypes.bool,
   friendIds: PropTypes.arrayOf(PropTypes.string),
+  invEmail: PropTypes.string,
+  invFirstName: PropTypes.string,
+  invLastName: PropTypes.string,
   user: PropTypes.object,
   usersCache: PropTypes.object,
 
@@ -159,6 +209,9 @@ Sharing.propTypes = {
   setIsPublic: PropTypes.func,
   setIsViewableByFriends: PropTypes.func,
   setFriendIds: PropTypes.func,
+  setInvEmail: PropTypes.func,
+  setInvFirstName: PropTypes.func,
+  setInvLastName: PropTypes.func,
 }
   
 export default connect(mapStateToProps, mapDispatchToProps)(Sharing)

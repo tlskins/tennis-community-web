@@ -133,13 +133,24 @@ const AlbumAndCommentsPreview = ({
 
         <div className="flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
           { album.userId === user?.id && 
-            <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">owner</div>
+            <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">
+              owner
+            </div>
           }
-          { album.isPublic && 
-            <div className="px-2 mx-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs">public</div>
+          { album.friendIds.includes(user.id) && 
+            <div className="px-2 mx-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs">
+              shared
+            </div>
           }
           { album.isViewableByFriends &&
-            <div className="px-2 mx-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs">friends</div>
+            <div className="px-2 mx-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs">
+              friends
+            </div>
+          }
+          { album.isPublic && 
+            <div className="px-2 mx-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs">
+              public
+            </div>
           }
         </div>
 

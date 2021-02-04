@@ -386,35 +386,35 @@ const Profile = ({
               </h2>
 
               <div className="flex flex-row content-center justify-center items-center mb-3">
-                <div className={`py-0.5 px-1 rounded-lg ${albumType === "owner" && "bg-gray-300 shadow-md"}`}>
+                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "owner" && "bg-gray-300 shadow-md"}`}>
                   <input type="button"
                     value="owner"
                     onClick={() => setAlbumType("owner")}
-                    className="px-2 mx-4 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                    className="px-2 m-1 rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
                   />
                 </div>
 
-                <div className={`py-0.5 px-1 rounded-lg ${albumType === "shared" && "bg-gray-300 shadow-md"}`}>
+                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "shared" && "bg-gray-300 shadow-md"}`}>
                   <input type="button"
                     value="shared"
                     onClick={() => setAlbumType("shared")}
-                    className="px-2 mx-4 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                    className="px-2 m-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
                   />
                 </div>
 
-                <div className={`py-0.5 px-1 rounded-lg ${albumType === "friends" && "bg-gray-300 shadow-md"}`}>
+                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "friends" && "bg-gray-300 shadow-md"}`}>
                   <input type="button"
                     value="friends"
                     onClick={() => setAlbumType("friends")}
-                    className="px-2 mx-4 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                    className="px-2 m-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
                   />
                 </div>
 
-                <div className={`py-0.5 px-1 rounded-lg ${albumType === "public" && "bg-gray-300 shadow-md"}`}>
+                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "public" && "bg-gray-300 shadow-md"}`}>
                   <input type="button"
                     value="public"
                     onClick={() => setAlbumType("public")}
-                    className="px-2 mx-4 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                    className="px-2 m-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
                   />
                 </div>
               </div>

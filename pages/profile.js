@@ -34,6 +34,9 @@ const Profile = ({
   usersCache,
   
   loadMyAlbums,
+  loadFriendsAlbums,
+  loadPublicAlbums,
+  loadSharedAlbums,
   newFlashMessage,
   searchFriends,
   updateUserProfile,
@@ -43,6 +46,8 @@ const Profile = ({
   const [showHowTo, setShowHowTo] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
   const [pressingSave, setPressingSave] = useState(false)
+  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false)
+  const [isMyAlbumsLoaded, setIsMyAlbumsLoaded] = useState(false)
 
   const [email,] = useState(user?.email)
   const [userName, setUserName] = useState(user?.userName)
@@ -62,7 +67,7 @@ const Profile = ({
   const [currentComments, setCurrentComments] = useState([])
 
   const [myAlbumsPage, setMyAlbumsPage] = useState(0)
-  const [albumType, setAlbumType] = useState("owner")
+  const [albumType, setAlbumType] = useState("owner") // owner - friends - shared - public
 
   let sourceAlbums
   switch(albumType) {
@@ -85,15 +90,53 @@ const Profile = ({
     }
   }, [user])
 
-  useEffect(() => {
+  useEffect(async () => {
     if (user) {
-      loadMyAlbums()
+      switch(albumType) {
+      case "owner":
+        if (myAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          await loadMyAlbums()
+          setIsMyAlbumsLoaded(true)
+          setIsLoadingAlbums(false)
+        }
+        break
+      case "friends":
+        if (friendsAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          await loadFriendsAlbums()
+          setIsLoadingAlbums(false)
+        }
+        break
+      case "shared":
+        if (sharedAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          await loadSharedAlbums()
+          setIsLoadingAlbums(false)
+        }
+        break
+      case "public":
+        if (publicAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          loadPublicAlbums()
+          setIsLoadingAlbums(false)
+        }
+        break
+      default: break
+      }
     }
-  }, [user])
+  }, [user, albumType, myAlbums, friendsAlbums, sharedAlbums, publicAlbums])
 
   useEffect(() => {
-    setShowHowTo(myAlbums.length === 0)
-  }, [myAlbums])
+    if (isMyAlbumsLoaded) {
+      const emptyMyAlbums = myAlbums.length === 0
+      setShowHowTo(emptyMyAlbums)
+      if (emptyMyAlbums) {
+        loadPublicAlbums()
+        setAlbumType("public")
+      }
+    }
+  }, [myAlbums, isMyAlbumsLoaded])
 
   useEffect(() => {
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
@@ -420,9 +463,14 @@ const Profile = ({
                 </div>
               </div>
 
-              { activeAlbums.length === 0 &&
+              { (activeAlbums.length === 0 && !isLoadingAlbums) &&
                 <div className="px-20 mt-4">
                   <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
+                </div>
+              }
+              { (activeAlbums.length === 0 && isLoadingAlbums) &&
+                <div className="px-20 mt-4">
+                  <p className="text-center bg-yellow-300 text-gray-700 tracking-wide rounded-lg w-full px-20">Loading...</p>
                 </div>
               }
 

@@ -75,6 +75,8 @@ const AlbumsIndex = ({
   const [search, setSearch] = useState("")
   const [startDate, setStartDate] = useState(undefined)
   const [endDate, setEndDate] = useState(undefined)
+  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false)
+  const [isMyAlbumsLoaded, setIsMyAlbumsLoaded] = useState(false)
 
   var sourceAlbums
   switch(albumType) {
@@ -93,14 +95,51 @@ const AlbumsIndex = ({
   const filteredAlbums = filterAlbums(sourceAlbums, search, searchRgx, startDate, endDate)
   const activeAlbums = filteredAlbums.slice(page * ALBUMS_PER_COL, (page+1) * ALBUMS_PER_COL).filter( a => !!a )
 
-  useEffect(() => {
+  useEffect(async () => {
     if (user) {
-      loadMyAlbums()
-      loadFriendsAlbums()
-      loadPublicAlbums()
-      loadSharedAlbums()
+      switch(albumType) {
+      case "owner":
+        if (myAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          await loadMyAlbums()
+          setIsMyAlbumsLoaded(true)
+          setIsLoadingAlbums(false)
+        }
+        break
+      case "friends":
+        if (friendsAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          await loadFriendsAlbums()
+          setIsLoadingAlbums(false)
+        }
+        break
+      case "shared":
+        if (sharedAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          await loadSharedAlbums()
+          setIsLoadingAlbums(false)
+        }
+        break
+      case "public":
+        if (publicAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          loadPublicAlbums()
+          setIsLoadingAlbums(false)
+        }
+        break
+      default: break
+      }
     }
-  }, [])
+  }, [user, albumType, myAlbums, friendsAlbums, sharedAlbums, publicAlbums])
+
+  useEffect(() => {
+    if (isMyAlbumsLoaded) {
+      if (myAlbums.length === 0) {
+        loadPublicAlbums()
+        setAlbumType("public")
+      }
+    }
+  }, [myAlbums, isMyAlbumsLoaded])
 
   useEffect(() => {
     // set video players

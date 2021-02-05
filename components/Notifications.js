@@ -17,7 +17,10 @@ const Notifications = ({
   loadUser,
 }) => {
   const router = useRouter()
-  useInterval(loadUser, 30000, 30)
+
+  if (user) {
+    useInterval(loadUser, 30000, 30)
+  }
   
   const uploadNoteIds = user.uploadNotifications.map( note => note.id)
   const friendNoteIds = user.friendNotifications.map( note => note.id)

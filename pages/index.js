@@ -38,6 +38,7 @@ const SWING_FRAMES = 60
 
 const Index = ({ publicAlbums, loadPublicAlbums, onShowNewUser }) => {
   const router = useRouter()
+  const { confirmation } = router.query
 
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})

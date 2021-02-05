@@ -40,7 +40,7 @@ const Profile = ({
 }) => {
   const router = useRouter()
 
-  const [showHowTo, setShowHowTo] = useState(myAlbums.length === 0)
+  const [showHowTo, setShowHowTo] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
   const [pressingSave, setPressingSave] = useState(false)
 

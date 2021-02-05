@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Moment from "moment"
 
-import { newNotification } from "../../state/ui/action"
+import { newNotification, showInviteForm } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
 import VideoResources from "../../components/VideoResources"
@@ -19,6 +19,7 @@ import {
   FlagComment,
 } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../..//behavior/coordinators/friends"
+import { InviteUser } from "../../behavior/coordinators/users"
 import { setAlbum } from "../../state/album/action"
 import speechBubble from "../../public/speech-bubble.svg"
 import pencil from "../../public/pencil.svg"
@@ -39,16 +40,19 @@ let timer
 
 const Album = ({
   album,
+  confirmation,
   recentUploads,
   user,
   usersCache,
 
   flagComment,
   getRecentUploads,
+  inviteUser,
   loadAlbum,
+  onShowInviteForm,
   postComment,
   searchFriends,
-  toggleFlashMessage,
+  flashMessage,
   updateAlbum,
   updateAlbumRedux,
 }) => {
@@ -77,6 +81,9 @@ const Album = ({
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
+  const [invEmail, setInvEmail] = useState("")
+  const [invFirstName, setInvFirstName] = useState("")
+  const [invLastName, setInvLastName] = useState("")
 
   const [comments, setComments] = useState([])
   const [commenters, setCommenters] = useState([])
@@ -205,7 +212,7 @@ const Album = ({
   }
 
   const onFlagComment = comment => () => {
-    toggleFlashMessage({
+    flashMessage({
       id: comment.id,
       message: `Flag Comment: "${comment.text}" as inappropriate?`,
       buttons: [
@@ -220,7 +227,7 @@ const Album = ({
               text: comment.text,
             })
             if (success) {
-              toggleFlashMessage({
+              flashMessage({
                 id: Moment().toString(),
                 message: "Comment Flagged!"
               })
@@ -259,7 +266,7 @@ const Album = ({
     setComments([...newComments])
   }
 
-  const onShareAlbum = () => {
+  const onShareAlbum = async () => {
     updateAlbum(
       {
         id: album.id,
@@ -270,6 +277,24 @@ const Album = ({
       },
       true,
     )
+    if (invEmail) {
+      const success = await inviteUser({
+        email: invEmail,
+        firstName: invFirstName,
+        lastName: invLastName,
+        inviterId: user.id,
+        URL: `albums/${album.id}`,
+      })
+      if (success) {
+        flashMessage({
+          id: Moment().toString(),
+          message: `Album successfully shared with ${invEmail}`,
+        })
+        setInvEmail("")
+        setInvFirstName("")
+        setInvLastName("")
+      }
+    }
   }
 
   const renderVideo = ({ swing, i, ref, playing, pip, duration }) => {
@@ -387,7 +412,15 @@ const Album = ({
 
   const sideBarWidth = expandedSideBar ? "w-1/2" : "w-1/4"
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
-
+  let commentsPlaceholder = "Comment on specific frame"
+  if (!user) {
+    commentsPlaceholder = "Create account to comment"
+  } else if (user.disableComments) {
+    commentsPlaceholder = "Your commenting has been disabled. Please contact an administrator."
+  } else if (replyId) {
+    commentsPlaceholder = "Reply to comment"
+  }
+  
   return (
     <div className="flex flex-col h-screen min-h-screen">
       { (user && user.id) &&
@@ -462,6 +495,12 @@ const Album = ({
                     setIsViewableByFriends={setIsViewableByFriends}
                     friendIds={friendIds}
                     setFriendIds={setFriendIds}
+                    invEmail={invEmail}
+                    setInvEmail={setInvEmail}
+                    invFirstName={invFirstName}
+                    setInvFirstName={setInvFirstName}
+                    invLastName={invLastName}
+                    setInvLastName={setInvLastName}
                   />
                   <input type='button'
                     className="border w-14 rounded py-0.5 px-2 my-2 text-xs font-semibold bg-blue-700 text-white"
@@ -495,9 +534,8 @@ const Album = ({
                       { user?.disableComments &&
                         <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your commenting has been disabled</p>
                       }
-                      { (user && !user.disableComments) &&
-                        <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                          { replyId &&
+                      <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                        { replyId &&
                           <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
                             onClick={() => {
                               setReplyPreview("")
@@ -507,37 +545,41 @@ const Album = ({
                             <p>reply to</p>
                             <p className="pl-2 text-gray-700">{ replyPreview }</p>
                           </div>
-                          }
-                          <textarea
-                            className="p-2 border border-black rounded bg-gray-100"
-                            autoFocus={true}
-                            placeholder={ replyId ? "Reply to comment" : "Comment"}
-                            rows="4"
-                            maxLength={500}
-                            onChange={e => setComment(e.target.value)}
-                            value={comment}
-                          />
-                          <div className="flex flex-row p-1 content-center justify-center items-center">
-                            <p className="text-sm mr-2 text-gray-500 align-middle">
-                              { Moment().format("MMM D YYYY H:m a") }
-                            </p>
-                            <p className="text-sm mr-2 align-middle font-bold">
+                        }
+                        <textarea
+                          className="p-2 border border-black rounded bg-gray-100"
+                          placeholder={commentsPlaceholder}
+                          rows="4"
+                          maxLength={500}
+                          value={comment}
+                          onClick={() => {
+                            if (confirmation) onShowInviteForm()
+                          }}
+                          onChange={e => {
+                            if (user && !user.disableComments) setComment(e.target.value)
+                          }}
+                        />
+                        <div className="flex flex-row p-1 content-center justify-center items-center">
+                          <p className="text-sm mr-2 text-gray-500 align-middle">
+                            { Moment().format("MMM D YYYY H:m a") }
+                          </p>
+                          <p className="text-sm mr-2 align-middle font-bold">
                               |
-                            </p>
-                            <p className="text-sm mr-2 align-middle font-medium">
+                          </p>
+                          <p className="text-sm mr-2 align-middle font-medium">
                               chars {comment.length}
-                            </p>
-                            <p className="text-sm mr-2 align-middle font-bold">
+                          </p>
+                          <p className="text-sm mr-2 align-middle font-bold">
                               |
-                            </p>
-                            <input type='button'
-                              className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
-                              value='post'
-                              onClick={onPostComment}
-                            />
-                          </div>
+                          </p>
+                          <input type='button'
+                            className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
+                            value='post'
+                            disabled={!user || !user.disableComments}
+                            onClick={onPostComment}
+                          />
                         </div>
-                      }
+                      </div>
 
                       {/* Comments Filters / Sort */}
                       <div className="flex flex-row my-2 content-center justify-center items-center">
@@ -882,6 +924,7 @@ const mapStateToProps = (state) => {
   return {
     recentUploads: state.recentUploads,
     album: state.album,
+    confirmation: state.confirmation,
     user: state.user,
     usersCache: state.usersCache,
   }
@@ -891,10 +934,12 @@ const mapDispatchToProps = (dispatch) => {
   return {
     flagComment: FlagComment(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
+    inviteUser: InviteUser(dispatch),
     loadAlbum: LoadAlbum(dispatch),
+    onShowInviteForm: () => dispatch(showInviteForm()),
     postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
-    toggleFlashMessage: args => dispatch(newNotification(args)),
+    flashMessage: args => dispatch(newNotification(args)),
     updateAlbum: UpdateAlbum(dispatch),
     updateAlbumRedux: updatedAlbum => dispatch(setAlbum(updatedAlbum))
   }
@@ -902,16 +947,19 @@ const mapDispatchToProps = (dispatch) => {
   
 Album.propTypes = {
   album: PropTypes.object,
+  confirmation: PropTypes.object,
   user: PropTypes.object,
   usersCache: PropTypes.object,
   recentUploads: PropTypes.arrayOf(PropTypes.object),
 
   flagComment: PropTypes.func,
   getRecentUploads: PropTypes.func,
+  inviteUser: PropTypes.func,
   loadAlbum: PropTypes.func,
+  onShowInviteForm: PropTypes.func,
   postComment: PropTypes.func,
   searchFriends: PropTypes.func,
-  toggleFlashMessage: PropTypes.func,
+  flashMessage: PropTypes.func,
   updateAlbum: PropTypes.func,
   updateAlbumRedux: PropTypes.func,
 }

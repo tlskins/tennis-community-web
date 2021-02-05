@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Moment from "moment"
 
-import { newNotification } from "../../../../state/ui/action"
+import { newNotification, showInviteForm } from "../../../../state/ui/action"
 import Notifications from "../../../../components/Notifications"
 import ProComparison from "../../../../components/ProComparison"
 import VideoResources from "../../../../components/VideoResources"
@@ -35,11 +35,13 @@ const executeAfterTimeout = (func, timeout) => {
 
 const Album = ({
   album,
+  confirmation,
   user,
   usersCache,
 
   flagComment,
   loadAlbum,
+  onShowInviteForm,
   postComment,
   searchFriends,
   toggleFlashMessage,
@@ -316,6 +318,14 @@ const Album = ({
   const sideBarWidth = expandedSideBar ? "w-1/2" : "w-1/4"
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
   const swingColSpan = expandedSideBar ? "col-span-5" : "col-span-3"
+  let commentsPlaceholder = "Comment on specific frame"
+  if (!user) {
+    commentsPlaceholder = "Create account to comment"
+  } else if (user.disableComments) {
+    commentsPlaceholder = "Your commenting has been disabled. Please contact an administrator."
+  } else if (replyId) {
+    commentsPlaceholder = "Reply to comment"
+  }
 
   return (
     <div className="flex flex-col h-screen min-h-screen bg-gray-100">
@@ -409,9 +419,8 @@ const Album = ({
             <div className="col-span-2 flex flex-col p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
               <div className="flex flex-col w-full">
 
-                { (user && !user.disableComments) &&
-                  <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                    { replyId &&
+                <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                  { replyId &&
                       <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
                         onClick={() => {
                           setReplyPreview("")
@@ -421,44 +430,48 @@ const Album = ({
                         <p>reply to</p>
                         <p className="pl-2 text-gray-700">{ replyPreview }</p>
                       </div>
-                    }
-                    <textarea
-                      className="p-2 border border-black rounded bg-gray-100"
-                      autoFocus={true}
-                      placeholder={ replyId ? "Reply to comment" : "Comment on specific frame"}
-                      rows="4"
-                      maxLength={500}
-                      onChange={e => setComment(e.target.value)}
-                      value={comment}
-                    />
-                    <div className="flex flex-row p-2 content-center justify-center items-center">
-                      <p className="mx-2 text-sm text-gray-500 align-middle">
-                        { Moment().format("MMM D YYYY H:m a") }
-                      </p>
-                      <p className="mx-2 text-sm align-middle font-bold">
+                  }
+                  <textarea
+                    className="p-2 border border-black rounded bg-gray-100"
+                    placeholder={commentsPlaceholder}
+                    rows="4"
+                    maxLength={500}
+                    value={comment}
+                    onClick={() => {
+                      if (confirmation) onShowInviteForm()
+                    }}
+                    onChange={e => {
+                      if (user && !user.disableComments) setComment(e.target.value)
+                    }}
+                  />
+                  <div className="flex flex-row p-2 content-center justify-center items-center">
+                    <p className="mx-2 text-sm text-gray-500 align-middle">
+                      { Moment().format("MMM D YYYY H:m a") }
+                    </p>
+                    <p className="mx-2 text-sm align-middle font-bold">
                       |
-                      </p>
-                      <p className="text-sm text-gray-500 align-middle">
+                    </p>
+                    <p className="text-sm text-gray-500 align-middle">
                         chars {comment.length}
-                      </p>
-                      <p className="mx-2 text-sm align-middle font-bold">
+                    </p>
+                    <p className="mx-2 text-sm align-middle font-bold">
                       |
-                      </p>
-                      <p className="text-sm align-middle font-medium underline">
+                    </p>
+                    <p className="text-sm align-middle font-medium underline">
                         frame {playerFrame}
-                      </p>
-                      <p className="mx-2 text-sm align-middle font-bold">
+                    </p>
+                    <p className="mx-2 text-sm align-middle font-bold">
                       |
-                      </p>
+                    </p>
                     
-                      <input type='button'
-                        className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
-                        value='post'
-                        onClick={onPostComment}
-                      />
-                    </div>
+                    <input type='button'
+                      className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
+                      value='post'
+                      onClick={onPostComment}
+                      disabled={!user || !user.disableComments}
+                    />
                   </div>
-                }
+                </div>
 
                 <div className="flex flex-row my-2 content-center justify-center items-center">
                   <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
@@ -595,6 +608,7 @@ const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
     album: state.album,
+    confirmation: state.confirmation,
     user: state.user,
     usersCache: state.usersCache,
   }
@@ -604,6 +618,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     flagComment: FlagComment(dispatch),
     loadAlbum: LoadAlbum(dispatch),
+    onShowInviteForm: () => dispatch(showInviteForm()),
     postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
     toggleFlashMessage: args => dispatch(newNotification(args)),
@@ -613,11 +628,13 @@ const mapDispatchToProps = (dispatch) => {
   
 Album.propTypes = {
   album: PropTypes.object,
+  confirmation: PropTypes.object,
   user: PropTypes.object,
   usersCache: PropTypes.object,
 
   flagComment: PropTypes.func,
   loadAlbum: PropTypes.func,
+  onShowInviteForm: PropTypes.func,
   postComment: PropTypes.func,
   searchFriends: PropTypes.func,
   toggleFlashMessage: PropTypes.func,

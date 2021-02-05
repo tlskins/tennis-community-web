@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 
-import { CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
+import { AcceptInvite, CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
 import { newNotification } from "../state/ui/action"
 
 
@@ -14,16 +14,19 @@ import {
 
 
 const LoginForm = ({
+  confirmation,
+  user,
+
+  acceptInvite,
   createUser,
   displayAlert,
   signIn,
   signOut,
-
   showNewUser,
-  user,
+  showInviteForm,
 }) => {
   const router = useRouter()
-  const [isNewUser, setIsNewUser] = useState(false)
+  const [formType, setFormType] = useState("SIGN_IN") // SIGN_IN - REGISTER - INVITE
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
@@ -32,9 +35,24 @@ const LoginForm = ({
 
   useEffect(() => {
     if (showNewUser) {
-      setIsNewUser(true)
+      setFormType("REGISTER")
     }
   }, [showNewUser])
+
+  useEffect(() => {
+    if (showInviteForm) {
+      setFormType("INVITE")
+    }
+  }, [showInviteForm])
+  
+  useEffect(async () => {
+    if (confirmation?.email) {
+      setFormType("INVITE")
+      setFirstName(confirmation.firstName)
+      setLastName(confirmation.lastName)
+      setEmail(confirmation.email)
+    }
+  }, [confirmation])
 
   const clearForm = () => {
     setFirstName("")
@@ -42,11 +60,6 @@ const LoginForm = ({
     setEmail("")
     setPassword("")
     setUserName("")
-  }
-
-  const onToggleForm = () => {
-    clearForm()
-    setIsNewUser(!isNewUser)
   }
 
   const onCreateUser = async () => {
@@ -60,7 +73,22 @@ const LoginForm = ({
     if (success) {
       clearForm()
       displayAlert({ message: `Confirmation email sent to ${email}`})
-      setIsNewUser(false)
+      setFormType("SIGN_IN")
+    }
+  }
+
+  const onAcceptInvite = async () => {
+    const success = await acceptInvite({
+      id: confirmation.id,
+      firstName,
+      lastName,
+      password,
+      userName,
+    })
+    if (success) {
+      clearForm()
+      displayAlert({ message: `New user "${userName}" successfully created!`})
+      router.push(`/${confirmation.url}`)
     }
   }
 
@@ -81,7 +109,7 @@ const LoginForm = ({
           </button>
         </div>
       }
-      { isNewUser &&
+      { formType === "REGISTER" &&
         <SignInForm>
           <h2>
             Sign Up
@@ -135,15 +163,26 @@ const LoginForm = ({
             <a
               href="#"
               className="link"
-              onClick={onToggleForm}
+              onClick={() => setFormType("SIGN_IN")}
             >
               Sign In
             </a>
           </p>
+          { confirmation &&
+            <p>Complete new user
+              <a
+                href="#"
+                className="link"
+                onClick={() => setFormType("INVITE")}
+              >
+                Invitation
+              </a>
+            </p>
+          }
         </SignInForm>
       }
 
-      { !isNewUser &&
+      { formType === "SIGN_IN" &&
         <SignInForm>
           <h2>
             Sign In
@@ -173,9 +212,82 @@ const LoginForm = ({
             <a
               href="#"
               className="link"
-              onClick={onToggleForm}
+              onClick={() => setFormType("REGISTER")}
             >
               Create Account
+            </a>
+          </p>
+          { confirmation &&
+            <p>Complete new user
+              <a
+                href="#"
+                className="link"
+                onClick={() => setFormType("INVITE")}
+              >
+                Invitation
+              </a>
+            </p>
+          }
+        </SignInForm>
+      }
+
+      { formType === "INVITE" &&
+        <SignInForm>
+          <h2>
+            Accept Invitation
+          </h2>
+          <SignInInputContainer>
+            <label htmlFor="username">User Name</label>
+            <input type="text"
+              id="username"
+              value={userName}
+              onChange={e => setUserName(e.target.value)}
+            />
+          </SignInInputContainer>
+          <SignInInputContainer>
+            <label htmlFor="email">Email</label>
+            <input type="text"
+              id="email"
+              value={email}
+              disabled={true}
+            />
+          </SignInInputContainer>
+          <SignInInputContainer>
+            <label htmlFor="firstname">First Name</label>
+            <input type="text"
+              id="firstname"
+              value={firstName}
+              onChange={e => setFirstName(e.target.value)}
+            />
+          </SignInInputContainer>
+          <SignInInputContainer>
+            <label htmlFor="lastname">Last Name</label>
+            <input type="text"
+              id="lastname"
+              value={lastName}
+              onChange={e => setLastName(e.target.value)}
+            />
+          </SignInInputContainer>
+          <SignInInputContainer>
+            <label htmlFor="password">Password</label>
+            <input type="text"
+              id="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
+          </SignInInputContainer>
+          <button
+            onClick={onAcceptInvite}
+          >
+            Complete Registration
+          </button>
+          <p>Already have an account?
+            <a
+              href="#"
+              className="link"
+              onClick={() => setFormType("SIGN_IN")}
+            >
+              Sign In
             </a>
           </p>
         </SignInForm>
@@ -187,13 +299,16 @@ const LoginForm = ({
 
 const mapStateToProps = (state) => {
   return {
+    confirmation: state.confirmation,
     user: state.user,
     showNewUser: state.navBar.showNewUser,
+    showInviteForm: state.navBar.showInviteForm,
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    acceptInvite: AcceptInvite(dispatch),
     createUser: CreateUser(dispatch),
     signIn: SignIn(dispatch),
     signOut: SignOut(dispatch),
@@ -203,10 +318,14 @@ const mapDispatchToProps = (dispatch) => {
 
 
 LoginForm.propTypes = {
+  confirmation: PropTypes.object,
   showNewUser: PropTypes.bool,
+  showInviteForm: PropTypes.bool,
   user: PropTypes.object,
 
+  acceptInvite: PropTypes.func,
   createUser: PropTypes.func,
+  confirmUser: PropTypes.func,
   displayAlert: PropTypes.func,
   signIn: PropTypes.func,
   signOut: PropTypes.func,

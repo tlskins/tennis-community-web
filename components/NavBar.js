@@ -7,6 +7,7 @@ import Moment from "moment"
 
 import { ConfirmUser, SignOut, LoadConfirmation } from "../behavior/coordinators/users"
 import { getUserIcon } from "../behavior/users"
+import { newNotification } from "../state/ui/action"
 import LoginForm from "./LoginForm"
 import Modal from "./Modal"
 
@@ -93,16 +94,18 @@ const NavBar = ({
           <LinkClass active={ router.pathname === "/albums" }>
             <Link href="/albums">Albums</Link>
           </LinkClass>
-          <LinkClass active={ router.pathname === "/friends" }>
-            <Link href="/friends">Friends</Link>
-          </LinkClass>
           { user.isAdmin &&
             <LinkClass active={ router.pathname === "/admin" }>
               <Link href="/admin">Admin</Link>
             </LinkClass>
           }
           <LinkClass>
-            <a href="#" onClick={ onSignOut }>Sign Out</a>
+            <div className="flex flex-row content-center justify-center items-center">
+              <a href="#" onClick={ onSignOut }>Sign Out</a>
+              <img src={getUserIcon(user)}
+                className="w-4 h-4"
+              />
+            </div>
           </LinkClass>
         </LinksContainer>
       }

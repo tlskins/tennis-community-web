@@ -3,14 +3,20 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment-timezone"
 import { useRouter } from "next/router"
+import { GrSearch } from "react-icons/gr"
 
 import Notifications from "../components/Notifications"
 import HowToUpload from "../components/HowToUpload"
 import AlbumAndCommentsPreview from "../components/AlbumAndCommentsPreview"
 import VideoResources from "../components/VideoResources"
 import ProComparison from "../components/ProComparison"
-import { UpdateUserProfile } from "../behavior/coordinators/users"
-import { SearchFriends } from "../behavior/coordinators/friends"
+import { LoadUser, UpdateUserProfile } from "../behavior/coordinators/users"
+import { 
+  SearchFriends,
+  SendFriendRequest,
+  AcceptFriendRequest,
+  Unfriend,
+} from "../behavior/coordinators/friends"
 import { getUserIcons, getUserIcon } from "../behavior/users"
 import {
   LoadMyAlbums,
@@ -21,9 +27,15 @@ import {
 import { newNotification } from "../state/ui/action"
 import uploadYellow from "../public/upload-yellow.svg"
 import uploadBlue from "../public/upload-blue.svg"
+import {
+  SearchBox,
+  SearchBoxContainer,
+  UserResultBox,
+} from "../styles/styled-components"
 
 const SWING_FRAMES = 60
 const albumsPerColumn = 3
+let timer
 
 const Profile = ({
   myAlbums,
@@ -33,9 +45,16 @@ const Profile = ({
   user,
   usersCache,
   
+  acceptFriendRequest,
   loadMyAlbums,
+  loadFriendsAlbums,
+  loadPublicAlbums,
+  loadSharedAlbums,
+  loadUser,
   newFlashMessage,
   searchFriends,
+  sendFriendRequest,
+  unfriend,
   updateUserProfile,
 }) => {
   const router = useRouter()
@@ -43,6 +62,8 @@ const Profile = ({
   const [showHowTo, setShowHowTo] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
   const [pressingSave, setPressingSave] = useState(false)
+  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false)
+  const [isMyAlbumsLoaded, setIsMyAlbumsLoaded] = useState(false)
 
   const [email,] = useState(user?.email)
   const [userName, setUserName] = useState(user?.userName)
@@ -62,7 +83,10 @@ const Profile = ({
   const [currentComments, setCurrentComments] = useState([])
 
   const [myAlbumsPage, setMyAlbumsPage] = useState(0)
-  const [albumType, setAlbumType] = useState("owner")
+  const [albumType, setAlbumType] = useState("owner") // owner - friends - shared - public
+
+  const [friendsSearch, setFriendsSearch] = useState("")
+  const [foundUsers, setFoundUsers] = useState([])
 
   let sourceAlbums
   switch(albumType) {
@@ -85,15 +109,53 @@ const Profile = ({
     }
   }, [user])
 
-  useEffect(() => {
+  useEffect(async () => {
     if (user) {
-      loadMyAlbums()
+      switch(albumType) {
+      case "owner":
+        if (myAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          await loadMyAlbums()
+          setIsMyAlbumsLoaded(true)
+          setIsLoadingAlbums(false)
+        }
+        break
+      case "friends":
+        if (friendsAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          await loadFriendsAlbums()
+          setIsLoadingAlbums(false)
+        }
+        break
+      case "shared":
+        if (sharedAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          await loadSharedAlbums()
+          setIsLoadingAlbums(false)
+        }
+        break
+      case "public":
+        if (publicAlbums.length === 0) {
+          setIsLoadingAlbums(true)
+          loadPublicAlbums()
+          setIsLoadingAlbums(false)
+        }
+        break
+      default: break
+      }
     }
-  }, [user])
+  }, [user, albumType, myAlbums, friendsAlbums, sharedAlbums, publicAlbums])
 
   useEffect(() => {
-    setShowHowTo(myAlbums.length === 0)
-  }, [myAlbums])
+    if (isMyAlbumsLoaded) {
+      const emptyMyAlbums = myAlbums.length === 0
+      setShowHowTo(emptyMyAlbums)
+      if (emptyMyAlbums) {
+        loadPublicAlbums()
+        setAlbumType("public")
+      }
+    }
+  }, [myAlbums, isMyAlbumsLoaded])
 
   useEffect(() => {
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
@@ -119,7 +181,25 @@ const Profile = ({
       const ids = Array.from(commentersSet)
       if (ids.length > 0) searchFriends({ ids })
     }
-  }, [currentComments, usersCache])
+  }, [currentComments])
+
+  useEffect(() => {
+    if (user?.friendRequests.length > 0 || user?.friendIds.length > 0) {
+      let ids = user.friendRequests.map( r => r.fromUserId === user.id ? r.toUserId : r.fromUserId)
+      ids = ids.filter( id => !usersCache[id])
+      searchFriends({ ids: [ ...ids, ...user.friendIds] })
+    }
+  }, [user?.friendRequests, user?.friendIds])
+
+  const executeAfterTimeout = (func, timeout) => {
+    if ( timer ) {
+      clearTimeout( timer )
+    }
+    timer = undefined
+    timer = setTimeout(() => {
+      func()
+    }, timeout )
+  }
 
   const onHandleSeekChange = (playerRef, i) => e => {
     const frame = parseFloat(e.target.value)
@@ -172,6 +252,39 @@ const Profile = ({
     })
     if (success) {
       newFlashMessage({ message: "Profile successfully updated"})
+    }
+  }
+
+  const onSearchUsers = async e => {
+    const search = e.target.value
+    setFriendsSearch(search)
+    executeAfterTimeout(async () => {
+      if (!search) {
+        setFoundUsers([])
+      } else if (search.length > 2) {
+        const friends = await searchFriends({ search })
+        setFoundUsers(friends)
+      }
+    }, 700)
+  }
+
+  const onSendFriendRequest = ({ id, userName }) => async () => {
+    if (await sendFriendRequest({ id })) {
+      newFlashMessage({ message: `Friend request sent to ${userName}` })
+      loadUser()
+    }
+  }
+
+  const onAcceptFriendRequest = (requestId, accept) => async () => {
+    if (await acceptFriendRequest({ requestId, accept })) {
+      newFlashMessage({ message: "Friend request accepted" })
+    }
+  }
+
+  const onUnfriend = (friendId, friendName) => async () => {
+    if (await unfriend({ friendId })) {
+      loadUser()
+      newFlashMessage({ message: `Unfriended ${friendName}` })
     }
   }
 
@@ -360,8 +473,8 @@ const Profile = ({
                 </div>
               </div>
 
+              {/* Video Resources */}
               <div className="grid grid-cols-3 gap-8 bg-white rounded shadow-lg p-4">
-                {/* Video Resources */}
                 <div className="p-4 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md">
                   <h2 className="font-bold text-lg text-center tracking-wider w-full">
                     Pro Swings
@@ -376,6 +489,130 @@ const Profile = ({
                     defaultVideoGroup="Forehands"
                     defaultVideo="Forehand Form Basics"
                   />
+                </div>
+              </div>
+              {/* Friends */}
+              <div className="grid grid-cols-3 gap-8 bg-white rounded shadow-lg p-4 h-96">
+                {/* Friends Search */}
+                <div className="p-4 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                  <SearchBoxContainer>
+                    <SearchBox
+                      placeholder="Search Users"
+                      value={friendsSearch}
+                      onChange={onSearchUsers}
+                    />
+                    <GrSearch/>
+                  </SearchBoxContainer>
+                  { foundUsers.map(({ id, userName, firstName, lastName }, i) => {
+                    const isFriend = user.friendIds.includes(id)
+                    const isRequested = user.friendRequests.find( req => req.toUserId === id || req.fromUserId === id )
+                    return(
+                      <UserResultBox key={i}>
+                        <p className="username">@{ userName }</p>
+                        <p className="fullname">{ firstName } {lastName}</p>
+                        { (!isFriend && !isRequested && id !== user.id) &&
+                        <button
+                          onClick={onSendFriendRequest({ id, userName })}
+                        >
+                          Request
+                        </button>
+                        }
+                      </UserResultBox>
+                    )
+                  })}
+                </div>
+
+                {/* Friends */}
+                <div className="p-4 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                  <div className="content-center justify-center items-center mb-2">
+                    <h2 className="underline font-semibold text-center">
+                      Friends
+                    </h2>
+                  </div>
+                  <div className="flex flex-col content-center justify-center items-center">
+                    { user?.friendIds.length === 0 &&
+                      <h2>None</h2>
+                    }
+                    { user?.friendIds.map(friendId => {
+                      const cache = usersCache[friendId]
+                      return(
+                        <div key={friendId}
+                          className="flex flex-row rounded-lg my-1 p-2 bg-yellow-300 shadow-md content-center justify-center items-center w-full"
+                        >
+                          <div className="flex flex-row">
+                            <span className="underline text-blue-400 mr-2 text-xs text-xs tracking-wider font-semibold">
+                              { cache ? cache.userName : "..." } ({ cache ? `${cache.firstName} ${cache.lastName}` : "..." })
+                            </span>
+                            <button className="rounded mx-1 px-1 py-0.5 underline bg-red-400 cursor-pointer text-xs tracking-wide font-semibold"
+                              onClick={onUnfriend( friendId, cache?.userName)}
+                            >
+                              Unfriend
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Requests */}
+                <div className="p-4 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                  <div className="content-center justify-center items-center mb-2">
+                    <h2 className="underline font-semibold text-center">
+                      Requests
+                    </h2>
+                  </div>
+                  <div className="flex flex-col content-center justify-center items-center">
+                    { user?.friendRequests.length === 0 &&
+                      <h2>None</h2>
+                    }
+                    { user?.friendRequests.map(req => {
+                      if (req.fromUserId === user.id) {
+                        const cache = usersCache[req.toUserId]
+                        return(
+                          <div key={req.id}
+                            className="rounded my-1 p-2 bg-gray-200 shadow-md w-full"
+                          >
+                            <div className="flex flex-row content-center justify-center items-center">
+                              <p className="text-xs tracking-wider font-semibold mr-2">
+                                Pending to
+                              </p>
+                              <span className="underline text-blue-400 cursor-pointer text-xs tracking-wide font-semibold">
+                                { cache ? `${cache.userName} (${cache.firstName} ${cache.lastName})` : "..." }
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      }
+                      const cache = usersCache[req.fromUserId]
+                      return(
+                        <div key={req.id}
+                          className="flex flex-col rounded-lg my-1 p-2 bg-yellow-200 w-full shadow-md w-full"
+                        >
+                          <div className="flex flex-row content-center justify-center items-center mb-1">
+                            <p className="text-xs tracking-wider font-semibold mr-2">
+                              Pending from
+                            </p>
+                            <span className="underline text-blue-400 cursor-pointer text-xs tracking-wide font-semibold">
+                              { cache ? cache.userName : "..." }
+                            </span>
+                          </div>
+                          <div className="flex flex-row content-center justify-center items-center">
+                            <button className="rounded mx-1 px-1 py-0.5 underline bg-green-300 cursor-pointer text-xs tracking-wide font-semibold"
+                              onClick={onAcceptFriendRequest(req.id, true)}
+                            >
+                              Accept
+                            </button>
+                            <button className="rounded mx-1 px-1 py-0.5 underline bg-red-300 cursor-pointer text-xs tracking-wide font-semibold"
+                              onClick={onAcceptFriendRequest(req.id, false)}
+                            >
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -420,9 +657,14 @@ const Profile = ({
                 </div>
               </div>
 
-              { activeAlbums.length === 0 &&
+              { (activeAlbums.length === 0 && !isLoadingAlbums) &&
                 <div className="px-20 mt-4">
                   <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
+                </div>
+              }
+              { (activeAlbums.length === 0 && isLoadingAlbums) &&
+                <div className="px-20 mt-4">
+                  <p className="text-center bg-yellow-300 text-gray-700 tracking-wide rounded-lg w-full px-20">Loading...</p>
                 </div>
               }
 
@@ -497,6 +739,10 @@ const mapDispatchToProps = (dispatch) => {
     newFlashMessage: args => dispatch(newNotification(args)),
     searchFriends: SearchFriends(dispatch),
     updateUserProfile: UpdateUserProfile(dispatch),
+    sendFriendRequest: SendFriendRequest(dispatch),
+    acceptFriendRequest: AcceptFriendRequest(dispatch),
+    loadUser: LoadUser(dispatch),
+    unfriend: Unfriend(dispatch),
   }
 }
   
@@ -508,12 +754,16 @@ Profile.propTypes = {
   user: PropTypes.object,
   usersCache: PropTypes.object,
 
+  acceptFriendRequest: PropTypes.func,
+  loadUser: PropTypes.func,
+  searchFriends: PropTypes.func,
+  sendFriendRequest: PropTypes.func,
+  unfriend: PropTypes.func,
   loadMyAlbums: PropTypes.func,
   loadFriendsAlbums: PropTypes.func,
   loadSharedAlbums: PropTypes.func,
   loadPublicAlbums: PropTypes.func,
   newFlashMessage: PropTypes.func,
-  searchFriends: PropTypes.func,
   updateUserProfile: PropTypes.func,
 }
 

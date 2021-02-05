@@ -66,7 +66,7 @@ const Notifications = ({
             callback: async () => {
               await removeNotification({ friendNotificationId: note.id })
               if (note.type === "New Friend Request") {
-                router.push("/friends")
+                router.push("/profile")
               }
             },
           },

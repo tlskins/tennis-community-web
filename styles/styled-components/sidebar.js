@@ -32,7 +32,6 @@ export const LinkButton = styled.div`
 
 export const SearchBoxContainer = styled.div`
   width: 100%;
-  position: relative;
   margin-bottom: 20px;
   svg {
     position: absolute;

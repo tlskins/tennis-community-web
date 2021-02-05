@@ -52,7 +52,7 @@ export const UploadVideo = (dispatch, callback = () => {}) => async ({
       })
       console.log("create_swing_upload response", response )
 
-      dispatch(newNotification({ message: `Processing new album: "${albumName}" ETA ~10 minutes` }))
+      dispatch(newNotification({ message: `Processing new album: "${albumName}" ETA 5-10 minutes (${Moment().add(10, "minutes").format("HH:mm")})` }))
 
       if (callback) {
         callback(response)

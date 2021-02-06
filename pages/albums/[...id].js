@@ -305,7 +305,7 @@ const Album = ({
 
   const renderVideo = ({ swing, i, ref, playing, pip, duration }) => {
     return(
-      <Fragment>
+      <div className="relative">
         <ReactPlayer
           className="rounded-md overflow-hidden"
           ref={ref}
@@ -408,7 +408,7 @@ const Album = ({
             <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
           </div>
           { (showAlbumUsage && i ===0) &&
-            <div className="absolute -mb-80 ml-96 w-72 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+            <div className="absolute -mb-72 ml-72 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
               <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
               Frame # / Total Frames              
             </div>
@@ -420,9 +420,9 @@ const Album = ({
           </div>
 
           { (showAlbumUsage && i === 0) &&
-            <div className="absolute -my-60 -mr-80 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+            <div className="absolute -my-60 -mr-80 w-44 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
               Go to swing to comment on specific frames
-              <svg className="absolute text-yellow-300 h-2 left-0 ml-20 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+              <svg className="absolute text-yellow-300 h-2 left-0 ml-14 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
             </div>
           }
 
@@ -432,7 +432,7 @@ const Album = ({
             onClick={() => router.push(`/albums/${albumId}/swings/${swing.id}`)}
           />
         </div>
-      </Fragment>
+      </div>
     )
   }
 

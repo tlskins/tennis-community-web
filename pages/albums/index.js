@@ -415,10 +415,7 @@ const AlbumsIndex = ({
                           </p>
 
                           { (user && album.userId != user.id) &&
-                            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100 tooltip">
-                              <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 w-32 border border-yellow-300 -mt-11 -ml-28 rounded'>
-                                flag inappropriate album
-                              </span>
+                            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
                               <img src={flag}
                                 className="w-4 h-4 cursor-pointer"
                                 onClick={onFlagAlbum(album)}

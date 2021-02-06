@@ -64,6 +64,12 @@ const Album = ({
   const [albumView, setAlbumView] = useState("video")
   const [swingsPerPage, setSwingsPerPage] = useState(9)
 
+  const [showFooterUsage, setShowFooterUsage] = useState(false)
+  const [showProUsage, setShowProUsage] = useState(false)
+  const [showVideoUsage, setShowVideoUsage] = useState(false)
+  const [showSharingUsage, setShowSharingUsage] = useState(false)
+  const [showAlbumUsage, setShowAlbumUsage] = useState(false)
+
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(true)
   const [playerRefs, setPlayerRefs] = useState([])
@@ -323,7 +329,14 @@ const Album = ({
         />
 
         {/* Controls Panel */}
-        <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
+        <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded w-full">
+          { (showAlbumUsage && i === 0) &&
+            <div className="absolute -my-60 -ml-40 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+              View Picture-In-Picture for a draggable video
+              <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+            </div>
+          }
+
           {/* Picture in Picture */}
           { pip &&
             <input type='button'
@@ -394,11 +407,24 @@ const Album = ({
           <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
             <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
           </div>
+          { (showAlbumUsage && i ===0) &&
+            <div className="absolute -mb-80 ml-96 w-72 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+              <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
+              Frame # / Total Frames              
+            </div>
+          }
 
           <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
             <p className="mr-1 text-center">{(swing.comments?.length || 0)}</p>
             <img src={speechBubble} className="w-5 h-5"/>
           </div>
+
+          { (showAlbumUsage && i === 0) &&
+            <div className="absolute -my-60 -mr-80 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+              Go to swing to comment on specific frames
+              <svg className="absolute text-yellow-300 h-2 left-0 ml-20 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+            </div>
+          }
 
           <input type='button'
             className='border rounded py-0.5 px-1 mx-1 text-xs font-bold bg-indigo-700 text-white cursor-pointer'
@@ -412,7 +438,7 @@ const Album = ({
 
   const sideBarWidth = expandedSideBar ? "w-1/2" : "w-1/4"
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
-  let commentsPlaceholder = "Comment on specific frame"
+  let commentsPlaceholder = "Comment on entire album"
   if (!user) {
     commentsPlaceholder = "Create account to comment"
   } else if (user.disableComments) {
@@ -436,38 +462,59 @@ const Album = ({
 
             {/* Pro Comparison Sidebar */}
             <div className="mb-2">
-              <h2 className="text-blue-400 underline cursor-pointer text-center"
-                onClick={() => {
-                  if (activeSideBar === "Pro Comparison") {
-                    setActiveSidebar(undefined)
-                  } else {
-                    setActiveSidebar("Pro Comparison")
-                  }
-                }}
-              >
+              <div className="flex flex-row content-center justify-center items-center">
+                <h2 className="text-blue-400 underline cursor-pointer text-center"
+                  onClick={() => {
+                    if (activeSideBar === "Pro Comparison") {
+                      setActiveSidebar(undefined)
+                    } else {
+                      setActiveSidebar("Pro Comparison")
+                    }
+                  }}
+                >
                 Pro Comparison
-              </h2>
+                </h2>
+                <input type="button"
+                  className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer"
+                  value="?"
+                  onClick={() => {
+                    setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
+                    setActiveSidebar("Pro Comparison")
+                  }}
+                />
+              </div>
               { activeSideBar === "Pro Comparison" &&
-                <ProComparison />
+                <ProComparison showUsage={showProUsage} />
               }
             </div>
 
             {/* Video Resources Sidebar */}
             <div className="mb-2">
-              <h2 className="text-blue-400 underline cursor-pointer text-center"
-                onClick={() => {
-                  if (activeSideBar === "Video Resources") {
-                    setActiveSidebar(undefined)
-                  } else {
+              <div className="flex flex-row content-center justify-center items-center">
+                <h2 className="text-blue-400 underline cursor-pointer text-center"
+                  onClick={() => {
+                    if (activeSideBar === "Video Resources") {
+                      setActiveSidebar(undefined)
+                    } else {
+                      setActiveSidebar("Video Resources")
+                    }
+                  }}
+                >
+                Youtube Tutorials
+                </h2>
+                <input type="button"
+                  className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer"
+                  value="?"
+                  onClick={() => {
+                    setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
                     setActiveSidebar("Video Resources")
-                  }
-                }}
-              >
-                Video Resources
-              </h2>
+                  }}
+                />
+              </div>
               { activeSideBar === "Video Resources" &&
                 <VideoResources
                   onExpand={playing => setExpandedSideBar(playing)}
+                  showUsage={showVideoUsage}
                 />
               }
             </div>
@@ -475,17 +522,28 @@ const Album = ({
             {/* Sharing Sidebar */}
             { (user && user.id == album?.userId) &&
               <div className="mb-2">
-                <h2 className="text-blue-400 underline cursor-pointer text-center"
-                  onClick={() => {
-                    if (activeSideBar === "Sharing") {
-                      setActiveSidebar(undefined)
-                    } else {
+                <div className="flex flex-row content-center justify-center items-center">
+                  <h2 className="text-blue-400 underline cursor-pointer text-center"
+                    onClick={() => {
+                      if (activeSideBar === "Sharing") {
+                        setActiveSidebar(undefined)
+                      } else {
+                        setActiveSidebar("Sharing")
+                      }
+                    }}
+                  >
+                    Sharing
+                  </h2>
+                  <input type="button"
+                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer"
+                    value="?"
+                    onClick={() => {
+                      setShowSharingUsage(activeSideBar !== "Sharing" ? true : !showSharingUsage)
                       setActiveSidebar("Sharing")
-                    }
-                  }}
-                >
-                Sharing
-                </h2>
+                    }}
+                  />
+                </div>
+                
                 { activeSideBar === "Sharing" &&
                 <div className="flex flex-col content-center justify-center items-center">
                   <Sharing
@@ -501,6 +559,7 @@ const Album = ({
                     setInvFirstName={setInvFirstName}
                     invLastName={invLastName}
                     setInvLastName={setInvLastName}
+                    showUsage={showSharingUsage}
                   />
                   <input type='button'
                     className="border w-14 rounded py-0.5 px-2 my-2 text-xs font-semibold bg-blue-700 text-white"
@@ -561,7 +620,7 @@ const Album = ({
                         />
                         <div className="flex flex-row p-1 content-center justify-center items-center">
                           <p className="text-sm mr-2 text-gray-500 align-middle">
-                            { Moment().format("MMM D YYYY H:m a") }
+                            { Moment().format("MMM D YYYY h:mm a") }
                           </p>
                           <p className="text-sm mr-2 align-middle font-bold">
                               |
@@ -629,25 +688,19 @@ const Album = ({
                                       |
                                     </p>
                                     <p className="mx-2 text-xs text-gray-500 align-middle">
-                                      { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY H:m a") }
+                                      { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY h:mm a") }
                                     </p>
                                   </div>
                                 </div>
                               }
-                              <div className="flex flex-col pt-1 my-0.5"
-                              >
+                              <div className="flex flex-col pt-1 my-0.5">
                                 <p className="p-1">
                                   { comment.text }
                                 </p>
                                 <div className="flex flex-row content-center justify-center items-center">
-                                  <div className="tooltip">
-                                    <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 border border-yellow-300 -mt-6 rounded'>
-                                      { getUserType(user) }
-                                    </span>
-                                    <img src={getUserIcon(user)}
-                                      className="w-5 h-5 ml-1 cursor-pointer"
-                                    />
-                                  </div>
+                                  <img src={getUserIcon(user)}
+                                    className="w-5 h-5 ml-1"
+                                  />
                                   <p className="mx-1 text-xs text-blue-500 align-middle">
                                     @{ usersCache[comment.userId]?.userName || "..." }
                                   </p>
@@ -655,7 +708,7 @@ const Album = ({
                                     |
                                   </p>
                                   <p className="mx-1 text-xs text-gray-500 align-middle">
-                                    { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
+                                    { Moment(comment.createdAt).format("MMM D YYYY h:mm a") }
                                   </p>
                                   <p className="mx-1 text-sm align-middle font-bold">
                                     |
@@ -671,10 +724,7 @@ const Album = ({
                                     />
                                   }
                                   { user &&
-                                    <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100 tooltip">
-                                      <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 w-32 border border-yellow-300 -mt-11 -ml-28 rounded'>
-                                        flag inappropriate comment
-                                      </span>
+                                    <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
                                       <img src={flag}
                                         className="w-4 h-4 cursor-pointer"
                                         onClick={onFlagComment(comment)}
@@ -708,6 +758,11 @@ const Album = ({
 
           <div className="mb-2 flex content-center justify-center items-center">
             <div className="flex flex-row content-center justify-center items-center relative">
+              <input type="button"
+                className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-5 cursor-pointer"
+                value="?"
+                onClick={() => setShowAlbumUsage(!showAlbumUsage)}
+              />
               <input type="text"
                 className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
                 value={album?.name}
@@ -804,15 +859,32 @@ const Album = ({
       </main>
 
       {/* All Video Controls Footer */}
-      <footer className="absolute bottom-0 sticky w-full bg-gray-200 border-t border-gray-400 mb-0">
-        <div className="p-2 w-full flex flex-row content-center justify-center items-center">
+      <footer className="absolute bottom-0 sticky w-full bg-gray-200 border-t border-gray-400 mb-0 content-center justify-center items-center">
+        <p className="text-xs pt-2 font-semibold tracking wider text-center">
+          All Video Controls
+        </p>
+        <div className="w-full flex flex-row content-center justify-center items-center">
+          <input type="button"
+            className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-5 cursor-pointer"
+            value="?"
+            onClick={() => setShowFooterUsage(!showFooterUsage)}
+          />
+
           { album &&
             <div className="flex flex-col mr-8">
               <div className="flex flex-col">
-                <p className="text-sm underline font-semibold">
-                  Swing Format
-                </p>
                 <div className="flex flex-row">
+                  { showFooterUsage &&
+                    <div className="absolute -my-8 -mx-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                      Choose how to display your swings:
+                      <ul className="list-disc pl-6">
+                        <li>Video - 9 swings in video player</li>
+                        <li>GIF - 24 swings as GIFs</li>
+                        <li>JPGs - 24 swings as JPGs</li>
+                      </ul>
+                      <svg className="absolute text-yellow-300 h-2 right-2 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+                    </div>
+                  }
                   <select
                     className="my-1 mr-1 rounded border border-gray-500"
                     onChange={e => {
@@ -855,6 +927,13 @@ const Album = ({
             />
           }
 
+          { showFooterUsage &&
+            <div className="absolute -my-10 ml-32 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+              <p>Player seek for all videos at once</p>
+              <p>Click once and use &lt;- and -&gt; keys to nav frame by frame</p>
+              <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+            </div>
+          }
           <input
             type='range'
             min={0}
@@ -900,6 +979,12 @@ const Album = ({
               >
                 &lt;
               </button>
+            }
+            { showFooterUsage &&
+              <div className="absolute -my-8 ml-6 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                Show prev or next page of swings
+                <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+              </div>
             }
             <h2 className="underline text-blue-500">
               Page { albumPage+1 }

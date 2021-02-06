@@ -54,6 +54,9 @@ const Album = ({
   const swing = swingVideos.find( sw => sw.id === swingId )
 
   const [name, setName] = useState(swing?.name)
+  const [showProUsage, setShowProUsage] = useState(false)
+  const [showVideoUsage, setShowVideoUsage] = useState(false)
+  const [showSwingUsage, setShowSwingUsage] = useState(false)
 
   const [playing, setPlaying] = useState(true)
   const [playerRef, setPlayerRef] = useState(undefined)
@@ -217,7 +220,7 @@ const Album = ({
     }
 
     return(
-      <Fragment>
+      <div>
         <ReactPlayer
           className="rounded-md overflow-hidden"
           ref={ref}
@@ -258,7 +261,7 @@ const Album = ({
               }
             </div>
 
-            <div className="flex flex-col ml-2">
+            <div className="flex flex-col ml-2 relative">
               {/* Seek */}
               <input
                 type='range'
@@ -272,38 +275,58 @@ const Album = ({
                   e.preventDefault()
                 }}
               />
+
+              { showSwingUsage &&
+                <div className="absolute mb-2 -ml-3 w-80 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                  <p>Drag or click once and use &lt;- and -&gt; keys to nav frame by frame</p>
+                  <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+                </div>
+              }
+
             </div>
 
-            <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
+            <div className="bg-white rounded p-0.5 mx-1 text-xs w-10 relative">
               <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
+              { showSwingUsage &&
+                <div className="absolute -mb-14 ml-4 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+                  <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
+                  Frame # / Total Frames
+                </div>
+              }
             </div>
           </div>
 
           <div className="flex flex-col content-center justify-center items-center">
             <div className="flex flex-row content-center justify-center p-1 bg-gray-100 rounded">
-              <div className="flex flex-row content-center justify-center items-center p-4">
+              <div className="flex flex-row content-center justify-center items-center p-4 relative">
                 <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
                   onClick={() => setPlayback(0.25)}
                   value=".25x"
                 />
                 <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
                   onClick={() => setPlayback(0.5)}
                   value=".5x"
                 />
+                { showSwingUsage &&
+                  <div className="absolute -mb-20 ml-16 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+                    <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
+                    Change playback rate
+                  </div>
+                }
                 <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
                   onClick={() => setPlayback(1)}
                   value="1x"
                 />
                 <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
                   onClick={() => setPlayback(2)}
                   value="2x"
                 />
                 <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
                   onClick={() => setPlayback(3)}
                   value="3x"
                 />
@@ -311,7 +334,7 @@ const Album = ({
             </div>
           </div>
         </div>
-      </Fragment>
+      </div>
     )
   }
 
@@ -341,38 +364,59 @@ const Album = ({
 
             {/* Pro Comparison Sidebar */}
             <div className="mb-2">
-              <h2 className="text-blue-400 underline cursor-pointer text-center"
-                onClick={() => {
-                  if (activeSideBar === "Pro Comparison") {
-                    setActiveSidebar(undefined)
-                  } else {
-                    setActiveSidebar("Pro Comparison")
-                  }
-                }}
-              >
+              <div className="flex flex-row content-center justify-center items-center">
+                <h2 className="text-blue-400 underline cursor-pointer text-center"
+                  onClick={() => {
+                    if (activeSideBar === "Pro Comparison") {
+                      setActiveSidebar(undefined)
+                    } else {
+                      setActiveSidebar("Pro Comparison")
+                    }
+                  }}
+                >
                 Pro Comparison
-              </h2>
+                </h2>
+                <input type="button"
+                  className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer"
+                  value="?"
+                  onClick={() => {
+                    setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
+                    setActiveSidebar("Pro Comparison")
+                  }}
+                />
+              </div>
               { activeSideBar === "Pro Comparison" &&
-                <ProComparison />
+                <ProComparison showUsage={showProUsage} />
               }
             </div>
 
             {/* Video Resources Sidebar */}
             <div className="mb-2">
-              <h2 className="text-blue-400 underline cursor-pointer text-center"
-                onClick={() => {
-                  if (activeSideBar === "Video Resources") {
-                    setActiveSidebar(undefined)
-                  } else {
+              <div className="flex flex-row content-center justify-center items-center">
+                <h2 className="text-blue-400 underline cursor-pointer text-center"
+                  onClick={() => {
+                    if (activeSideBar === "Video Resources") {
+                      setActiveSidebar(undefined)
+                    } else {
+                      setActiveSidebar("Video Resources")
+                    }
+                  }}
+                >
+                Youtube Tutorials
+                </h2>
+                <input type="button"
+                  className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer"
+                  value="?"
+                  onClick={() => {
+                    setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
                     setActiveSidebar("Video Resources")
-                  }
-                }}
-              >
-                Video Resources
-              </h2>
+                  }}
+                />
+              </div>
               { activeSideBar === "Video Resources" &&
                 <VideoResources
                   onExpand={playing => setExpandedSideBar(playing)}
+                  showUsage={showVideoUsage}
                 />
               }
             </div>
@@ -390,6 +434,11 @@ const Album = ({
 
             <div className="mb-2 flex content-center justify-center items-center">
               <div className="flex flex-row content-center justify-center items-center relative">
+                <input type="button"
+                  className="text-xs mr-2 rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer"
+                  value="?"
+                  onClick={() => setShowSwingUsage(!showSwingUsage)}
+                />
                 <input type="text"
                   className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
                   value={name}
@@ -419,7 +468,7 @@ const Album = ({
             <div className="col-span-2 flex flex-col p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
               <div className="flex flex-col w-full">
 
-                <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                <div className="flex flex-col border-b-2 border-gray-400 mb-2 relative">
                   { replyId &&
                       <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
                         onClick={() => {
@@ -444,6 +493,12 @@ const Album = ({
                       if (user && !user.disableComments) setComment(e.target.value)
                     }}
                   />
+                  { showSwingUsage &&
+                    <div className="absolute -mb-28 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+                      Use seek bar to select frame # to comment on
+                      <svg className="absolute text-yellow-300 h-2 right-0 mr-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+                    </div>
+                  }
                   <div className="flex flex-row p-2 content-center justify-center items-center">
                     <p className="mx-2 text-sm text-gray-500 align-middle">
                       { Moment().format("MMM D YYYY H:m a") }
@@ -539,14 +594,9 @@ const Album = ({
                             { comment.text }
                           </p>
                           <div className="flex flex-row content-center justify-center items-center">
-                            <div className="tooltip">
-                              <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 border border-yellow-300 -mt-6 rounded'>
-                                { getUserType(usersCache[comment.userId]) }
-                              </span>
-                              <img src={getUserIcon(usersCache[comment.userId])}
-                                className="w-5 h-5 ml-1 cursor-pointer"
-                              />
-                            </div>
+                            <img src={getUserIcon(usersCache[comment.userId])}
+                              className="w-5 h-5 ml-1 cursor-pointer"
+                            />
                             <p className="mx-1 text-xs text-blue-500 align-middle">
                               @{ usersCache[comment.userId]?.userName || "..." }
                             </p>
@@ -579,10 +629,7 @@ const Album = ({
                             }
                             
                             { user &&
-                              <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-100 tooltip">
-                                <span className='tooltip-text bg-black text-yellow-300 text-xs font-medium px-2 py-0.5 w-32 border border-yellow-300 -mt-11 -ml-28 rounded'>
-                                flag inappropriate comment
-                                </span>
+                              <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
                                 <img src={flag}
                                   className="w-4 h-4 cursor-pointer"
                                   onClick={onFlagComment(comment)}

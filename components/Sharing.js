@@ -15,6 +15,7 @@ const Sharing = ({
   isPublic,
   isViewableByFriends,
   setIsViewableByFriends,
+  showUsage,
   friendIds,
   invEmail,
   invFirstName,
@@ -138,6 +139,19 @@ const Sharing = ({
           <label htmlFor="specificFriends"> Specific Friends</label><br></br>
         </div>
 
+        { showUsage &&
+            <div className="absolute -my-96 -mx-4 w-72 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+              <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
+              <ul className="list-disc pl-6">
+                <li>Public - All users can view and comment on your album</li>
+                <li>Friends - Only friends can view and comment on your album</li>
+                <li>Email - Send album to email address, invites user to create an account and comment</li>
+                <li>Specific Friends - Sends email reminder to friends to review your album</li>
+              </ul>
+              
+            </div>
+        }
+
         { friendIds.length > 0 &&
             <div>
               { friendIds.map( (friendId, i) => {
@@ -202,6 +216,7 @@ Sharing.propTypes = {
   invEmail: PropTypes.string,
   invFirstName: PropTypes.string,
   invLastName: PropTypes.string,
+  showUsage: PropTypes.bool,
   user: PropTypes.object,
   usersCache: PropTypes.object,
 

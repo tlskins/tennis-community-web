@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react"
 import ReactPlayer from "react-player"
+import PropTypes from "prop-types"
 
 const publicVideos = [
   {
@@ -42,7 +43,7 @@ const publicVideos = [
   
 
 
-const ProComparison = () => {
+const ProComparison = ({ showUsage }) => {
   const sideVideoRef = useRef(undefined)
   const [sideVideo, setSideVideo] = useState(publicVideos[0].url)
   const [sideVideoDuration, setSideVideoDuration] = useState(0)
@@ -57,7 +58,6 @@ const ProComparison = () => {
       setSideVideoDuration(seekTo)
     }
   }
-    
 
   return(
     <div className="mb-2">
@@ -72,6 +72,13 @@ const ProComparison = () => {
           })}
         </select>
 
+        { showUsage &&
+          <div className="absolute -my-32 -mx-24 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+            View pro tennis swings and compare them with your own.
+            <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+          </div>
+        }
+                
         <ReactPlayer
           className="rounded-md overflow-hidden"
           ref={sideVideoRef}
@@ -92,22 +99,31 @@ const ProComparison = () => {
 
         {/* Controls Panel */}
           
-        <div className="flex flex-row content-center justify-center items-center mt-4">
-          {/* Picture in Picture */}
-          { sideVideoPip &&
+        <div className="flex flex-row content-center justify-center items-center mt-4">        
+          <div>
+            { showUsage &&
+            <div className="absolute -my-80 -mx-2 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+              View Picture-In-Picture for a draggable video
+              <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+            </div>
+            }
+
+            {/* Picture in Picture */}
+            { sideVideoPip &&
             <input type='button'
               className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
               value='-'
               onClick={() => setSideVideoPip(false)}
             />
-          }
-          { !sideVideoPip &&
+            }
+            { !sideVideoPip &&
             <input type='button'
               className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
               value='+'
               onClick={() => setSideVideoPip(true)}
             />
-          }
+            }
+          </div>
 
           {/* Play / Pause */}
           { sideVideoPlaying &&
@@ -177,5 +193,10 @@ const ProComparison = () => {
     </div>
   )
 }
+
+ProComparison.propTypes = {
+  showUsage: PropTypes.bool,
+}
+
   
 export default ProComparison

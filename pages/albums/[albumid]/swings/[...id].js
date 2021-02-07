@@ -423,7 +423,7 @@ const Album = ({
             </div>
           </div>
 
-          <div className={`lg:flex p-8 lg:${mainWidth}`}>
+          <div className={`lg:flex p-2 lg:p-8 lg:${mainWidth}`}>
             {/* Swing Video Column */}
             <div className={`${swingColSpan} lg:flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative`}>
               <a href={`/albums/${album?.id}`}

@@ -1,4 +1,4 @@
-import React, { Fragment } from "react"
+import React from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import ReactPlayer from "react-player"
@@ -26,9 +26,9 @@ const AlbumAndComments = ({
 }) => {
   const swing = album.swingVideos[swingIdx]
   return(
-    <div key={album.id} className="flex flex-row grid grid-cols-7 gap-4 bg-gray-100 mb-6 p-2 border-2 border-gray-200 rounded-lg shadow-md w-full">
+    <div key={album.id} className="flex flex-row bg-gray-100 mb-6 p-2 border-2 border-gray-200 rounded-lg shadow-md w-full content-center justify-center items-center ">
       {/* Left Panel */}
-      <div className="flex flex-col col-span-2 content-center text-center py-4">
+      <div className="flex flex-col w-1/3 content-center text-center py-4 hidden lg:block">
         <p className="text-xs w-full mb-1 tracking-wide font-semibold underline">
           Album Comments
         </p>
@@ -67,7 +67,7 @@ const AlbumAndComments = ({
       </div>
 
       {/* Middle Panel */}
-      <div className="flex flex-col col-span-3 content-center justify-center items-center pr-1">
+      <div className="flex flex-col content-center justify-center items-center pr-1">
         <div className="flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
           { album.userId === user?.id && 
             <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">
@@ -92,9 +92,8 @@ const AlbumAndComments = ({
         </div>
 
         {/* Video Player */}
-        <Fragment>
+        <div className="lg:w-1/2 content-center justify-center items-center">
           <ReactPlayer
-            className="rounded-md overflow-hidden"
             ref={playerRef}
             url={swing?.videoURL} 
             playing={playing}
@@ -104,13 +103,12 @@ const AlbumAndComments = ({
             loop={true}
             progressInterval={200}
             onProgress={({ played }) => onPlayerProgress(played)}
-            height="200px"
-            width="240px"
+            height=""
+            width=""
           />
 
           {/* Controls Panel */}
-          <div className="flex flex-row content-center justify-center py-1 mb-2 bg-gray-300 rounded w-4/5">
-
+          <div className="flex flex-row content-center justify-center py-1 my-2 bg-gray-300 rounded">
             { swingIdx > 0 &&
               <input type='button'
                 className='border rounded p-0.5 mx-1 text-xs font-bold bg-black text-white cursor-pointer'
@@ -178,11 +176,11 @@ const AlbumAndComments = ({
               />
             }
           </div>
-        </Fragment>
+        </div>
       </div>
 
       {/* Right Panel */}
-      <div className="flex flex-col col-span-2 content-center text-center py-4">
+      <div className="flex flex-col w-1/3 content-center text-center py-4 hidden lg:block">
 
         <div className="flex flex-row content-center justify-center items-center">
           <p className="text-xs font-semibold underline">Swing Comments</p>

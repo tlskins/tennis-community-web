@@ -11,11 +11,15 @@ export const NavigationBar = styled.nav`
   font-family: 'regular';
   border-bottom: 1px solid rgba(156, 163, 175);
   color: ${ props => props.theme.gray800 };
+  overflow-x: scroll;
+  @media (min-width: 1024px) {
+    overflow-x: hidden;
+  }
 `
 
 export const LinkClass = styled.div`
   a {
-    font-family: ${ props => props.active ? 'black' : 'regular' };
+    font-family: ${ props => props.active ? "black" : "regular" };
   }
 `
 

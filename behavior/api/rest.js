@@ -8,7 +8,7 @@ const API_HOST = process.env.VERCEL_GIT_COMMIT_REF === "production"
 // Set config defaults when creating the instance
 export const axios_ = axios.create({
   baseURL: API_HOST,
-  timeout: 20000,
+  timeout: 60000,
   withCredentials: true,
   responseType: "json",
 })

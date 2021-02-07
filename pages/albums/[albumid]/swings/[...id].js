@@ -220,25 +220,27 @@ const Album = ({
     }
 
     return(
-      <div>
-        <ReactPlayer
-          className="rounded-md overflow-hidden"
-          ref={ref}
-          url={swing.videoURL} 
-          playing={playing}
-          pip={pip}
-          volume={0}
-          muted={true}
-          playbackRate={playback}
-          loop={true}
-          progressInterval={200}
-          onProgress={({ played }) => {
-            const frame = Math.round(played*SWING_FRAMES)
-            setPlayerFrame(frame)
-          }}
-          height="452px"
-          width="570px"
-        />
+      <div className="flex flex-col">
+        <div className="flex-shrink-0">
+          <ReactPlayer
+            className="rounded-md overflow-hidden"
+            ref={ref}
+            url={swing.videoURL} 
+            playing={playing}
+            pip={pip}
+            volume={0}
+            muted={true}
+            playbackRate={playback}
+            loop={true}
+            progressInterval={200}
+            onProgress={({ played }) => {
+              const frame = Math.round(played*SWING_FRAMES)
+              setPlayerFrame(frame)
+            }}
+            height=""
+            width=""
+          />
+        </div>
 
         {/* Controls Panel */}
         <div className="flex flex-col p-1 mt-4 bg-gray-100 rounded border-2 border-gray-300">
@@ -351,121 +353,119 @@ const Album = ({
   }
 
   return (
-    <div className="flex flex-col h-screen min-h-screen bg-gray-100">
+    <div>
       { (user && user.id) &&
         <Notifications />
       }
-      <main className="flex overflow-y-scroll">
-
-        {/* Begin Sidebar */}
-
-        <div className={`h-screen top-0 sticky p-4 bg-white ${sideBarWidth} overflow-y-scroll border-r border-gray-400`}>
-          <div className="flex flex-col content-center justify-center items-center text-sm">
-
-            {/* Pro Comparison Sidebar */}
-            <div className="mb-2">
-              <div className="flex flex-row content-center justify-center items-center">
-                <h2 className="text-blue-400 underline cursor-pointer text-center"
-                  onClick={() => {
-                    if (activeSideBar === "Pro Comparison") {
-                      setActiveSidebar(undefined)
-                    } else {
-                      setActiveSidebar("Pro Comparison")
-                    }
-                  }}
-                >
+      <main className="overflow-y-scroll bg-gray-100">
+        <div className="lg:flex lg:flex-row block">
+          {/* Begin Sidebar */}
+          <div className={`lg:${sideBarWidth} top-0 left-0 lg:bottom-0 p-4 bg-white border-b lg:border-r border-gray-400`}>
+            <div className="flex flex-col content-center justify-center items-center text-sm sticky top-0">
+              {/* Pro Comparison Sidebar */}
+              <div className="mb-2">
+                <div className="flex flex-row content-center justify-center items-center">
+                  <h2 className="text-blue-400 underline cursor-pointer text-center"
+                    onClick={() => {
+                      if (activeSideBar === "Pro Comparison") {
+                        setActiveSidebar(undefined)
+                      } else {
+                        setActiveSidebar("Pro Comparison")
+                      }
+                    }}
+                  >
                 Pro Comparison
-                </h2>
-                <input type="button"
-                  className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer"
-                  value="?"
-                  onClick={() => {
-                    setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
-                    setActiveSidebar("Pro Comparison")
-                  }}
-                />
-              </div>
-              { activeSideBar === "Pro Comparison" &&
+                  </h2>
+                  <input type="button"
+                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
+                    value="?"
+                    onClick={() => {
+                      setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
+                      setActiveSidebar("Pro Comparison")
+                    }}
+                  />
+                </div>
+                { activeSideBar === "Pro Comparison" &&
                 <ProComparison showUsage={showProUsage} />
-              }
-            </div>
-
-            {/* Video Resources Sidebar */}
-            <div className="mb-2">
-              <div className="flex flex-row content-center justify-center items-center">
-                <h2 className="text-blue-400 underline cursor-pointer text-center"
-                  onClick={() => {
-                    if (activeSideBar === "Video Resources") {
-                      setActiveSidebar(undefined)
-                    } else {
-                      setActiveSidebar("Video Resources")
-                    }
-                  }}
-                >
-                Youtube Tutorials
-                </h2>
-                <input type="button"
-                  className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer"
-                  value="?"
-                  onClick={() => {
-                    setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
-                    setActiveSidebar("Video Resources")
-                  }}
-                />
+                }
               </div>
-              { activeSideBar === "Video Resources" &&
+
+              {/* Video Resources Sidebar */}
+              <div className="mb-2">
+                <div className="flex flex-row content-center justify-center items-center">
+                  <h2 className="text-blue-400 underline cursor-pointer text-center"
+                    onClick={() => {
+                      if (activeSideBar === "Video Resources") {
+                        setActiveSidebar(undefined)
+                      } else {
+                        setActiveSidebar("Video Resources")
+                      }
+                    }}
+                  >
+                Youtube Tutorials
+                  </h2>
+                  <input type="button"
+                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
+                    value="?"
+                    onClick={() => {
+                      setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
+                      setActiveSidebar("Video Resources")
+                    }}
+                  />
+                </div>
+                { activeSideBar === "Video Resources" &&
                 <VideoResources
                   onExpand={playing => setExpandedSideBar(playing)}
                   showUsage={showVideoUsage}
                 />
-              }
-            </div>
-          </div>
-        </div>
-
-        <div className={`p-8 grid grid-cols-5 gap-2 ${mainWidth}`}>
-          {/* Swing Video Column */}
-          <div className={`${swingColSpan} flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative`}>
-            <a href={`/albums/${album?.id}`}
-              className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-2"
-            >
-              back to album
-            </a>
-
-            <div className="mb-2 flex content-center justify-center items-center">
-              <div className="flex flex-row content-center justify-center items-center relative">
-                <input type="button"
-                  className="text-xs mr-2 rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer"
-                  value="?"
-                  onClick={() => setShowSwingUsage(!showSwingUsage)}
-                />
-                <input type="text"
-                  className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
-                  value={name}
-                  onChange={onUpdateSwingName}
-                  disabled={!user || user.id !== album?.userId}
-                />
-                { (user && user.id === album?.userId) &&
-                  <img src={pencil} className="w-4 h-4 absolute right-2"/>
                 }
               </div>
             </div>
-          
-            <div className="mt-4">
-              {
-                renderVideo({
-                  swing,
-                  ref: playerRef,
-                  playing: playing,
-                  duration: playerFrame,
-                }) 
-              }
-            </div>
           </div>
 
-          {/* Comments Column */}
-          { !expandedSideBar &&
-            <div className="col-span-2 flex flex-col p-4 ml-8 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
+          <div className={`lg:flex p-8 lg:${mainWidth}`}>
+            {/* Swing Video Column */}
+            <div className={`${swingColSpan} lg:flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative`}>
+              <a href={`/albums/${album?.id}`}
+                className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-2 hidden lg:block"
+              >
+              back to album
+              </a>
+
+              <div className="mb-2 flex content-center justify-center items-center">
+                <div className="flex flex-row content-center justify-center items-center relative">
+                  <input type="button"
+                    className="text-xs mr-2 rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
+                    value="?"
+                    onClick={() => setShowSwingUsage(!showSwingUsage)}
+                  />
+                  <input type="text"
+                    className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
+                    value={name}
+                    onChange={onUpdateSwingName}
+                    disabled={!user || user.id !== album?.userId}
+                  />
+                  { (user && user.id === album?.userId) &&
+                  <img src={pencil} className="w-4 h-4 absolute right-2"/>
+                  }
+                </div>
+              </div>
+          
+              <div className="mt-4">
+                {
+                  renderVideo({
+                    swing,
+                    ref: playerRef,
+                    playing: playing,
+                    duration: playerFrame,
+                  }) 
+                }
+              </div>
+            </div>
+
+            {/* Comments Column */}
+            { !expandedSideBar &&
+            <div className="lg:flex flex-col p-4 lg:ml-8 lg:mt-0 mt-2 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
               <div className="flex flex-col w-full">
 
                 <div className="flex flex-col border-b-2 border-gray-400 mb-2 relative">
@@ -644,7 +644,8 @@ const Album = ({
                 </div>
               </div>
             </div>
-          }
+            }
+          </div>
         </div>
       </main>
     </div>

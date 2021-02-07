@@ -91,7 +91,7 @@ export const IconSection = styled.div`
 `
 
 export const IconContainer = styled.div`
-  width: 28%;
+  width: 23%;
   text-align: center;
   img {
     width: 100px;

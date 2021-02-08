@@ -58,7 +58,7 @@ const Album = ({
   const [showVideoUsage, setShowVideoUsage] = useState(false)
   const [showSwingUsage, setShowSwingUsage] = useState(false)
 
-  const [playing, setPlaying] = useState(true)
+  const [playing, setPlaying] = useState(false)
   const [playerRef, setPlayerRef] = useState(undefined)
   const [playerFrame, setPlayerFrame] = useState(0.0)
   const [playback, setPlayback] = useState(1)

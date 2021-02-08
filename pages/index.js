@@ -189,8 +189,8 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
     <div>
       <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>
-          <HeaderTitle>We automatically cut every swing from your tennis videos!</HeaderTitle>
-          <HeaderTitle>You analyze & get feedback from the community!</HeaderTitle>
+          <HeaderTitle>We automatically cut every swing from your tennis videos</HeaderTitle>
+          <HeaderTitle>You analyze & get feedback from the community</HeaderTitle>
           <CTAButton onClick={onGetStarted}>
             Get Started
           </CTAButton>
@@ -201,22 +201,22 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
           <IconContainer>
             <img src={ racket }/>
             <h3>Record Tennis Playing</h3>
-            <p>Record videos of yourself playing tennis with your mobile phone.</p>
+            <p>Record videos of yourself playing tennis with your mobile phone</p>
           </IconContainer>
           <IconContainer>
             <img src={ camera }/>
             <h3>Upload Videos</h3>
-            <p>Upload videos and automatically have all swings exported with our AI into an Album.</p>
+            <p>Upload videos and automatically have all swings exported with our AI into an Album</p>
           </IconContainer>
           <IconContainer>
             <img src={ racket }/>
             <h3>Analyze Swings</h3>
-            <p>Use our Swing Analysis platform to slow down & analyze your swings frame by frame against the pros!</p>
+            <p>Use our Swing Analysis platform to slow down & analyze your swings frame by frame against the pros</p>
           </IconContainer>
           <IconContainer>
             <img src={ speech }/>
             <h3>Get Feedback</h3>
-            <p>Share your Albums with friends, coaches, or the community to get frame by frame feedback on your swings!</p>
+            <p>Share your Albums with friends, coaches, or the community to get frame by frame feedback on your swings</p>
           </IconContainer>
         </IconSection>
       </Section>

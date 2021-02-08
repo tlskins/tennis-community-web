@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createRef, Fragment } from "react"
+import React, { useEffect, useState, createRef } from "react"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
@@ -71,7 +71,7 @@ const Album = ({
   const [showAlbumUsage, setShowAlbumUsage] = useState(false)
 
   const [playbackRate, setPlaybackRate] = useState(1)
-  const [allPlaying, setAllPlaying] = useState(true)
+  const [allPlaying, setAllPlaying] = useState(false)
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
@@ -880,7 +880,7 @@ const Album = ({
         </div>
         
         <div className="flex flex-col py-2 px-1 content-center justify-center items-center lg:mx-4">
-          <div className="flex flex-row static">
+          <div className="flex flex-row static hidden lg:block">
             { allPlaying &&
             <input type='button'
               className="border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white"

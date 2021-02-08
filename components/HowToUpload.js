@@ -11,19 +11,20 @@ const HowToUpload = ({ isFirst }) => {
 
   return(
     <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md mb-3">
-      <div className="flex flex-col">
+      <div className="flex flex-col overflow-auto">
         <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
-            Upload {isFirst ? "your first" : "an"} album!
+          Upload {isFirst ? "your first" : "an"} album!
         </h2>
 
-        <div className="flex flex-row content-center">
+        <div className="flex flex-row lg:content-center overflow-x-hidden">
           <img src={hoverUpload ? uploadBlue : uploadYellow}
-            className="w-80 h-72 mr-10"
+            className="w-80 h-72 mr-10 hidden lg:block"
             onMouseEnter={() => setHoverUpload(true)}
             onMouseLeave={() => setHoverUpload(false)}
           />
-          <div className="flex-flex-row w-full content-center justify-center items-center">
-            <ol className="list-decimal">
+
+          <div className="flex-flex-row w-full px-4 lg:px-0 content-center lg:justify-center items-center">
+            <ol className="list-decimal overflow-x-hidden">
               <li className="mb-5">
                 <span className="font-semibold">Record yourself playing tennis</span>
                 <div className="pl-6">
@@ -41,7 +42,7 @@ const HowToUpload = ({ isFirst }) => {
                   <ul className="list-disc">
                     <li>The upload will take about 10 minutes for the AI to export all the swings into an Album.</li>
                   </ul>
-                  <div className="w-96 mt-2">
+                  <div className="mt-2">
                     <SwingUploader />
                   </div>
                 </div>
@@ -52,8 +53,11 @@ const HowToUpload = ({ isFirst }) => {
                 <div className="pl-6">
                   <ul className="list-disc">
                     <li>
-                        After the upload has finished processing, find your newly created Album here, or on the
-                      <a href="/albums" className="text-blue-700 underline ml-1">albums</a> page
+                      After the upload has finished processing, find your newly created Album here, or on the
+                      <a href="/albums" className="text-blue-700 underline ml-1">albums</a> page.
+                    </li>
+                    <li>
+                      Delete any swings that are not relevant.
                     </li>
                   </ul>
                 </div>

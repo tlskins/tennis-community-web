@@ -4,14 +4,14 @@ export const SidebarContainer = styled.div`
   background: ${ props => props.theme.gray800 };
   min-height: 100%;
   display: block;
-  position: sticky;
+  position: flex;
   top: 0;
   left: 0;
   padding: 40px 20px;
   box-sizing: border-box;
   @media (min-width: 1024px) {
     bottom: 0;
-    width: 24vw;
+    width: 25vw;
   }
 `
 
@@ -47,7 +47,8 @@ export const SearchBoxContainer = styled.div`
 `
 
 export const SearchBox = styled.input`
-  width: 190px;
+  width: 100%;
+  text-align: center;
   padding: 5px 10px;
   font-family: 'regular';
   color: ${ props => props.theme.gray800 };

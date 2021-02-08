@@ -49,6 +49,7 @@ export const HeaderTitle = styled.h1`
   font-size: 55px;
   font-family: 'black';
   max-width: 750px;
+  margin-bottom: 15px;
   @media (max-width: 800px ) {
     font-size: 35px;
   }

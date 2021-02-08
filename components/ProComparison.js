@@ -1,6 +1,9 @@
 import React, { useState, useRef } from "react"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
+import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
+import { RiPictureInPicture2Fill, RiPictureInPictureExitFill } from "react-icons/ri"
+import { IconContext } from "react-icons"
 
 const publicVideos = [
   {
@@ -111,39 +114,39 @@ const ProComparison = ({ showUsage }) => {
 
             {/* Picture in Picture */}
             { sideVideoPip &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='-'
-              onClick={() => setSideVideoPip(false)}
-            />
+              <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
+                <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
+                  <RiPictureInPictureExitFill onClick={() => setSideVideoPip(false)}/>
+                </div>
+              </IconContext.Provider>
             }
             { !sideVideoPip &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='+'
-              onClick={() => setSideVideoPip(true)}
-            />
+              <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
+                <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
+                  <RiPictureInPicture2Fill onClick={() => setSideVideoPip(true)}/>
+                </div>
+              </IconContext.Provider>
             }
           </div>
 
           {/* Play / Pause */}
           { sideVideoPlaying &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-              value='pause'
-              onClick={() => setSideVideoPlaying(false)}
-            />
+            <IconContext.Provider value={{ color: "red" }}>
+              <div className="m-2 content-center justify-center items-center cursor-pointer">
+                <FaRegPauseCircle onClick={() => setSideVideoPlaying(false)}/>
+              </div>
+            </IconContext.Provider>
           }
           { !sideVideoPlaying &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-              value='play'
-              onClick={() => setSideVideoPlaying(true)}
-            />
+            <IconContext.Provider value={{ color: "blue" }}>
+              <div className="m-2 content-center justify-center items-center cursor-pointer">
+                <FaPlayCircle onClick={() => setSideVideoPlaying(true)}/>
+              </div>
+            </IconContext.Provider>
           }
         </div>
 
-        <div className="flex flex-col content-center justify-center items-center mt-4">
+        <div className="flex flex-col content-center justify-center items-center">
           {/* Seek */}
           <input
             type='range'
@@ -159,35 +162,33 @@ const ProComparison = ({ showUsage }) => {
           </div>
         </div>
 
-        <div className="flex flex-col content-center justify-center items-center mt-4">
-          <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-            <div className="flex flex-row content-center justify-center items-center p-4">
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(0.25)}
-                value=".25x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(0.5)}
-                value=".5x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(1)}
-                value="1x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(2)}
-                value="2x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(3)}
-                value="3x"
-              />
-            </div>
+        <div className="flex flex-col content-center justify-center items-center mt-1">
+          <div className="flex flex-row content-center justify-center items-center bg-gray-100 rounded p-4">
+            <input type='button'
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+              onClick={() => setSideVideoPlayback(0.25)}
+              value=".25x"
+            />
+            <input type='button'
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+              onClick={() => setSideVideoPlayback(0.5)}
+              value=".5x"
+            />
+            <input type='button'
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+              onClick={() => setSideVideoPlayback(1)}
+              value="1x"
+            />
+            <input type='button'
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+              onClick={() => setSideVideoPlayback(2)}
+              value="2x"
+            />
+            <input type='button'
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+              onClick={() => setSideVideoPlayback(3)}
+              value="3x"
+            />
           </div>
         </div>
       </div>

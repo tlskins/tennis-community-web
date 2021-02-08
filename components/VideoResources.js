@@ -268,35 +268,33 @@ const VideoResources = ({
           </div>
         </div>
 
-        <div className="flex flex-col content-center justify-center items-center mt-4">
-          <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-            <div className="flex flex-row content-center justify-center items-center p-4">
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(0.25)}
-                value=".25x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(0.5)}
-                value=".5x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(1)}
-                value="1x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(2)}
-                value="2x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(3)}
-                value="3x"
-              />
-            </div>
+        <div className="flex flex-col content-center justify-center items-center mt-1 bg-gray-100 rounded">
+          <div className="flex flex-row content-center justify-center items-center p-4">
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setSideVideoPlayback(0.25)}
+              value=".25x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setSideVideoPlayback(0.5)}
+              value=".5x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setSideVideoPlayback(1)}
+              value="1x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setSideVideoPlayback(2)}
+              value="2x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+              onClick={() => setSideVideoPlayback(3)}
+              value="3x"
+            />
           </div>
         </div>
       </div>

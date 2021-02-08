@@ -71,39 +71,40 @@ const ProComparison = ({ showUsage }) => {
             )
           })}
         </select>
-
-        { showUsage &&
-          <div className="absolute -my-32 -mx-24 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+        
+        <div className="relative">
+          { showUsage &&
+          <div className="absolute ml-20 -my-10 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">
             View pro tennis swings and compare them with your own.
             <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
           </div>
-        }
-                
-        <ReactPlayer
-          className="rounded-md overflow-hidden"
-          ref={sideVideoRef}
-          url={sideVideo} 
-          playing={sideVideoPlaying}
-          pip={sideVideoPip}
-          volume={0}
-          muted={true}
-          playbackRate={sideVideoPlayback}
-          loop={true}
-          progressInterval={200}
-          onProgress={({ played }) => setSideVideoDuration(
-            parseFloat((Math.ceil(played/.05)*.05).toFixed(2))
-          )}
-          height=""
-          width=""
-        />
+          }
+          <ReactPlayer
+            className="rounded-md overflow-hidden"
+            ref={sideVideoRef}
+            url={sideVideo} 
+            playing={sideVideoPlaying}
+            pip={sideVideoPip}
+            volume={0}
+            muted={true}
+            playbackRate={sideVideoPlayback}
+            loop={true}
+            progressInterval={200}
+            onProgress={({ played }) => setSideVideoDuration(
+              parseFloat((Math.ceil(played/.05)*.05).toFixed(2))
+            )}
+            height=""
+            width=""
+          />
+        </div>
 
         {/* Controls Panel */}
           
         <div className="flex flex-row content-center justify-center items-center mt-4">        
-          <div>
+          <div className="relative">
             { showUsage &&
-            <div className="absolute -my-80 -mx-2 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
-              View Picture-In-Picture for a draggable video
+            <div className="absolute w-44 mb-2 -mx-2 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">
+              View Picture In Picture for a draggable video
               <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
             </div>
             }

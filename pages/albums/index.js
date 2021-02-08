@@ -236,22 +236,21 @@ const AlbumsIndex = ({
   }
 
   return (
-    <div className="flex flex-col h-screen min-h-screen">
+    <div>
       { (user && user.id) &&
         <Notifications />
       }
 
-      <main className="flex flex-row">
-        {/* Begin Sidebar */}
-        <Sidebar>
-          <div className="fixed w-44">
+      <main className="overflow-y-scroll bg-gray-100">
+        <div className="lg:flex lg:flex-row block">
+          <Sidebar>
             <LinkButton>
               <Link href="/albums/new">Create New Album</Link>
             </LinkButton>
             <div style={{ height: "30px", width: "100%" }}/>
 
             {/* Album Filters */}
-            <div className="flex flex-row flex-wrap mb-3 content-center justify-center items-center">
+            <div className="flex flex-wrap mb-3 content-center justify-center items-center">
               <div className={`m-1 px-0.5 rounded-lg ${albumType === "owner" && "bg-gray-300"}`}>
                 <input type="button"
                   value="owner"
@@ -286,7 +285,7 @@ const AlbumsIndex = ({
             </div>
 
             {/* Page Nav */}
-            <div className="flex flex-row content-center justify-center items-center p-2 w-40 mb-2">
+            <div className="flex flex-row content-center justify-center items-center p-2 mb-2">
               { page > 0 &&
                   <button
                     onClick={() => setPage(page-1)}
@@ -310,67 +309,62 @@ const AlbumsIndex = ({
               }
             </div>
 
-            <SearchBoxContainer>
-              <SearchBox
-                placeholder="Search Albums"
-                value={search}
-                onChange={onSearch}
-              />
-              <GrSearch/>
-            </SearchBoxContainer>
-
-            <DateContainer>
-              <p className="date-label">Upload Date (Start)</p>
-              <DatePickerContainer>
-                <DatePicker
-                  selected={startDate}
-                  onChange={date => setStartDate(date)}
+            <div className="content-center justify-center items-center">
+              <SearchBoxContainer>
+                <SearchBox
+                  placeholder="Search Albums"
+                  value={search}
+                  onChange={onSearch}
                 />
-                { startDate &&
+                <GrSearch/>
+              </SearchBoxContainer>
+
+              <DateContainer>
+                <p className="date-label">Upload Date (Start)</p>
+                <DatePickerContainer>
+                  <DatePicker
+                    selected={startDate}
+                    onChange={date => setStartDate(date)}
+                  />
+                  { startDate &&
                 <GrFormClose onClick={() => setStartDate(undefined)}/>
-                }
-              </DatePickerContainer>
-            </DateContainer>
+                  }
+                </DatePickerContainer>
+              </DateContainer>
 
-            <div style={{ height: "20px", width: "100%" }}/>
+              <div style={{ height: "20px", width: "100%" }}/>
 
-            <DateContainer>
-              <p className="date-label">Upload Date (End)</p>
-              <DatePickerContainer>
-                <DatePicker
-                  selected={endDate}
-                  onChange={date => setEndDate(date)}
-                />
-                { endDate &&
+              <DateContainer>
+                <p className="date-label">Upload Date (End)</p>
+                <DatePickerContainer>
+                  <DatePicker
+                    selected={endDate}
+                    onChange={date => setEndDate(date)}
+                  />
+                  { endDate &&
                   <GrFormClose onClick={() => setEndDate(undefined)}/>
-                }
-              </DatePickerContainer>
-            </DateContainer>
-          </div>
-        </Sidebar>
+                  }
+                </DatePickerContainer>
+              </DateContainer>
+            </div>
+          </Sidebar>
 
-        {/* End Sidebar */}
+          {/* Begin Album Videos */}
+          <div className="flex flex-col p-4 bg-gray-100">
+            { (user && user.id) &&
+            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 content-center justify-center items-center">              
 
-        {/* Begin Album Videos */}
-
-        <div className="p-4 flex flex-col w-full bg-gray-100 min-h-full">
-
-          {/* Start My Albums */}
-
-          { (user && user.id) &&
-            <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 w-full h-full content-center justify-center items-center">              
-
-              <div className="flex flex-col content-center justify-center items-center w-full">
+              <div className="flex flex-col content-center justify-center items-center">
                 { activeAlbums.length === 0 &&
                   <div className="w-full py-2 px-12 content-center justify-center items-center">
                     <h2 className="font-semibold text-center">None</h2>
                   </div>
                 }
-                <div className="w-4/5 py-4 px-40">
+                <div className="flex flex-wrap py-4 tent-center justify-center items-cente">
                   { activeAlbums.map( (album, i) => {
                     return (
                       <div key={i}
-                        className="flex flex-col relative content-center justify-center items-center hover:bg-blue-100 rounded-md mb-6 p-2"
+                        className="flex flex-col lg:w-7/12 relative content-center justify-center items-center hover:bg-blue-100 rounded-md mb-6 p-2"
                         onMouseOver={() => setHoveredAlbum(album.id)}
                         onMouseLeave={() => {
                           setHoveredAlbum(undefined)
@@ -454,9 +448,10 @@ const AlbumsIndex = ({
                 </div>
               </div>
             </div>
-          }
+            }
+          </div>
+          {/* End Album Videos */}
         </div>
-        {/* End Album Videos */}
       </main>
     </div>
   )

@@ -149,24 +149,26 @@ const VideoResources = ({
   return(
     <div className="mb-2">
       <div className="flex flex-col content-center justify-center items-center">
-
-        { showUsage &&
-          <div className="absolute -my-48 -mx-2 w-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+        
+        <div className="relative">
+          { showUsage &&
+          <div className="absolute -my-32 ml-32 w-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">
             <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
             View instructional youtube videos pre-selected by the community
           </div>
-        }
-
-        <select className="mt-4 p-0.5 border border-gray-500 rounded shadow-md"
-          onChange={onSelectVideoGroup}
-          value={sideVideoGroup}
-        >
-          { Object.keys(publicVideos).map((name, i) => {
-            return(
-              <option key={i} value={name}>{ name }</option>
-            )
-          })}
-        </select>
+          }
+          <select className="mt-4 p-0.5 border border-gray-500 rounded shadow-md"
+            onChange={onSelectVideoGroup}
+            value={sideVideoGroup}
+          >
+            { Object.keys(publicVideos).map((name, i) => {
+              return(
+                <option key={i} value={name}>{ name }</option>
+              )
+            })}
+          </select>
+        </div>
+        
 
         { sideVideoGroup !== "-" &&
           <select className="mt-1 mb-4 p-0.5 border border-gray-500 rounded shadow-md"
@@ -208,21 +210,30 @@ const VideoResources = ({
         {/* Controls Panel */}
           
         <div className="flex flex-row content-center justify-center items-center mt-4">
-          {/* Expand */}
-          { sideVideoExpanded &&
+
+          <div className="relative">
+            { showUsage &&
+          <div className="absolute w-32 -my-14 -ml-24 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+            <svg className="absolute text-yellow-300 h-2 right-0 mr-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
+            Expand video
+          </div>
+            }
+            {/* Expand */}
+            { sideVideoExpanded &&
             <input type='button'
               className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
               value='-'
               onClick={() => onExpandVideo(false)}
             />
-          }
-          { !sideVideoExpanded &&
+            }
+            { !sideVideoExpanded &&
             <input type='button'
               className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
               value='+'
               onClick={() => onExpandVideo(true)}
             />
-          }
+            }
+          </div>
 
           {/* Play / Pause */}
           { sideVideoPlaying &&

@@ -1,14 +1,18 @@
 import styled from "@emotion/styled"
 
 export const SidebarContainer = styled.div`
-  width: 250px;
   background: ${ props => props.theme.gray800 };
-  height: 100vh;
   min-height: 100%;
+  display: block;
   position: sticky;
   top: 0;
+  left: 0;
   padding: 40px 20px;
   box-sizing: border-box;
+  @media (min-width: 1024px) {
+    bottom: 0;
+    width: 24vw;
+  }
 `
 
 export const LinkButton = styled.div`
@@ -32,6 +36,7 @@ export const LinkButton = styled.div`
 
 export const SearchBoxContainer = styled.div`
   width: 100%;
+  display: block;
   margin-bottom: 20px;
   svg {
     position: absolute;
@@ -42,7 +47,7 @@ export const SearchBoxContainer = styled.div`
 `
 
 export const SearchBox = styled.input`
-  width: 100%;
+  width: 190px;
   padding: 5px 10px;
   font-family: 'regular';
   color: ${ props => props.theme.gray800 };

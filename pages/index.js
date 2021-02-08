@@ -36,9 +36,8 @@ import {
 
 const SWING_FRAMES = 60
 
-const Index = ({ publicAlbums, loadPublicAlbums, onShowNewUser }) => {
+const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
   const router = useRouter()
-  const { confirmation } = router.query
 
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
@@ -180,13 +179,17 @@ const Index = ({ publicAlbums, loadPublicAlbums, onShowNewUser }) => {
     )
   }
 
+  const onGetStarted = () => {
+    user ? router.push("/profile") : onShowNewUser()
+  }
+
   return (
     <div>
       <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>
           <HeaderTitle>Export every swing from your tennis videos!</HeaderTitle>
           <HeaderTitle>Analyze & get feedback from the community!</HeaderTitle>
-          <CTAButton onClick={onShowNewUser}>
+          <CTAButton onClick={onGetStarted}>
             Get Started
           </CTAButton>
         </HeaderTitleContainer>
@@ -194,7 +197,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, onShowNewUser }) => {
       <Section>
         <IconSection>
           <IconContainer>
-            <img src={ camera }/>
+            <img src={ racket }/>
             <h3>Record Tennis Playing</h3>
             <p>Record videos of yourself playing tennis with your mobile phone.</p>
           </IconContainer>
@@ -281,6 +284,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, onShowNewUser }) => {
 
 const mapStateToProps = (state) => {
   return {
+    user: state.user,
     publicAlbums: state.albums.publicAlbums,
   }
 }
@@ -293,6 +297,7 @@ const mapDispatchToProps = (dispatch) => {
 }
   
 Index.propTypes = {
+  user: PropTypes.objectd,
   publicAlbums: PropTypes.arrayOf(PropTypes.object),
 
   loadPublicAlbums: PropTypes.func,

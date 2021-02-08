@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createRef, Fragment } from "react"
+import React, { useEffect, useState, createRef } from "react"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
@@ -71,7 +71,7 @@ const Album = ({
   const [showAlbumUsage, setShowAlbumUsage] = useState(false)
 
   const [playbackRate, setPlaybackRate] = useState(1)
-  const [allPlaying, setAllPlaying] = useState(true)
+  const [allPlaying, setAllPlaying] = useState(false)
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
@@ -325,15 +325,16 @@ const Album = ({
                 [i]: frame,
               })
             }}
-            height="226px"
-            width="285px"
+            height=""
+            width=""
           />
         </div>
-       
 
         {/* Controls Panel */}
         <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
 
+          {/* <div className="flex flex-row content-center justify-center items-center mt-2">
+            </div> */}
           {/* Picture in Picture */}
           <div className="relative">
             { (showAlbumUsage && i === 0) &&
@@ -594,7 +595,7 @@ const Album = ({
                 <div className="mb-2">
                   { activeSideBar === "Album Comments" &&
                   <div className="flex flex-col content-center justify-center items-center overscroll-contain">
-                    <div className="flex flex-col w-full">
+                    <div className="flex flex-col w-full border">
 
                       {/* Comment Form */}
                       { user?.disableComments &&
@@ -675,7 +676,10 @@ const Album = ({
 
                       {/* Comments List  */}
 
-                      <div className="flex flex-col h-40 lg:h-full pr-4 overflow-y-scroll">
+                      <div className="flex flex-col h-40 lg:h-full pr-4 overflow-y-scroll border border-gray-400 rounded-lg">
+                        { comments.filter( com => !com.isHidden ).length === 0 &&
+                          <p className="text-center p-2"> No comments </p>
+                        }
                         { comments.filter( com => !com.isHidden ).map( comment => {
                           return(
                             <div key={comment.id}
@@ -880,7 +884,7 @@ const Album = ({
         </div>
         
         <div className="flex flex-col py-2 px-1 content-center justify-center items-center lg:mx-4">
-          <div className="flex flex-row static">
+          <div className="flex flex-row static hidden lg:block">
             { allPlaying &&
             <input type='button'
               className="border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white"

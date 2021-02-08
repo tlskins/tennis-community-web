@@ -13,7 +13,7 @@ const HowToUpload = ({ isFirst }) => {
     <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md mb-3">
       <div className="flex flex-col overflow-auto">
         <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
-          Upload {isFirst ? "your first" : "an"} album!
+          Upload {isFirst ? "your first" : "a"} video!
         </h2>
 
         <div className="flex flex-row lg:content-center overflow-x-hidden">

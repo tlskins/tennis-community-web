@@ -327,14 +327,14 @@ const Profile = ({
                 </div>
 
                 <div className="flex flex-col content-center justify-center items-center my-5">
-                  <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
+                  {/* <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
                     <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
-                  </div>
+                  </div> */}
                   <div className="flex flex-row mt-4 mb-1">
                     { getUserIcons(user).map((icon, i) => {
                       return(
                         <div key={i}
-                          className="hover:bg-blue-200 rounded-xl p-3 mx-2 cursor-pointer"
+                          className={`hover:bg-blue-200 rounded-xl p-3 mx-2 cursor-pointer ${icon.number === (user.iconNumber || 1) && "border border-gray-400"}`}
                         >
                           <img src={icon.image}
                             className="w-8 h-8"
@@ -408,7 +408,7 @@ const Profile = ({
                 </div>
 
                 {/* Expanded Profile */}
-                <p className="align-center px-2 py-1 rounded-md tracking-wide text-sm text-gray-700 text-center">
+                {/* <p className="align-center px-2 py-1 rounded-md tracking-wide text-sm text-gray-700 text-center">
                   This profile data helps us connect you with other tennis players and relevant topics
                 </p>
 
@@ -492,7 +492,7 @@ const Profile = ({
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> */}
           
                 <div className="flex flex-col w-full content-center justify-center items-center mt-12 mb-4">
                   <input type="button"
@@ -527,7 +527,7 @@ const Profile = ({
               {/* Friends */}
               <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 lg:h-96">
                 {/* Friends Search */}
-                <div className="p-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
                   <SearchBoxContainer>
                     <SearchBox
                       placeholder="Search Users"
@@ -556,7 +556,7 @@ const Profile = ({
                 </div>
 
                 {/* Friends */}
-                <div className="p-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
                     Friends
@@ -579,7 +579,7 @@ const Profile = ({
                             <button className="rounded mx-1 px-1 py-0.5 underline bg-red-400 cursor-pointer text-xs tracking-wide font-semibold"
                               onClick={onUnfriend( friendId, cache?.userName)}
                             >
-                            Unfriend
+                            unfriend
                             </button>
                           </div>
                         </div>

@@ -189,8 +189,8 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
     <div>
       <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>
-          <HeaderTitle>Export every swing from your tennis videos!</HeaderTitle>
-          <HeaderTitle>Analyze & get feedback from the community!</HeaderTitle>
+          <HeaderTitle>We automatically cut every swing from your tennis videos!</HeaderTitle>
+          <HeaderTitle>You analyze & get feedback from the community!</HeaderTitle>
           <CTAButton onClick={onGetStarted}>
             Get Started
           </CTAButton>

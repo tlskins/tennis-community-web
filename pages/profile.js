@@ -293,38 +293,37 @@ const Profile = ({
   }
 
   return (
-    <div className="flex flex-col h-screen min-h-screen">
+    <div>
       { (user && user.id) &&
         <Notifications />
       }
-      <main className="flex flex-1 overflow-y-auto bg-gray-100">
+      <main className="overflow-y-scroll bg-gray-100 static">
 
         {/* Begin Main */}
 
-        <div className="p-4 flex flex-col w-full">
+        <div className="p-4 block lg:flex flex-col">
 
           {/* How to upload first album */}
           { showHowTo &&
             <HowToUpload isFirst={myAlbums.length > 0} />
           }
 
-          <div className="grid grid-cols-3 gap-6">
-                
-            {/* Main */}
-            <div className="flex flex-col col-span-2">
+          {/* Main */}
+          <div className="block lg:flex flex-row">
+            <div className="flex flex-col lg:w-2/3 lg:mr-4">
               {/* Profile */}
               <div className="pt-6 pb-20 px-10 bg-white rounded shadow-lg static mb-6">
                 <div className="w-full">
-                  <h2 className="font-bold text-lg text-center tracking-wider mb-1">
-                  Profile
-                  </h2>
-                  <p className="text-center text-xs tracking-widest underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
                   <img src={hoverUploadButton ? uploadBlue : uploadYellow}
-                    className="w-10 h-8 relative -top-8 cursor-pointer"
+                    className="w-10 h-8 relative cursor-pointer"
                     onMouseEnter={() => setHoverUploadButton(true)}
                     onMouseLeave={() => setHoverUploadButton(false)}
                     onClick={() => setShowHowTo(!showHowTo)}
                   />
+                  <h2 className="font-bold text-lg text-center tracking-wider mb-2">
+                    Profile
+                  </h2>
+                  <p className="text-center text-xs tracking-widest underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
                 </div>
 
                 <div className="flex flex-col content-center justify-center items-center my-5">
@@ -349,43 +348,61 @@ const Profile = ({
                 </div>
 
                 {/* Standard Profile */}
-                <div className="grid grid-cols-2 gap-4 mb-10">
+                <div className="flex flex-row content-center justify-center items-center mb-10">
                   <div className="flex flex-col content-center justify-center items-end">
-                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Email</p>
-                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">User Name</p>
-                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">First Name</p>
-                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide mb-4">Last Name</p>
-                  </div>
 
-                  <div className="flex flex-col">
-                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                      <input type="text"
-                        className="w-40 px-1 rounded-md"
-                        value={email}
-                        disabled={true}
-                      />
+                    <div className="flex flex-row content-center justify-center items-center">
+                      <p className="text-right align-center w-28 px-2 py-1 rounded-md font-bold tracking-wide">
+                        Email
+                      </p>
+                      <div className="rounded-md px-2 py-1 w-40">
+                        <input type="text"
+                          className="w-40 px-1 rounded-md"
+                          value={email}
+                          disabled={true}
+                        />
+                      </div>
                     </div>
-                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                      <p className="mr-0.5">@</p>
-                      <input type="text"
-                        className="w-36 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                        value={userName}
-                        onChange={e => setUserName(e.target.value)}
-                      />
+
+                    <div className="flex flex-row content-center justify-center items-center">
+                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
+                        User Name
+                      </p>
+                      <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                        <p className="mr-0.5">@</p>
+                        <input type="text"
+                          className="w-36 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                          value={userName}
+                          onChange={e => setUserName(e.target.value)}
+                        />
+                      </div>
                     </div>
-                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                      <input type="text"
-                        className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                        value={firstName}
-                        onChange={e => setFirstName(e.target.value)}
-                      />
+
+                    <div className="flex flex-row content-center justify-center items-center">
+                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
+                        First Name
+                      </p>
+                      <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                        <input type="text"
+                          className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                          value={firstName}
+                          onChange={e => setFirstName(e.target.value)}
+                        />
+                      </div>
                     </div>
-                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                      <input type="text"
-                        className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                        value={lastName}
-                        onChange={e => setLastName(e.target.value)}
-                      />
+
+                    <div className="flex flex-row content-center justify-center items-center">
+                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide mb-4">
+                        Last Name
+                      </p>
+                      <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                        <input type="text"
+                          className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                          value={lastName}
+                          onChange={e => setLastName(e.target.value)}
+                        />
+                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -394,74 +411,89 @@ const Profile = ({
                 <p className="align-center px-2 py-1 rounded-md tracking-wide text-sm text-gray-700 text-center">
                   This profile data helps us connect you with other tennis players and relevant topics
                 </p>
-                <div className="grid grid-cols-2 gap-4 rounded-lg shadow-md border border-gray-400 py-4">
-                  <div className="flex flex-col content-center justify-center items-end">
-                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Public?</p>
-                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Birth Year</p>
-                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">Gender</p>
-                    <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">USTA Level</p>
-                  </div>
 
-                  <div className="flex flex-col">
-                    <div className="flex flex-row px-2 py-3 w-10 h-10 content-center justify-center">
+                <div className="flex flex-col content-center justify-center items-center py-4">
+                  <div className="flex flex-col content-center justify-center items-center">
+
+                    <div className="flex flex-row w-full content-center justify-center items-center">
+                      <p className="text-right align-center w-28 px-2 py-1 rounded-md font-bold tracking-wide">
+                        Public?
+                      </p>
                       <input type="checkbox"
                         className="shadow-md"
                         checked={isPublic}
                         onChange={() => setIsPublic(!isPublic)}
                       />
                     </div>
-                    <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                      <input type="text"
-                        className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                        value={birthYear || ""}
-                        onChange={e => {
-                          let val = parseInt(e.target.value)
-                          if (!val) val = undefined
-                          setBirthYear(val)
-                        }}
-                      />
-                      { birthYear &&
-                      <input type="button"
-                        className="w-6 h-6 px-1.5 ml-1 shadow-md rounded-xl bg-black text-yellow-300 text-xs font-bold cursor-pointer"
-                        value="X"
-                        min="1900"
-                        maxLength="4"
-                        onClick={() => setBirthYear(null)}
-                      />
-                      }
+
+                    <div className="flex flex-row content-center justify-center items-center">
+                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
+                        Birth Year
+                      </p>
+                      <div className="flex flex-row rounded-md px-2 py-1 w-40">
+                        <input type="text"
+                          className="w-36 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                          value={birthYear || ""}
+                          onChange={e => {
+                            let val = parseInt(e.target.value)
+                            if (!val) val = undefined
+                            setBirthYear(val)
+                          }}
+                        />
+                        { birthYear &&
+                          <input type="button"
+                            className="w-6 h-6 px-1.5 ml-1 shadow-md rounded-xl bg-black text-yellow-300 text-xs font-bold cursor-pointer"
+                            value="X"
+                            min="1900"
+                            maxLength="4"
+                            onClick={() => setBirthYear(null)}
+                          />
+                        }
+                      </div>
                     </div>
-                    <div className="flex flex-row rounded-md px-2 py-1 w-44">
-                      <select onChange={e => setGender(e.target.value)}
-                        value={gender}
-                        className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                      >
-                        <option value={undefined}>-</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                      </select>
+
+                    <div className="flex flex-row content-center justify-center items-center">
+                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
+                        Gender
+                      </p>
+                      <div className="flex flex-row rounded-md px-2 py-1 w-44">
+                        <select onChange={e => setGender(e.target.value)}
+                          value={gender}
+                          className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                        >
+                          <option value={undefined}>-</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                        </select>
+                      </div>
                     </div>
-                    <div className="flex flex-row rounded-md px-2 py-1 w-44">
-                      <select onChange={e => setUstaLevel(parseFloat(e.target.value))}
-                        value={ustaLevel}
-                        className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                      >
-                        <option value={undefined}>-</option>
-                        <option value={2.5}>2.5</option>
-                        <option value={3.0}>3.0</option>
-                        <option value={3.5}>3.5</option>
-                        <option value={4.0}>4.0</option>
-                        <option value={4.5}>4.5</option>
-                        <option value={5.0}>5.0</option>
-                        <option value={5.5}>5.5</option>
-                        <option value={6.0}>6.0</option>
-                        <option value={6.5}>6.5</option>
-                        <option value={7.0}>7.0</option>
-                      </select>
+
+                    <div className="flex flex-row content-center justify-center items-center">
+                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
+                        USTA Level
+                      </p>
+                      <div className="flex flex-row rounded-md px-2 py-1 w-44">
+                        <select onChange={e => setUstaLevel(parseFloat(e.target.value))}
+                          value={ustaLevel}
+                          className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
+                        >
+                          <option value={undefined}>-</option>
+                          <option value={2.5}>2.5</option>
+                          <option value={3.0}>3.0</option>
+                          <option value={3.5}>3.5</option>
+                          <option value={4.0}>4.0</option>
+                          <option value={4.5}>4.5</option>
+                          <option value={5.0}>5.0</option>
+                          <option value={5.5}>5.5</option>
+                          <option value={6.0}>6.0</option>
+                          <option value={6.5}>6.5</option>
+                          <option value={7.0}>7.0</option>
+                        </select>
+                      </div>
                     </div>
-                
                   </div>
                 </div>
-            
+          
                 <div className="flex flex-col w-full content-center justify-center items-center mt-12 mb-4">
                   <input type="button"
                     onMouseDown={() => setPressingSave(true)}
@@ -474,16 +506,16 @@ const Profile = ({
               </div>
 
               {/* Video Resources */}
-              <div className="grid grid-cols-3 gap-8 bg-white rounded shadow-lg p-4">
-                <div className="p-4 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md">
+              <div className="lg:flex flex-row bg-white rounded shadow-lg p-4">
+                <div className="p-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md">
                   <h2 className="font-bold text-lg text-center tracking-wider w-full">
-                    Pro Swings
+                  Pro Swings
                   </h2>
                   <ProComparison />
                 </div>
-                <div className="flex flex-col col-span-2 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md">
+                <div className="flex flex-col lg:w-2/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md">
                   <h2 className="font-bold text-lg text-center tracking-wider w-full">
-                    Tutorials
+                  Tutorials
                   </h2>
                   <VideoResources
                     defaultVideoGroup="Forehands"
@@ -491,10 +523,11 @@ const Profile = ({
                   />
                 </div>
               </div>
+
               {/* Friends */}
-              <div className="grid grid-cols-3 gap-8 bg-white rounded shadow-lg p-4 h-96">
+              <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 lg:h-96">
                 {/* Friends Search */}
-                <div className="p-4 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                <div className="p-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
                   <SearchBoxContainer>
                     <SearchBox
                       placeholder="Search Users"
@@ -511,11 +544,11 @@ const Profile = ({
                         <p className="username">@{ userName }</p>
                         <p className="fullname">{ firstName } {lastName}</p>
                         { (!isFriend && !isRequested && id !== user.id) &&
-                        <button
-                          onClick={onSendFriendRequest({ id, userName })}
-                        >
-                          Request
-                        </button>
+                      <button
+                        onClick={onSendFriendRequest({ id, userName })}
+                      >
+                        Request
+                      </button>
                         }
                       </UserResultBox>
                     )
@@ -523,15 +556,15 @@ const Profile = ({
                 </div>
 
                 {/* Friends */}
-                <div className="p-4 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                <div className="p-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
-                      Friends
+                    Friends
                     </h2>
                   </div>
                   <div className="flex flex-col content-center justify-center items-center">
                     { user?.friendIds.length === 0 &&
-                      <h2>None</h2>
+                    <h2>None</h2>
                     }
                     { user?.friendIds.map(friendId => {
                       const cache = usersCache[friendId]
@@ -546,7 +579,7 @@ const Profile = ({
                             <button className="rounded mx-1 px-1 py-0.5 underline bg-red-400 cursor-pointer text-xs tracking-wide font-semibold"
                               onClick={onUnfriend( friendId, cache?.userName)}
                             >
-                              Unfriend
+                            Unfriend
                             </button>
                           </div>
                         </div>
@@ -556,15 +589,15 @@ const Profile = ({
                 </div>
 
                 {/* Requests */}
-                <div className="p-4 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                <div className="p-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
-                      Requests
+                    Requests
                     </h2>
                   </div>
                   <div className="flex flex-col content-center justify-center items-center">
                     { user?.friendRequests.length === 0 &&
-                      <h2>None</h2>
+                    <h2>None</h2>
                     }
                     { user?.friendRequests.map(req => {
                       if (req.fromUserId === user.id) {
@@ -575,7 +608,7 @@ const Profile = ({
                           >
                             <div className="flex flex-row content-center justify-center items-center">
                               <p className="text-xs tracking-wider font-semibold mr-2">
-                                Pending to
+                              Pending to
                               </p>
                               <span className="underline text-blue-400 cursor-pointer text-xs tracking-wide font-semibold">
                                 { cache ? `${cache.userName} (${cache.firstName} ${cache.lastName})` : "..." }
@@ -591,7 +624,7 @@ const Profile = ({
                         >
                           <div className="flex flex-row content-center justify-center items-center mb-1">
                             <p className="text-xs tracking-wider font-semibold mr-2">
-                              Pending from
+                            Pending from
                             </p>
                             <span className="underline text-blue-400 cursor-pointer text-xs tracking-wide font-semibold">
                               { cache ? cache.userName : "..." }
@@ -601,12 +634,12 @@ const Profile = ({
                             <button className="rounded mx-1 px-1 py-0.5 underline bg-green-300 cursor-pointer text-xs tracking-wide font-semibold"
                               onClick={onAcceptFriendRequest(req.id, true)}
                             >
-                              Accept
+                            Accept
                             </button>
                             <button className="rounded mx-1 px-1 py-0.5 underline bg-red-300 cursor-pointer text-xs tracking-wide font-semibold"
                               onClick={onAcceptFriendRequest(req.id, false)}
                             >
-                              Reject
+                            Reject
                             </button>
                           </div>
                         </div>
@@ -618,7 +651,7 @@ const Profile = ({
             </div>
 
             {/* Recent Albums */}
-            <div className="flex flex-col pt-6 pb-20 px-4 h-full bg-white rounded shadow-lg">
+            <div className="flex flex-col lg:w-1/3 pt-6 p-4 top-0 bottom-0 right-0 bg-white rounded shadow-lg static">
               <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
                 Recent Albums
               </h2>
@@ -668,26 +701,28 @@ const Profile = ({
                 </div>
               }
 
-              { activeAlbums.map((album, i) => 
-                <AlbumAndCommentsPreview
-                  key={i}
-                  album={album}
-                  comments={currentComments[i] || []}
-                  duration={playerFrames[i]}
-                  pip={pips[i]}
-                  playing={playings[i]}
-                  playerRef={playerRefs[i]}
-                  swingIdx={currentSwings[i]}
-                  swingFrames={SWING_FRAMES}
-                  user={user}
+              <div className="flex flex-col">
+                { activeAlbums.map((album, i) => 
+                  <AlbumAndCommentsPreview
+                    key={i}
+                    album={album}
+                    comments={currentComments[i] || []}
+                    duration={playerFrames[i]}
+                    pip={pips[i]}
+                    playing={playings[i]}
+                    playerRef={playerRefs[i]}
+                    swingIdx={currentSwings[i]}
+                    swingFrames={SWING_FRAMES}
+                    user={user}
 
-                  onSetSwingIndex={onSetCurrentSwings(i)}
-                  onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
-                  onTogglePlay={onTogglePlay(i)}
-                  onTogglePip={onTogglePip(i)}
-                  onPlayerProgress={onPlayerProgress(i)}
-                />
-              )}
+                    onSetSwingIndex={onSetCurrentSwings(i)}
+                    onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                    onTogglePlay={onTogglePlay(i)}
+                    onTogglePip={onTogglePip(i)}
+                    onPlayerProgress={onPlayerProgress(i)}
+                  />
+                )}
+              </div>
 
               { myAlbumsPage > 0 &&
                 <div className="w-full content-center justify-center items-center mb-1">
@@ -710,7 +745,7 @@ const Profile = ({
               }
             </div>
           </div>
-       
+
         </div>
         {/* End Main */}
       </main>

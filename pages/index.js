@@ -34,6 +34,8 @@ import {
   FooterInner,
 } from "../styles/styled-components"
 
+// test
+
 const SWING_FRAMES = 60
 
 const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {

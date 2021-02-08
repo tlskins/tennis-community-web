@@ -325,15 +325,16 @@ const Album = ({
                 [i]: frame,
               })
             }}
-            height="226px"
-            width="285px"
+            height=""
+            width=""
           />
         </div>
-       
 
         {/* Controls Panel */}
         <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
 
+          {/* <div className="flex flex-row content-center justify-center items-center mt-2">
+            </div> */}
           {/* Picture in Picture */}
           <div className="relative">
             { (showAlbumUsage && i === 0) &&
@@ -594,7 +595,7 @@ const Album = ({
                 <div className="mb-2">
                   { activeSideBar === "Album Comments" &&
                   <div className="flex flex-col content-center justify-center items-center overscroll-contain">
-                    <div className="flex flex-col w-full">
+                    <div className="flex flex-col w-full border">
 
                       {/* Comment Form */}
                       { user?.disableComments &&
@@ -675,7 +676,10 @@ const Album = ({
 
                       {/* Comments List  */}
 
-                      <div className="flex flex-col h-40 lg:h-full pr-4 overflow-y-scroll">
+                      <div className="flex flex-col h-40 lg:h-full pr-4 overflow-y-scroll border border-gray-400 rounded-lg">
+                        { comments.filter( com => !com.isHidden ).length === 0 &&
+                          <p className="text-center p-2"> No comments </p>
+                        }
                         { comments.filter( com => !com.isHidden ).map( comment => {
                           return(
                             <div key={comment.id}

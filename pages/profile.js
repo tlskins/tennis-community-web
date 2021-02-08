@@ -527,7 +527,7 @@ const Profile = ({
               {/* Friends */}
               <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 lg:h-96">
                 {/* Friends Search */}
-                <div className="p-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
                   <SearchBoxContainer>
                     <SearchBox
                       placeholder="Search Users"
@@ -556,7 +556,7 @@ const Profile = ({
                 </div>
 
                 {/* Friends */}
-                <div className="p-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
                     Friends

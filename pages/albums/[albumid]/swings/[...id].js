@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createRef, Fragment } from "react"
+import React, { useEffect, useState, createRef } from "react"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
@@ -556,7 +556,10 @@ const Album = ({
 
                 {/* Comments List  */}
 
-                <div className="flex flex-col h-96 overflow-y-scroll">
+                <div className="flex flex-col h-96 overflow-y-scroll border border-gray-400 rounded-lg">
+                  { comments.filter( com => !com.isHidden ).length === 0 &&
+                    <p className="text-center p-2"> No comments </p>
+                  }
                   { comments.filter( com => !com.isHidden ).map( comment => {
                     return(
                       <div key={comment.id}

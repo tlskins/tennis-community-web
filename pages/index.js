@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment, createRef } from "react"
+import React, { useState, useEffect, createRef } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import ReactPlayer from "react-player"
@@ -73,27 +73,29 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
       return null
     }
     return(
-      <Fragment>
-        <ReactPlayer
-          className="rounded-md overflow-hidden"
-          ref={ref}
-          url={swing.videoURL} 
-          playing={playing}
-          pip={pip}
-          volume={0}
-          muted={true}
-          loop={true}
-          progressInterval={200}
-          onProgress={({ played }) => {
-            const frame = Math.round(played*SWING_FRAMES)
-            setPlayerFrames({
-              ...playerFrames,
-              [i]: frame,
-            })
-          }}
-          height="226px"
-          width="285px"
-        />
+      <div className="lg:flex flex-col content-center justify-center items-center pr-1">
+        <div className="content-center justify-center items-center">
+          <ReactPlayer
+            className="rounded-md overflow-hidden"
+            ref={ref}
+            url={swing.videoURL} 
+            playing={playing}
+            pip={pip}
+            volume={0}
+            muted={true}
+            loop={true}
+            progressInterval={200}
+            onProgress={({ played }) => {
+              const frame = Math.round(played*SWING_FRAMES)
+              setPlayerFrames({
+                ...playerFrames,
+                [i]: frame,
+              })
+            }}
+            height=""
+            width=""
+          />
+        </div>
 
         {/* Controls Panel */}
         <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
@@ -175,7 +177,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
             <img src={speechBubble} className="w-5 h-5"/>
           </div>
         </div>
-      </Fragment>
+      </div>
     )
   }
 
@@ -237,11 +239,12 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
               >
               Latest Community Uploads
               </h2>
-              <div className="flex flex-row">
+
+              <div className="lg:flex flex-row lg:w-full lg:justify-between">
                 { publicAlbums.map( (album, idx) => {
                   return (
                     <div key={idx}
-                      className="flex flex-col content-center justify-center items-center hover:bg-green-200 rounded-md p-2 mr-2"
+                      className="p-2 mx-4 w-72 flex flex-col content-center justify-center items-center hover:bg-green-200 rounded-md"
                     >
                       <p className="font-semibold text-blue-700 underline cursor-pointer"
                         onClick={() => router.push(`/albums/${album.id}`)}
@@ -274,7 +277,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
       <Footer bg={ footerBg } mobileBg={ footerBgMobile }>
         <FooterInner>
           <p className="footer-title">Have questions or feedback?</p>
-          <p className="footer-subtitle">Reach us at <a href="mailto: hivetennis@gmail.com">hivetennis@gmail.com</a></p>
+          <p className="footer-subtitle">Reach us at <a href="mailto: queenbee@hivetennis.com">queenbee@hivetennis.com</a></p>
         </FooterInner>
       </Footer>
     </div>

@@ -54,7 +54,7 @@ const Sharing = ({
   })
 
   return(
-    <div className="flex flex-col p-2">
+    <div className="flex flex-col p-2 bg-white rounded shadow-lg">
       <p className="mb-2">Share with</p>
       <div className="flex flex-row">
         { user.disablePublicAlbums &&
@@ -177,8 +177,6 @@ const Sharing = ({
               </div> 
             </Fragment>
         }
-
-
 
         { showUsage &&
             <div className="absolute -my-20 mx-32 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">

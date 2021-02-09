@@ -297,7 +297,7 @@ const Profile = ({
       { (user && user.id) &&
         <Notifications />
       }
-      <main className="overflow-y-scroll bg-gray-100 static">
+      <main className="overflow-y-scroll bg-gray-200 static">
 
         {/* Begin Main */}
 
@@ -320,17 +320,17 @@ const Profile = ({
                     onMouseLeave={() => setHoverUploadButton(false)}
                     onClick={() => setShowHowTo(!showHowTo)}
                   />
-                  <h2 className="font-bold text-lg text-center tracking-wider mb-2">
+                  <h2 className="font-bold text-lg text-center mb-2">
                     Profile
                   </h2>
-                  <p className="text-center text-xs tracking-widest underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
+                  <p className="text-center text-xs underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
                 </div>
 
                 <div className="flex flex-col content-center justify-center items-center my-5">
                   {/* <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
                     <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
                   </div> */}
-                  <div className="flex flex-row mt-4 mb-1">
+                  <div className="flex flex-row mt-4 mb-2">
                     { getUserIcons(user).map((icon, i) => {
                       return(
                         <div key={i}
@@ -352,12 +352,12 @@ const Profile = ({
                   <div className="flex flex-col content-center justify-center items-end">
 
                     <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right align-center w-28 px-2 py-1 rounded-md font-bold tracking-wide">
+                      <p className="text-right text-sm align-center w-28 px-2 text-gray-600 uppercase whitespace-no-wrap font-semibold">
                         Email
                       </p>
                       <div className="rounded-md px-2 py-1 w-40">
                         <input type="text"
-                          className="w-40 px-1 rounded-md"
+                          className="w-40 px-1 rounded-md whitespace-no-wrap bg-transparent"
                           value={email}
                           disabled={true}
                         />
@@ -365,7 +365,7 @@ const Profile = ({
                     </div>
 
                     <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
+                      <p className="text-right text-sm align-center w-28 px-2 text-gray-600 uppercase whitespace-no-wrap font-semibold">
                         User Name
                       </p>
                       <div className="flex flex-row rounded-md px-2 py-1 w-40">
@@ -379,7 +379,7 @@ const Profile = ({
                     </div>
 
                     <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
+                      <p className="text-right text-sm align-center w-28 px-2 text-gray-600 uppercase whitespace-no-wrap font-semibold">
                         First Name
                       </p>
                       <div className="flex flex-row rounded-md px-2 py-1 w-40">
@@ -392,7 +392,7 @@ const Profile = ({
                     </div>
 
                     <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide mb-4">
+                      <p className="text-right text-sm align-center w-28 px-2 text-gray-600 uppercase whitespace-no-wrap font-semibold">
                         Last Name
                       </p>
                       <div className="flex flex-row rounded-md px-2 py-1 w-40">
@@ -498,7 +498,7 @@ const Profile = ({
                   <input type="button"
                     onMouseDown={() => setPressingSave(true)}
                     onMouseUp={() => setPressingSave(false)}
-                    className={`w-22 px-2 py-3 rounded-lg ${saveButtonStyle} border border-gray-400 shadow-md tracking-widest font-semibold cursor-pointer`}
+                    className={`w-22 px-2 py-3 rounded-lg ${saveButtonStyle} border border-gray-400 shadow-md uppercase tracking-wide font-semibold cursor-pointer`}
                     value="SAVE PROFILE"
                     onClick={onUpdateUserProfile}
                   />
@@ -506,15 +506,17 @@ const Profile = ({
               </div>
 
               {/* Video Resources */}
-              <div className="lg:flex flex-row bg-white rounded shadow-lg p-4">
-                <div className="p-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md">
-                  <h2 className="font-bold text-lg text-center tracking-wider w-full">
+              <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 mb-4">
+
+                <div className="py-1 px-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg">
+                  <h2 className="font-bold text-lg text-center mb-2">
                   Pro Swings
                   </h2>
                   <ProComparison />
                 </div>
-                <div className="flex flex-col lg:w-2/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md">
-                  <h2 className="font-bold text-lg text-center tracking-wider w-full">
+                
+                <div className="p-1 flex flex-col lg:w-2/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg">
+                  <h2 className="font-bold text-lg text-center mb-2">
                   Tutorials
                   </h2>
                   <VideoResources
@@ -522,20 +524,24 @@ const Profile = ({
                     defaultVideo="Forehand Form Basics"
                   />
                 </div>
+                
               </div>
 
               {/* Friends */}
               <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 lg:h-96">
                 {/* Friends Search */}
-                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
-                  <SearchBoxContainer>
-                    <SearchBox
-                      placeholder="Search Users"
-                      value={friendsSearch}
-                      onChange={onSearchUsers}
-                    />
-                    <GrSearch/>
-                  </SearchBoxContainer>
+                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-scroll">
+                  <div className="content-center justify-center items-center w-full">
+                    <SearchBoxContainer>
+                      <SearchBox
+                        placeholder="Search Users"
+                        value={friendsSearch}
+                        onChange={onSearchUsers}
+                      />
+                      <GrSearch/>
+                    </SearchBoxContainer>
+                  </div>
+                  
                   { foundUsers.map(({ id, userName, firstName, lastName }, i) => {
                     const isFriend = user.friendIds.includes(id)
                     const isRequested = user.friendRequests.find( req => req.toUserId === id || req.fromUserId === id )
@@ -556,7 +562,7 @@ const Profile = ({
                 </div>
 
                 {/* Friends */}
-                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-scroll">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
                     Friends
@@ -589,7 +595,7 @@ const Profile = ({
                 </div>
 
                 {/* Requests */}
-                <div className="p-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 border-2 border-gray-200 rounded-lg shadow-md overflow-y-scroll">
+                <div className="p-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-scroll">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
                     Requests
@@ -651,7 +657,7 @@ const Profile = ({
             </div>
 
             {/* Recent Albums */}
-            <div className="flex flex-col lg:w-1/3 pt-6 p-4 top-0 bottom-0 right-0 bg-white rounded shadow-lg static">
+            <div className="flex flex-col lg:w-1/3 pt-6 p-4 bg-white rounded shadow-lg static">
               <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
                 Recent Albums
               </h2>
@@ -701,26 +707,30 @@ const Profile = ({
                 </div>
               }
 
-              <div className="flex flex-col">
+              <div className="flex flex-row lg:flex-col overflow-x-scroll">
                 { activeAlbums.map((album, i) => 
-                  <AlbumAndCommentsPreview
-                    key={i}
-                    album={album}
-                    comments={currentComments[i] || []}
-                    duration={playerFrames[i]}
-                    pip={pips[i]}
-                    playing={playings[i]}
-                    playerRef={playerRefs[i]}
-                    swingIdx={currentSwings[i]}
-                    swingFrames={SWING_FRAMES}
-                    user={user}
+                  <div key={i}
+                    className="mx-1 lg:mx-0 w-11/12 lg:w-full"
+                  >
+                    <AlbumAndCommentsPreview
+                      key={i}
+                      album={album}
+                      comments={currentComments[i] || []}
+                      duration={playerFrames[i]}
+                      pip={pips[i]}
+                      playing={playings[i]}
+                      playerRef={playerRefs[i]}
+                      swingIdx={currentSwings[i]}
+                      swingFrames={SWING_FRAMES}
+                      user={user}
 
-                    onSetSwingIndex={onSetCurrentSwings(i)}
-                    onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
-                    onTogglePlay={onTogglePlay(i)}
-                    onTogglePip={onTogglePip(i)}
-                    onPlayerProgress={onPlayerProgress(i)}
-                  />
+                      onSetSwingIndex={onSetCurrentSwings(i)}
+                      onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                      onTogglePlay={onTogglePlay(i)}
+                      onTogglePip={onTogglePip(i)}
+                      onPlayerProgress={onPlayerProgress(i)}
+                    />
+                  </div>  
                 )}
               </div>
 

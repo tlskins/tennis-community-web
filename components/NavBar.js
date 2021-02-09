@@ -73,12 +73,16 @@ const NavBar = ({
   return(
     <NavigationBar>
       <Link href="/">
-        <a className="logo" href="#">Hive Tennis</a>
+        <p className="inline-block whitespace-nowrap text-yellow-300">Hive Tennis</p>
       </Link>
       { !user || !user.id ?
         <LinksContainer>
           <div className="static">
-            <a href="#" onClick={() => setShowModal(!showModal)}>{ confirmation?.email ? "Accept Invitation" : "Sign In" }</a>
+            <a href="#" onClick={() => setShowModal(!showModal)}
+              className="text-yellow-300"
+            >
+              { confirmation?.email ? "Accept Invitation" : "Sign In" }
+            </a>
             { showModal &&
               <Modal width="400" hideModal={ () => setShowModal(false)}>
                 <LoginForm/>
@@ -101,7 +105,7 @@ const NavBar = ({
           }
           <LinkClass>
             <div className="flex flex-row content-center justify-center items-center">
-              <a href="#" onClick={ onSignOut }>Sign Out</a>
+              <a className="inline-block whitespace-nowrap" href="#" onClick={ onSignOut }>Sign Out</a>
               <img src={getUserIcon(user)}
                 className="w-4 h-4"
               />

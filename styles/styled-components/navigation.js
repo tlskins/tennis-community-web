@@ -2,7 +2,7 @@ import styled from "@emotion/styled"
 
 
 export const NavigationBar = styled.nav`
-  background: white;
+  background: black;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -20,6 +20,7 @@ export const NavigationBar = styled.nav`
 export const LinkClass = styled.div`
   a {
     font-family: ${ props => props.active ? "black" : "regular" };
+    color: yellow;
   }
 `
 

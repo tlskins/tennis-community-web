@@ -1,6 +1,9 @@
 import React, { useState, useRef } from "react"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
+import { FaExpand, FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
+import { BiCollapse } from "react-icons/bi"
+import { IconContext } from "react-icons"
 
 
 const publicVideos = {
@@ -147,30 +150,29 @@ const VideoResources = ({
   }
 
   return(
-    <div className="mb-2">
-      <div className="flex flex-col content-center justify-center items-center">
+    <div className="flex flex-col content-center justify-center items-center mb-2 p-2 bg-white rounded shadow-lg">
         
-        <div className="relative">
-          { showUsage &&
+      <div className="relative">
+        { showUsage &&
           <div className="absolute -my-32 ml-32 w-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">
             <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
             View instructional youtube videos pre-selected by the community
           </div>
-          }
-          <select className="mt-4 p-0.5 border border-gray-500 rounded shadow-md"
-            onChange={onSelectVideoGroup}
-            value={sideVideoGroup}
-          >
-            { Object.keys(publicVideos).map((name, i) => {
-              return(
-                <option key={i} value={name}>{ name }</option>
-              )
-            })}
-          </select>
-        </div>
+        }
+        <select className="mt-4 p-0.5 border border-gray-500 rounded shadow-md"
+          onChange={onSelectVideoGroup}
+          value={sideVideoGroup}
+        >
+          { Object.keys(publicVideos).map((name, i) => {
+            return(
+              <option key={i} value={name}>{ name }</option>
+            )
+          })}
+        </select>
+      </div>
         
 
-        { sideVideoGroup !== "-" &&
+      { sideVideoGroup !== "-" &&
           <select className="mt-1 mb-4 p-0.5 border border-gray-500 rounded shadow-md"
             onChange={onSelectVideo}
             value={sideVideo}
@@ -181,123 +183,121 @@ const VideoResources = ({
               )
             })}
           </select>
-        }
+      }
         
-        <ReactPlayer
-          className="rounded-md overflow-hidden"
-          ref={sideVideoRef}
-          url={sideVideoUrl} 
-          playing={sideVideoPlaying}
-          playbackRate={sideVideoPlayback}
-          progressInterval={200}
-          onProgress={({ played }) => {
-            setSideVideoDuration(played)
-          }}
-          config={{
-            youtube: {
-              playerVars: {
-                controls: 1,
-                start: video.start,
-                end: video.end,
-              }
+      <ReactPlayer
+        className="rounded-md overflow-hidden"
+        ref={sideVideoRef}
+        url={sideVideoUrl} 
+        playing={sideVideoPlaying}
+        playbackRate={sideVideoPlayback}
+        progressInterval={200}
+        onProgress={({ played }) => {
+          setSideVideoDuration(played)
+        }}
+        config={{
+          youtube: {
+            playerVars: {
+              controls: 1,
+              start: video.start,
+              end: video.end,
             }
-          }}
-          onReady={() => onSeekTo(video.start)}
-          height={sideVideoHeight}
-          width={sideVideoWidth}
-        />
+          }
+        }}
+        onReady={() => onSeekTo(video.start)}
+        height={sideVideoHeight}
+        width={sideVideoWidth}
+      />
 
-        {/* Controls Panel */}
+      {/* Controls Panel */}
           
-        <div className="flex flex-row content-center justify-center items-center mt-4">
+      <div className="flex flex-row content-center justify-center items-center mt-4">
 
-          <div className="relative">
-            { showUsage &&
+        <div className="relative">
+          { showUsage &&
           <div className="absolute w-32 -my-14 -ml-24 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
             <svg className="absolute text-yellow-300 h-2 right-0 mr-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
             Expand video
           </div>
-            }
-            {/* Expand */}
-            { sideVideoExpanded &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='-'
-              onClick={() => onExpandVideo(false)}
-            />
-            }
-            { !sideVideoExpanded &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='+'
-              onClick={() => onExpandVideo(true)}
-            />
-            }
-          </div>
-
-          {/* Play / Pause */}
-          { sideVideoPlaying &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-              value='pause'
-              onClick={() => setSideVideoPlaying(false)}
-            />
           }
-          { !sideVideoPlaying &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-              value='play'
-              onClick={() => setSideVideoPlaying(true)}
-            />
+          {/* Expand */}
+          { sideVideoExpanded &&
+            <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
+              <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
+                <BiCollapse onClick={() => onExpandVideo(false)}/>
+              </div>
+            </IconContext.Provider>
+          }
+          { !sideVideoExpanded &&
+            <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
+              <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
+                <FaExpand onClick={() => onExpandVideo(true)}/>
+              </div>
+            </IconContext.Provider>
           }
         </div>
 
-        <div className="flex flex-col content-center justify-center items-center mt-4">
-          {/* Seek */}
-          <input
-            type='range'
-            value={sideVideoDuration}
-            min={0}
-            max={1}
-            step='0.0001'
-            onChange={handleSideSeekChange}
+        {/* Play / Pause */}
+        { sideVideoPlaying &&
+            <IconContext.Provider value={{ color: "red" }}>
+              <div className="m-2 content-center justify-center items-center cursor-pointer">
+                <FaRegPauseCircle onClick={() => setSideVideoPlaying(false)}/>
+              </div>
+            </IconContext.Provider>
+        }
+        { !sideVideoPlaying &&
+            <IconContext.Provider value={{ color: "blue" }}>
+              <div className="m-2 content-center justify-center items-center cursor-pointer">
+                <FaPlayCircle onClick={() => setSideVideoPlaying(true)}/>
+              </div>
+            </IconContext.Provider>
+
+        }
+      </div>
+
+      <div className="flex flex-col content-center justify-center items-center mt-4">
+        {/* Seek */}
+        <input
+          type='range'
+          value={sideVideoDuration}
+          min={0}
+          max={1}
+          step='0.0001'
+          onChange={handleSideSeekChange}
+        />
+
+        <div className="bg-white rounded p-0.5 mx-1 text-xs">
+          <span> { sideVideoDuration ? sideVideoDuration.toFixed(4) : "0.0000" }/1.0</span>
+        </div>
+      </div>
+
+      <div className="flex flex-col content-center justify-center items-center mt-1 bg-gray-100 rounded">
+        <div className="flex flex-row content-center justify-center items-center p-4">
+          <input type='button'
+            className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+            onClick={() => setSideVideoPlayback(0.25)}
+            value=".25x"
           />
-
-          <div className="bg-white rounded p-0.5 mx-1 text-xs">
-            <span> { sideVideoDuration ? sideVideoDuration.toFixed(4) : "0.0000" }/1.0</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col content-center justify-center items-center mt-4">
-          <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-            <div className="flex flex-row content-center justify-center items-center p-4">
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(0.25)}
-                value=".25x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(0.5)}
-                value=".5x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(1)}
-                value="1x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(2)}
-                value="2x"
-              />
-              <input type='button'
-                className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
-                onClick={() => setSideVideoPlayback(3)}
-                value="3x"
-              />
-            </div>
-          </div>
+          <input type='button'
+            className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+            onClick={() => setSideVideoPlayback(0.5)}
+            value=".5x"
+          />
+          <input type='button'
+            className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+            onClick={() => setSideVideoPlayback(1)}
+            value="1x"
+          />
+          <input type='button'
+            className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+            onClick={() => setSideVideoPlayback(2)}
+            value="2x"
+          />
+          <input type='button'
+            className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md"
+            onClick={() => setSideVideoPlayback(3)}
+            value="3x"
+          />
         </div>
       </div>
     </div>

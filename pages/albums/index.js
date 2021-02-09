@@ -21,7 +21,9 @@ import {
 } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
 import flag from "../../public/flag.svg"
-import { GrSearch, GrFormClose } from "react-icons/gr"
+import { GrSearch } from "react-icons/gr"
+import { FaWindowClose } from "react-icons/fa"
+import { IconContext } from "react-icons"
 
 import {
   DateContainer,
@@ -67,7 +69,6 @@ const AlbumsIndex = ({
   const [pips, setPips] = useState([])
   const [currentSwings, setCurrentSwings] = useState([])
 
-  const [hoveredAlbum, setHoveredAlbum] = useState(undefined)
   const [toDeleteAlbum, setToDeleteAlbum] = useState(undefined)
 
   const [page, setPage] = useState(0)
@@ -75,7 +76,6 @@ const AlbumsIndex = ({
   const [search, setSearch] = useState("")
   const [startDate, setStartDate] = useState(undefined)
   const [endDate, setEndDate] = useState(undefined)
-  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false)
   const [isMyAlbumsLoaded, setIsMyAlbumsLoaded] = useState(false)
 
   var sourceAlbums
@@ -100,31 +100,23 @@ const AlbumsIndex = ({
       switch(albumType) {
       case "owner":
         if (myAlbums.length === 0) {
-          setIsLoadingAlbums(true)
           await loadMyAlbums()
           setIsMyAlbumsLoaded(true)
-          setIsLoadingAlbums(false)
         }
         break
       case "friends":
         if (friendsAlbums.length === 0) {
-          setIsLoadingAlbums(true)
           await loadFriendsAlbums()
-          setIsLoadingAlbums(false)
         }
         break
       case "shared":
         if (sharedAlbums.length === 0) {
-          setIsLoadingAlbums(true)
           await loadSharedAlbums()
-          setIsLoadingAlbums(false)
         }
         break
       case "public":
         if (publicAlbums.length === 0) {
-          setIsLoadingAlbums(true)
           loadPublicAlbums()
-          setIsLoadingAlbums(false)
         }
         break
       default: break
@@ -241,7 +233,7 @@ const AlbumsIndex = ({
         <Notifications />
       }
 
-      <main className="overflow-y-scroll bg-gray-100">
+      <main className="overflow-y-scroll">
         <div className="lg:flex lg:flex-row block">
           <Sidebar>
             <LinkButton>
@@ -310,15 +302,18 @@ const AlbumsIndex = ({
             </div>
 
             <div className="content-center justify-center items-center">
-              <SearchBoxContainer>
-                <SearchBox
-                  placeholder="Search Albums"
-                  value={search}
-                  onChange={onSearch}
-                />
-                <GrSearch/>
-              </SearchBoxContainer>
+              <div className="content-center justify-center items-center w-full">
+                <SearchBoxContainer>
+                  <SearchBox
+                    placeholder="Search Albums"
+                    value={search}
+                    onChange={onSearch}
+                  />
+                  <GrSearch/>
+                </SearchBoxContainer>
+              </div>
 
+              
               <DateContainer>
                 <p className="date-label">Upload Date (Start)</p>
                 <DatePickerContainer>
@@ -327,7 +322,11 @@ const AlbumsIndex = ({
                     onChange={date => setStartDate(date)}
                   />
                   { startDate &&
-                <GrFormClose onClick={() => setStartDate(undefined)}/>
+                    <IconContext.Provider value={{ color: "white" }}>
+                      <div>
+                        <FaWindowClose onClick={() => setStartDate(undefined)}/>
+                      </div>
+                    </IconContext.Provider>
                   }
                 </DatePickerContainer>
               </DateContainer>
@@ -342,7 +341,12 @@ const AlbumsIndex = ({
                     onChange={date => setEndDate(date)}
                   />
                   { endDate &&
-                  <GrFormClose onClick={() => setEndDate(undefined)}/>
+                    <IconContext.Provider value={{ color: "white" }}>
+                      <div>
+                        <FaWindowClose onClick={() => setEndDate(undefined)}/>
+                      </div>
+                    </IconContext.Provider>
+                
                   }
                 </DatePickerContainer>
               </DateContainer>
@@ -350,47 +354,35 @@ const AlbumsIndex = ({
           </Sidebar>
 
           {/* Begin Album Videos */}
-          <div className="flex flex-col p-4 bg-gray-100">
+          <div className="flex flex-col p-4 bg-gray-200 lg:w-3/4">
             { (user && user.id) &&
             <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 content-center justify-center items-center">              
-
-              <div className="flex flex-col content-center justify-center items-center">
+              <div className="flex flex-wrap py-4 content-center justify-center items-center">
                 { activeAlbums.length === 0 &&
-                  <div className="w-full py-2 px-12 content-center justify-center items-center">
-                    <h2 className="font-semibold text-center">None</h2>
-                  </div>
+                    <div className="flex flex-col w-full relative content-center justify-center items-center rounded-md p-2">
+                      <h2 className="font-semibold text-center">None</h2>
+                    </div>
                 }
-                <div className="flex flex-wrap py-4 tent-center justify-center items-cente">
-                  { activeAlbums.map( (album, i) => {
-                    return (
-                      <div key={i}
-                        className="flex flex-col lg:w-7/12 relative content-center justify-center items-center hover:bg-blue-100 rounded-md mb-6 p-2"
-                        onMouseOver={() => setHoveredAlbum(album.id)}
-                        onMouseLeave={() => {
-                          setHoveredAlbum(undefined)
-                          setToDeleteAlbum(undefined)
-                        }}
-                      >
-                        { (hoveredAlbum === album.id && !toDeleteAlbum) &&
+                { activeAlbums.map( (album, i) => {
+                  return (
+                    <div key={i}
+                      className="flex flex-col lg:w-7/12 relative content-center justify-center items-center hover:bg-blue-100 rounded mb-6 p-2"
+                    >
+                      { (album.userId === user?.id && !toDeleteAlbum) &&
                         <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
-                          onClick={() => {
-                            setHoveredAlbum(undefined)
-                            setToDeleteAlbum(album.id)
-                          }}
+                          onClick={() => setToDeleteAlbum(album.id)}
                         >
                           Delete
                         </button>
-                        }
-                        { toDeleteAlbum === album.id &&
+                      }
+                      { toDeleteAlbum === album.id &&
                         <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
-                          onClick={() => {
-                            setToDeleteAlbum(undefined)
-                          }}
+                          onClick={() => setToDeleteAlbum(undefined)}
                         >
                           Cancel?
                         </button>
-                        }
-                        { toDeleteAlbum === album.id &&
+                      }
+                      { toDeleteAlbum === album.id &&
                         <button className="absolute top-6 right-4 underline text-sm text-blue-400 cursor-pointer"
                           onClick={() => {
                             setToDeleteAlbum(undefined)
@@ -399,53 +391,52 @@ const AlbumsIndex = ({
                         >
                           Confirm?
                         </button>
+                      }
+
+                      <div className="flex flex row">
+                        <p className="font-semibold text-blue-700 underline cursor-pointer"
+                          onClick={() => router.push(`/albums/${album.id}`)}
+                        >
+                          { album.name }
+                        </p>
+
+                        { (user && album.userId != user.id) &&
+                          <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
+                            <img src={flag}
+                              className="w-4 h-4 cursor-pointer"
+                              onClick={onFlagAlbum(album)}
+                            />
+                          </div>
                         }
-
-                        <div className="flex flex row">
-                          <p className="font-semibold text-blue-700 underline cursor-pointer"
-                            onClick={() => router.push(`/albums/${album.id}`)}
-                          >
-                            { album.name }
-                          </p>
-
-                          { (user && album.userId != user.id) &&
-                            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
-                              <img src={flag}
-                                className="w-4 h-4 cursor-pointer"
-                                onClick={onFlagAlbum(album)}
-                              />
-                            </div>
-                          }
-                        </div>
-
-                        <p className="text-xs">
-                          <span className="font-semibold text-xs"> Created: </span> { Moment(album.createdAt).format("lll") }
-                        </p>
-
-                        <p className="text-xs">
-                          <span className="font-semibold text-xs"> Updated: </span> { Moment(album.updatedAt).format("lll") }
-                        </p>
-
-                        <AlbumAndComments
-                          album={album}
-                          duration={playerFrames[i]}
-                          pip={pips[i]}
-                          playing={playings[i]}
-                          playerRef={playerRefs[i]}
-                          swingIdx={currentSwings[i]}
-                          swingFrames={SWING_FRAMES}
-                          user={user}
-
-                          onSetSwingIndex={onSetCurrentSwings(i)}
-                          onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
-                          onTogglePlay={onTogglePlay(i)}
-                          onTogglePip={onTogglePip(i)}
-                          onPlayerProgress={onPlayerProgress(i)}
-                        />
                       </div>
-                    )
-                  })}
-                </div>
+
+                      <p className="text-xs">
+                        <span className="font-semibold text-xs"> Created: </span> { Moment(album.createdAt).format("lll") }
+                      </p>
+
+                      <p className="text-xs">
+                        <span className="font-semibold text-xs"> Updated: </span> { Moment(album.updatedAt).format("lll") }
+                      </p>
+
+                      <AlbumAndComments
+                        album={album}
+                        duration={playerFrames[i]}
+                        pip={pips[i]}
+                        playing={playings[i]}
+                        playerRef={playerRefs[i]}
+                        swingIdx={currentSwings[i]}
+                        swingFrames={SWING_FRAMES}
+                        user={user}
+
+                        onSetSwingIndex={onSetCurrentSwings(i)}
+                        onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                        onTogglePlay={onTogglePlay(i)}
+                        onTogglePip={onTogglePip(i)}
+                        onPlayerProgress={onPlayerProgress(i)}
+                      />
+                    </div>
+                  )
+                })}
               </div>
             </div>
             }

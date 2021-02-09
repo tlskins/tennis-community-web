@@ -73,7 +73,7 @@ const NavBar = ({
   return(
     <NavigationBar>
       <Link href="/">
-        <p className="inline-block whitespace-nowrap text-yellow-300">Hive Tennis</p>
+        <p className="inline-block whitespace-nowrap text-yellow-300 cursor-pointer">Hive Tennis</p>
       </Link>
       { !user || !user.id ?
         <LinksContainer>

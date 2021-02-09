@@ -105,22 +105,18 @@ const AlbumsIndex = ({
         }
         break
       case "friends":
-        if (friendsAlbums.length === 0) {
-          await loadFriendsAlbums()
-        }
+        if (friendsAlbums.length === 0) loadFriendsAlbums()
         break
       case "shared":
-        if (sharedAlbums.length === 0) {
-          await loadSharedAlbums()
-        }
+        if (sharedAlbums.length === 0) loadSharedAlbums()
         break
       case "public":
-        if (publicAlbums.length === 0) {
-          loadPublicAlbums()
-        }
+        if (publicAlbums.length === 0) loadPublicAlbums()
         break
       default: break
       }
+    } else {
+      setIsMyAlbumsLoaded(true)
     }
   }, [user, albumType, myAlbums, friendsAlbums, sharedAlbums, publicAlbums])
 
@@ -355,7 +351,6 @@ const AlbumsIndex = ({
 
           {/* Begin Album Videos */}
           <div className="flex flex-col p-4 bg-gray-200 lg:w-3/4">
-            { (user && user.id) &&
             <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 content-center justify-center items-center">              
               <div className="flex flex-wrap py-4 content-center justify-center items-center">
                 { activeAlbums.length === 0 &&
@@ -439,7 +434,6 @@ const AlbumsIndex = ({
                 })}
               </div>
             </div>
-            }
           </div>
           {/* End Album Videos */}
         </div>

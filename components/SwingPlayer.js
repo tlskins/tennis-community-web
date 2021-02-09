@@ -1,0 +1,194 @@
+import React from "react"
+import ReactPlayer from "react-player"
+import PropTypes from "prop-types"
+import { useRouter } from "next/router"
+import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
+import { RiPictureInPicture2Fill, RiPictureInPictureExitFill } from "react-icons/ri"
+import { BiShow } from "react-icons/bi"
+import { ImBubbles2 } from "react-icons/im"
+import { IconContext } from "react-icons"
+
+
+const SwingPlayer = ({
+  albumId,
+  swing,
+  i,
+  playerRefs,
+  playbackRate,
+  playings,
+  playerFrames,
+  pips,
+  showAlbumUsage,
+  swingFrames,
+  playerWidth,
+  playerHeight,
+
+  handleSeekChange,
+  setPips,
+  setPlayings,
+  setPlayerFrames,
+}) => {
+  const router = useRouter()
+  const duration = playerFrames[i]
+  const ref = playerRefs[i]
+  const pip = pips[i]
+  const playing = playings[i]
+  return (
+    <div className="flex flex-col content-center justify-center items-center m-1">
+      <div className="">
+        <ReactPlayer
+          ref={ref}
+          url={swing.videoURL} 
+          playing={playing}
+          pip={pip}
+          volume={0}
+          muted={true}
+          playbackRate={playbackRate}
+          loop={true}
+          progressInterval={200}
+          onProgress={({ played }) => {
+            const frame = Math.round(played*swingFrames)
+            setPlayerFrames({
+              ...playerFrames,
+              [i]: frame,
+            })
+          }}
+          width={playerWidth || ""}
+          height={playerHeight || ""}
+        />
+      </div>
+
+      {/* Controls Panel */}
+      <div className="flex flex-row content-center justify-center p-1 mt-1 w-full bg-gray-100 rounded">
+
+        {/* Picture in Picture */}
+        <div className="relative">
+          { (showAlbumUsage && i === 0) &&
+            <div className="absolute w-48 mb-2 -mx-2 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+              View Picture-In-Picture for a draggable video
+              <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+            </div>
+          }
+          { pip &&
+            <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
+              <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
+                <RiPictureInPictureExitFill onClick={() => {
+                  const newPips = pips.map((p,j) => j === i ? false : p)
+                  setPips(newPips)
+                }}/>
+              </div>
+            </IconContext.Provider>
+          }
+          { !pip &&
+            <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
+              <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
+                <RiPictureInPicture2Fill onClick={() => {
+                  const newPips = pips.map((p,j) => j === i ? true : p)
+                  setPips(newPips)
+                }}/>
+              </div>
+            </IconContext.Provider>
+          }
+        </div>
+          
+        {/* Play / Pause */}
+        { playing &&
+            <IconContext.Provider value={{ color: "red" }}>
+              <div className="m-2 content-center justify-center items-center cursor-pointer">
+                <FaRegPauseCircle onClick={() => {
+                  const newPlayings = playings.map((p,j) => j === i ? false : p)
+                  setPlayings(newPlayings)
+                }}/>
+              </div>
+            </IconContext.Provider>
+        }
+        { !playing &&
+            <IconContext.Provider value={{ color: "blue" }}>
+              <div className="m-2 content-center justify-center items-center cursor-pointer">
+                <FaPlayCircle onClick={() => {
+                  const newPlayings = playings.map((p,j) => j === i ? true : p)
+                  setPlayings(newPlayings)
+                  setPlayerFrames({
+                    ...playerFrames,
+                    [i]: undefined,
+                  })
+                }}/>
+              </div>
+            </IconContext.Provider>
+        }
+          
+        {/* Seek */}
+        <input
+          type='range'
+          tabIndex={(i*3)+3}
+          value={duration}
+          min={0}
+          max={swingFrames}
+          step='1'
+          onChange={handleSeekChange(ref, i)}
+          onFocus={ e => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
+        />
+
+        <div className="flex flex-row content-center justify-center items-center">
+          <div className="bg-white rounded p-0.5 mx-1 text-xs relative">
+            { (showAlbumUsage && i ===0) &&
+                <div className="absolute -mb-16 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+                  <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
+                  Frame # / Total Frames              
+                </div>
+            }
+            <div className="w-8 text-center">{ duration ? duration.toString().padStart(2, "0") : "00" }/{swingFrames}</div>
+          </div>
+
+          <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs">
+            {(swing.comments?.length || 0)}
+            <IconContext.Provider value={{ color: "blue" }}>
+              <div className="ml-2 cursor-pointer">
+                <ImBubbles2 />
+              </div>
+            </IconContext.Provider>
+          </div>
+        </div>
+          
+        <div className="relative">
+          { (showAlbumUsage && i === 0) &&
+            <div className="absolute mb-2 mx-2 w-44 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+              Go to swing to comment on specific frames
+              <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+            </div>
+          }
+          <IconContext.Provider value={{ color: "blue" }}>
+            <div className="m-2 content-center justify-center items-center cursor-pointer">
+              <BiShow onClick={() => router.push(`/albums/${albumId}/swings/${swing.id}`)}/>
+            </div>
+          </IconContext.Provider>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+SwingPlayer.propTypes = {
+  albumId: PropTypes.string,
+  showAlbumUsage: PropTypes.bool,
+  swing: PropTypes.object,
+  swingFrames: PropTypes.arrayOf(PropTypes.number),
+  i: PropTypes.number,
+  playbackRate: PropTypes.number,
+  pips: PropTypes.arrayOf(PropTypes.bool),
+  playings: PropTypes.arrayOf(PropTypes.bool),
+  playerFrames: PropTypes.arrayOf(PropTypes.number),
+  playerRefs: PropTypes.arrayOf(PropTypes.object),
+  playerWidth: PropTypes.string,
+  playerHeight: PropTypes.string,
+
+  handleSeekChange: PropTypes.func,
+  setPips: PropTypes.func,
+  setPlayings: PropTypes.func,
+  setPlayerFrames: PropTypes.func,
+}
+
+export default SwingPlayer

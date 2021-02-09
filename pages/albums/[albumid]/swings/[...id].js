@@ -302,12 +302,12 @@ const Album = ({
 
           <div className="flex flex-row content-center justify-center items-center p-4 bg-gray-100 rounded relative">
             <input type='button'
-              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg cursor-pointer"
               onClick={() => setPlayback(0.25)}
               value=".25x"
             />
             <input type='button'
-              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg cursor-pointer"
               onClick={() => setPlayback(0.5)}
               value=".5x"
             />
@@ -318,17 +318,17 @@ const Album = ({
                 </div>
             }
             <input type='button'
-              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg cursor-pointer"
               onClick={() => setPlayback(1)}
               value="1x"
             />
             <input type='button'
-              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg cursor-pointer"
               onClick={() => setPlayback(2)}
               value="2x"
             />
             <input type='button'
-              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg cursor-pointer"
               onClick={() => setPlayback(3)}
               value="3x"
             />

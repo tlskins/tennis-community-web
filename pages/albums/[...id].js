@@ -310,10 +310,9 @@ const Album = ({
 
   const renderVideo = ({ swing, i, ref, playing, pip, duration }) => {
     return(
-      <div className="flex flex-col content-center justify-center items-center">
-        <div className="lg:w-3/4 content-center justify-center items-center">
+      <div className="flex flex-col content-center justify-center items-center m-1">
+        <div className="">
           <ReactPlayer
-            className="rounded-md overflow-hidden"
             ref={ref}
             url={swing.videoURL} 
             playing={playing}
@@ -330,13 +329,13 @@ const Album = ({
                 [i]: frame,
               })
             }}
-            height="300px"
-            width=""
+            width="340px"
+            height="250px"
           />
         </div>
 
         {/* Controls Panel */}
-        <div className="flex flex-row content-center justify-center p-1 bg-gray-100 rounded">
+        <div className="flex flex-row content-center justify-center p-1 mt-1 w-full bg-gray-100 rounded">
 
           {/* Picture in Picture */}
           <div className="relative">
@@ -618,7 +617,7 @@ const Album = ({
                           </div>
                         }
                         <textarea
-                          className="p-2 border border-black rounded bg-gray-100"
+                          className="p-2 rounded shadow-lg bg-gray-100"
                           placeholder={commentsPlaceholder}
                           rows="4"
                           maxLength={500}
@@ -680,7 +679,7 @@ const Album = ({
 
                       {/* Comments List  */}
 
-                      <div className="flex flex-col h-40 lg:h-full pr-4 border border-gray-400 rounded-lg">
+                      <div className="flex flex-col h-40 lg:h-full pr-4 rounded shadow-lg bg-gray-100 px-1">
                         { comments.filter( com => !com.isHidden ).length === 0 &&
                           <p className="text-center p-2"> No comments </p>
                         }
@@ -688,7 +687,7 @@ const Album = ({
                           { comments.filter( com => !com.isHidden ).map( comment => {
                             return(
                               <div key={comment.id}
-                                className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100"
+                                className="my-2 p-0.5 rounded shadow-lg bg-white hover:bg-blue-100 cursor-pointer"
                               >
                                 { comment.replyId &&
                                 <div className="p-2 border border-black rounded text-xs bg-gray-300">
@@ -795,7 +794,7 @@ const Album = ({
             <div className="flex flex-wrap rounded bg-white px-2 py-4 shadow-lg mb-2">
               { pageVideos.map( (swing, i) => {
                 return (
-                  <div className={"flex flex-col items-center rounded-md p-2 lg:w-1/3 lg:h-1/3"}
+                  <div className={"flex flex-col items-center rounded-md lg:w-1/3 lg:h-1/3"}
                     onMouseOver={() => setHoveredSwing(swing.id)}
                     onMouseLeave={() => {
                       setHoveredSwing(undefined)
@@ -834,14 +833,14 @@ const Album = ({
                     }
                 
                     { albumView === "video" &&
-                      renderVideo({
-                        swing,
-                        i,
-                        ref: playerRefs[i],
-                        playing: playings[i],
-                        pip: pips[i],
-                        duration: playerFrames[i]
-                      }) 
+                        renderVideo({
+                          swing,
+                          i,
+                          ref: playerRefs[i],
+                          playing: playings[i],
+                          pip: pips[i],
+                          duration: playerFrames[i]
+                        }) 
                     }
                     { albumView === "gif" &&
                     <div>

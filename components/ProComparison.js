@@ -5,6 +5,7 @@ import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { RiPictureInPicture2Fill, RiPictureInPictureExitFill } from "react-icons/ri"
 import { IconContext } from "react-icons"
 
+
 const publicVideos = [
   {
     url: "https://tennis-swings.s3.amazonaws.com/public/federer_backhand.mp4",

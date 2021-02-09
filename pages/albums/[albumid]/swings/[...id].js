@@ -15,7 +15,8 @@ import { SearchFriends } from "../../../../behavior/coordinators/friends"
 import speechBubble from "../../../../public/speech-bubble.svg"
 import flag from "../../../../public/flag.svg"
 import pencil from "../../../../public/pencil.svg"
-
+import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
+import { IconContext } from "react-icons"
 
 const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 50
@@ -243,23 +244,23 @@ const Album = ({
         </div>
 
         {/* Controls Panel */}
-        <div className="flex flex-col p-1 mt-4 bg-gray-100 rounded border-2 border-gray-300">
+        <div className="flex flex-col p-1 mt-4 bg-gray-100 rounded shadow-lg">
           <div className="flex flex-row content-center justify-center items-center mt-2">
             <div>
               {/* Play / Pause */}
               { playing &&
-                <input type='button'
-                  className='border w-10 h-6 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-                  value='pause'
-                  onClick={() => setPlaying(!playing)}
-                />
+                <IconContext.Provider value={{ color: "red" }}>
+                  <div className="m-2 content-center justify-center items-center cursor-pointer">
+                    <FaRegPauseCircle onClick={() => setPlaying(false)}/>
+                  </div>
+                </IconContext.Provider>
               }
               { !playing &&
-                <input type='button'
-                  className='border w-10 h-6 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-                  value='play'
-                  onClick={() => setPlaying(!playing)}
-                />
+                <IconContext.Provider value={{ color: "blue" }}>
+                  <div className="m-2 content-center justify-center items-center cursor-pointer">
+                    <FaPlayCircle onClick={() => setPlaying(true)}/>
+                  </div>
+                </IconContext.Provider>
               }
             </div>
 
@@ -298,42 +299,38 @@ const Album = ({
             </div>
           </div>
 
-          <div className="flex flex-col content-center justify-center items-center">
-            <div className="flex flex-row content-center justify-center p-1 bg-gray-100 rounded">
-              <div className="flex flex-row content-center justify-center items-center p-4 relative">
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
-                  onClick={() => setPlayback(0.25)}
-                  value=".25x"
-                />
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
-                  onClick={() => setPlayback(0.5)}
-                  value=".5x"
-                />
-                { showSwingUsage &&
-                  <div className="absolute -mb-20 ml-16 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
-                    <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
-                    Change playback rate
-                  </div>
-                }
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
-                  onClick={() => setPlayback(1)}
-                  value="1x"
-                />
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
-                  onClick={() => setPlayback(2)}
-                  value="2x"
-                />
-                <input type='button'
-                  className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
-                  onClick={() => setPlayback(3)}
-                  value="3x"
-                />
-              </div>
-            </div>
+          <div className="flex flex-row content-center justify-center items-center p-4 bg-gray-100 rounded relative">
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              onClick={() => setPlayback(0.25)}
+              value=".25x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              onClick={() => setPlayback(0.5)}
+              value=".5x"
+            />
+            { showSwingUsage &&
+                <div className="absolute -mb-20 ml-16 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+                  <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
+                  Change playback rate
+                </div>
+            }
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              onClick={() => setPlayback(1)}
+              value="1x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              onClick={() => setPlayback(2)}
+              value="2x"
+            />
+            <input type='button'
+              className="border w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-md cursor-pointer"
+              onClick={() => setPlayback(3)}
+              value="3x"
+            />
           </div>
         </div>
       </div>
@@ -357,7 +354,7 @@ const Album = ({
       { (user && user.id) &&
         <Notifications />
       }
-      <main className="overflow-y-scroll bg-gray-100">
+      <main className="overflow-y-scroll bg-gray-200">
         <div className="lg:flex lg:flex-row block">
           {/* Begin Sidebar */}
           <div className={`lg:${sideBarWidth} top-0 left-0 lg:bottom-0 p-4 bg-white border-b lg:border-r border-gray-400`}>
@@ -425,7 +422,7 @@ const Album = ({
 
           <div className={`lg:flex p-2 lg:p-8 lg:${mainWidth}`}>
             {/* Swing Video Column */}
-            <div className={`${swingColSpan} lg:flex flex-col items-center p-4 rounded border border-gray-400 bg-white shadow-md relative`}>
+            <div className={`${swingColSpan} lg:flex flex-col items-center py-4 px-8 rounded bg-white shadow-lg relative`}>
               <a href={`/albums/${album?.id}`}
                 className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-2 hidden lg:block"
               >
@@ -465,7 +462,7 @@ const Album = ({
 
             {/* Comments Column */}
             { !expandedSideBar &&
-            <div className="lg:flex flex-col p-4 lg:ml-8 lg:mt-0 mt-2 items-center overscroll-contain rounded border border-gray-400 bg-white shadow-md">
+            <div className="lg:flex flex-col lg:ml-8 lg:mt-0 mt-2 items-center py-4 px-8 overscroll-contain rounded  bg-white shadow-lg">
               <div className="flex flex-col w-full">
 
                 <div className="flex flex-col border-b-2 border-gray-400 mb-2 relative">
@@ -481,7 +478,7 @@ const Album = ({
                       </div>
                   }
                   <textarea
-                    className="p-2 border border-black rounded bg-gray-100"
+                    className="p-2 rounded shadow-lg bg-gray-100"
                     placeholder={commentsPlaceholder}
                     rows="4"
                     maxLength={500}
@@ -556,14 +553,14 @@ const Album = ({
 
                 {/* Comments List  */}
 
-                <div className="flex flex-col h-96 overflow-y-scroll border border-gray-400 rounded-lg">
+                <div className="flex flex-col h-96 overflow-y-scroll rounded shadow-lg bg-gray-100 px-1">
                   { comments.filter( com => !com.isHidden ).length === 0 &&
                     <p className="text-center p-2"> No comments </p>
                   }
                   { comments.filter( com => !com.isHidden ).map( comment => {
                     return(
                       <div key={comment.id}
-                        className="my-2 p-0.5 border border-gray-400 rounded shadow-md ring-gray-300 hover:bg-blue-100 cursor-pointer"
+                        className="my-2 p-0.5 rounded shadow-lg bg-white hover:bg-blue-100 cursor-pointer"
                       >
                         { comment.replyId &&
                           <div className="p-2 border border-black rounded text-xs bg-gray-300">

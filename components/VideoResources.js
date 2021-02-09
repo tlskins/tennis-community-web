@@ -1,6 +1,9 @@
 import React, { useState, useRef } from "react"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
+import { FaExpand, FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
+import { BiCollapse } from "react-icons/bi"
+import { IconContext } from "react-icons"
 
 
 const publicVideos = {
@@ -220,35 +223,36 @@ const VideoResources = ({
             }
             {/* Expand */}
             { sideVideoExpanded &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='-'
-              onClick={() => onExpandVideo(false)}
-            />
+            <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
+              <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
+                <BiCollapse onClick={() => onExpandVideo(false)}/>
+              </div>
+            </IconContext.Provider>
             }
             { !sideVideoExpanded &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='+'
-              onClick={() => onExpandVideo(true)}
-            />
+            <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
+              <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
+                <FaExpand onClick={() => onExpandVideo(true)}/>
+              </div>
+            </IconContext.Provider>
             }
           </div>
 
           {/* Play / Pause */}
           { sideVideoPlaying &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-              value='pause'
-              onClick={() => setSideVideoPlaying(false)}
-            />
+            <IconContext.Provider value={{ color: "red" }}>
+              <div className="m-2 content-center justify-center items-center cursor-pointer">
+                <FaRegPauseCircle onClick={() => setSideVideoPlaying(false)}/>
+              </div>
+            </IconContext.Provider>
           }
           { !sideVideoPlaying &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-              value='play'
-              onClick={() => setSideVideoPlaying(true)}
-            />
+            <IconContext.Provider value={{ color: "blue" }}>
+              <div className="m-2 content-center justify-center items-center cursor-pointer">
+                <FaPlayCircle onClick={() => setSideVideoPlaying(true)}/>
+              </div>
+            </IconContext.Provider>
+
           }
         </div>
 

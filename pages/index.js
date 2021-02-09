@@ -1,12 +1,12 @@
 import React, { useState, useEffect, createRef } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
-import ReactPlayer from "react-player"
 import { useRouter } from "next/router"
 import Moment from "moment"
 
 import { LoadPublicAlbums } from "../behavior/coordinators/albums"
 import { toggleShowNewUser } from "../state/ui/action"
+import SwingPlayer from "../components/SwingPlayer"
 
 import bg from "../public/homepage-bg.jpg"
 import mobileBg from "../public/homepage-mobile.jpg"
@@ -15,8 +15,6 @@ import footerBgMobile from "../public/footer-mobile.jpg"
 import camera from "../public/camera-icon.svg"
 import racket from "../public/racket-icon.svg"
 import speech from "../public/speech-icon.svg"
-import speechBubble from "../public/speech-bubble.svg"
-// import colors from "../styles/colors.js"
 
 import {
   CTAButton,
@@ -68,119 +66,6 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
         [i]: frame,
       })
     }
-  }
-
-  const renderVideo = ({ swing, i, ref, playing, pip, duration, comments }) => {
-    if (!swing) {
-      return null
-    }
-    return(
-      <div className="lg:flex flex-col content-center justify-center items-center pr-1">
-        <div className="content-center justify-center items-center">
-          <ReactPlayer
-            className="rounded-md overflow-hidden"
-            ref={ref}
-            url={swing.videoURL} 
-            playing={playing}
-            pip={pip}
-            volume={0}
-            muted={true}
-            loop={true}
-            progressInterval={200}
-            onProgress={({ played }) => {
-              const frame = Math.round(played*SWING_FRAMES)
-              setPlayerFrames({
-                ...playerFrames,
-                [i]: frame,
-              })
-            }}
-            height=""
-            width=""
-          />
-        </div>
-
-        {/* Controls Panel */}
-        <div className="flex flex-row content-center justify-center p-1 mt-4 bg-gray-100 rounded">
-
-          {/* Picture in Picture */}
-          { pip &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='-'
-              tabIndex={(i*3)+1}
-              onClick={() => {
-                const newPips = pips.map((p,j) => j === i ? false : p)
-                setPips(newPips)
-              }}
-            />
-          }
-          { !pip &&
-            <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
-              value='+'
-              tabIndex={(i*3)+1}
-              onClick={() => {
-                const newPips = pips.map((p,j) => j === i ? true : p)
-                setPips(newPips)
-              }}
-            />
-          }
-
-          {/* Play / Pause */}
-          { playing &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
-              value='pause'
-              tabIndex={(i*3)+2}
-              onClick={() => {
-                const newPlayings = playings.map((p,j) => j === i ? false : p)
-                setPlayings(newPlayings)
-              }}
-            />
-          }
-          { !playing &&
-            <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
-              value='play'
-              tabIndex={(i*3)+2}
-              onClick={() => {
-                const newPlayings = playings.map((p,j) => j === i ? true : p)
-                setPlayings(newPlayings)
-                setPlayerFrames({
-                  ...playerFrames,
-                  [i]: undefined,
-                })
-              }}
-            />
-          }
-          
-          {/* Seek */}
-          <input
-            type='range'
-            tabIndex={(i*3)+3}
-            value={duration}
-            min={0}
-            max={SWING_FRAMES}
-            step='1'
-            onChange={handleSeekChange(ref, i)}
-            onFocus={ e => {
-              console.log("focus!")
-              e.stopPropagation()
-              e.preventDefault()
-            }}
-          />
-
-          <div className="bg-white rounded p-0.5 mx-1 text-xs w-10">
-            <p className="text-center"> { duration ? duration : "0" }/{SWING_FRAMES}</p>
-          </div>
-
-          <div className="flex flex-row bg-white rounded mx-1 text-xs py-0.5 w-8">
-            <p className="mr-1 text-center">{ comments }</p>
-            <img src={speechBubble} className="w-5 h-5"/>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   const onGetStarted = () => {
@@ -242,7 +127,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
               Latest Community Uploads
               </h2>
 
-              <div className="lg:flex flex-row lg:w-full lg:justify-between">
+              <div className="lg:flex flex-row lg:w-full lg:justify-between lg:mx-1">
                 { publicAlbums.map( (album, idx) => {
                   return (
                     <div key={idx}
@@ -257,17 +142,24 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
                         <span className="font-semibold text-xs"> Created: </span> 
                         <span className="text-xs">{ Moment(album.createdAt).format("LLL") }</span>
                       </p>
-                      { 
-                        renderVideo({
-                          swing: album.swingVideos[0],
-                          i: idx,
-                          ref: playerRefs[idx],
-                          playing: playings[idx],
-                          pip: pips[idx],
-                          duration: playerFrames[idx],
-                          comments: (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0),
-                        })
-                      }
+                      <SwingPlayer
+                        albumId={album.id}
+                        showAlbumUsage={false}
+                        swing={album.swingVideos[0]}
+                        swingFrames={SWING_FRAMES}
+                        i={idx}
+                        playbackRate={1}
+                        pips={pips}
+                        playings={playings}
+                        playerFrames={playerFrames}
+                        playerRefs={playerRefs}
+                        playerWidth="320px"
+                        playerHeight="230px"
+                        handleSeekChange={handleSeekChange}
+                        setPips={setPips}
+                        setPlayings={setPlayings}
+                        setPlayerFrames={setPlayerFrames}
+                      />
                     </div>
                   )
                 })}

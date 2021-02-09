@@ -1,18 +1,15 @@
 import React, { useEffect, useState, createRef } from "react"
 import { connect } from "react-redux"
-import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
-import { RiPictureInPicture2Fill, RiPictureInPictureExitFill } from "react-icons/ri"
-import { BiShow } from "react-icons/bi"
-import { ImBubbles2 } from "react-icons/im"
 import { IconContext } from "react-icons"
 
 import { newNotification, showInviteForm } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
+import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
 import { getUserIcon } from "../../behavior/users"
@@ -85,10 +82,7 @@ const Album = ({
 
   const [activeSideBar, setActiveSidebar] = useState("Album Comments")
   const [expandedSideBar, setExpandedSideBar] = useState(false)
-
   const [albumPage, setAlbumPage] = useState(0)
-  const [hoveredSwing, setHoveredSwing] = useState(undefined)
-  const [deleteSwing, setDeleteSwing] = useState(undefined)
 
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
@@ -181,10 +175,27 @@ const Album = ({
     }
   }
 
-  const onDeleteSwing = swingId => {
-    updateAlbum({
-      ...album,
-      swingVideos: album.swingVideos.filter( swing => swing.id !== swingId ),
+  const onDeleteSwing = swing => async () => {
+    flashMessage({
+      id: Moment().toString(),
+      message: `Delete "${swing.name}"?`,
+      buttons: [
+        {
+          buttonText: "Confirm",
+          callback: async () => {
+            const success = await updateAlbum({
+              ...album,
+              swingVideos: album.swingVideos.filter( sw => sw.id !== swing.id ),
+            })
+            if (success) {
+              flashMessage({
+                id: Moment().toString(),
+                message: `Swing "${swing.name}" Deleted`,
+              })
+            }
+          }
+        }
+      ]
     })
   }
 
@@ -307,145 +318,6 @@ const Album = ({
         setInvLastName("")
       }
     }
-  }
-
-  const renderVideo = ({ swing, i, ref, playing, pip, duration }) => {
-    return(
-      <div className="flex flex-col content-center justify-center items-center m-1">
-        <div className="">
-          <ReactPlayer
-            ref={ref}
-            url={swing.videoURL} 
-            playing={playing}
-            pip={pip}
-            volume={0}
-            muted={true}
-            playbackRate={playbackRate}
-            loop={true}
-            progressInterval={200}
-            onProgress={({ played }) => {
-              const frame = Math.round(played*SWING_FRAMES)
-              setPlayerFrames({
-                ...playerFrames,
-                [i]: frame,
-              })
-            }}
-            width="320px"
-            height="230px"
-          />
-        </div>
-
-        {/* Controls Panel */}
-        <div className="flex flex-row content-center justify-center p-1 mt-1 w-full bg-gray-100 rounded">
-
-          {/* Picture in Picture */}
-          <div className="relative">
-            { (showAlbumUsage && i === 0) &&
-            <div className="absolute w-48 mb-2 -mx-2 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
-              View Picture-In-Picture for a draggable video
-              <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
-            </div>
-            }
-            { pip &&
-            <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
-              <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
-                <RiPictureInPictureExitFill onClick={() => {
-                  const newPips = pips.map((p,j) => j === i ? false : p)
-                  setPips(newPips)
-                }}/>
-              </div>
-            </IconContext.Provider>
-            }
-            { !pip &&
-            <IconContext.Provider value={{ color: "blue", height: "8px", width: "8px" }}>
-              <div className="m-2 items-stretch content-center justify-center items-center cursor-pointer">
-                <RiPictureInPicture2Fill onClick={() => {
-                  const newPips = pips.map((p,j) => j === i ? true : p)
-                  setPips(newPips)
-                }}/>
-              </div>
-            </IconContext.Provider>
-            }
-          </div>
-          
-          {/* Play / Pause */}
-          { playing &&
-            <IconContext.Provider value={{ color: "red" }}>
-              <div className="m-2 content-center justify-center items-center cursor-pointer">
-                <FaRegPauseCircle onClick={() => {
-                  const newPlayings = playings.map((p,j) => j === i ? false : p)
-                  setPlayings(newPlayings)
-                }}/>
-              </div>
-            </IconContext.Provider>
-          }
-          { !playing &&
-            <IconContext.Provider value={{ color: "blue" }}>
-              <div className="m-2 content-center justify-center items-center cursor-pointer">
-                <FaPlayCircle onClick={() => {
-                  const newPlayings = playings.map((p,j) => j === i ? true : p)
-                  setPlayings(newPlayings)
-                  setPlayerFrames({
-                    ...playerFrames,
-                    [i]: undefined,
-                  })
-                }}/>
-              </div>
-            </IconContext.Provider>
-          }
-          
-          {/* Seek */}
-          <input
-            type='range'
-            tabIndex={(i*3)+3}
-            value={duration}
-            min={0}
-            max={SWING_FRAMES}
-            step='1'
-            onChange={handleSeekChange(ref, i)}
-            onFocus={ e => {
-              e.stopPropagation()
-              e.preventDefault()
-            }}
-          />
-
-          <div className="flex flex-row content-center justify-center items-center">
-            <div className="bg-white rounded p-0.5 mx-1 text-xs relative">
-              { (showAlbumUsage && i ===0) &&
-                <div className="absolute -mb-16 w-48 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
-                  <svg className="absolute text-yellow-300 h-2 left-0 ml-3 bottom-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,400 300,0 600,400"/></svg>
-                  Frame # / Total Frames              
-                </div>
-              }
-              <div className="w-8 text-center">{ duration ? duration.toString().padStart(2, "0") : "00" }/{SWING_FRAMES}</div>
-            </div>
-
-            <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs">
-              {(swing.comments?.length || 0)}
-              <IconContext.Provider value={{ color: "blue" }}>
-                <div className="ml-2 cursor-pointer">
-                  <ImBubbles2 />
-                </div>
-              </IconContext.Provider>
-            </div>
-          </div>
-          
-          <div className="relative">
-            { (showAlbumUsage && i === 0) &&
-            <div className="absolute mb-2 mx-2 w-44 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
-              Go to swing to comment on specific frames
-              <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
-            </div>
-            }
-            <IconContext.Provider value={{ color: "blue" }}>
-              <div className="m-2 content-center justify-center items-center cursor-pointer">
-                <BiShow onClick={() => router.push(`/albums/${albumId}/swings/${swing.id}`)}/>
-              </div>
-            </IconContext.Provider>
-          </div>
-        </div>
-      </div>
-    )
   }
 
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
@@ -791,56 +663,32 @@ const Album = ({
               </div>
             </div>
 
-            <div className="flex flex-wrap rounded bg-white px-2 py-4 shadow-lg mb-2">
+            <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white px-2 py-4 shadow-lg mb-2">
               { pageVideos.map( (swing, i) => {
                 return (
                   <div className={"flex flex-col items-center rounded-md lg:w-1/3 lg:h-1/3"}
-                    onMouseOver={() => setHoveredSwing(swing.id)}
-                    onMouseLeave={() => {
-                      setHoveredSwing(undefined)
-                      setDeleteSwing(undefined)
-                    }}
                     key={i}
                   >
-                    { (hoveredSwing === swing.id && !deleteSwing) &&
-                    <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
-                      onClick={() => {
-                        setHoveredSwing(undefined)
-                        setDeleteSwing(swing.id)
-                      }}
-                    >
-                      Delete
-                    </button>
-                    }
-                    { deleteSwing === swing.id &&
-                    <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
-                      onClick={() => {
-                        setDeleteSwing(undefined)
-                      }}
-                    >
-                      Cancel?
-                    </button>
-                    }
-                    { deleteSwing === swing.id &&
-                    <button className="absolute top-6 right-4 underline text-sm text-blue-400 cursor-pointer"
-                      onClick={() => {
-                        setDeleteSwing(undefined)
-                        onDeleteSwing(swing.id)
-                      }}
-                    >
-                      Confirm?
-                    </button>
-                    }
-                
                     { albumView === "video" &&
-                        renderVideo({
-                          swing,
-                          i,
-                          ref: playerRefs[i],
-                          playing: playings[i],
-                          pip: pips[i],
-                          duration: playerFrames[i]
-                        }) 
+                      <SwingPlayer
+                        albumId={albumId}
+                        showAlbumUsage={showAlbumUsage}
+                        swing={swing}
+                        swingFrames={SWING_FRAMES}
+                        i={i}
+                        playbackRate={playbackRate}
+                        pips={pips}
+                        playings={playings}
+                        playerFrames={playerFrames}
+                        playerRefs={playerRefs}
+                        playerWidth="320px"
+                        playerHeight="230px"
+                        handleSeekChange={handleSeekChange}
+                        onDelete={album.userId === user.id && onDeleteSwing(swing)}
+                        setPips={setPips}
+                        setPlayings={setPlayings}
+                        setPlayerFrames={setPlayerFrames}
+                      />
                     }
                     { albumView === "gif" &&
                     <div>
@@ -1048,13 +896,13 @@ Album.propTypes = {
   recentUploads: PropTypes.arrayOf(PropTypes.object),
 
   flagComment: PropTypes.func,
+  flashMessage: PropTypes.func,
   getRecentUploads: PropTypes.func,
   inviteUser: PropTypes.func,
   loadAlbum: PropTypes.func,
   onShowInviteForm: PropTypes.func,
   postComment: PropTypes.func,
   searchFriends: PropTypes.func,
-  flashMessage: PropTypes.func,
   updateAlbum: PropTypes.func,
   updateAlbumRedux: PropTypes.func,
 }

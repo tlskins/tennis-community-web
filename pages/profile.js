@@ -305,7 +305,10 @@ const Profile = ({
 
           {/* How to upload first album */}
           { showHowTo &&
-            <HowToUpload isFirst={myAlbums.length > 0} />
+            <HowToUpload
+              isFirst={myAlbums.length > 0}
+              isUploadFile={true}
+            />
           }
 
           {/* Main */}

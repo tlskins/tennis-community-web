@@ -1,26 +1,21 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
+import Moment from "moment"
 
 import { GetRecentUploads, UploadVideo } from "../behavior/coordinators/uploads"
 import Sharing from "./Sharing"
+import { newNotification } from "../state/ui/action"
 
-let uploading = false
-
-const SwingUploader = ({ uploadVideo, user }) => {
+const SwingUploader = ({ displayAlert, uploadVideo, user }) => {
   const [selectedVideo, setSelectedVideo] = useState(undefined)
-  const [isUploading, setIsUploading] = useState(false)
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
   const [newAlbumName, setNewAlbumName] = useState("")
 
   const onUploadVideo = async () => {
-    if (uploading || isUploading) {
-      return
-    }
-    uploading = true
-    setIsUploading(true)
+    displayAlert({ id: Moment().toString(), bgColor: "bg-green-300", message: "Uploading..." })
     await uploadVideo({
       userId: user?.id,
       file: selectedVideo,
@@ -31,8 +26,6 @@ const SwingUploader = ({ uploadVideo, user }) => {
       isViewableByFriends,
       friendIds,
     })
-    uploading = false
-    setIsUploading(false)
     setSelectedVideo(undefined)
   }
 
@@ -47,9 +40,6 @@ const SwingUploader = ({ uploadVideo, user }) => {
           className="rounded bg-gray-200 border border-gray-400 p-2 mb-4"
           onChange={onFileChange}
         />
-        { (isUploading || uploading) &&
-          <h2>Uploading...</h2>
-        }
         { selectedVideo &&
           <div >
             <div>
@@ -100,6 +90,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   const getRecentUploads = GetRecentUploads(dispatch)
   return {
+    displayAlert: args => dispatch(newNotification(args)),
     getRecentUploads,
     uploadVideo: UploadVideo(dispatch, getRecentUploads),
   }
@@ -109,6 +100,7 @@ SwingUploader.propTypes = {
   user: PropTypes.object,
   usersCache: PropTypes.object,
 
+  displayAlert: PropTypes.func,
   getRecentUploads: PropTypes.func,
   uploadVideo: PropTypes.func,
 }

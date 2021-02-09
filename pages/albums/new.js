@@ -75,6 +75,7 @@ const NewAlbum = ({
   }
 
   const onSaveAlbum = async () => {
+    displayAlert({ id: Moment().toString(), bgColor: "bg-green-300", message: "Uploading..." })
     if ( await createAlbum({
       name: newAlbumName,
       status: "Created",
@@ -83,7 +84,7 @@ const NewAlbum = ({
       isViewableByFriends,
       friendIds,
     })) {
-      displayAlert({ message: `Album "${newAlbumName}" Successfully Created` })
+      displayAlert({ id: Moment().toString(), message: `Album "${newAlbumName}" Successfully Created` })
       clearForm()
     }
   }
@@ -134,7 +135,7 @@ const NewAlbum = ({
           </div>
           { uploadType === "Album" &&
             <Fragment>
-              <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-6 ">
+              <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-2">
 
                 {/* Begin My Albums Row */}
 
@@ -180,7 +181,7 @@ const NewAlbum = ({
               </div>
 
               { activeAlbum &&
-                <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-6">
+                <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-2">
                   {/* Begin Active Album Swings Row */}
 
                   <div className="w-full content-center justify-center items-center mb-4 border border-black shadow-md">
@@ -229,9 +230,9 @@ const NewAlbum = ({
                     </h2>
 
                     <div className="lg:flex flex-row content-center justify-center items-center p-2 w-full">
-                      <div className="flex flex-col content-center justify-center items-center">
+                      <div className="flex flex-col content-center justify-center items-center h-full">
                         <input id="albumName"
-                          className="ml-2 p-1 w-2/3 rounded text-center border border-black"
+                          className="ml-2 mb-2 p-1 w-2/3 rounded text-center border border-black"
                           type="text"
                           placeholder="Album Name"
                           value={newAlbumName}
@@ -246,7 +247,6 @@ const NewAlbum = ({
                           friendIds={friendIds}
                           setFriendIds={setFriendIds}
                         />
-
                       </div>
                       
                       <div className="flex flex-col content-center justify-center items-center mx-1 p-2">

@@ -71,7 +71,7 @@ const Album = ({
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
 
-  const [activeSideBar, setActiveSidebar] = useState("Pro Comparison")
+  const [activeSideBar, setActiveSidebar] = useState(undefined)
   const [expandedSideBar, setExpandedSideBar] = useState(false)
 
 
@@ -338,7 +338,6 @@ const Album = ({
     )
   }
 
-  const sideBarWidth = expandedSideBar ? "w-1/2" : "w-1/4"
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
   const swingColSpan = expandedSideBar ? "col-span-5" : "col-span-3"
   let commentsPlaceholder = "Comment on specific frame"

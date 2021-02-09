@@ -5,7 +5,24 @@ import {
   TOGGLE_SHOW_NEW_USER,
 } from "./action"
 
-export const flashNotificationInitialState = []
+export const flashNotificationInitialState = [
+  {
+    id: 1,
+    message: "test a lot of stuff and some things more and stupid longer stuff and whatever",
+    buttons: [
+      { buttonText: "do sone thing" },
+      { buttonText: "do another thing" },
+    ]
+  },
+  {
+    id: 2,
+    message: "test a lot of stuff and some things more and stupid longer stuff and whatever",
+    buttons: [
+      { buttonText: "do sone thing" },
+      { buttonText: "do another thing" },
+    ]
+  },
+]
 export const navBarInitialState = { showNewUser: 0, showInviteForm: 0 }
 
 export function navBarReducer(

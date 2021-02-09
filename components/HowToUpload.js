@@ -6,7 +6,7 @@ import uploadYellow from "../public/upload-yellow.svg"
 import uploadBlue from "../public/upload-blue.svg"
 
 
-const HowToUpload = ({ isFirst }) => {
+const HowToUpload = ({ isFirst, isUploadFile }) => {
   const [hoverUpload, setHoverUpload] = useState(false)
 
   return(
@@ -42,9 +42,11 @@ const HowToUpload = ({ isFirst }) => {
                   <ul className="list-disc">
                     <li>The upload will take about 10 minutes for the AI to export all the swings into an Album.</li>
                   </ul>
-                  <div className="mt-2">
-                    <SwingUploader />
-                  </div>
+                  { isUploadFile && 
+                    <div className="mt-2">
+                      <SwingUploader />
+                    </div>
+                  }
                 </div>
               </li>
 
@@ -72,6 +74,7 @@ const HowToUpload = ({ isFirst }) => {
 
 HowToUpload.propTypes = {
   isFirst: PropTypes.bool,
+  isUploadFile: PropTypes.bool,
 }
   
 export default HowToUpload

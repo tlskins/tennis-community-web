@@ -19,7 +19,7 @@ import { removeNotification } from "../state/ui/action"
 
 const FlashNotif = ({ notifications, onRemoveNotification }) => {
   return (
-    <div className="fixed absolute right-2 z-50 ml-12 mt-2 flex flex-col space-y-6 items-start">
+    <div className="fixed absolute right-2 z-50 ml-12 mt-2 flex flex-col space-y-56 items-start">
       { (notifications || []).map( ({ id, bgColor, message, buttons }, i) => {
         if (!bgColor) {
           bgColor = "bg-yellow-300"

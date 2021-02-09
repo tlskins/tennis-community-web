@@ -29,6 +29,7 @@ import { setAlbum } from "../../state/album/action"
 import speechBubble from "../../public/speech-bubble.svg"
 import pencil from "../../public/pencil.svg"
 import flag from "../../public/flag.svg"
+import Sidebar from "../../components/Sidebar"
 
 const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 50
@@ -329,8 +330,8 @@ const Album = ({
                 [i]: frame,
               })
             }}
-            width="340px"
-            height="250px"
+            width="320px"
+            height="230px"
           />
         </div>
 
@@ -447,7 +448,6 @@ const Album = ({
     )
   }
 
-  const sideBarWidth = expandedSideBar ? "w-1/2" : "w-1/4"
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
   let commentsPlaceholder = "Comment on entire album"
   if (!user) {
@@ -468,13 +468,12 @@ const Album = ({
 
         <div className="lg:flex lg:flex-row block">
           {/* Begin Sidebar */}
-          <div className={`lg:${sideBarWidth} top-0 left-0 lg:bottom-0 p-4 bg-white border-b lg:border-r border-gray-400`}>
+          <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
             <div className="flex flex-col content-center justify-center items-center text-sm">
-
               {/* Pro Comparison Sidebar */}
               <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center">
-                  <h2 className="text-blue-400 underline cursor-pointer text-center"
+                <div className="flex flex-row content-center justify-center items-center mb-2">
+                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
                     onClick={() => {
                       if (activeSideBar === "Pro Comparison") {
                         setActiveSidebar(undefined)
@@ -483,7 +482,7 @@ const Album = ({
                       }
                     }}
                   >
-                Pro Comparison
+                  Pro Comparison
                   </h2>
                   <input type="button"
                     className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
@@ -501,8 +500,8 @@ const Album = ({
 
               {/* Video Resources Sidebar */}
               <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center">
-                  <h2 className="text-blue-400 underline cursor-pointer text-center"
+                <div className="flex flex-row content-center justify-center items-center mb-2">
+                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
                     onClick={() => {
                       if (activeSideBar === "Video Resources") {
                         setActiveSidebar(undefined)
@@ -511,7 +510,7 @@ const Album = ({
                       }
                     }}
                   >
-                Youtube Tutorials
+                    Youtube Tutorials
                   </h2>
                   <input type="button"
                     className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
@@ -533,8 +532,8 @@ const Album = ({
               {/* Sharing Sidebar */}
               { (user && user.id == album?.userId) &&
               <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center">
-                  <h2 className="text-blue-400 underline cursor-pointer text-center"
+                <div className="flex flex-row content-center justify-center items-center mb-2">
+                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
                     onClick={() => {
                       if (activeSideBar === "Sharing") {
                         setActiveSidebar(undefined)
@@ -556,7 +555,7 @@ const Album = ({
                 </div>
                 
                 { activeSideBar === "Sharing" &&
-                <div className="flex flex-col content-center justify-center items-center">
+                <div className="flex flex-col content-center justify-center items-center p-4 bg-white rounded">
                   <Sharing
                     isPublic={isPublic}
                     setIsPublic={setIsPublic}
@@ -573,7 +572,7 @@ const Album = ({
                     showUsage={showSharingUsage}
                   />
                   <input type='button'
-                    className="border w-14 rounded py-0.5 px-2 my-2 text-xs font-semibold bg-blue-700 text-white"
+                    className="w-14 rounded py-0.5 px-2 my-2 text-xs font-semibold bg-blue-700 text-white"
                     onClick={onShareAlbum}
                     value="Share"
                   />
@@ -584,7 +583,7 @@ const Album = ({
 
               {/* Comments Sidebar */}
               <div className="mb-2 w-full">
-                <h2 className="text-blue-400 underline cursor-pointer text-center mb-2"
+                <h2 className="text-gray-300 uppercase cursor-pointer text-center mb-2"
                   onClick={() => {
                     if (activeSideBar === "Album Comments") {
                       setActiveSidebar(undefined)
@@ -595,172 +594,173 @@ const Album = ({
                 >
                 Album Comments
                 </h2>
-                <div className="mb-2">
-                  { activeSideBar === "Album Comments" &&
-                  <div className="flex flex-col content-center justify-center items-center overscroll-contain">
-                    <div className="flex flex-col w-full">
+                { activeSideBar === "Album Comments" &&
+                  <div className="mb-2 rounded bg-white p-2">
+                    <div className="flex flex-col content-center justify-center items-center overscroll-contain">
+                      <div className="flex flex-col w-full">
 
-                      {/* Comment Form */}
-                      { user?.disableComments &&
-                        <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your commenting has been disabled</p>
-                      }
-                      <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                        { replyId &&
-                          <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
+                        {/* Comment Form */}
+                        { user?.disableComments &&
+                          <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your commenting has been disabled</p>
+                        }
+                        <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                          { replyId &&
+                            <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
+                              onClick={() => {
+                                setReplyPreview("")
+                                setReplyId(undefined)
+                              }}
+                            >
+                              <p>reply to</p>
+                              <p className="pl-2 text-gray-700">{ replyPreview }</p>
+                            </div>
+                          }
+                          <textarea
+                            className="p-2 rounded shadow-lg bg-gray-100"
+                            placeholder={commentsPlaceholder}
+                            rows="4"
+                            maxLength={500}
+                            value={comment}
                             onClick={() => {
-                              setReplyPreview("")
-                              setReplyId(undefined)
+                              if (confirmation) onShowInviteForm()
                             }}
-                          >
-                            <p>reply to</p>
-                            <p className="pl-2 text-gray-700">{ replyPreview }</p>
-                          </div>
-                        }
-                        <textarea
-                          className="p-2 rounded shadow-lg bg-gray-100"
-                          placeholder={commentsPlaceholder}
-                          rows="4"
-                          maxLength={500}
-                          value={comment}
-                          onClick={() => {
-                            if (confirmation) onShowInviteForm()
-                          }}
-                          onChange={e => {
-                            if (user && !user.disableComments) setComment(e.target.value)
-                          }}
-                        />
-                        <div className="flex flex-row p-1 content-center justify-center items-center">
-                          <p className="text-sm mr-2 text-gray-500 align-middle">
-                            { Moment().format("MMM D YYYY h:mm a") }
-                          </p>
-                          <p className="text-sm mr-2 align-middle font-bold">
-                              |
-                          </p>
-                          <p className="text-sm mr-2 align-middle font-medium">
-                              chars {comment.length}
-                          </p>
-                          <p className="text-sm mr-2 align-middle font-bold">
-                              |
-                          </p>
-                          <input type='button'
-                            className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
-                            value='post'
-                            disabled={!user || !user.disableComments}
-                            onClick={onPostComment}
+                            onChange={e => {
+                              if (user && !user.disableComments) setComment(e.target.value)
+                            }}
                           />
+                          <div className="flex flex-row p-1 content-center justify-center items-center">
+                            <p className="text-sm mr-2 text-gray-500 align-middle">
+                              { Moment().format("MMM D YYYY h:mm a") }
+                            </p>
+                            <p className="text-sm mr-2 align-middle font-bold">
+                                |
+                            </p>
+                            <p className="text-sm mr-2 align-middle font-medium">
+                                chars {comment.length}
+                            </p>
+                            <p className="text-sm mr-2 align-middle font-bold">
+                                |
+                            </p>
+                            <input type='button'
+                              className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
+                              value='post'
+                              disabled={!user || !user.disableComments}
+                              onClick={onPostComment}
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Comments Filters / Sort */}
-                      <div className="flex flex-row my-2 content-center justify-center items-center">
-                        <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
-                          <p className="mr-1 text-center">{(comments?.length || 0)}</p>
-                          <img src={speechBubble} className="w-5 h-5"/>
+                        {/* Comments Filters / Sort */}
+                        <div className="flex flex-row my-2 content-center justify-center items-center">
+                          <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
+                            <p className="mr-1 text-center">{(comments?.length || 0)}</p>
+                            <img src={speechBubble} className="w-5 h-5"/>
+                          </div>
+
+                          <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                            onChange={onSortComments}
+                          >
+                            <option value="POSTED ASC">Sort by First Posted</option>
+                            <option value="POSTED DESC">Sort by Last Posted</option>
+                          </select>
+
+                          <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                            onChange={onFilterComments}
+                          >
+                            <option value="ALL">All Users</option>
+                            { commenters.map( usrId => {
+                              return(
+                                <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
+                              )
+                            })}
+                          </select>
                         </div>
 
-                        <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                          onChange={onSortComments}
-                        >
-                          <option value="POSTED ASC">Sort by First Posted</option>
-                          <option value="POSTED DESC">Sort by Last Posted</option>
-                        </select>
+                        {/* Comments List  */}
 
-                        <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                          onChange={onFilterComments}
-                        >
-                          <option value="ALL">All Users</option>
-                          { commenters.map( usrId => {
-                            return(
-                              <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
-                            )
-                          })}
-                        </select>
-                      </div>
-
-                      {/* Comments List  */}
-
-                      <div className="flex flex-col h-40 lg:h-full pr-4 rounded shadow-lg bg-gray-100 px-1">
-                        { comments.filter( com => !com.isHidden ).length === 0 &&
-                          <p className="text-center p-2"> No comments </p>
-                        }
-                        <div className="overflow-y-scroll">
-                          { comments.filter( com => !com.isHidden ).map( comment => {
-                            return(
-                              <div key={comment.id}
-                                className="my-2 p-0.5 rounded shadow-lg bg-white hover:bg-blue-100 cursor-pointer"
-                              >
-                                { comment.replyId &&
-                                <div className="p-2 border border-black rounded text-xs bg-gray-300">
-                                  <p>reply to</p>
-                                  <p className="pl-2 text-gray-700">
-                                    { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
-                                  </p>
-                                  <div className="flex flex-row items-center">
-                                    <p className="mx-2 text-xs text-blue-500 align-middle">
-                                      @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                        <div className="flex flex-col h-40 lg:h-full pr-4 rounded shadow-lg bg-gray-100 px-1">
+                          { comments.filter( com => !com.isHidden ).length === 0 &&
+                            <p className="text-center p-2"> No comments </p>
+                          }
+                          <div className="overflow-y-scroll">
+                            { comments.filter( com => !com.isHidden ).map( comment => {
+                              return(
+                                <div key={comment.id}
+                                  className="my-2 p-0.5 rounded shadow-lg bg-white hover:bg-blue-100 cursor-pointer"
+                                >
+                                  { comment.replyId &&
+                                  <div className="p-2 border border-black rounded text-xs bg-gray-300">
+                                    <p>reply to</p>
+                                    <p className="pl-2 text-gray-700">
+                                      { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
                                     </p>
-                                    <p className="mx-2 text-sm align-middle font-bold">
-                                      |
-                                    </p>
-                                    <p className="mx-2 text-xs text-gray-500 align-middle">
-                                      { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY h:mm a") }
-                                    </p>
-                                  </div>
-                                </div>
-                                }
-                                <div className="flex flex-col pt-1 my-0.5">
-                                  <p className="p-1">
-                                    { comment.text }
-                                  </p>
-                                  <div className="flex flex-row content-center justify-center items-center">
-                                    <img src={getUserIcon(user)}
-                                      className="w-5 h-5 ml-1"
-                                    />
-                                    <p className="mx-1 text-xs text-blue-500 align-middle">
-                                    @{ usersCache[comment.userId]?.userName || "..." }
-                                    </p>
-                                    <p className="mx-1 text-sm align-middle font-bold">
-                                    |
-                                    </p>
-                                    <p className="mx-1 text-xs text-gray-500 align-middle">
-                                      { Moment(comment.createdAt).format("MMM D YYYY h:mm a") }
-                                    </p>
-                                    <p className="mx-1 text-sm align-middle font-bold">
-                                    |
-                                    </p>
-                                    { (user && !user.disableComments) &&
-                                    <input type='button'
-                                      className='border w-10 rounded py-0.5 px-1 mx-1 text-xs bg-green-700 text-white text-center cursor-pointer'
-                                      value='reply'
-                                      onClick={() => {
-                                        setReplyId(comment.id)
-                                        setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                                      }}
-                                    />
-                                    }
-                                    { user &&
-                                    <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
-                                      <img src={flag}
-                                        className="w-4 h-4 cursor-pointer"
-                                        onClick={onFlagComment(comment)}
-                                      />
+                                    <div className="flex flex-row items-center">
+                                      <p className="mx-2 text-xs text-blue-500 align-middle">
+                                        @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                      </p>
+                                      <p className="mx-2 text-sm align-middle font-bold">
+                                        |
+                                      </p>
+                                      <p className="mx-2 text-xs text-gray-500 align-middle">
+                                        { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY h:mm a") }
+                                      </p>
                                     </div>
-                                    }
+                                  </div>
+                                  }
+                                  <div className="flex flex-col pt-1 my-0.5">
+                                    <p className="p-1">
+                                      { comment.text }
+                                    </p>
+                                    <div className="flex flex-row content-center justify-center items-center">
+                                      <img src={getUserIcon(user)}
+                                        className="w-5 h-5 ml-1"
+                                      />
+                                      <p className="mx-1 text-xs text-blue-500 align-middle">
+                                      @{ usersCache[comment.userId]?.userName || "..." }
+                                      </p>
+                                      <p className="mx-1 text-sm align-middle font-bold">
+                                      |
+                                      </p>
+                                      <p className="mx-1 text-xs text-gray-500 align-middle">
+                                        { Moment(comment.createdAt).format("MMM D YYYY h:mm a") }
+                                      </p>
+                                      <p className="mx-1 text-sm align-middle font-bold">
+                                      |
+                                      </p>
+                                      { (user && !user.disableComments) &&
+                                      <input type='button'
+                                        className='border w-10 rounded py-0.5 px-1 mx-1 text-xs bg-green-700 text-white text-center cursor-pointer'
+                                        value='reply'
+                                        onClick={() => {
+                                          setReplyId(comment.id)
+                                          setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                                        }}
+                                      />
+                                      }
+                                      { user &&
+                                      <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
+                                        <img src={flag}
+                                          className="w-4 h-4 cursor-pointer"
+                                          onClick={onFlagComment(comment)}
+                                        />
+                                      </div>
+                                      }
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            )
-                          })}
+                              )
+                            })}
+                          </div>
+                          
                         </div>
-                        
                       </div>
                     </div>
                   </div>
-                  }
-                </div>
+                }
               </div>
             </div>
-          </div>
+          </Sidebar>
+            
           {/* End Sidebar */}
 
           {/* Begin Album Videos */}

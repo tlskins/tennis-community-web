@@ -10,7 +10,7 @@ const Sidebar = props => {
   const { children } = props
 
   return (
-    <SidebarContainer>
+    <SidebarContainer {...props}>
       { children }
     </SidebarContainer>
   )

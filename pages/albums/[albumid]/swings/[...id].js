@@ -9,6 +9,7 @@ import { newNotification, showInviteForm } from "../../../../state/ui/action"
 import Notifications from "../../../../components/Notifications"
 import ProComparison from "../../../../components/ProComparison"
 import VideoResources from "../../../../components/VideoResources"
+import Sidebar from "../../../../components/Sidebar"
 import { getUserIcon, getUserType } from "../../../../behavior/users"
 import { LoadAlbum, PostComment, FlagComment, UpdateSwing } from "../../../../behavior/coordinators/albums"
 import { SearchFriends } from "../../../../behavior/coordinators/friends"
@@ -357,12 +358,12 @@ const Album = ({
       <main className="overflow-y-scroll bg-gray-200">
         <div className="lg:flex lg:flex-row block">
           {/* Begin Sidebar */}
-          <div className={`lg:${sideBarWidth} top-0 left-0 lg:bottom-0 p-4 bg-white border-b lg:border-r border-gray-400`}>
+          <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
             <div className="flex flex-col content-center justify-center items-center text-sm sticky top-0">
               {/* Pro Comparison Sidebar */}
               <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center">
-                  <h2 className="text-blue-400 underline cursor-pointer text-center"
+                <div className="flex flex-row content-center justify-center items-center mb-2">
+                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
                     onClick={() => {
                       if (activeSideBar === "Pro Comparison") {
                         setActiveSidebar(undefined)
@@ -371,7 +372,7 @@ const Album = ({
                       }
                     }}
                   >
-                Pro Comparison
+                    Pro Comparison
                   </h2>
                   <input type="button"
                     className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
@@ -389,8 +390,8 @@ const Album = ({
 
               {/* Video Resources Sidebar */}
               <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center">
-                  <h2 className="text-blue-400 underline cursor-pointer text-center"
+                <div className="flex flex-row content-center justify-center items-center mb-2">
+                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
                     onClick={() => {
                       if (activeSideBar === "Video Resources") {
                         setActiveSidebar(undefined)
@@ -399,7 +400,7 @@ const Album = ({
                       }
                     }}
                   >
-                Youtube Tutorials
+                    Youtube Tutorials
                   </h2>
                   <input type="button"
                     className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
@@ -418,7 +419,7 @@ const Album = ({
                 }
               </div>
             </div>
-          </div>
+          </Sidebar>
 
           <div className={`lg:flex p-2 lg:p-8 lg:${mainWidth}`}>
             {/* Swing Video Column */}

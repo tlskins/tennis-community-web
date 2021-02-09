@@ -11,7 +11,7 @@ export const SidebarContainer = styled.div`
   box-sizing: border-box;
   @media (min-width: 1024px) {
     bottom: 0;
-    width: 25vw;
+    width: ${ props => props.width || "25vw" };
   }
 `
 

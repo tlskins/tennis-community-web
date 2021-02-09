@@ -15,7 +15,7 @@ const SwingUploader = ({ displayAlert, uploadVideo, user }) => {
   const [newAlbumName, setNewAlbumName] = useState("")
 
   const onUploadVideo = async () => {
-    displayAlert({ id: Moment().toString(), message: "Uploading..." })
+    displayAlert({ id: Moment().toString(), bgColor: "bg-green-300", message: "Uploading..." })
     await uploadVideo({
       userId: user?.id,
       file: selectedVideo,

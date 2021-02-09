@@ -75,7 +75,7 @@ const NewAlbum = ({
   }
 
   const onSaveAlbum = async () => {
-    displayAlert({ id: Moment().toString(), message: "Uploading..." })
+    displayAlert({ id: Moment().toString(), bgColor: "bg-green-300", message: "Uploading..." })
     if ( await createAlbum({
       name: newAlbumName,
       status: "Created",

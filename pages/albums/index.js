@@ -1,4 +1,5 @@
 import React, { useEffect, useState, createRef } from "react"
+import Head from "next/head"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment"
@@ -229,6 +230,21 @@ const AlbumsIndex = ({
 
   return (
     <div>
+      <Head>
+        <script async
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+          
+            gtag('config', ${process.env.NEXT_PUBLIC_GTM_ID});
+        `,}}>
+        </script>
+      </Head>
       { (user && user.id) &&
         <Notifications />
       }

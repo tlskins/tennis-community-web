@@ -77,7 +77,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
     <div>
       <Head>
         <script async
-          src="https://www.googletagmanager.com/gtag/js?id=G-YKB0CR9P5K"
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
         />
         <script
           dangerouslySetInnerHTML={{
@@ -86,7 +86,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
           
-            gtag('config', 'G-YKB0CR9P5K');
+            gtag('config', ${process.env.NEXT_PUBLIC_GTM_ID});
         `,}}>
         </script>
       </Head>

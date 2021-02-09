@@ -246,7 +246,7 @@ const AlbumsIndex = ({
       }
 
       <main className="overflow-y-scroll">
-        <div className="lg:flex lg:flex-row block">
+        <div className="lg:flex lg:flex-row block min-h-screen">
           <Sidebar>
             <LinkButton>
               <Link href="/albums/new">Create New Album</Link>

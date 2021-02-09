@@ -352,7 +352,7 @@ const Album = ({
         <Notifications />
       }
 
-      <main className="overflow-y-scroll bg-gray-200">
+      <main className="overflow-y-scroll bg-gray-200 min-h-screen">
 
         <div className="lg:flex lg:flex-row block">
           {/* Begin Sidebar */}
@@ -830,7 +830,7 @@ const Album = ({
               </div>
             }
             <select
-              className="my-1 mr-1 rounded border border-gray-500"
+              className="rounded py-0.5 px-1 mx-2 my-1 mr-1 border border-black bg-blue-600 text-white text-xs"
               onChange={e => {
                 setAlbumView(e.target.value)
                 setSwingsPerPage(swingViewMap[e.target.value])
@@ -843,7 +843,7 @@ const Album = ({
               })}
             </select>
           </div>
-          <div className="flex flex-row">
+          <div className="flex flex-row content-center justify-center items-center">
             { albumPage > 0 &&
               <button
                 onClick={() => setAlbumPage(albumPage-1)}
@@ -860,7 +860,7 @@ const Album = ({
               </div>
             </div>
             }
-            <h2 className="underline text-blue-500">
+            <h2 className="underline text-sm text-blue-500">
               Page { albumPage+1 }
             </h2>
             { (albumPage < (swingVideos.length / swingsPerPage)-1) &&

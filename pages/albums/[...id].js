@@ -700,7 +700,7 @@ const Album = ({
                         playerWidth="320px"
                         playerHeight="230px"
                         handleSeekChange={handleSeekChange}
-                        onDelete={album.userId === user.id && onDeleteSwing(swing)}
+                        onDelete={album.userId === user?.id && onDeleteSwing(swing)}
                         setPips={setPips}
                         setPlayings={setPlayings}
                         setPlayerFrames={setPlayerFrames}

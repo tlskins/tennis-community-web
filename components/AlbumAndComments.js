@@ -80,7 +80,7 @@ const AlbumAndComments = ({
               owner
             </div>
           }
-          { (album.friendIds || []).includes(user.id) && 
+          { (album.friendIds || []).includes(user?.id) && 
             <div className="px-2 mx-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs">
               shared
             </div>

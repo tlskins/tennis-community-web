@@ -82,10 +82,7 @@ const Album = ({
 
   const [activeSideBar, setActiveSidebar] = useState("Album Comments")
   const [expandedSideBar, setExpandedSideBar] = useState(false)
-
   const [albumPage, setAlbumPage] = useState(0)
-  const [hoveredSwing, setHoveredSwing] = useState(undefined)
-  const [deleteSwing, setDeleteSwing] = useState(undefined)
 
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
@@ -178,10 +175,27 @@ const Album = ({
     }
   }
 
-  const onDeleteSwing = swingId => {
-    updateAlbum({
-      ...album,
-      swingVideos: album.swingVideos.filter( swing => swing.id !== swingId ),
+  const onDeleteSwing = swing => async () => {
+    flashMessage({
+      id: Moment().toString(),
+      message: `Delete "${swing.name}"?`,
+      buttons: [
+        {
+          buttonText: "Confirm",
+          callback: async () => {
+            const success = await updateAlbum({
+              ...album,
+              swingVideos: album.swingVideos.filter( sw => sw.id !== swing.id ),
+            })
+            if (success) {
+              flashMessage({
+                id: Moment().toString(),
+                message: `Swing "${swing.name}" Deleted`,
+              })
+            }
+          }
+        }
+      ]
     })
   }
 
@@ -649,66 +663,32 @@ const Album = ({
               </div>
             </div>
 
-            <div className="flex flex-wrap rounded bg-white px-2 py-4 shadow-lg mb-2">
+            <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white px-2 py-4 shadow-lg mb-2">
               { pageVideos.map( (swing, i) => {
                 return (
                   <div className={"flex flex-col items-center rounded-md lg:w-1/3 lg:h-1/3"}
-                    onMouseOver={() => setHoveredSwing(swing.id)}
-                    onMouseLeave={() => {
-                      setHoveredSwing(undefined)
-                      setDeleteSwing(undefined)
-                    }}
                     key={i}
                   >
-                    { (hoveredSwing === swing.id && !deleteSwing) &&
-                    <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
-                      onClick={() => {
-                        setHoveredSwing(undefined)
-                        setDeleteSwing(swing.id)
-                      }}
-                    >
-                      Delete
-                    </button>
-                    }
-                    { deleteSwing === swing.id &&
-                    <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
-                      onClick={() => {
-                        setDeleteSwing(undefined)
-                      }}
-                    >
-                      Cancel?
-                    </button>
-                    }
-                    { deleteSwing === swing.id &&
-                    <button className="absolute top-6 right-4 underline text-sm text-blue-400 cursor-pointer"
-                      onClick={() => {
-                        setDeleteSwing(undefined)
-                        onDeleteSwing(swing.id)
-                      }}
-                    >
-                      Confirm?
-                    </button>
-                    }
-                
                     { albumView === "video" &&
-                        <SwingPlayer
-                          albumId={albumId}
-                          showAlbumUsage={showAlbumUsage}
-                          swing={swing}
-                          swingFrames={SWING_FRAMES}
-                          i={i}
-                          playbackRate={playbackRate}
-                          pips={pips}
-                          playings={playings}
-                          playerFrames={playerFrames}
-                          playerRefs={playerRefs}
-                          playerWidth="320px"
-                          playerHeight="230px"
-                          handleSeekChange={handleSeekChange}
-                          setPips={setPips}
-                          setPlayings={setPlayings}
-                          setPlayerFrames={setPlayerFrames}
-                        />
+                      <SwingPlayer
+                        albumId={albumId}
+                        showAlbumUsage={showAlbumUsage}
+                        swing={swing}
+                        swingFrames={SWING_FRAMES}
+                        i={i}
+                        playbackRate={playbackRate}
+                        pips={pips}
+                        playings={playings}
+                        playerFrames={playerFrames}
+                        playerRefs={playerRefs}
+                        playerWidth="320px"
+                        playerHeight="230px"
+                        handleSeekChange={handleSeekChange}
+                        onDelete={album.userId === user.id && onDeleteSwing(swing)}
+                        setPips={setPips}
+                        setPlayings={setPlayings}
+                        setPlayerFrames={setPlayerFrames}
+                      />
                     }
                     { albumView === "gif" &&
                     <div>
@@ -916,13 +896,13 @@ Album.propTypes = {
   recentUploads: PropTypes.arrayOf(PropTypes.object),
 
   flagComment: PropTypes.func,
+  flashMessage: PropTypes.func,
   getRecentUploads: PropTypes.func,
   inviteUser: PropTypes.func,
   loadAlbum: PropTypes.func,
   onShowInviteForm: PropTypes.func,
   postComment: PropTypes.func,
   searchFriends: PropTypes.func,
-  flashMessage: PropTypes.func,
   updateAlbum: PropTypes.func,
   updateAlbumRedux: PropTypes.func,
 }

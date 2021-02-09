@@ -5,6 +5,7 @@ import { useRouter } from "next/router"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { RiPictureInPicture2Fill, RiPictureInPictureExitFill } from "react-icons/ri"
 import { BiShow } from "react-icons/bi"
+import { BsTrash } from "react-icons/bs"
 import { ImBubbles2 } from "react-icons/im"
 import { IconContext } from "react-icons"
 
@@ -24,6 +25,7 @@ const SwingPlayer = ({
   playerHeight,
 
   handleSeekChange,
+  onDelete,
   setPips,
   setPlayings,
   setPlayerFrames,
@@ -166,6 +168,16 @@ const SwingPlayer = ({
             </div>
           </IconContext.Provider>
         </div>
+
+        { onDelete &&
+            <IconContext.Provider value={{ color: "red" }}>
+              <div className="m-2 content-center justify-center items-center cursor-pointer"
+                onClick={onDelete}
+              >
+                <BsTrash/>
+              </div>
+            </IconContext.Provider>
+        }
       </div>
     </div>
   )
@@ -186,6 +198,7 @@ SwingPlayer.propTypes = {
   playerHeight: PropTypes.string,
 
   handleSeekChange: PropTypes.func,
+  onDelete: PropTypes.func,
   setPips: PropTypes.func,
   setPlayings: PropTypes.func,
   setPlayerFrames: PropTypes.func,

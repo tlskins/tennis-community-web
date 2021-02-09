@@ -77,15 +77,16 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
     <div>
       <Head>
         <script async
-          src={`https://www.googletagmanager.com/gtm.js?id=${"G-YKB0CR9P5K"}`}
+          src="https://www.googletagmanager.com/gtag/js?id=G-YKB0CR9P5K"
         />
         <script
           dangerouslySetInnerHTML={{
             __html: `
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', '${"G-YKB0CR9P5K"}');
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+          
+            gtag('config', 'G-YKB0CR9P5K');
         `,}}>
         </script>
       </Head>

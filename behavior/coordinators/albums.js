@@ -80,11 +80,10 @@ export const DeleteAlbum = (dispatch) => async (albumId) => {
   return true
 }
 
-export const UpdateAlbum = (dispatch) => async (album, shareAlbum = false) => {
+export const UpdateAlbum = (dispatch) => async (album, shareAlbum = false, calculateMetrics = false) => {
   try {
-    const response = await put(`/albums/${album.id}`, { ...album, shareAlbum })
+    const response = await put(`/albums/${album.id}`, { ...album, shareAlbum, calculateMetrics })
     dispatch(setAlbum(response.data))
-    dispatch(newNotification({ message: `Album "${album.name}" updated!` }))
   }
   catch( err ) {
     HandleError(dispatch, err)

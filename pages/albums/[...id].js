@@ -5,7 +5,7 @@ import { useRouter } from "next/router"
 import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
-import {Line} from "react-chartjs-2"
+import { Line } from "react-chartjs-2"
 
 import { newNotification, showInviteForm } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
@@ -100,6 +100,7 @@ const Album = ({
 
   const [graphLabels, setGraphLabels] = useState([])
   const [graphDatasets, setGraphDatasets] = useState([])
+  const [swingTimeMap, setSwingTimeMap] = useState({})
 
   const pageVideos = swingVideos.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
@@ -116,20 +117,53 @@ const Album = ({
     setFriendIds(album?.friendIds || [])
     if (album) {
       const maxSec = album.swingVideos[album.swingVideos.length-1].timestampSecs
-      const timestamps = album.swingVideos.map( swing => swing.timestampSecs )
-      const data = new Array(maxSec).fill(1).map((_,j) => timestamps.includes(j) ? 1 : 0)
-      setGraphDatasets([
-        {
-          label: "Swing",
-          fill: false,
+
+      const swingsByRally = album.swingVideos.reduce((acc, swing) => {
+        if (swing.rally > acc.length) {
+          acc.push([swing])
+        } else {
+          acc[swing.rally-1].push(swing)
+        }
+        return acc
+      }, [])
+      console.log("swingsByRally", swingsByRally)
+      const dataSets = swingsByRally.map( (swings, i) => {
+        const swing = swings[swings.length-1]
+        const timestamps = swings.map( swing => swing.timestampSecs )
+        return {
+          label: `Rally: ${swing.rally}`,
+          fill: true ,
           lineTension: 0.5,
-          backgroundColor: "rgba(75,192,192,1)",
+          backgroundColor: (i % 2 === 0) ? "rgba(254, 250, 11, 1)" : "rgba(45, 51, 235, 1)",
           borderColor: "rgba(0,0,0,1)",
           borderWidth: 2,
-          data,
+          data: new Array(maxSec).fill(1).map((_,j) => timestamps.includes(j) ? 1 : 0),
         }
-      ])
-      setGraphLabels(new Array(maxSec).fill(1).map((_,j) => `${parseInt(j/60)}:${parseInt(j%60).toString().padStart(2,"0")}`))
+      })
+      setGraphDatasets(dataSets)
+      setSwingTimeMap(album.swingVideos.reduce((acc, swing) => {
+        const time = swing.timestampSecs
+        acc[`${parseInt(time/60)}:${parseInt(time%60).toString().padStart(2,"0")}`] = swing.name
+        return acc
+      }, {}))
+
+      // const timestamps = album.swingVideos.map( swing => swing.timestampSecs )
+      // const data = new Array(maxSec).fill(1).map((_,j) => timestamps.includes(j) ? 1 : 0)
+      // setGraphDatasets([
+      //   {
+      //     label: album.uploadKey,
+      //     fill: false,
+      //     lineTension: 0.5,
+      //     backgroundColor: "rgba(254, 250, 11, 1)",
+      //     borderColor: "rgba(0,0,0,1)",
+      //     borderWidth: 2,
+      //     data,
+      //   }
+      // ])
+
+      setGraphLabels(new Array(maxSec).fill(1).map((_,j) => (
+        `${parseInt(j/60)}:${parseInt(j%60).toString().padStart(2,"0")}`
+      )))
     }
   }, [album])
 
@@ -207,7 +241,7 @@ const Album = ({
             const success = await updateAlbum({
               ...album,
               swingVideos: album.swingVideos.filter( sw => sw.id !== swing.id ),
-            })
+            }, false, true)
             if (success) {
               flashMessage({
                 id: Moment().toString(),
@@ -234,7 +268,7 @@ const Album = ({
     const updatedAlbum = { ...album, name: e.target.value }
     updateAlbumRedux(updatedAlbum)
     executeAfterTimeout(() => {
-      updateAlbum(updatedAlbum)
+      updateAlbum(updatedAlbum, false, true)
     }, 700)
   }
 
@@ -701,7 +735,7 @@ const Album = ({
                     legend:{
                       display:true,
                       position:"right"
-                    }
+                    },
                   }}
                 />
               </div>

@@ -389,7 +389,7 @@ const Admin = ({
                       <a className="text-blue-400 underline"
                         href={`/albums/${album.id}`}
                       >
-                            Link
+                        Link
                       </a>
                     </div>
                   </div>

@@ -6,6 +6,7 @@ import { useRouter } from "next/router"
 import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
+import { Line } from "react-chartjs-2"
 
 import { newNotification, showInviteForm } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
@@ -28,6 +29,7 @@ import speechBubble from "../../public/speech-bubble.svg"
 import pencil from "../../public/pencil.svg"
 import flag from "../../public/flag.svg"
 import Sidebar from "../../components/Sidebar"
+import ChartContainer from "../../components/ChartContainer"
 
 const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 50
@@ -73,6 +75,7 @@ const Album = ({
   const [showVideoUsage, setShowVideoUsage] = useState(false)
   const [showSharingUsage, setShowSharingUsage] = useState(false)
   const [showAlbumUsage, setShowAlbumUsage] = useState(false)
+  const [showOverviewUsage, setShowOverviewUsage] = useState(false)
 
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(false)
@@ -81,9 +84,10 @@ const Album = ({
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([])
 
-  const [activeSideBar, setActiveSidebar] = useState("Album Comments")
+  const [activeSideBar, setActiveSidebar] = useState("Album Overview")
   const [expandedSideBar, setExpandedSideBar] = useState(false)
   const [albumPage, setAlbumPage] = useState(0)
+  const [filteredRallies, setFilteredRallies] = useState([])
 
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
@@ -98,7 +102,12 @@ const Album = ({
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
 
-  const pageVideos = swingVideos.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
+  const [graphLabels, setGraphLabels] = useState([])
+  const [graphDatasets, setGraphDatasets] = useState([])
+  const [swingsByRally, setSwingsByRally] = useState([])
+
+  let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally))
+  const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
   useEffect(() => {
     if (albumId) {
@@ -111,6 +120,33 @@ const Album = ({
     setIsPublic(album?.isPublic || false)
     setIsViewableByFriends(album?.isViewableByFriends || false)
     setFriendIds(album?.friendIds || [])
+    if (album) {
+      const maxSec = album.swingVideos[album.swingVideos.length-1].timestampSecs
+      const swingsByRally = album.swingVideos.reduce((acc, swing) => {
+        swing.rally > acc.length ? acc.push([swing]) : acc[swing.rally-1].push(swing)
+        return acc
+      }, [])
+      const dataSets = swingsByRally.map( (swings, i) => {
+        const swing = swings[swings.length-1]
+        const timestamps = swings.map( swing => swing.timestampSecs )
+        return {
+          label: `Rally: ${swing.rally}`,
+          fill: true ,
+          lineTension: 0.5,
+          backgroundColor: (i % 2 === 0) ? "rgba(254, 250, 11, 1)" : "rgba(45, 51, 235, 1)",
+          borderColor: "rgba(0,0,0,1)",
+          borderWidth: 2,
+          data: new Array(maxSec).fill(1).map((_,j) => timestamps.includes(j) ? 1 : 0),
+        }
+      })
+
+      setSwingsByRally(swingsByRally)
+      setFilteredRallies(swingsByRally.map((_,i) => i+1))
+      setGraphDatasets(dataSets)
+      setGraphLabels(new Array(maxSec).fill(1).map((_,j) => (
+        `${parseInt(j/60)}:${parseInt(j%60).toString().padStart(2,"0")}`
+      )))
+    }
   }, [album])
 
   useEffect(() => {
@@ -187,7 +223,7 @@ const Album = ({
             const success = await updateAlbum({
               ...album,
               swingVideos: album.swingVideos.filter( sw => sw.id !== swing.id ),
-            })
+            }, false, true)
             if (success) {
               flashMessage({
                 id: Moment().toString(),
@@ -357,7 +393,98 @@ const Album = ({
         <div className="lg:flex lg:flex-row block">
           {/* Begin Sidebar */}
           <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
-            <div className="flex flex-col content-center justify-center items-center text-sm">
+            <div className="flex flex-col text-sm">
+              {/* Album Overview */}
+              <div className="mb-2">
+                <div className="flex flex-row content-center justify-center items-center mb-2 relative static">
+                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
+                    onClick={() => {
+                      if (activeSideBar === "Album Overview") {
+                        setActiveSidebar(undefined)
+                      } else {
+                        setActiveSidebar("Album Overview")
+                      }
+                    }}
+                  >
+                  Album Overview
+                  </h2>
+                  <input type="button"
+                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
+                    value="?"
+                    onClick={() => {
+                      setShowOverviewUsage(activeSideBar !== "Album Overview" ? true : !showOverviewUsage)
+                      setActiveSidebar("Album Overview")
+                    }}
+                  />
+                  { showOverviewUsage &&
+                    <div className="absolute w-72 -my-40 -mr-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                      <ul className="list-disc ml-2">
+                        <li>Shows the swings and rallies that were clipped from the original video</li>
+                        <li>Rallies, or Points, are consecutive hits while playing tennis</li>
+                        <li>Toggle the Rally checkboxes to filter by Rally</li>
+                      </ul>
+                    </div>
+                  }
+                </div>
+                { activeSideBar === "Album Overview" &&
+                  <div className="flex flex-col rounded bg-white shadow-lg px-2 py-4 mb-2 h-96 overflow-scroll">
+                    <ChartContainer>
+                      <Line
+                        width={950}
+                        height={300}
+                        data={{
+                          labels: graphLabels,
+                          datasets: graphDatasets,
+                        }}
+                        options={{
+                          response: true,
+                          maintainAspectRatio: false,
+                          title:{
+                            display: true,
+                            position: "left",
+                            text: "Swings By Timestamp",
+                            fontSize: 12
+                          },
+                          legend:{
+                            display: false,
+                            position: "right"
+                          },
+                        }}
+                      />
+                    </ChartContainer>
+
+                    <div className="flex flex-col content-center justify-center items-start pl-8 py-4 rounded shadow-lg mt-4 bg-gray-200 text-gray-700">
+                      <p className="uppercase underline font-semibold mb-1">
+                        { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies
+                      </p>
+                      <div>
+                        {
+                          swingsByRally.map((swings, i) => {
+                            return(
+                              <div key={i}>
+                                <input type="checkbox"
+                                  className="mr-2"
+                                  checked={filteredRallies.includes(i+1)}
+                                  onChange={() => {
+                                    if (filteredRallies.includes(i+1)) {
+                                      setFilteredRallies(filteredRallies.filter( rally => rally != i+1))
+                                    } else {
+                                      setFilteredRallies([...filteredRallies, i+1])
+                                    }
+                                  }}
+                                />
+                                <span className="font-semibold mr-1">Rally {i+1}:</span>
+                                <span className="text-xs">{swings.length} swings</span>
+                              </div>
+                            )
+                          })
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
               {/* Pro Comparison Sidebar */}
               <div className="mb-2">
                 <div className="flex flex-row content-center justify-center items-center mb-2">
@@ -648,7 +775,6 @@ const Album = ({
               </div>
             </div>
           </Sidebar>
-            
           {/* End Sidebar */}
 
           {/* Begin Album Videos */}
@@ -734,7 +860,7 @@ const Album = ({
 
       {/* All Video Controls Footer */}
       <div className="sticky flex flex-row bottom-0 left-0 right-0 bg-gray-200 border-t border-gray-400 content-center justify-center items-center">
-        <div className="flex flex-row w-20 lg:w-40">
+        <div className="hidden lg:flex flex-row w-20 lg:w-40">
           <input type="button"
             className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-5 cursor-pointer hidden lg:block"
             value="?"
@@ -746,8 +872,9 @@ const Album = ({
         </div>
         
         <div className="flex flex-row py-2 px-1 content-center justify-center items-center lg:mx-4">
-          <div className="static hidden lg:flex flex-row">
-            { allPlaying &&
+          <div className="flex flex-col lg:flex-row">
+            <div className="relative flex items-row content-center justify-center items-center">
+              { allPlaying &&
               <IconContext.Provider value={{ color: "red" }}>
                 <div className="m-2 content-center justify-center items-center cursor-pointer">
                   <FaRegPauseCircle onClick={() => {
@@ -756,8 +883,8 @@ const Album = ({
                   }}/>
                 </div>
               </IconContext.Provider>
-            }
-            { !allPlaying &&
+              }
+              { !allPlaying &&
               <IconContext.Provider value={{ color: "blue" }}>
                 <div className="m-2 content-center justify-center items-center cursor-pointer">
                   <FaPlayCircle onClick={() => {
@@ -766,11 +893,9 @@ const Album = ({
                   }}/>
                 </div>
               </IconContext.Provider>
-            }
-
-            <div className="relative flex items-center">
+              }
               { showFooterUsage &&
-                <div className="absolute mb-5 -mx-56 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                <div className="absolute mr-40 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                   <p>Player seek for all videos at once</p>
                   <p>Click once and use &lt;- and -&gt; keys to nav frame by frame</p>
                   <svg className="absolute text-yellow-300 h-2 right-0 mr-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
@@ -785,63 +910,59 @@ const Album = ({
                 onKeyDown={handleAllSeekChange}
               />
             </div>
-          </div>
-
-          <div className="flex flex-row content-center justify-center items-center p-2">
-            <input type='button'
-              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-              onClick={() => setPlaybackRate(0.1)}
-              value=".1x"
-            />
-            <input type='button'
-              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-              onClick={() => setPlaybackRate(0.25)}
-              value=".25x"
-            />
-            <input type='button'
-              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-              onClick={() => setPlaybackRate(0.5)}
-              value=".5x"
-            />
-            <input type='button'
-              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-              onClick={() => setPlaybackRate(1)}
-              value="1x"
-            />
-            <input type='button'
-              className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-              onClick={() => setPlaybackRate(1.5)}
-              value="1.5x"
-            />
+            <div className="flex flex-row content-center justify-center items-center p-2">
+              <input type='button'
+                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                onClick={() => setPlaybackRate(0.1)}
+                value=".1x"
+              />
+              <input type='button'
+                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                onClick={() => setPlaybackRate(0.25)}
+                value=".25x"
+              />
+              <input type='button'
+                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                onClick={() => setPlaybackRate(0.5)}
+                value=".5x"
+              />
+              <input type='button'
+                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                onClick={() => setPlaybackRate(1)}
+                value="1x"
+              />
+              <input type='button'
+                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                onClick={() => setPlaybackRate(1.5)}
+                value="1.5x"
+              />
+            </div>
           </div>
         </div>
 
         <div className="flex flex-col">
           <div className="flex flex-row relative">
-            { showFooterUsage &&
-              <div className="absolute mb-5 mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 pl-4 bottom-full">
-                <p>Choose how to display your swings:</p>
-                <ul className="list-disc pl-4">
-                  <li>Video - 9 swings in video player</li>
-                  <li>GIF - 24 swings as GIFs</li>
-                  <li>JPGs - 24 swings as JPGs</li>
-                </ul>
+            <div className="static">
+              <select
+                className="rounded py-0.5 px-1 mx-2 my-1 mr-1 border border-black bg-blue-600 text-white text-xs"
+                onChange={e => {
+                  setAlbumView(e.target.value)
+                  setSwingsPerPage(swingViewMap[e.target.value])
+                }}
+              >
+                { Object.entries(swingViewMap).map(([type, _], i) => {
+                  return(
+                    <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
+                  )
+                })}
+              </select>
+              { showFooterUsage &&
+              <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                Choose how to display your swings
                 <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
               </div>
-            }
-            <select
-              className="rounded py-0.5 px-1 mx-2 my-1 mr-1 border border-black bg-blue-600 text-white text-xs"
-              onChange={e => {
-                setAlbumView(e.target.value)
-                setSwingsPerPage(swingViewMap[e.target.value])
-              }}
-            >
-              { Object.entries(swingViewMap).map(([type, count], i) => {
-                return(
-                  <option key={i} value={type}>{ type } ({count})</option>
-                )
-              })}
-            </select>
+              }
+            </div>
           </div>
           <div className="flex flex-row content-center justify-center items-center">
             { albumPage > 0 &&
@@ -852,17 +973,19 @@ const Album = ({
                 &lt;
               </button>
             }
-            { showFooterUsage &&
-            <div className="absolute">
-              <div className="relative mb-20 ml-20 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
-                Show prev or next page of swings
-                {/* <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg> */}
-              </div>
-            </div>
-            }
-            <h2 className="underline text-sm text-blue-500">
+            <div className="static">
+              <h2 className="underline text-sm text-blue-500">
               Page { albumPage+1 }
-            </h2>
+              </h2>
+              { showFooterUsage &&
+                <div className="absolute">
+                  <div className="absolute ml-20 w-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                    Show prev or next page of swings
+                    {/* <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg> */}
+                  </div>
+                </div>
+              }
+            </div>
             { (albumPage < (swingVideos.length / swingsPerPage)-1) &&
                 <button
                   onClick={() => setAlbumPage(albumPage+1)}
@@ -888,7 +1011,7 @@ const mapStateToProps = (state) => {
     usersCache: state.usersCache,
   }
 }
-
+   
 const mapDispatchToProps = (dispatch) => {
   return {
     flagComment: FlagComment(dispatch),

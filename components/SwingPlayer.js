@@ -57,6 +57,14 @@ const SwingPlayer = ({
           }}
           width={playerWidth || ""}
           height={playerHeight || ""}
+          config={{
+            file: {
+              attributes: {
+                controlsList: "nofullscreen",
+                playsInline: true,
+              }
+            }
+          }}
         />
       </div>
 

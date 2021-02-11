@@ -61,7 +61,7 @@ const SwingPlayer = ({
             file: {
               attributes: {
                 controlsList: "nofullscreen",
-                playsinline: true,
+                playsInline: true,
               }
             }
           }}

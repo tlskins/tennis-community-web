@@ -5,6 +5,7 @@ import { useRouter } from "next/router"
 import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
+import {Line} from "react-chartjs-2"
 
 import { newNotification, showInviteForm } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
@@ -97,6 +98,9 @@ const Album = ({
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
 
+  const [graphLabels, setGraphLabels] = useState([])
+  const [graphDatasets, setGraphDatasets] = useState([])
+
   const pageVideos = swingVideos.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
   useEffect(() => {
@@ -110,6 +114,23 @@ const Album = ({
     setIsPublic(album?.isPublic || false)
     setIsViewableByFriends(album?.isViewableByFriends || false)
     setFriendIds(album?.friendIds || [])
+    if (album) {
+      const maxSec = album.swingVideos[album.swingVideos.length-1].timestampSecs
+      const timestamps = album.swingVideos.map( swing => swing.timestampSecs )
+      const data = new Array(maxSec).fill(1).map((_,j) => timestamps.includes(j) ? 1 : 0)
+      setGraphDatasets([
+        {
+          label: "Swing",
+          fill: false,
+          lineTension: 0.5,
+          backgroundColor: "rgba(75,192,192,1)",
+          borderColor: "rgba(0,0,0,1)",
+          borderWidth: 2,
+          data,
+        }
+      ])
+      setGraphLabels(new Array(maxSec).fill(1).map((_,j) => `${parseInt(j/60)}:${parseInt(j%60).toString().padStart(2,"0")}`))
+    }
   }, [album])
 
   useEffect(() => {
@@ -632,7 +653,6 @@ const Album = ({
               </div>
             </div>
           </Sidebar>
-            
           {/* End Sidebar */}
 
           {/* Begin Album Videos */}
@@ -660,6 +680,30 @@ const Album = ({
                 { (user && user.id === album?.userId) &&
                 <img src={pencil} className="w-4 h-4 absolute right-2"/>
                 }
+              </div>
+            </div>
+
+            {/* Graphs */}
+            <div className="block w-full h-full rounded bg-white px-2 py-4 shadow-lg mb-2">
+              <div>
+                <Line
+                  data={{
+                    labels: graphLabels,
+                    datasets: graphDatasets,
+                  }}
+                  options={{
+                    maintainAspectRatio: false,
+                    title:{
+                      display:true,
+                      text:"Swings",
+                      fontSize:12
+                    },
+                    legend:{
+                      display:true,
+                      position:"right"
+                    }
+                  }}
+                />
               </div>
             </div>
 

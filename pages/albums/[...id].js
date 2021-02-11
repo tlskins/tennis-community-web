@@ -1,4 +1,5 @@
 import React, { useEffect, useState, createRef } from "react"
+import Head from "next/head"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
@@ -105,7 +106,7 @@ const Album = ({
   const [graphDatasets, setGraphDatasets] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
 
-  let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally))
+  let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
   const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
   useEffect(() => {
@@ -122,14 +123,15 @@ const Album = ({
     if (album) {
       const maxSec = album.swingVideos[album.swingVideos.length-1].timestampSecs
       const swingsByRally = album.swingVideos.reduce((acc, swing) => {
-        swing.rally > acc.length ? acc.push([swing]) : acc[swing.rally-1].push(swing)
+        const rally = swing.rally || 1
+        rally > acc.length ? acc.push([swing]) : acc[rally-1].push(swing)
         return acc
       }, [])
       const dataSets = swingsByRally.map( (swings, i) => {
         const swing = swings[swings.length-1]
         const timestamps = swings.map( swing => swing.timestampSecs )
         return {
-          label: `Rally: ${swing.rally}`,
+          label: `Rally: ${swing.rally || 1}`,
           fill: true ,
           lineTension: 0.5,
           backgroundColor: (i % 2 === 0) ? "rgba(254, 250, 11, 1)" : "rgba(45, 51, 235, 1)",
@@ -368,6 +370,21 @@ const Album = ({
   
   return (
     <div>
+      <Head>
+        <script async
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+          
+            gtag('config', ${process.env.NEXT_PUBLIC_GTM_ID});
+        `,}}>
+        </script>
+      </Head>
       { (user && user.id) &&
         <Notifications />
       }

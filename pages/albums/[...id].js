@@ -140,7 +140,7 @@ const Album = ({
   useEffect(() => {
     if (album?.id) {
       setPlayerRefs(ref => pageVideos.map((_, i) => ref[i] || createRef()))
-      setPlayings(pageVideos.map(() => false))
+      setPlayings(pageVideos.map(() => true))
       setPips(pageVideos.map(() => false))
     }
   }, [album?.id, albumPage])

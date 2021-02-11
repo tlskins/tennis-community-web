@@ -57,6 +57,13 @@ const SwingPlayer = ({
           }}
           width={playerWidth || ""}
           height={playerHeight || ""}
+          config={{
+            file: {
+              attributes: {
+                playsinline: true
+              }
+            }
+          }}
         />
       </div>
 

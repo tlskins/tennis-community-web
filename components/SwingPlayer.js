@@ -145,6 +145,10 @@ const SwingPlayer = ({
             <div className="w-8 text-center">{ duration ? duration.toString().padStart(2, "0") : "00" }/{swingFrames}</div>
           </div>
 
+          <div className="bg-white rounded p-0.5 mx-1 text-xs relative">
+            <div className="w-8 text-center">{ `${parseInt(swing.timestampSecs/60)}:${parseInt(swing.timestampSecs%60).toString().padStart(2,"0")}` }</div>
+          </div>
+
           <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs">
             {(swing.comments?.length || 0)}
             <IconContext.Provider value={{ color: "blue" }}>

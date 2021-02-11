@@ -246,7 +246,14 @@ const Album = ({
 
         {/* Controls Panel */}
         <div className="flex flex-col p-1 mt-4 bg-gray-100 rounded shadow-lg">
-          <div className="flex flex-row content-center justify-center items-center mt-2">
+          <div className="flex flex-row content-center justify-center items-center mt-1 text-xs">
+            <div className="font-semibold mr-1">Rally { swing.rally }</div> | 
+            <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs relative">
+                @<div className="w-8 text-center">{ `${parseInt(swing.timestampSecs/60)}:${parseInt(swing.timestampSecs%60).toString().padStart(2,"0")}` }</div>
+            </div>
+          </div>
+
+          <div className="flex flex-row content-center justify-center items-center mt-1">
             <div>
               {/* Play / Pause */}
               { playing &&
@@ -300,7 +307,7 @@ const Album = ({
             </div>
           </div>
 
-          <div className="flex flex-row content-center justify-center items-center p-4 bg-gray-100 rounded relative">
+          <div className="flex flex-row content-center justify-center items-center px-4 py-2 bg-gray-100 rounded relative">
             <input type='button'
               className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg cursor-pointer"
               onClick={() => setPlayback(0.25)}

@@ -74,6 +74,7 @@ const Album = ({
   const [showVideoUsage, setShowVideoUsage] = useState(false)
   const [showSharingUsage, setShowSharingUsage] = useState(false)
   const [showAlbumUsage, setShowAlbumUsage] = useState(false)
+  const [showOverviewUsage, setShowOverviewUsage] = useState(false)
 
   const [playbackRate, setPlaybackRate] = useState(1)
   const [allPlaying, setAllPlaying] = useState(false)
@@ -379,7 +380,7 @@ const Album = ({
             <div className="flex flex-col text-sm">
               {/* Album Overview */}
               <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center mb-2">
+                <div className="flex flex-row content-center justify-center items-center mb-2 relative static">
                   <h2 className="text-gray-300 uppercase cursor-pointer text-center"
                     onClick={() => {
                       if (activeSideBar === "Album Overview") {
@@ -391,6 +392,23 @@ const Album = ({
                   >
                   Album Overview
                   </h2>
+                  <input type="button"
+                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
+                    value="?"
+                    onClick={() => {
+                      setShowOverviewUsage(activeSideBar !== "Album Overview" ? true : !showOverviewUsage)
+                      setActiveSidebar("Album Overview")
+                    }}
+                  />
+                  { showOverviewUsage &&
+                    <div className="absolute w-72 -my-40 -mr-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                      <ul className="list-disc ml-2">
+                        <li>Shows the swings and rallies that were clipped from the original video</li>
+                        <li>Rallies, or Points, are consecutive hits while playing tennis</li>
+                        <li>Toggle the Rally checkboxes to filter by Rally</li>
+                      </ul>
+                    </div>
+                  }
                 </div>
                 { activeSideBar === "Album Overview" &&
                   <div className="flex flex-col rounded bg-white shadow-lg px-2 py-4 mb-2 h-96 overflow-scroll">
@@ -407,7 +425,8 @@ const Album = ({
                           maintainAspectRatio: false,
                           title:{
                             display: true,
-                            text: "Swings",
+                            position: "left",
+                            text: "Swings By Timestamp",
                             fontSize: 12
                           },
                           legend:{
@@ -419,8 +438,8 @@ const Album = ({
                     </ChartContainer>
 
                     <div className="flex flex-col content-center justify-center items-start pl-8 py-4 rounded shadow-lg mt-4 bg-gray-200 text-gray-700">
-                      <p className="uppercase font-semibold">
-                      Swings { album?.swingVideos?.length }
+                      <p className="uppercase underline font-semibold mb-1">
+                        { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies
                       </p>
                       <div>
                         {
@@ -439,7 +458,7 @@ const Album = ({
                                   }}
                                 />
                                 <span className="font-semibold mr-1">Rally {i+1}:</span>
-                                <span className="text-xs">{swings.length} swings ({swings[0].name} - {swings[swings.length-1].name})</span>
+                                <span className="text-xs">{swings.length} swings</span>
                               </div>
                             )
                           })
@@ -915,20 +934,15 @@ const Album = ({
                   setSwingsPerPage(swingViewMap[e.target.value])
                 }}
               >
-                { Object.entries(swingViewMap).map(([type, count], i) => {
+                { Object.entries(swingViewMap).map(([type, _], i) => {
                   return(
                     <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
                   )
                 })}
               </select>
               { showFooterUsage &&
-              <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 pl-4 bottom-full">
-                <p>Choose how to display your swings:</p>
-                <ul className="list-disc pl-4">
-                  <li>Video - 9 swings in video player</li>
-                  <li>GIF - 24 swings as GIFs</li>
-                  <li>JPGs - 24 swings as JPGs</li>
-                </ul>
+              <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                Choose how to display your swings
                 <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
               </div>
               }

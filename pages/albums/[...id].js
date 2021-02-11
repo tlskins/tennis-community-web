@@ -28,6 +28,7 @@ import speechBubble from "../../public/speech-bubble.svg"
 import pencil from "../../public/pencil.svg"
 import flag from "../../public/flag.svg"
 import Sidebar from "../../components/Sidebar"
+import ChartContainer from "../../components/ChartContainer"
 
 const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 50
@@ -81,9 +82,10 @@ const Album = ({
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([])
 
-  const [activeSideBar, setActiveSidebar] = useState("Album Comments")
+  const [activeSideBar, setActiveSidebar] = useState("Album Overview")
   const [expandedSideBar, setExpandedSideBar] = useState(false)
   const [albumPage, setAlbumPage] = useState(0)
+  const [filteredRallies, setFilteredRallies] = useState([])
 
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
@@ -100,8 +102,10 @@ const Album = ({
 
   const [graphLabels, setGraphLabels] = useState([])
   const [graphDatasets, setGraphDatasets] = useState([])
+  const [swingsByRally, setSwingsByRally] = useState([])
 
-  const pageVideos = swingVideos.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
+  let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally))
+  const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
   useEffect(() => {
     if (albumId) {
@@ -116,16 +120,10 @@ const Album = ({
     setFriendIds(album?.friendIds || [])
     if (album) {
       const maxSec = album.swingVideos[album.swingVideos.length-1].timestampSecs
-
       const swingsByRally = album.swingVideos.reduce((acc, swing) => {
-        if (swing.rally > acc.length) {
-          acc.push([swing])
-        } else {
-          acc[swing.rally-1].push(swing)
-        }
+        swing.rally > acc.length ? acc.push([swing]) : acc[swing.rally-1].push(swing)
         return acc
       }, [])
-      console.log("swingsByRally", swingsByRally)
       const dataSets = swingsByRally.map( (swings, i) => {
         const swing = swings[swings.length-1]
         const timestamps = swings.map( swing => swing.timestampSecs )
@@ -139,22 +137,10 @@ const Album = ({
           data: new Array(maxSec).fill(1).map((_,j) => timestamps.includes(j) ? 1 : 0),
         }
       })
+
+      setSwingsByRally(swingsByRally)
+      setFilteredRallies(swingsByRally.map((_,i) => i+1))
       setGraphDatasets(dataSets)
-
-      // const timestamps = album.swingVideos.map( swing => swing.timestampSecs )
-      // const data = new Array(maxSec).fill(1).map((_,j) => timestamps.includes(j) ? 1 : 0)
-      // setGraphDatasets([
-      //   {
-      //     label: album.uploadKey,
-      //     fill: false,
-      //     lineTension: 0.5,
-      //     backgroundColor: "rgba(254, 250, 11, 1)",
-      //     borderColor: "rgba(0,0,0,1)",
-      //     borderWidth: 2,
-      //     data,
-      //   }
-      // ])
-
       setGraphLabels(new Array(maxSec).fill(1).map((_,j) => (
         `${parseInt(j/60)}:${parseInt(j%60).toString().padStart(2,"0")}`
       )))
@@ -262,7 +248,7 @@ const Album = ({
     const updatedAlbum = { ...album, name: e.target.value }
     updateAlbumRedux(updatedAlbum)
     executeAfterTimeout(() => {
-      updateAlbum(updatedAlbum, false, true)
+      updateAlbum(updatedAlbum)
     }, 700)
   }
 
@@ -390,7 +376,80 @@ const Album = ({
         <div className="lg:flex lg:flex-row block">
           {/* Begin Sidebar */}
           <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
-            <div className="flex flex-col content-center justify-center items-center text-sm">
+            <div className="flex flex-col text-sm">
+              {/* Album Overview */}
+              <div className="mb-2">
+                <div className="flex flex-row content-center justify-center items-center mb-2">
+                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
+                    onClick={() => {
+                      if (activeSideBar === "Album Overview") {
+                        setActiveSidebar(undefined)
+                      } else {
+                        setActiveSidebar("Album Overview")
+                      }
+                    }}
+                  >
+                  Album Overview
+                  </h2>
+                </div>
+                { activeSideBar === "Album Overview" &&
+                  <div className="flex flex-col rounded bg-white shadow-lg px-2 py-4 mb-2 h-96 overflow-scroll">
+                    <ChartContainer>
+                      <Line
+                        width={950}
+                        height={300}
+                        data={{
+                          labels: graphLabels,
+                          datasets: graphDatasets,
+                        }}
+                        options={{
+                          response: true,
+                          maintainAspectRatio: false,
+                          title:{
+                            display: true,
+                            text: "Swings",
+                            fontSize: 12
+                          },
+                          legend:{
+                            display: false,
+                            position: "right"
+                          },
+                        }}
+                      />
+                    </ChartContainer>
+
+                    <div className="flex flex-col content-center justify-center items-start pl-8 py-4 rounded shadow-lg mt-4 bg-gray-200 text-gray-700">
+                      <p className="uppercase font-semibold">
+                      Swings { album?.swingVideos?.length }
+                      </p>
+                      <div>
+                        {
+                          swingsByRally.map((swings, i) => {
+                            return(
+                              <div key={i}>
+                                <input type="checkbox"
+                                  className="mr-2"
+                                  checked={filteredRallies.includes(i+1)}
+                                  onChange={() => {
+                                    if (filteredRallies.includes(i+1)) {
+                                      setFilteredRallies(filteredRallies.filter( rally => rally != i+1))
+                                    } else {
+                                      setFilteredRallies([...filteredRallies, i+1])
+                                    }
+                                  }}
+                                />
+                                <span className="font-semibold mr-1">Rally {i+1}:</span>
+                                <span className="text-xs">{swings.length} swings ({swings[0].name} - {swings[swings.length-1].name})</span>
+                              </div>
+                            )
+                          })
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+
               {/* Pro Comparison Sidebar */}
               <div className="mb-2">
                 <div className="flex flex-row content-center justify-center items-center mb-2">
@@ -711,30 +770,6 @@ const Album = ({
               </div>
             </div>
 
-            {/* Graphs */}
-            <div className="block w-full h-full rounded bg-white px-2 py-4 shadow-lg mb-2">
-              <div>
-                <Line
-                  data={{
-                    labels: graphLabels,
-                    datasets: graphDatasets,
-                  }}
-                  options={{
-                    maintainAspectRatio: false,
-                    title:{
-                      display:true,
-                      text:"Swings",
-                      fontSize:12
-                    },
-                    legend:{
-                      display:true,
-                      position:"right"
-                    },
-                  }}
-                />
-              </div>
-            </div>
-
             <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white px-2 py-4 shadow-lg mb-2">
               { pageVideos.map( (swing, i) => {
                 return (
@@ -882,7 +917,7 @@ const Album = ({
               >
                 { Object.entries(swingViewMap).map(([type, count], i) => {
                   return(
-                    <option key={i} value={type}>{ type } ({count})</option>
+                    <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
                   )
                 })}
               </select>
@@ -946,7 +981,7 @@ const mapStateToProps = (state) => {
     usersCache: state.usersCache,
   }
 }
-
+   
 const mapDispatchToProps = (dispatch) => {
   return {
     flagComment: FlagComment(dispatch),

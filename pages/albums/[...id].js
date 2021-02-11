@@ -100,7 +100,6 @@ const Album = ({
 
   const [graphLabels, setGraphLabels] = useState([])
   const [graphDatasets, setGraphDatasets] = useState([])
-  const [swingTimeMap, setSwingTimeMap] = useState({})
 
   const pageVideos = swingVideos.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
@@ -141,11 +140,6 @@ const Album = ({
         }
       })
       setGraphDatasets(dataSets)
-      setSwingTimeMap(album.swingVideos.reduce((acc, swing) => {
-        const time = swing.timestampSecs
-        acc[`${parseInt(time/60)}:${parseInt(time%60).toString().padStart(2,"0")}`] = swing.name
-        return acc
-      }, {}))
 
       // const timestamps = album.swingVideos.map( swing => swing.timestampSecs )
       // const data = new Array(maxSec).fill(1).map((_,j) => timestamps.includes(j) ? 1 : 0)
@@ -194,7 +188,7 @@ const Album = ({
   useEffect(() => {
     if (album?.id) {
       setPlayerRefs(ref => pageVideos.map((_, i) => ref[i] || createRef()))
-      setPlayings(pageVideos.map(() => false))
+      setPlayings(pageVideos.map(() => true))
       setPips(pageVideos.map(() => false))
     }
   }, [album?.id, albumPage])

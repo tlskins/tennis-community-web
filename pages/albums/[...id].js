@@ -746,7 +746,7 @@ const Album = ({
         </div>
         
         <div className="flex flex-row py-2 px-1 content-center justify-center items-center lg:mx-4">
-          <div className="static hidden lg:flex flex-row">
+          <div className="static flex flex-row">
             { allPlaying &&
               <IconContext.Provider value={{ color: "red" }}>
                 <div className="m-2 content-center justify-center items-center cursor-pointer">

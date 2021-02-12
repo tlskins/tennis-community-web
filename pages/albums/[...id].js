@@ -102,6 +102,7 @@ const Album = ({
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
 
+  const [showGraph, setShowGraph] = useState(false)
   const [graphLabels, setGraphLabels] = useState([])
   const [graphDatasets, setGraphDatasets] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
@@ -428,36 +429,26 @@ const Album = ({
                   }
                 </div>
                 { activeSideBar === "Album Overview" &&
-                  <div className="flex flex-col rounded bg-white shadow-lg px-2 py-4 mb-2 h-96 overflow-scroll">
-                    <ChartContainer>
-                      <Line
-                        width={950}
-                        height={300}
-                        data={{
-                          labels: graphLabels,
-                          datasets: graphDatasets,
-                        }}
-                        options={{
-                          response: true,
-                          maintainAspectRatio: false,
-                          title:{
-                            display: true,
-                            position: "left",
-                            text: "Swings By Timestamp",
-                            fontSize: 12
-                          },
-                          legend:{
-                            display: false,
-                            position: "right"
-                          },
-                        }}
-                      />
-                    </ChartContainer>
-
-                    <div className="flex flex-col content-center justify-center items-start pl-8 py-4 rounded shadow-lg mt-4 bg-gray-200 text-gray-700">
+                  <div className="flex flex-col rounded bg-white shadow-lg p-2 mb-2 h-96 overflow-scroll">
+                    <div className="flex flex-col sticky left-0 content-center justify-center items-start pl-8 py-4 mb-4 rounded shadow-lg bg-gray-200 text-gray-700">
                       <p className="uppercase underline font-semibold mb-1">
                         { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies
                       </p>
+                      <div>
+                        <input type="checkbox"
+                          className="mr-2"
+                          checked={false}
+                          onChange={() => {
+                            const rallies = filteredRallies.length === swingsByRally.length ?
+                              [] :
+                              swingsByRally.map( swings => swings[0].rally )
+                            setFilteredRallies(rallies)
+                          }}
+                        />
+                        <span className="font-semibold mr-1">
+                          { filteredRallies.length === swingsByRally.length ? "Deselect All" : "Select All" }
+                        </span>
+                      </div>
                       <div>
                         {
                           swingsByRally.map((swings, i) => {
@@ -467,11 +458,10 @@ const Album = ({
                                   className="mr-2"
                                   checked={filteredRallies.includes(i+1)}
                                   onChange={() => {
-                                    if (filteredRallies.includes(i+1)) {
-                                      setFilteredRallies(filteredRallies.filter( rally => rally != i+1))
-                                    } else {
-                                      setFilteredRallies([...filteredRallies, i+1])
-                                    }
+                                    const rallies = filteredRallies.includes(i+1) ?
+                                      filteredRallies.filter( rally => rally != i+1) :
+                                      [...filteredRallies, i+1]
+                                    setFilteredRallies(rallies)
                                   }}
                                 />
                                 <span className="font-semibold mr-1">Rally {i+1}:</span>
@@ -481,7 +471,42 @@ const Album = ({
                           })
                         }
                       </div>
+                      <a href="#"
+                        className="text-blue-700 underline cursor-pointer my-2"
+                        onClick={() => setShowGraph(!showGraph)}
+                      >
+                        { showGraph ? "Hide breakdown" : "Show breakdown from source video" }
+                      </a>
                     </div>
+
+                    { showGraph &&
+                        <ChartContainer>
+                          <div className="px-4 py-8 bg-gray-200 rounded shadow-lg">
+                            <Line
+                              width={950}
+                              // height={300}
+                              data={{
+                                labels: graphLabels,
+                                datasets: graphDatasets,
+                              }}
+                              options={{
+                                response: true,
+                                maintainAspectRatio: true,
+                                title:{
+                                  display: true,
+                                  position: "left",
+                                  text: "Swings By Timestamp",
+                                  fontSize: 12
+                                },
+                                legend:{
+                                  display: false,
+                                  position: "right"
+                                },
+                              }}
+                            />
+                          </div>
+                        </ChartContainer>
+                    }
                   </div>
                 }
               </div>

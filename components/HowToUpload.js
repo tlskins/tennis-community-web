@@ -10,7 +10,7 @@ const HowToUpload = ({ isFirst, isUploadFile }) => {
   const [hoverUpload, setHoverUpload] = useState(false)
 
   return(
-    <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md mb-3">
+    <div className="p-4 flex flex-row bg-blue-300 rounded shadow-md mb-3">
       <div className="flex flex-col overflow-auto">
         <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
           Upload {isFirst ? "your first" : "a"} video!

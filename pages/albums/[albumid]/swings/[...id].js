@@ -247,6 +247,8 @@ const Album = ({
                 }
               }
             }}
+            height=""
+            width=""
           />
         </div>
 

@@ -104,6 +104,8 @@ const ProComparison = ({ showUsage }) => {
               }
             }
           }}
+          height=""
+          width=""
         />
       </div>
 

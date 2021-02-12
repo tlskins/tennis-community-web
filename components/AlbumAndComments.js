@@ -118,6 +118,8 @@ const AlbumAndComments = ({
                   }
                 }
               }}
+              height=""
+              width=""
             />
           </div>
 

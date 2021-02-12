@@ -62,6 +62,8 @@ const AlbumAndCommentsPreview = ({
                 }
               }
             }}
+            height=""
+            width=""
           />
         </div>
         

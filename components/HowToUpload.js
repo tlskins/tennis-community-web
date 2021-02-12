@@ -10,7 +10,7 @@ const HowToUpload = ({ isFirst, isUploadFile }) => {
   const [hoverUpload, setHoverUpload] = useState(false)
 
   return(
-    <div className="p-4 flex flex-row bg-yellow-300 rounded shadow-md mb-3">
+    <div className="p-4 flex flex-row bg-blue-300 rounded shadow-md mb-3">
       <div className="flex flex-col overflow-auto">
         <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
           Upload {isFirst ? "your first" : "a"} video!
@@ -30,8 +30,7 @@ const HowToUpload = ({ isFirst, isUploadFile }) => {
                 <div className="pl-6">
                   <ul className="list-disc">
                     <li>Using a mobile phone, or camera, record yourself playing a match, rallying, or hitting against the wall.</li>
-                    <li>Aim your phone so that you get a good profile view of yourself. This gives you a better angle of your body for swing analysis.</li>
-                    <li>Prop your phone up to get a good angle.</li>
+                    <li>Prop your phone up so that you get a good profile view of yourself. Generally this means the phone is at or behind the baseline.</li>
                   </ul>
                 </div>
               </li>
@@ -58,9 +57,8 @@ const HowToUpload = ({ isFirst, isUploadFile }) => {
                       After the upload has finished processing, find your newly created Album here, or on the
                       <a href="/albums" className="text-blue-700 underline ml-1">albums</a> page.
                     </li>
-                    <li>
-                      Delete any swings that are not relevant.
-                    </li>
+                    <li>Delete any incorrectly captured swings, this will help correctly track the rallies in the album as well.</li>
+                    <li>Albums can also be created from existing album(s).</li>
                   </ul>
                 </div>
               </li>

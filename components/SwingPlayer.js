@@ -1,7 +1,6 @@
 import React from "react"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
-import { useRouter } from "next/router"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { RiPictureInPicture2Fill, RiPictureInPictureExitFill } from "react-icons/ri"
 import { BsTrash } from "react-icons/bs"
@@ -29,7 +28,6 @@ const SwingPlayer = ({
   setPlayings,
   setPlayerFrames,
 }) => {
-  const router = useRouter()
   const duration = playerFrames[i]
   const ref = playerRefs[i]
   const pip = pips[i]

@@ -71,10 +71,10 @@ const Profile = ({
   const [firstName, setFirstName] = useState(user?.firstName)
   const [lastName, setLastName] = useState(user?.lastName)
   const [iconNumber, setIconNumber] = useState(user?.iconNumber)
-  const [isPublic, setIsPublic] = useState(user?.isPublic)
-  const [birthYear, setBirthYear] = useState(user?.birthYear)
-  const [gender, setGender] = useState(user?.gender)
-  const [ustaLevel, setUstaLevel] = useState(user?.ustaLevel)
+  // const [isPublic, setIsPublic] = useState(user?.isPublic)
+  // const [birthYear, setBirthYear] = useState(user?.birthYear)
+  // const [gender, setGender] = useState(user?.gender)
+  // const [ustaLevel, setUstaLevel] = useState(user?.ustaLevel)
 
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
@@ -160,7 +160,7 @@ const Profile = ({
 
   useEffect(() => {
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
-    setPlayings(activeAlbums.map(() => false))
+    setPlayings(activeAlbums.map(() => true))
     setPips(activeAlbums.map(() => false))
     setCurrentSwings(activeAlbums.map(() => 0))
     setCurrentComments(activeAlbums.map(album => {

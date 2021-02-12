@@ -192,6 +192,9 @@ const VideoResources = ({
         playing={sideVideoPlaying}
         playbackRate={sideVideoPlayback}
         progressInterval={200}
+        onReady={() => onSeekTo(video.start)}
+        height={sideVideoHeight}
+        width={sideVideoWidth}
         onProgress={({ played }) => {
           setSideVideoDuration(played)
         }}
@@ -204,9 +207,6 @@ const VideoResources = ({
             }
           }
         }}
-        onReady={() => onSeekTo(video.start)}
-        height={sideVideoHeight}
-        width={sideVideoWidth}
       />
 
       {/* Controls Panel */}

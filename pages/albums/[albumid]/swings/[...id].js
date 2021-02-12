@@ -239,8 +239,14 @@ const Album = ({
               const frame = Math.round(played*SWING_FRAMES)
               setPlayerFrame(frame)
             }}
-            height=""
-            width=""
+            config={{
+              file: {
+                attributes: {
+                  controlsList: "nofullscreen",
+                  playsInline: true,
+                }
+              }
+            }}
           />
         </div>
 

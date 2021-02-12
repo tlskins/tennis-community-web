@@ -96,8 +96,14 @@ const ProComparison = ({ showUsage }) => {
           onProgress={({ played }) => setSideVideoDuration(
             parseFloat((Math.ceil(played/.05)*.05).toFixed(2))
           )}
-          height=""
-          width=""
+          config={{
+            file: {
+              attributes: {
+                controlsList: "nofullscreen",
+                playsInline: true,
+              }
+            }
+          }}
         />
       </div>
 

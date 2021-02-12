@@ -110,8 +110,14 @@ const AlbumAndComments = ({
               loop={true}
               progressInterval={200}
               onProgress={({ played }) => onPlayerProgress(played)}
-              height=""
-              width=""
+              config={{
+                file: {
+                  attributes: {
+                    controlsList: "nofullscreen",
+                    playsInline: true,
+                  }
+                }
+              }}
             />
           </div>
 

@@ -132,7 +132,7 @@ const AlbumsIndex = ({
   useEffect(() => {
     // set video players
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
-    setPlayings(activeAlbums.map(() => false))
+    setPlayings(activeAlbums.map(() => true))
     setPips(activeAlbums.map(() => false))
     setCurrentSwings(activeAlbums.map(() => 0))
 

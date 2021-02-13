@@ -137,8 +137,8 @@ const mapDispatchToProps = (dispatch) => {
 
 NavBar.propTypes = {
   confirmation: PropTypes.object,
-  showNewUser: PropTypes.bool,
-  showInviteForm: PropTypes.bool,
+  showNewUser: PropTypes.number,
+  showInviteForm: PropTypes.number,
   user: PropTypes.object,
 
   confirmUser: PropTypes.func,

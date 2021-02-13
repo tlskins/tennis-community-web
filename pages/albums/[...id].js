@@ -38,8 +38,8 @@ let posting = false
 
 const swingViewMap = {
   "video": 9,
-  "gif": 24,
-  "jpg": 24,
+  "gif": 16, // dont think this is useful
+  "jpg": 16,
 }
 
 let timer
@@ -117,7 +117,17 @@ const Album = ({
   }, [albumId])
 
   useEffect(() => {
-    setComments(album?.comments || [])
+    let allComments = [
+      ...(album?.comments || []),
+      ...((album?.swingVideos || []).map( swing => 
+        swing.comments.map( comment => 
+          ({ ...comment, swingName: swing.name, swingId: swing.id })
+        )
+      ).flat()),
+    ]
+    allComments = allComments.sort((a, b) => Moment(a.createdAt).isAfter(b.createdAt) ? -1 : 1)
+    console.log("all comments", allComments)
+    setComments(allComments)
     setIsPublic(album?.isPublic || false)
     setIsViewableByFriends(album?.isViewableByFriends || false)
     setFriendIds(album?.friendIds || [])
@@ -157,20 +167,12 @@ const Album = ({
       // search comment users
       const usersSet = new Set([])
       comments.forEach( com => {
-        if (!usersCache[com.userId]) {
-          usersSet.add(com.userId)
-        }
-
-        // build commenters
+        if (!usersCache[com.userId]) usersSet.add(com.userId)
         commentersSet.add(com.userId)
-
-        // build comments cache
         commentsCache[com.id] = com
       })
       const ids = Array.from(usersSet)
-      if (ids.length > 0) {
-        searchFriends({ ids })
-      }
+      if (ids.length > 0) searchFriends({ ids })
       setCommenters(Array.from(commentersSet))
     }
   }, [comments])
@@ -392,7 +394,7 @@ const Album = ({
 
       <main className="overflow-y-scroll bg-gray-200 min-h-screen">
 
-        <div className="lg:flex lg:flex-row block">
+        <div className="lg:flex lg:flex-row min-h-screen">
           {/* Begin Sidebar */}
           <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
             <div className="flex flex-col text-sm">
@@ -690,7 +692,7 @@ const Album = ({
                             <input type='button'
                               className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
                               value='post'
-                              disabled={!user || !user.disableComments}
+                              disabled={!user || user.disableComments}
                               onClick={onPostComment}
                             />
                           </div>
@@ -723,7 +725,6 @@ const Album = ({
                         </div>
 
                         {/* Comments List  */}
-
                         <div className="flex flex-col h-40 lg:h-full pr-4 rounded shadow-lg bg-gray-100 px-1">
                           { comments.filter( com => !com.isHidden ).length === 0 &&
                             <p className="text-center p-2"> No comments </p>
@@ -767,6 +768,18 @@ const Album = ({
                                       <p className="mx-1 text-sm align-middle font-bold">
                                       |
                                       </p>
+                                      { comment.swingId &&
+                                        <>
+                                          <a className="mx-1 text-xs text-blue-500 align-middle underline"
+                                            href={`/albums/${albumId}/swings/${comment.swingId}`}
+                                          >
+                                          Swing { comment.swingName }
+                                          </a>
+                                          <p className="mx-1 text-sm align-middle font-bold">
+                                        |
+                                          </p>
+                                        </>
+                                      }
                                       <p className="mx-1 text-xs text-gray-500 align-middle">
                                         { Moment(comment.createdAt).format("MMM D YYYY h:mm a") }
                                       </p>
@@ -838,8 +851,9 @@ const Album = ({
 
             <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white px-2 py-4 shadow-lg mb-2">
               { pageVideos.map( (swing, i) => {
+                const viewScale = albumView === "video" ? "items-center lg:w-1/3 lg:h-1/3" : "m-2"
                 return (
-                  <div className={"flex flex-col items-center rounded-md lg:w-1/3 lg:h-1/3"}
+                  <div className={`flex flex-col rounded-md ${viewScale}`}
                     key={i}
                   >
                     { albumView === "video" &&
@@ -867,7 +881,7 @@ const Album = ({
                     <div>
                       <img src={swing.gifURL}
                         alt="loading..."
-                        style={{height: 113, width: 142}}
+                        style={{height: 180}}
                       />
                     </div>
                     }
@@ -875,7 +889,7 @@ const Album = ({
                     <div>
                       <img src={swing.jpgURL}
                         alt="loading..."
-                        style={{height: 99, width: 126}}
+                        style={{height: 180}}
                       />
                     </div>
                     }

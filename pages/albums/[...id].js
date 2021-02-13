@@ -392,7 +392,7 @@ const Album = ({
 
       <main className="overflow-y-scroll bg-gray-200 min-h-screen">
 
-        <div className="lg:flex lg:flex-row">
+        <div className="lg:flex lg:flex-row min-h-screen">
           {/* Begin Sidebar */}
           <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
             <div className="flex flex-col text-sm">

@@ -389,9 +389,10 @@ const AlbumsIndex = ({
                       }
                       { toDeleteAlbum === album.id &&
                         <button className="absolute top-6 right-4 underline text-sm text-blue-400 cursor-pointer"
-                          onClick={() => {
+                          onClick={async () => {
                             setToDeleteAlbum(undefined)
-                            deleteAlbum(album.id)
+                            await deleteAlbum(album.id)
+                            await loadMyAlbums()
                           }}
                         >
                           Confirm?

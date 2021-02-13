@@ -358,6 +358,16 @@ const AlbumsIndex = ({
                       <h2 className="font-semibold text-center">None</h2>
                     </div>
                 }
+                <div className="w-full flex flex-col content-center justify-center items-center">
+                  { page > 0 &&
+                  <button
+                    onClick={() => setPage(page-1)}
+                    className="rounded border-2 border-gray-400 w-full lg:w-1/3 text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer mb-2"
+                  >
+                    Last Page ({ page })
+                  </button>
+                  }
+                </div>
                 { activeAlbums.map( (album, i) => {
                   return (
                     <div key={i}
@@ -432,6 +442,16 @@ const AlbumsIndex = ({
                     </div>
                   )
                 })}
+                <div className="w-full flex flex-col content-center justify-center items-center">
+                  { (page < (filteredAlbums.length / ALBUMS_PER_COL)-1) &&
+                  <button
+                    onClick={() => setPage(page+1)}
+                    className="rounded border-2 border-gray-400 w-full lg:w-1/3 text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer mt-2"
+                  >
+                    Next Page ({ page+2 })
+                  </button>
+                  }
+                </div>
               </div>
             </div>
           </div>

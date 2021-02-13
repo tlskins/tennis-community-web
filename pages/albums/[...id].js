@@ -38,8 +38,8 @@ let posting = false
 
 const swingViewMap = {
   "video": 9,
-  "gif": 24,
-  "jpg": 24,
+  "gif": 16, // dont think this is useful
+  "jpg": 16,
 }
 
 let timer
@@ -838,8 +838,9 @@ const Album = ({
 
             <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white px-2 py-4 shadow-lg mb-2">
               { pageVideos.map( (swing, i) => {
+                const viewScale = albumView === "video" ? "items-center lg:w-1/3 lg:h-1/3" : "m-2"
                 return (
-                  <div className={"flex flex-col items-center rounded-md lg:w-1/3 lg:h-1/3"}
+                  <div className={`flex flex-col rounded-md ${viewScale}`}
                     key={i}
                   >
                     { albumView === "video" &&
@@ -867,7 +868,7 @@ const Album = ({
                     <div>
                       <img src={swing.gifURL}
                         alt="loading..."
-                        style={{height: 113, width: 142}}
+                        style={{height: 180}}
                       />
                     </div>
                     }
@@ -875,7 +876,7 @@ const Album = ({
                     <div>
                       <img src={swing.jpgURL}
                         alt="loading..."
-                        style={{height: 99, width: 126}}
+                        style={{height: 180}}
                       />
                     </div>
                     }

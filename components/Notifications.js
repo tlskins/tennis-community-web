@@ -19,7 +19,7 @@ const Notifications = ({
   const router = useRouter()
 
   if (user) {
-    useInterval(loadUser, 30000, 30)
+    useInterval(loadUser, 45000, 30)
   }
   
   const uploadNoteIds = user.uploadNotifications.map( note => note.id)

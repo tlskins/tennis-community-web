@@ -1,4 +1,5 @@
 import React, { useEffect, useState, createRef } from "react"
+import Head from "next/head"
 import { connect } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
@@ -366,11 +367,27 @@ const Album = ({
 
   return (
     <div>
+      <Head>
+        <script async
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+          
+            gtag('config', ${process.env.NEXT_PUBLIC_GTM_ID});
+        `,}}>
+        </script>
+      </Head>
+
       { (user && user.id) &&
         <Notifications />
       }
-      <main className="overflow-y-scroll bg-gray-200">
-        <div className="lg:flex lg:flex-row block">
+      <main className="overflow-y-scroll bg-gray-200 min-h-screen">
+        <div className="lg:flex lg:flex-row min-h-screen">
           {/* Begin Sidebar */}
           <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
             <div className="flex flex-col content-center justify-center items-center text-sm sticky top-0">

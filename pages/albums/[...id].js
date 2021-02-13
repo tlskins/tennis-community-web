@@ -117,7 +117,17 @@ const Album = ({
   }, [albumId])
 
   useEffect(() => {
-    setComments(album?.comments || [])
+    let allComments = [
+      ...(album?.comments || []),
+      ...((album?.swingVideos || []).map( swing => 
+        swing.comments.map( comment => 
+          ({ ...comment, swingName: swing.name, swingId: swing.id })
+        )
+      ).flat()),
+    ]
+    allComments = allComments.sort((a, b) => Moment(a.createdAt).isAfter(b.createdAt) ? -1 : 1)
+    console.log("all comments", allComments)
+    setComments(allComments)
     setIsPublic(album?.isPublic || false)
     setIsViewableByFriends(album?.isViewableByFriends || false)
     setFriendIds(album?.friendIds || [])
@@ -157,20 +167,12 @@ const Album = ({
       // search comment users
       const usersSet = new Set([])
       comments.forEach( com => {
-        if (!usersCache[com.userId]) {
-          usersSet.add(com.userId)
-        }
-
-        // build commenters
+        if (!usersCache[com.userId]) usersSet.add(com.userId)
         commentersSet.add(com.userId)
-
-        // build comments cache
         commentsCache[com.id] = com
       })
       const ids = Array.from(usersSet)
-      if (ids.length > 0) {
-        searchFriends({ ids })
-      }
+      if (ids.length > 0) searchFriends({ ids })
       setCommenters(Array.from(commentersSet))
     }
   }, [comments])
@@ -723,7 +725,6 @@ const Album = ({
                         </div>
 
                         {/* Comments List  */}
-
                         <div className="flex flex-col h-40 lg:h-full pr-4 rounded shadow-lg bg-gray-100 px-1">
                           { comments.filter( com => !com.isHidden ).length === 0 &&
                             <p className="text-center p-2"> No comments </p>
@@ -767,6 +768,18 @@ const Album = ({
                                       <p className="mx-1 text-sm align-middle font-bold">
                                       |
                                       </p>
+                                      { comment.swingId &&
+                                        <>
+                                          <a className="mx-1 text-xs text-blue-500 align-middle underline"
+                                            href={`/albums/${albumId}/swings/${comment.swingId}`}
+                                          >
+                                          Swing { comment.swingName }
+                                          </a>
+                                          <p className="mx-1 text-sm align-middle font-bold">
+                                        |
+                                          </p>
+                                        </>
+                                      }
                                       <p className="mx-1 text-xs text-gray-500 align-middle">
                                         { Moment(comment.createdAt).format("MMM D YYYY h:mm a") }
                                       </p>

@@ -690,7 +690,7 @@ const Album = ({
                             <input type='button'
                               className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
                               value='post'
-                              disabled={!user || !user.disableComments}
+                              disabled={!user || user.disableComments}
                               onClick={onPostComment}
                             />
                           </div>

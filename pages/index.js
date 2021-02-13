@@ -192,7 +192,7 @@ const mapDispatchToProps = (dispatch) => {
 }
   
 Index.propTypes = {
-  user: PropTypes.objectd,
+  user: PropTypes.object,
   publicAlbums: PropTypes.arrayOf(PropTypes.object),
 
   loadPublicAlbums: PropTypes.func,

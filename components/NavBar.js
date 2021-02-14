@@ -9,6 +9,7 @@ import { ConfirmUser, SignOut, LoadConfirmation } from "../behavior/coordinators
 import { getUserIcon } from "../behavior/users"
 import { newNotification } from "../state/ui/action"
 import LoginForm from "./LoginForm"
+import ProfileForm from "./ProfileForm"
 import Modal from "./Modal"
 
 import {
@@ -32,7 +33,8 @@ const NavBar = ({
   const router = useRouter()
   const { confirmation: confirmationID } = router.query
 
-  const [showModal, setShowModal] = useState(false)
+  const [showLoginForm, setShowLoginForm] = useState(false)
+  const [showProfileForm, setShowProfileForm] = useState(true)
 
   useEffect(() => {
     if (confirmationID) {
@@ -60,7 +62,7 @@ const NavBar = ({
 
   useEffect(() => {
     if (showNewUser || showInviteForm) {
-      setShowModal(true)
+      setShowLoginForm(true)
     }
   }, [showNewUser, showInviteForm])
 
@@ -78,13 +80,13 @@ const NavBar = ({
       { !user || !user.id ?
         <LinksContainer>
           <div className="static">
-            <a href="#" onClick={() => setShowModal(!showModal)}
+            <a href="#" onClick={() => setShowLoginForm(!showLoginForm)}
               className="text-yellow-300"
             >
               { confirmation?.email ? "Accept Invitation" : "Sign In" }
             </a>
-            { showModal &&
-              <Modal width="400" hideModal={ () => setShowModal(false)}>
+            { showLoginForm &&
+              <Modal width="400" hideModal={ () => setShowLoginForm(false)}>
                 <LoginForm/>
               </Modal>
             }
@@ -104,13 +106,19 @@ const NavBar = ({
             </LinkClass>
           }
           <LinkClass>
-            <div className="flex flex-row content-center justify-center items-center">
-              <a className="inline-block whitespace-nowrap" href="#" onClick={ onSignOut }>Sign Out</a>
+            <div className="flex flex-row content-center justify-center items-center m-2">
+              {/* <a className="inline-block whitespace-nowrap" href="#" onClick={ onSignOut }>Sign Out</a> */}
               <img src={getUserIcon(user)}
-                className="w-4 h-4"
+                className="w-4 h-4 cursor-pointer"
+                onClick={() => setShowProfileForm(!showProfileForm)}
               />
             </div>
           </LinkClass>
+          { showProfileForm &&
+              <Modal width="400" hideModal={ () => setShowProfileForm(false)}>
+                <ProfileForm/>
+              </Modal>
+          }
         </LinksContainer>
       }
     </NavigationBar>

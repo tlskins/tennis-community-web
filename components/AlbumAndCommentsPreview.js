@@ -26,7 +26,7 @@ const AlbumAndCommentsPreview = ({
   onPlayerProgress,
 }) => {
   return(
-    <div key={album.id} className="lg:flex flex-row content-center justify-center items-center bg-gray-100 mb-6 p-2 border-2 border-gray-200 rounded-lg shadow-md w-full">
+    <div key={album.id} className="lg:flex flex-row content-center justify-center items-center bg-gray-100 mb-6 p-2 rounded-lg shadow-md w-full">
       <div className="lg:flex flex-col lg:w-3/5 content-center justify-center items-center pr-1">
         <div className="flex flex-col w-full text-center">
           <a href={`/albums/${album.id}`}
@@ -72,7 +72,7 @@ const AlbumAndCommentsPreview = ({
 
           { swingIdx > 0 &&
               <input type='button'
-                className='border rounded p-0.5 mx-1 text-xs font-bold bg-black text-white cursor-pointer'
+                className='rounded p-0.5 mx-1 text-xs font-bold bg-black text-white cursor-pointer'
                 value='<'
                 onClick={onSetSwingIndex(swingIdx-1)}
               />
@@ -81,14 +81,14 @@ const AlbumAndCommentsPreview = ({
           {/* Picture in Picture */}
           { pip &&
             <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+              className='rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
               value='-'
               onClick={onTogglePip(false)}
             />
           }
           { !pip &&
             <input type='button'
-              className='border rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
+              className='rounded p-0.5 mx-1 text-xs font-bold bg-indigo-700 text-white'
               value='+'
               onClick={onTogglePip(true)}
             />
@@ -97,14 +97,14 @@ const AlbumAndCommentsPreview = ({
           {/* Play / Pause */}
           { playing &&
             <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
+              className='w-10 rounded p-0.5 mx-1 text-xs bg-red-700 text-white'
               value='pause'
               onClick={onTogglePlay(false)}
             />
           }
           { !playing &&
             <input type='button'
-              className='border w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
+              className='w-10 rounded p-0.5 mx-1 text-xs bg-green-700 text-white'
               value='play'
               onClick={onTogglePlay(true)}
             />
@@ -131,7 +131,7 @@ const AlbumAndCommentsPreview = ({
 
           { swingIdx < album.swingVideos.length-1 &&
               <input type='button'
-                className='border rounded p-0.5 mx-1 text-xs font-bold bg-black text-white cursor-pointer'
+                className='rounded p-0.5 mx-1 text-xs font-bold bg-black text-white cursor-pointer'
                 value='>'
                 onClick={onSetSwingIndex(swingIdx+1)}
               />
@@ -143,22 +143,22 @@ const AlbumAndCommentsPreview = ({
 
         <div className="lg:flex flex-row px-2 mb-1 content-center justify-center items-center text-center">
           { album.userId === user?.id && 
-            <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs">
+            <div className="px-2 mx-1 inline-block rounded-lg bg-yellow-300 shadow-md font-semibold text-xs">
               owner
             </div>
           }
           { album.friendIds.includes(user.id) && 
-            <div className="px-2 mx-1 inline-block rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs">
+            <div className="px-2 mx-1 inline-block rounded-lg bg-red-300 shadow-md font-semibold text-xs">
               shared
             </div>
           }
           { album.isViewableByFriends &&
-            <div className="px-2 mx-1 inline-block rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs">
+            <div className="px-2 mx-1 inline-block rounded-lg bg-green-300 shadow-md font-semibold text-xs">
               friends
             </div>
           }
           { album.isPublic && 
-            <div className="px-2 mx-1 inline-block rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs">
+            <div className="px-2 mx-1 inline-block rounded-lg bg-blue-300 shadow-md font-semibold text-xs">
               public
             </div>
           }
@@ -179,11 +179,11 @@ const AlbumAndCommentsPreview = ({
           </div>
         </div>
 
-        <div className="h-40 w-full overflow-y-scroll bg-gray-300 p-1 rounded-lg hidden lg:block">
+        <div className="h-40 w-full overflow-y-auto bg-gray-300 p-1 rounded hidden lg:block">
           { comments.map((comment, j) => {
             const poster = usersCache[comment.userId]
             return(
-              <div key={j} className="px-2 pt-1 mb-1 bg-white rounded-lg border border-gray-400 shadow">
+              <div key={j} className="px-2 pt-1 mb-1 bg-white rounded shadow-lg">
                 <textarea disabled={true}
                   className="text-xs bg-gray-100 rounded-md shadow-md w-full p-0.5"
                   value={comment.text}

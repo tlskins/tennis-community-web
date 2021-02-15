@@ -33,6 +33,9 @@ import {
 } from "../styles/styled-components"
 
 const SWING_FRAMES = 60
+const myAlbumsPerPageOther = 4
+const myAlbumsPerPage1 = 3
+const sharedAlbumsPerPage = 3
 let timer
 
 const Profile = ({
@@ -75,8 +78,9 @@ const Profile = ({
   const [friendsSearch, setFriendsSearch] = useState("")
   const [foundUsers, setFoundUsers] = useState([])
 
-  const myActiveAlbums = (myAlbums || []).slice(myAlbumsPage * 4, (myAlbumsPage+1) * 4).filter( a => !!a ) || []
-  const sharedActiveAlbums = (sharedAlbums || []).slice(sharedAlbumsPage * 3, (sharedAlbumsPage+1) * 3).filter( a => !!a ) || []
+  const myAlbumsPerPage = myAlbumsPage === 0 ? myAlbumsPerPage1 : myAlbumsPerPageOther
+  const myActiveAlbums = (myAlbums || []).slice(myAlbumsPage * myAlbumsPerPage, (myAlbumsPage+1) * myAlbumsPerPage).filter( a => !!a ) || []
+  const sharedActiveAlbums = (sharedAlbums || []).slice(sharedAlbumsPage * sharedAlbumsPerPage, (sharedAlbumsPage+1) * sharedAlbumsPerPage).filter( a => !!a ) || []
 
   useEffect(() => {
     if (!user || !user?.id) {
@@ -290,22 +294,24 @@ const Profile = ({
                     }
 
                     {/* <div className="flex flex-row lg:flex-wrap lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto"> */}
-                    <div className="flex flex-row lg:grid lg:grid-cols-2 gap-2 lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto">
+                    <div className="flex flex-row lg:grid lg:grid-cols-2 lg:gap-2 lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-x-auto">
                       
-                      <div className="flex m-2 lg:w-11/12 lg:h-3/4 content-center justify-center items-center lg:bg-gray-100 lg:shadow-lg"
-                        style={{"min-width": "80%"}}
-                      >
-                        <button
-                          className="bg-gray-800 text-yellow-300 p-5 rounded font-bold text-lg shadow-lg text-center hover:bg-yellow-300 hover:text-gray-800"
-                          onClick={() => router.push("/albums/new")}
+                      { myAlbumsPage === 0 &&
+                        <div className="flex m-2 lg:w-11/12 lg:h-3/4 content-center justify-center items-center lg:bg-gray-100 lg:shadow-lg"
+                          style={{"min-width": "80%"}}
                         >
+                          <button
+                            className="bg-gray-800 text-yellow-300 p-5 rounded font-bold text-lg shadow-lg text-center hover:bg-yellow-300 hover:text-gray-800"
+                            onClick={() => router.push("/albums/new")}
+                          >
                           New Album
-                        </button>
-                      </div>
+                          </button>
+                        </div>
+                      }
 
                       { myActiveAlbums.map((album, i) => 
                         <div key={i}
-                          className="m-2 w-11/12 h-11/12 content-center justify-center items-center"
+                          className="m-2 w-11/12"
                         >
                           <AlbumAndCommentsPreview
                             key={i}
@@ -332,17 +338,17 @@ const Profile = ({
                     { myAlbumsPage > 0 &&
                         <div className="w-full content-center justify-center items-center mb-1">
                           <input type="button"
-                            className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                            className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
                             value={`Previous Page (${myAlbumsPage})`}
                             onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
                           />
                         </div>
                     }
 
-                    { myActiveAlbums.length === 4 &&
+                    { myActiveAlbums.length === myAlbumsPerPage &&
                       <div className="w-full content-center justify-center items-center">
                         <input type="button"
-                          className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                          className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
                           value={`Next Page (${myAlbumsPage+2})`}
                           onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
                         />
@@ -543,7 +549,7 @@ const Profile = ({
                 </div>
               }
 
-              <div className="flex flex-row lg:flex-col overflow-x-scroll">              
+              <div className="flex flex-row lg:flex-col overflow-x-scroll lg:overflow-x-auto">              
                 { sharedActiveAlbums.map((album, i) => 
                   <div key={i}
                     className="mx-1 lg:mx-0 w-11/12 lg:w-full"
@@ -573,17 +579,17 @@ const Profile = ({
               { sharedAlbumsPage > 0 &&
                 <div className="w-full content-center justify-center items-center mb-1">
                   <input type="button"
-                    className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                    className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
                     value={`Previous Page (${sharedAlbumsPage})`}
                     onClick={() => setSharedAlbumsPage(sharedAlbumsPage-1)}
                   />
                 </div>
               }
 
-              { sharedActiveAlbums.length === 3 &&
+              { sharedActiveAlbums.length === sharedAlbumsPerPage &&
                 <div className="w-full content-center justify-center items-center">
                   <input type="button"
-                    className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                    className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
                     value={`Next Page (${sharedAlbumsPage+2})`}
                     onClick={() => setSharedAlbumsPage(sharedAlbumsPage+1)}
                   />

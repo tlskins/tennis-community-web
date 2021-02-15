@@ -17,7 +17,6 @@ import {
   AcceptFriendRequest,
   Unfriend,
 } from "../behavior/coordinators/friends"
-import { getUserIcons, getUserIcon } from "../behavior/users"
 import {
   LoadMyAlbums,
   LoadFriendsAlbums,
@@ -34,14 +33,13 @@ import {
 } from "../styles/styled-components"
 
 const SWING_FRAMES = 60
-const albumsPerColumn = 3
 let timer
 
 const Profile = ({
-  myAlbums,
-  friendsAlbums,
-  sharedAlbums,
-  publicAlbums,
+  reduxMyAlbums,
+  reduxFriendsAlbums,
+  reduxSharedAlbums,
+  reduxPublicAlbums,
   user,
   usersCache,
   
@@ -55,25 +53,11 @@ const Profile = ({
   searchFriends,
   sendFriendRequest,
   unfriend,
-  updateUserProfile,
 }) => {
   const router = useRouter()
 
   const [showHowTo, setShowHowTo] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
-  const [pressingSave, setPressingSave] = useState(false)
-  const [isLoadingAlbums, setIsLoadingAlbums] = useState(false)
-  const [isMyAlbumsLoaded, setIsMyAlbumsLoaded] = useState(false)
-
-  const [email,] = useState(user?.email)
-  const [userName, setUserName] = useState(user?.userName)
-  const [firstName, setFirstName] = useState(user?.firstName)
-  const [lastName, setLastName] = useState(user?.lastName)
-  const [iconNumber, setIconNumber] = useState(user?.iconNumber)
-  // const [isPublic, setIsPublic] = useState(user?.isPublic)
-  // const [birthYear, setBirthYear] = useState(user?.birthYear)
-  // const [gender, setGender] = useState(user?.gender)
-  // const [ustaLevel, setUstaLevel] = useState(user?.ustaLevel)
 
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
@@ -83,25 +67,16 @@ const Profile = ({
   const [currentComments, setCurrentComments] = useState([])
 
   const [myAlbumsPage, setMyAlbumsPage] = useState(0)
-  const [albumType, setAlbumType] = useState("owner") // owner - friends - shared - public
+  const [sharedAlbumsPage, setSharedAlbumsPage] = useState(0)
+  const [myAlbums, setMyAlbums] = useState(null)
+  const [sharedAlbums, setSharedAlbums] = useState(null)
+  const [albumType, setAlbumType] = useState("shared") // friends - shared - public
 
   const [friendsSearch, setFriendsSearch] = useState("")
   const [foundUsers, setFoundUsers] = useState([])
 
-  let sourceAlbums
-  switch(albumType) {
-  case "owner": sourceAlbums = myAlbums
-    break
-  case "friends": sourceAlbums = friendsAlbums
-    break
-  case "shared": sourceAlbums = sharedAlbums
-    break
-  case "public": sourceAlbums = publicAlbums
-    break
-  default: sourceAlbums = myAlbums
-  }
-  const activeAlbums = sourceAlbums.slice(myAlbumsPage * albumsPerColumn, (myAlbumsPage+1) * albumsPerColumn).filter( a => !!a ) || []
-  const saveButtonStyle = pressingSave ? "bg-yellow-300 text-black" : "bg-black text-yellow-300"
+  const myActiveAlbums = (myAlbums || []).slice(myAlbumsPage * 4, (myAlbumsPage+1) * 4).filter( a => !!a ) || []
+  const sharedActiveAlbums = (sharedAlbums || []).slice(sharedAlbumsPage * 3, (sharedAlbumsPage+1) * 3).filter( a => !!a ) || []
 
   useEffect(() => {
     if (!user || !user?.id) {
@@ -109,57 +84,47 @@ const Profile = ({
     }
   }, [user])
 
+  // load albums by relevance then presence
+  useEffect( async () => {
+    loadMyAlbums()
+    const shared = await loadSharedAlbums()
+    if (shared && shared.length > 0) return
+
+    const friends = await loadFriendsAlbums()
+    if (friends && friends.length > 0) {
+      setAlbumType("friends")
+      return
+    }
+
+    loadPublicAlbums()
+    setAlbumType("public")
+  }, [])
+
+  useEffect(async () => {
+    if (reduxMyAlbums) setMyAlbums([...reduxMyAlbums])
+    if (albumType === "friends") setSharedAlbums([...reduxFriendsAlbums])
+    if (albumType === "shared") setSharedAlbums([...reduxSharedAlbums])
+    if (albumType === "public") setSharedAlbums([...reduxPublicAlbums])
+  }, [albumType, reduxMyAlbums, reduxFriendsAlbums, reduxSharedAlbums, reduxPublicAlbums])
+
   useEffect(async () => {
     if (user) {
       switch(albumType) {
-      case "owner":
-        if (myAlbums.length === 0) {
-          setIsLoadingAlbums(true)
-          await loadMyAlbums()
-          setIsMyAlbumsLoaded(true)
-          setIsLoadingAlbums(false)
-        }
+      case "friends": loadFriendsAlbums()
         break
-      case "friends":
-        if (friendsAlbums.length === 0) {
-          setIsLoadingAlbums(true)
-          await loadFriendsAlbums()
-          setIsLoadingAlbums(false)
-        }
+      case "shared": loadSharedAlbums()
         break
-      case "shared":
-        if (sharedAlbums.length === 0) {
-          setIsLoadingAlbums(true)
-          await loadSharedAlbums()
-          setIsLoadingAlbums(false)
-        }
-        break
-      case "public":
-        if (publicAlbums.length === 0) {
-          setIsLoadingAlbums(true)
-          loadPublicAlbums()
-          setIsLoadingAlbums(false)
-        }
+      case "public": loadPublicAlbums()
         break
       default: break
       }
     }
-  }, [user, albumType, myAlbums, friendsAlbums, sharedAlbums, publicAlbums])
+  }, [user, albumType])
 
   useEffect(() => {
-    if (isMyAlbumsLoaded) {
-      const emptyMyAlbums = myAlbums.length === 0
-      setShowHowTo(emptyMyAlbums)
-      if (emptyMyAlbums) {
-        loadPublicAlbums()
-        setAlbumType("public")
-      }
-    }
-  }, [myAlbums, isMyAlbumsLoaded])
-
-  useEffect(() => {
+    const activeAlbums = [...myActiveAlbums, ...sharedActiveAlbums]
     setPlayerRefs(ref => activeAlbums.map((_, i) => ref[i] || createRef()))
-    setPlayings(activeAlbums.map(() => true))
+    setPlayings(activeAlbums.map(() => false))
     setPips(activeAlbums.map(() => false))
     setCurrentSwings(activeAlbums.map(() => 0))
     setCurrentComments(activeAlbums.map(album => {
@@ -239,22 +204,6 @@ const Profile = ({
     })
   }
 
-  const onUpdateUserProfile = async () => {
-    const success = updateUserProfile({
-      userName,
-      firstName,
-      lastName,
-      iconNumber,
-      isPublic,
-      birthYear,
-      gender,
-      ustaLevel,
-    })
-    if (success) {
-      newFlashMessage({ message: "Profile successfully updated"})
-    }
-  }
-
   const onSearchUsers = async e => {
     const search = e.target.value
     setFriendsSearch(search)
@@ -324,187 +273,69 @@ const Profile = ({
                     onClick={() => setShowHowTo(!showHowTo)}
                   />
                   <h2 className="font-bold text-lg text-center mb-2">
-                    Profile
+                    My Albums
                   </h2>
-                  <p className="text-center text-xs underline">Member since { Moment(user?.createdAt).format("LLL") }</p>
-                </div>
 
-                <div className="flex flex-col content-center justify-center items-center my-5">
-                  {/* <div className="rounded-xl py-4 px-6 bg-gray-100 border border-gray-200 shadow">
-                    <img src={getUserIcon({ ...user, iconNumber })} className="w-20 h-20"/>
-                  </div> */}
-                  <div className="flex flex-row mt-4 mb-2">
-                    { getUserIcons(user).map((icon, i) => {
-                      return(
+                  <div className="block pt-6 p-4 bg-white rounded shadow-lg static">
+
+                    { (myActiveAlbums.length === 0 && myAlbums === []) &&
+                      <div className="px-20 mt-4">
+                        <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
+                      </div>
+                    }
+                    { (myActiveAlbums.length === 0 && myAlbums === null) &&
+                      <div className="px-20 mt-4">
+                        <p className="text-center bg-yellow-300 text-gray-700 tracking-wide rounded-lg w-full px-20">Loading...</p>
+                      </div>
+                    }
+
+                    <div className="flex flex-row lg:flex-wrap lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto">
+                      { myActiveAlbums.map((album, i) => 
                         <div key={i}
-                          className={`hover:bg-blue-200 rounded-xl p-3 mx-2 cursor-pointer ${icon.number === (user.iconNumber || 1) && "border border-gray-400"}`}
+                          className="m-2 w-11/12 lg:w-5/12 h-full"
                         >
-                          <img src={icon.image}
-                            className="w-8 h-8"
-                            onClick={() => setIconNumber(icon.number)}
+                          <AlbumAndCommentsPreview
+                            key={i}
+                            album={album}
+                            comments={currentComments[i] || []}
+                            duration={playerFrames[i]}
+                            pip={pips[i]}
+                            playing={playings[i]}
+                            playerRef={playerRefs[i]}
+                            swingIdx={currentSwings[i]}
+                            swingFrames={SWING_FRAMES}
+                            user={user}
+
+                            onSetSwingIndex={onSetCurrentSwings(i)}
+                            onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                            onTogglePlay={onTogglePlay(i)}
+                            onTogglePip={onTogglePip(i)}
+                            onPlayerProgress={onPlayerProgress(i)}
+                          />
+                        </div>  
+                      )}
+                    </div>
+
+                    { myAlbumsPage > 0 &&
+                        <div className="w-full content-center justify-center items-center mb-1">
+                          <input type="button"
+                            className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                            value={`Previous Page (${myAlbumsPage})`}
+                            onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
                           />
                         </div>
-                      )
-                    })}
+                    }
+
+                    { myActiveAlbums.length === 4 &&
+                      <div className="w-full content-center justify-center items-center">
+                        <input type="button"
+                          className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                          value={`Next Page (${myAlbumsPage+2})`}
+                          onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
+                        />
+                      </div>
+                    }
                   </div>
-                  <p className="text-xs tracking-wider text-gray-700">Choose your avatar icon</p>
-                </div>
-
-                {/* Standard Profile */}
-                <div className="flex flex-row content-center justify-center items-center mb-10">
-                  <div className="flex flex-col content-center justify-center items-end">
-
-                    <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right text-sm align-center w-28 px-2 text-gray-600 uppercase whitespace-no-wrap font-semibold">
-                        Email
-                      </p>
-                      <div className="rounded-md px-2 py-1 w-40">
-                        <input type="text"
-                          className="w-40 px-1 rounded-md whitespace-no-wrap bg-transparent"
-                          value={email}
-                          disabled={true}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right text-sm align-center w-28 px-2 text-gray-600 uppercase whitespace-no-wrap font-semibold">
-                        User Name
-                      </p>
-                      <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                        <p className="mr-0.5">@</p>
-                        <input type="text"
-                          className="w-36 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                          value={userName}
-                          onChange={e => setUserName(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right text-sm align-center w-28 px-2 text-gray-600 uppercase whitespace-no-wrap font-semibold">
-                        First Name
-                      </p>
-                      <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                        <input type="text"
-                          className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                          value={firstName}
-                          onChange={e => setFirstName(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right text-sm align-center w-28 px-2 text-gray-600 uppercase whitespace-no-wrap font-semibold">
-                        Last Name
-                      </p>
-                      <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                        <input type="text"
-                          className="w-40 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                          value={lastName}
-                          onChange={e => setLastName(e.target.value)}
-                        />
-                      </div>
-
-                    </div>
-                  </div>
-                </div>
-
-                {/* Expanded Profile */}
-                {/* <p className="align-center px-2 py-1 rounded-md tracking-wide text-sm text-gray-700 text-center">
-                  This profile data helps us connect you with other tennis players and relevant topics
-                </p>
-
-                <div className="flex flex-col content-center justify-center items-center py-4">
-                  <div className="flex flex-col content-center justify-center items-center">
-
-                    <div className="flex flex-row w-full content-center justify-center items-center">
-                      <p className="text-right align-center w-28 px-2 py-1 rounded-md font-bold tracking-wide">
-                        Public?
-                      </p>
-                      <input type="checkbox"
-                        className="shadow-md"
-                        checked={isPublic}
-                        onChange={() => setIsPublic(!isPublic)}
-                      />
-                    </div>
-
-                    <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
-                        Birth Year
-                      </p>
-                      <div className="flex flex-row rounded-md px-2 py-1 w-40">
-                        <input type="text"
-                          className="w-36 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                          value={birthYear || ""}
-                          onChange={e => {
-                            let val = parseInt(e.target.value)
-                            if (!val) val = undefined
-                            setBirthYear(val)
-                          }}
-                        />
-                        { birthYear &&
-                          <input type="button"
-                            className="w-6 h-6 px-1.5 ml-1 shadow-md rounded-xl bg-black text-yellow-300 text-xs font-bold cursor-pointer"
-                            value="X"
-                            min="1900"
-                            maxLength="4"
-                            onClick={() => setBirthYear(null)}
-                          />
-                        }
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
-                        Gender
-                      </p>
-                      <div className="flex flex-row rounded-md px-2 py-1 w-44">
-                        <select onChange={e => setGender(e.target.value)}
-                          value={gender}
-                          className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                        >
-                          <option value={undefined}>-</option>
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-row content-center justify-center items-center">
-                      <p className="text-right align-center w-28 px-2 py-1 float-right rounded-md font-bold tracking-wide">
-                        USTA Level
-                      </p>
-                      <div className="flex flex-row rounded-md px-2 py-1 w-44">
-                        <select onChange={e => setUstaLevel(parseFloat(e.target.value))}
-                          value={ustaLevel}
-                          className="w-44 px-1 rounded-md bg-gray-200 border border-gray-400 shadow-md"
-                        >
-                          <option value={undefined}>-</option>
-                          <option value={2.5}>2.5</option>
-                          <option value={3.0}>3.0</option>
-                          <option value={3.5}>3.5</option>
-                          <option value={4.0}>4.0</option>
-                          <option value={4.5}>4.5</option>
-                          <option value={5.0}>5.0</option>
-                          <option value={5.5}>5.5</option>
-                          <option value={6.0}>6.0</option>
-                          <option value={6.5}>6.5</option>
-                          <option value={7.0}>7.0</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div> */}
-          
-                <div className="flex flex-col w-full content-center justify-center items-center mt-12 mb-4">
-                  <input type="button"
-                    onMouseDown={() => setPressingSave(true)}
-                    onMouseUp={() => setPressingSave(false)}
-                    className={`w-22 px-2 py-3 rounded-lg ${saveButtonStyle} border border-gray-400 shadow-md uppercase tracking-wide font-semibold cursor-pointer`}
-                    value="SAVE PROFILE"
-                    onClick={onUpdateUserProfile}
-                  />
                 </div>
               </div>
 
@@ -553,11 +384,9 @@ const Profile = ({
                         <p className="username">@{ userName }</p>
                         <p className="fullname">{ firstName } {lastName}</p>
                         { (!isFriend && !isRequested && id !== user.id) &&
-                      <button
-                        onClick={onSendFriendRequest({ id, userName })}
-                      >
-                        Request
-                      </button>
+                          <button onClick={onSendFriendRequest({ id, userName })}>
+                            Request
+                          </button>
                         }
                       </UserResultBox>
                     )
@@ -666,14 +495,6 @@ const Profile = ({
               </h2>
 
               <div className="flex flex-row content-center justify-center items-center mb-3">
-                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "owner" && "bg-gray-300 shadow-md"}`}>
-                  <input type="button"
-                    value="owner"
-                    onClick={() => setAlbumType("owner")}
-                    className="px-2 m-1 rounded-lg bg-yellow-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                  />
-                </div>
-
                 <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "shared" && "bg-gray-300 shadow-md"}`}>
                   <input type="button"
                     value="shared"
@@ -699,19 +520,19 @@ const Profile = ({
                 </div>
               </div>
 
-              { (activeAlbums.length === 0 && !isLoadingAlbums) &&
+              { (sharedActiveAlbums.length === 0 && sharedAlbums === []) &&
                 <div className="px-20 mt-4">
                   <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
                 </div>
               }
-              { (activeAlbums.length === 0 && isLoadingAlbums) &&
+              { (sharedActiveAlbums.length === 0 && sharedAlbums === null) &&
                 <div className="px-20 mt-4">
                   <p className="text-center bg-yellow-300 text-gray-700 tracking-wide rounded-lg w-full px-20">Loading...</p>
                 </div>
               }
 
               <div className="flex flex-row lg:flex-col overflow-x-scroll">
-                { activeAlbums.map((album, i) => 
+                { sharedActiveAlbums.map((album, i) => 
                   <div key={i}
                     className="mx-1 lg:mx-0 w-11/12 lg:w-full"
                   >
@@ -737,22 +558,22 @@ const Profile = ({
                 )}
               </div>
 
-              { myAlbumsPage > 0 &&
+              { sharedAlbumsPage > 0 &&
                 <div className="w-full content-center justify-center items-center mb-1">
                   <input type="button"
                     className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
-                    value={`Previous Page (${myAlbumsPage})`}
-                    onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
+                    value={`Previous Page (${sharedAlbumsPage})`}
+                    onClick={() => setSharedAlbumsPage(sharedAlbumsPage-1)}
                   />
                 </div>
               }
 
-              { activeAlbums.length === albumsPerColumn &&
+              { sharedActiveAlbums.length === 3 &&
                 <div className="w-full content-center justify-center items-center">
                   <input type="button"
                     className="rounded border-2 border-gray-400 w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
-                    value={`Next Page (${myAlbumsPage+2})`}
-                    onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
+                    value={`Next Page (${sharedAlbumsPage+2})`}
+                    onClick={() => setSharedAlbumsPage(sharedAlbumsPage+1)}
                   />
                 </div>
               }
@@ -769,10 +590,10 @@ const Profile = ({
 const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
-    myAlbums: state.albums.myAlbums,
-    friendsAlbums: state.albums.friendsAlbums,
-    sharedAlbums: state.albums.sharedAlbums,
-    publicAlbums: state.albums.publicAlbums,
+    reduxMyAlbums: state.albums.myAlbums,
+    reduxFriendsAlbums: state.albums.friendsAlbums,
+    reduxSharedAlbums: state.albums.sharedAlbums,
+    reduxPublicAlbums: state.albums.publicAlbums,
     user: state.user,
     usersCache: state.usersCache,
   }
@@ -795,10 +616,10 @@ const mapDispatchToProps = (dispatch) => {
 }
   
 Profile.propTypes = {
-  myAlbums: PropTypes.arrayOf(PropTypes.object),
-  friendsAlbums: PropTypes.arrayOf(PropTypes.object),
-  sharedAlbums: PropTypes.arrayOf(PropTypes.object),
-  publicAlbums: PropTypes.arrayOf(PropTypes.object),
+  reduxMyAlbums: PropTypes.arrayOf(PropTypes.object),
+  reduxFriendsAlbums: PropTypes.arrayOf(PropTypes.object),
+  reduxSharedAlbums: PropTypes.arrayOf(PropTypes.object),
+  reduxPublicAlbums: PropTypes.arrayOf(PropTypes.object),
   user: PropTypes.object,
   usersCache: PropTypes.object,
 

@@ -34,7 +34,7 @@ const NavBar = ({
   const { confirmation: confirmationID } = router.query
 
   const [showLoginForm, setShowLoginForm] = useState(false)
-  const [showProfileForm, setShowProfileForm] = useState(true)
+  const [showProfileForm, setShowProfileForm] = useState(false)
 
   useEffect(() => {
     if (confirmationID) {

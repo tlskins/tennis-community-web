@@ -9,7 +9,7 @@ export const LoadMyAlbums = (dispatch) => async ({ limit, offset } = {}) => {
   try {
     const response = await put("/albums/search", { my: true, limit, offset })
     dispatch(setMyAlbums(response.data))
-    return true
+    return response.data
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -21,7 +21,7 @@ export const LoadFriendsAlbums = (dispatch) => async ({ limit, offset } = {}) =>
   try {
     const response = await put("/albums/search", { friends: true, limit, offset })
     dispatch(setFriendsAlbums(response.data))
-    return true
+    return response.data
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -33,7 +33,7 @@ export const LoadSharedAlbums = (dispatch) => async ({ limit, offset } = {}) => 
   try {
     const response = await put("/albums/search", { shared: true, limit, offset })
     dispatch(setSharedAlbums(response.data))
-    return true
+    return response.data
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -49,7 +49,7 @@ export const LoadPublicAlbums = (dispatch) => async ({ homeApproved, limit, offs
     }
     const response = await put("/albums/search", params)
     dispatch(setPublicAlbums(response.data))
-    return true
+    return response.data
   }
   catch( err ) {
     HandleError(dispatch, err)

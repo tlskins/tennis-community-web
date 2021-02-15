@@ -105,19 +105,14 @@ const NavBar = ({
               <Link href="/admin">Admin</Link>
             </LinkClass>
           }
-          <LinkClass>
-            <div className="flex flex-row content-center justify-center items-center m-2">
-              {/* <a className="inline-block whitespace-nowrap" href="#" onClick={ onSignOut }>Sign Out</a> */}
-              <img src={getUserIcon(user)}
-                className="w-4 h-4 cursor-pointer"
-                onClick={() => setShowProfileForm(!showProfileForm)}
-              />
-            </div>
-          </LinkClass>
+          <img src={getUserIcon(user)}
+            className="w-8 h-8 mx-3 rounded-full cursor-pointer bg-white bg-opacity-25"
+            onClick={() => setShowProfileForm(!showProfileForm)}
+          />
           { showProfileForm &&
-              <Modal width="400" hideModal={ () => setShowProfileForm(false)}>
-                <ProfileForm/>
-              </Modal>
+            <Modal width="400" hideModal={ () => setShowProfileForm(false)}>
+              <ProfileForm/>
+            </Modal>
           }
         </LinksContainer>
       }

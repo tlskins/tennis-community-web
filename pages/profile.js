@@ -296,11 +296,11 @@ const Profile = ({
                     <div className="flex flex-row lg:grid lg:grid-cols-2 lg:gap-2 lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-x-auto">
                       
                       { myAlbumsPage === 0 &&
-                        <div className="flex m-2 lg:w-11/12 lg:h-3/4 content-center justify-center items-center lg:bg-gray-100 lg:shadow-lg"
+                        <div className="flex m-2 w-11/12 content-center justify-center items-center lg:bg-gray-100 lg:shadow-lg p-8"
                           style={{"min-width": "80%"}}
                         >
                           <button
-                            className="bg-gray-800 text-yellow-300 p-5 rounded font-bold text-lg shadow-lg text-center hover:bg-yellow-300 hover:text-gray-800"
+                            className="bg-gray-800 text-yellow-300 p-5 rounded font-bold text-lg uppercase shadow-lg text-center hover:bg-yellow-300 hover:text-gray-800"
                             onClick={() => router.push("/albums/new")}
                           >
                           New Album

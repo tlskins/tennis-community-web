@@ -289,10 +289,23 @@ const Profile = ({
                       </div>
                     }
 
-                    <div className="flex flex-row lg:flex-wrap lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto">
+                    {/* <div className="flex flex-row lg:flex-wrap lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto"> */}
+                    <div className="flex flex-row lg:grid lg:grid-cols-2 gap-2 lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto">
+                      
+                      <div className="flex m-2 lg:w-11/12 lg:h-3/4 content-center justify-center items-center lg:bg-gray-100 lg:shadow-lg"
+                        style={{"min-width": "80%"}}
+                      >
+                        <button
+                          className="bg-gray-800 text-yellow-300 p-5 rounded font-bold text-lg shadow-lg text-center hover:bg-yellow-300 hover:text-gray-800"
+                          onClick={() => router.push("/albums/new")}
+                        >
+                          New Album
+                        </button>
+                      </div>
+
                       { myActiveAlbums.map((album, i) => 
                         <div key={i}
-                          className="m-2 w-11/12 lg:w-5/12 h-full"
+                          className="m-2 w-11/12 h-11/12 content-center justify-center items-center"
                         >
                           <AlbumAndCommentsPreview
                             key={i}
@@ -488,10 +501,9 @@ const Profile = ({
               </div>
             </div>
 
-            {/* Recent Albums */}
             <div className="flex flex-col lg:w-1/3 pt-6 p-4 bg-white rounded shadow-lg static">
               <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
-                Recent Albums
+                Shared Albums
               </h2>
 
               <div className="flex flex-row content-center justify-center items-center mb-3">
@@ -531,7 +543,7 @@ const Profile = ({
                 </div>
               }
 
-              <div className="flex flex-row lg:flex-col overflow-x-scroll">
+              <div className="flex flex-row lg:flex-col overflow-x-scroll">              
                 { sharedActiveAlbums.map((album, i) => 
                   <div key={i}
                     className="mx-1 lg:mx-0 w-11/12 lg:w-full"

@@ -114,7 +114,7 @@ const ProfileForm = ({
 
               <div className="flex flex-row content-center justify-center items-center">
                 <p className="text-right text-sm align-center w-28 px-2 text-gray-600 uppercase whitespace-no-wrap font-semibold">
-                        Last Name
+                  Last Name
                 </p>
                 <div className="flex flex-row rounded-md px-2 py-1 w-40">
                   <input type="text"

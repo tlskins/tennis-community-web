@@ -253,7 +253,6 @@ const Profile = ({
       <main className="overflow-y-scroll bg-gray-200 static">
 
         {/* Begin Main */}
-
         <div className="p-4 block lg:flex flex-col">
 
           {/* How to upload first album */}
@@ -265,9 +264,9 @@ const Profile = ({
           }
 
           {/* Main */}
-          <div className="block lg:flex flex-row">
+          <div className="block relative">
+            {/* My Albums */}
             <div className="flex flex-col lg:w-2/3 lg:mr-4">
-              {/* Profile */}
               <div className="pt-6 pb-20 px-10 bg-white rounded shadow-lg static mb-6">
                 <div className="w-full">
                   <img src={hoverUploadButton ? uploadBlue : uploadYellow}
@@ -357,34 +356,108 @@ const Profile = ({
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* Video Resources */}
-              <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 mb-4">
+            {/* Shared Albums */}
+            <div className="flex flex-col lg:absolute lg:w-1/3 h-full pb-4 lg:pb-0 lg:px-4 right-0 top-0">
+              <div className="bg-white rounded shadow-lg static p-4 h-full">
+                <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
+                Shared Albums
+                </h2>
 
-                <div className="py-1 px-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg">
-                  <h2 className="font-bold text-lg text-center mb-2">
-                  Pro Swings
-                  </h2>
-                  <ProComparison />
+                <div className="flex flex-row content-center justify-center items-center mb-3">
+                  <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "shared" && "bg-gray-300 shadow-md"}`}>
+                    <input type="button"
+                      value="shared"
+                      onClick={() => setAlbumType("shared")}
+                      className="px-2 m-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                    />
+                  </div>
+
+                  <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "friends" && "bg-gray-300 shadow-md"}`}>
+                    <input type="button"
+                      value="friends"
+                      onClick={() => setAlbumType("friends")}
+                      className="px-2 m-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                    />
+                  </div>
+
+                  <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "public" && "bg-gray-300 shadow-md"}`}>
+                    <input type="button"
+                      value="public"
+                      onClick={() => setAlbumType("public")}
+                      className="px-2 m-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
+                    />
+                  </div>
                 </div>
-                
-                <div className="p-1 flex flex-col lg:w-2/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg">
-                  <h2 className="font-bold text-lg text-center mb-2">
-                  Tutorials
-                  </h2>
-                  <VideoResources
-                    defaultVideoGroup="Forehands"
-                    defaultVideo="Forehand Form Basics"
+
+                { (sharedActiveAlbums.length === 0 && sharedAlbums === []) &&
+                <div className="px-20 mt-4">
+                  <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
+                </div>
+                }
+                { (sharedActiveAlbums.length === 0 && sharedAlbums === null) &&
+                <div className="px-20 mt-4">
+                  <p className="text-center bg-yellow-300 text-gray-700 tracking-wide rounded-lg w-full px-20">Loading...</p>
+                </div>
+                }
+
+                <div className="flex flex-row lg:flex-col overflow-x-scroll lg:overflow-x-auto">              
+                  { sharedActiveAlbums.map((album, i) => 
+                    <div key={i}
+                      className="mx-1 lg:mx-0 w-11/12 lg:w-full"
+                    >
+                      <AlbumAndCommentsPreview
+                        key={i}
+                        album={album}
+                        comments={currentComments[i] || []}
+                        duration={playerFrames[i]}
+                        pip={pips[i]}
+                        playing={playings[i]}
+                        playerRef={playerRefs[i]}
+                        swingIdx={currentSwings[i]}
+                        swingFrames={SWING_FRAMES}
+                        user={user}
+
+                        onSetSwingIndex={onSetCurrentSwings(i)}
+                        onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                        onTogglePlay={onTogglePlay(i)}
+                        onTogglePip={onTogglePip(i)}
+                        onPlayerProgress={onPlayerProgress(i)}
+                      />
+                    </div>  
+                  )}
+                </div>
+
+                { sharedAlbumsPage > 0 &&
+                <div className="w-full content-center justify-center items-center mb-1">
+                  <input type="button"
+                    className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                    value={`Previous Page (${sharedAlbumsPage})`}
+                    onClick={() => setSharedAlbumsPage(sharedAlbumsPage-1)}
                   />
                 </div>
-                
+                }
+
+                { sharedActiveAlbums.length === sharedAlbumsPerPage &&
+                <div className="w-full content-center justify-center items-center">
+                  <input type="button"
+                    className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                    value={`Next Page (${sharedAlbumsPage+2})`}
+                    onClick={() => setSharedAlbumsPage(sharedAlbumsPage+1)}
+                  />
+                </div>
+                }
               </div>
+            </div>
+          
+            {/* Videos & Friends */}
+            <div className="flex flex-col lg:w-2/3 lg:mr-4">
 
               {/* Friends */}
               <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 lg:h-96">
-                {/* Friends Search */}
                 <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-scroll">
-                  <div className="content-center justify-center items-center w-full">
+                  <div className="content-center justify-center items-center w-full relative">
                     <SearchBoxContainer>
                       <SearchBox
                         placeholder="Search Users"
@@ -505,97 +578,30 @@ const Profile = ({
                   </div>
                 </div>
               </div>
+            
+              {/* Video Resources */}
+              <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 mb-4">
+
+                <div className="py-1 px-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg">
+                  <h2 className="font-bold text-lg text-center mb-2">
+                  Pro Swings
+                  </h2>
+                  <ProComparison />
+                </div>
+                
+                <div className="p-1 flex flex-col lg:w-2/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg">
+                  <h2 className="font-bold text-lg text-center mb-2">
+                  Tutorials
+                  </h2>
+                  <VideoResources
+                    defaultVideoGroup="Forehands"
+                    defaultVideo="Forehand Form Basics"
+                  />
+                </div>
+                
+              </div>
             </div>
 
-            <div className="flex flex-col lg:w-1/3 pt-6 p-4 bg-white rounded shadow-lg static">
-              <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
-                Shared Albums
-              </h2>
-
-              <div className="flex flex-row content-center justify-center items-center mb-3">
-                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "shared" && "bg-gray-300 shadow-md"}`}>
-                  <input type="button"
-                    value="shared"
-                    onClick={() => setAlbumType("shared")}
-                    className="px-2 m-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                  />
-                </div>
-
-                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "friends" && "bg-gray-300 shadow-md"}`}>
-                  <input type="button"
-                    value="friends"
-                    onClick={() => setAlbumType("friends")}
-                    className="px-2 m-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                  />
-                </div>
-
-                <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "public" && "bg-gray-300 shadow-md"}`}>
-                  <input type="button"
-                    value="public"
-                    onClick={() => setAlbumType("public")}
-                    className="px-2 m-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              { (sharedActiveAlbums.length === 0 && sharedAlbums === []) &&
-                <div className="px-20 mt-4">
-                  <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
-                </div>
-              }
-              { (sharedActiveAlbums.length === 0 && sharedAlbums === null) &&
-                <div className="px-20 mt-4">
-                  <p className="text-center bg-yellow-300 text-gray-700 tracking-wide rounded-lg w-full px-20">Loading...</p>
-                </div>
-              }
-
-              <div className="flex flex-row lg:flex-col overflow-x-scroll lg:overflow-x-auto">              
-                { sharedActiveAlbums.map((album, i) => 
-                  <div key={i}
-                    className="mx-1 lg:mx-0 w-11/12 lg:w-full"
-                  >
-                    <AlbumAndCommentsPreview
-                      key={i}
-                      album={album}
-                      comments={currentComments[i] || []}
-                      duration={playerFrames[i]}
-                      pip={pips[i]}
-                      playing={playings[i]}
-                      playerRef={playerRefs[i]}
-                      swingIdx={currentSwings[i]}
-                      swingFrames={SWING_FRAMES}
-                      user={user}
-
-                      onSetSwingIndex={onSetCurrentSwings(i)}
-                      onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
-                      onTogglePlay={onTogglePlay(i)}
-                      onTogglePip={onTogglePip(i)}
-                      onPlayerProgress={onPlayerProgress(i)}
-                    />
-                  </div>  
-                )}
-              </div>
-
-              { sharedAlbumsPage > 0 &&
-                <div className="w-full content-center justify-center items-center mb-1">
-                  <input type="button"
-                    className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
-                    value={`Previous Page (${sharedAlbumsPage})`}
-                    onClick={() => setSharedAlbumsPage(sharedAlbumsPage-1)}
-                  />
-                </div>
-              }
-
-              { sharedActiveAlbums.length === sharedAlbumsPerPage &&
-                <div className="w-full content-center justify-center items-center">
-                  <input type="button"
-                    className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
-                    value={`Next Page (${sharedAlbumsPage+2})`}
-                    onClick={() => setSharedAlbumsPage(sharedAlbumsPage+1)}
-                  />
-                </div>
-              }
-            </div>
           </div>
 
         </div>

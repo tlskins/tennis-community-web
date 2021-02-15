@@ -5,8 +5,6 @@ import ReactPlayer from "react-player"
 import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { RiPictureInPicture2Fill, RiPictureInPictureExitFill } from "react-icons/ri"
-import { BsTrash } from "react-icons/bs"
-import { ImBubbles2 } from "react-icons/im"
 import { IconContext } from "react-icons"
 
 import speechBubble from "../public/speech-bubble.svg"
@@ -174,7 +172,7 @@ const AlbumAndCommentsPreview = ({
           </p>
 
           <p className="text-xs bg-white rounded-lg mx-1 mb-1 text-xs px-1">
-            { album.swingVideos[album.swingVideos.length-1].rally } <span className="font-semibold">rallies</span>
+            { album.swingVideos[album.swingVideos.length-1].rally || 1 } <span className="font-semibold">rallies</span>
           </p>
 
           <div className="flex flex-row bg-white rounded-lg mx-1 mb-1 text-xs px-1 w-10">

@@ -580,7 +580,7 @@ const Profile = ({
               </div>
             
               {/* Video Resources */}
-              <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 mb-4">
+              <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 mt-4">
 
                 <div className="py-1 px-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg">
                   <h2 className="font-bold text-lg text-center mb-2">

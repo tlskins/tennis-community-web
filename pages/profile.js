@@ -456,7 +456,7 @@ const Profile = ({
 
               {/* Friends */}
               <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 lg:h-96">
-                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-scroll">
+                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-auto">
                   <div className="content-center justify-center items-center w-full relative">
                     <SearchBoxContainer>
                       <SearchBox
@@ -486,7 +486,7 @@ const Profile = ({
                 </div>
 
                 {/* Friends */}
-                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-scroll">
+                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-auto">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
                     Friends
@@ -519,7 +519,7 @@ const Profile = ({
                 </div>
 
                 {/* Requests */}
-                <div className="p-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-scroll">
+                <div className="p-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-auto">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
                     Requests

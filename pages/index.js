@@ -5,7 +5,7 @@ import { useRouter } from "next/router"
 import Moment from "moment"
 
 import { LoadPublicAlbums } from "../behavior/coordinators/albums"
-import { toggleShowNewUser } from "../state/ui/action"
+import { setLoginFormVisible } from "../state/ui/action"
 import SwingPlayer from "../components/SwingPlayer"
 
 import bg from "../public/homepage-bg.jpg"
@@ -187,7 +187,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     loadPublicAlbums: LoadPublicAlbums(dispatch),
-    onShowNewUser: () => dispatch(toggleShowNewUser()),
+    onShowNewUser: () => dispatch(setLoginFormVisible("REGISTER")),
   }
 }
   

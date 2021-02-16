@@ -1,7 +1,6 @@
 export const NEW_NOTIFICATION = "NEW_NOTIFICATION"
 export const REMOVE_NOTIFICATION = "REMOVE_NOTIFICATION"
-export const TOGGLE_SHOW_NEW_USER = "TOGGLE_SHOW_NEW_USER"
-export const SHOW_INVITE_FORM = "SHOW_INVITE_FORM"
+export const SET_LOGIN_FORM_VISIBLE = "SET_LOGIN_FORM_VISIBLE"
 
 export const newNotification = ( flashNotification ) => ({
   type: NEW_NOTIFICATION,
@@ -11,9 +10,7 @@ export const removeNotification = ( id ) => ({
   type: REMOVE_NOTIFICATION,
   payload: id,
 })
-export const toggleShowNewUser = () => ({
-  type: TOGGLE_SHOW_NEW_USER,
-})
-export const showInviteForm = () => ({
-  type: SHOW_INVITE_FORM,
+export const setLoginFormVisible = formType => ({
+  type: SET_LOGIN_FORM_VISIBLE,
+  payload: formType
 })

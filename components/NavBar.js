@@ -5,9 +5,9 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import Moment from "moment"
 
-import { ConfirmUser, SignOut, LoadConfirmation } from "../behavior/coordinators/users"
+import { ConfirmUser, LoadConfirmation } from "../behavior/coordinators/users"
 import { getUserIcon } from "../behavior/users"
-import { newNotification } from "../state/ui/action"
+import { newNotification, setLoginFormVisible } from "../state/ui/action"
 import LoginForm from "./LoginForm"
 import ProfileForm from "./ProfileForm"
 import Modal from "./Modal"
@@ -26,14 +26,12 @@ const NavBar = ({
   confirmUser,
   displayAlert,
   loadConfirmation,
-  showNewUser,
-  showInviteForm,
-  signOut,
+  setShowLoginForm,
+  showLoginForm,
 }) => {
   const router = useRouter()
   const { confirmation: confirmationID } = router.query
 
-  const [showLoginForm, setShowLoginForm] = useState(false)
   const [showProfileForm, setShowProfileForm] = useState(false)
 
   useEffect(() => {
@@ -61,16 +59,8 @@ const NavBar = ({
 
 
   useEffect(() => {
-    if (showNewUser || showInviteForm) {
-      setShowLoginForm(true)
-    }
-  }, [showNewUser, showInviteForm])
-
-  const onSignOut = async () => {
-    await signOut()
-    window.localStorage.setItem("authToken", "")
-    router.push("/")
-  }
+    setShowProfileForm(showLoginForm)
+  }, [showLoginForm])
 
   return(
     <NavigationBar>
@@ -80,13 +70,13 @@ const NavBar = ({
       { !user || !user.id ?
         <LinksContainer>
           <div className="static">
-            <a href="#" onClick={() => setShowLoginForm(!showLoginForm)}
+            <a href="#" onClick={() => setShowLoginForm(confirmation?.email ? "INVITE" : "SIGN_IN")}
               className="text-yellow-300"
             >
               { confirmation?.email ? "Accept Invitation" : "Sign In" }
             </a>
             { showLoginForm &&
-              <Modal width="400" hideModal={ () => setShowLoginForm(false)}>
+              <Modal width="400" hideModal={ () => setShowLoginForm("")}>
                 <LoginForm/>
               </Modal>
             }
@@ -123,8 +113,7 @@ const NavBar = ({
 const mapStateToProps = (state) => {
   return {
     confirmation: state.confirmation,
-    showNewUser: state.navBar.showNewUser,
-    showInviteForm: state.navBar.showInviteForm,
+    showLoginForm: state.navBar.showLoginForm,
     user: state.user,
   }
 }
@@ -134,20 +123,19 @@ const mapDispatchToProps = (dispatch) => {
     confirmUser: ConfirmUser(dispatch),
     displayAlert: args => dispatch(newNotification(args)),
     loadConfirmation: LoadConfirmation(dispatch),
-    signOut: SignOut(dispatch),
+    setShowLoginForm: formType => dispatch(setLoginFormVisible(formType))
   }
 }
 
 NavBar.propTypes = {
   confirmation: PropTypes.object,
-  showNewUser: PropTypes.number,
-  showInviteForm: PropTypes.number,
+  showLoginForm: PropTypes.string,
   user: PropTypes.object,
 
   confirmUser: PropTypes.func,
   displayAlert: PropTypes.func,
   loadConfirmation: PropTypes.func,
-  signOut: PropTypes.func,
+  setShowLoginForm: PropTypes.func,
 }
 
 

@@ -9,9 +9,9 @@ const pAlbum = json => {
     ...json,
     swingVideos: json.swingVideos.map( swing => ({
       ...swing,
-      jpgURL: swing.jpgURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),
-      gifURL: swing.gifURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),
-      videoURL: swing.videoURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),
+      jpgURL: swing.jpgURL.replace(/http.+com/, process.env.NEXT_PUBLIC_PROD_CDN_URL),
+      gifURL: swing.gifURL.replace(/http.+com/, process.env.NEXT_PUBLIC_PROD_CDN_URL),
+      videoURL: swing.videoURL.replace(/http.+com/, process.env.NEXT_PUBLIC_PROD_CDN_URL),
     }))
   }
 }

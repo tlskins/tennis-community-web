@@ -110,8 +110,6 @@ const Album = ({
   let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
   const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
-  console.log("render", playerRefs)
-
   useEffect(() => {
     if (albumId) {
       loadAlbum(albumId)
@@ -128,7 +126,6 @@ const Album = ({
       ).flat()),
     ]
     allComments = allComments.sort((a, b) => Moment(a.createdAt).isAfter(b.createdAt) ? -1 : 1)
-    console.log("all comments", allComments)
     setComments(allComments)
     setIsPublic(album?.isPublic || false)
     setIsViewableByFriends(album?.isViewableByFriends || false)

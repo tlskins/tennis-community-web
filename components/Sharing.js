@@ -54,8 +54,8 @@ const Sharing = ({
   })
 
   return(
-    <div className="flex flex-col p-2 bg-white rounded shadow-lg">
-      <p className="mb-2">Share with</p>
+    <div className="flex flex-col p-8 bg-white rounded shadow-lg">
+      <p className="mb-2 font-semibold tracking-wide">Share with</p>
       <div className="flex flex-row">
         { user.disablePublicAlbums &&
           <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your public sharing has been disabled</p>
@@ -86,18 +86,18 @@ const Sharing = ({
       {/* Invite User */}
       { setInvEmail &&
         <div className="flex flex-col">
-          <div className="flex flex-row mb-2">
+          <div className="flex flex-row">
             <input id="inviteUser"
               className="mr-2"
               type="checkbox"
               checked={isInviting}
               onChange={() => setIsInviting(!isInviting)}
             />
-            <label htmlFor="inviteUser"> Share by email</label><br></br>
+            <label htmlFor="inviteUser"> By email</label><br></br>
           </div>
 
           { isInviting &&
-              <div className="flex flex-col mb-2">
+              <div className="flex flex-col mt-2">
                 <input type="text"
                   className="rounded border border-black p-1 mb-1"
                   placeholder="email"
@@ -129,13 +129,11 @@ const Sharing = ({
             type="checkbox"
             checked={isSearchingFriends}
             onChange={e => {
-              if (!e.target.checked) {
-                setFriendIds([])
-              }
+              if (!e.target.checked) setFriendIds([])
               setIsSearchingFriends(e.target.checked)
             }}
           />
-          <label htmlFor="specificFriends"> Specific Friends</label><br></br>
+          <label htmlFor="specificFriends"> Request feedback from</label><br></br>
         </div>
 
         { friendIds.length > 0 &&

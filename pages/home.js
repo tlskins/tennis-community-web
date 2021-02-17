@@ -8,7 +8,7 @@ import { GrSearch } from "react-icons/gr"
 
 import Notifications from "../components/Notifications"
 import HowToUpload from "../components/HowToUpload"
-import AlbumAndCommentsPreview from "../components/AlbumAndCommentsPreview"
+import AlbumAndComments from "../components/AlbumAndComments"
 import VideoResources from "../components/VideoResources"
 import ProComparison from "../components/ProComparison"
 import { LoadUser, UpdateUserProfile } from "../behavior/coordinators/users"
@@ -132,26 +132,41 @@ const Home = ({
     setPlayings(activeAlbums.map(() => false))
     setPips(activeAlbums.map(() => false))
     setCurrentSwings(activeAlbums.map(() => 0))
+    // show 3 most recent album or swing comments for each album
     setCurrentComments(activeAlbums.map(album => {
-      let comments = [...(album.comments || []), ...(album.swingVideos.map(swing => (swing.comments || [])).flat())]
-      comments = comments.filter( comment => comment.userId !== user?.id )
+      let comments = [
+        ...(album?.comments || []),
+        ...((album?.swingVideos || []).map( swing => 
+          swing.comments.map( comment => 
+            ({ ...comment, swingName: swing.name, swingId: swing.id })
+          )
+        ).flat()),
+      ]
       comments = comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
       return comments.slice(0,3).filter( c => !!c )
     }))
   }, [myAlbums, myAlbumsPage, user])
 
   useEffect(() => {
+    const userIdsSet = new Set([])
+
     if (currentComments.length > 0) {
-      const commentersSet = new Set([])
       currentComments.forEach( comments => {
         comments.forEach( comment => {
-          if (!usersCache[comment.userId]) commentersSet.add(comment.userId)
+          if (!usersCache[comment.userId]) userIdsSet.add(comment.userId)
         })
       })
-      const ids = Array.from(commentersSet)
-      if (ids.length > 0) searchFriends({ ids })
     }
-  }, [currentComments])
+
+    if (myAlbums?.length > 0) {
+      myAlbums.forEach( album => {
+        if (!usersCache[album.userId]) userIdsSet.add(album.userId)
+      })
+    }
+
+    const ids = Array.from(userIdsSet)
+    if (ids.length > 0) searchFriends({ ids })
+  }, [currentComments, myAlbums, sharedAlbums])
 
   useEffect(() => {
     if (user?.friendRequests.length > 0 || user?.friendIds.length > 0) {
@@ -283,74 +298,73 @@ const Home = ({
           <div className="block relative">
             {/* My Albums */}
             <div className="flex flex-col lg:w-2/3 lg:mr-4">
-              <div className="pt-6 pb-20 px-10 bg-white rounded shadow-lg static mb-6">
-                <div className="w-full">
-                  <img src={hoverUploadButton ? uploadBlue : uploadYellow}
-                    className="w-10 h-8 relative cursor-pointer"
-                    onMouseEnter={() => setHoverUploadButton(true)}
-                    onMouseLeave={() => setHoverUploadButton(false)}
-                    onClick={() => setShowHowTo(!showHowTo)}
-                  />
-                  <h2 className="font-bold text-lg text-center mb-2">
-                    My Albums
-                  </h2>
+              <div className="pt-6 pb-20 px-10 w-full bg-gray-800 rounded shadow-lg relative mb-6">
+                <img src={hoverUploadButton ? uploadBlue : uploadYellow}
+                  className="w-10 h-8 left-10 absolute cursor-pointer"
+                  onMouseEnter={() => setHoverUploadButton(true)}
+                  onMouseLeave={() => setHoverUploadButton(false)}
+                  onClick={() => setShowHowTo(!showHowTo)}
+                />
+                <h2 className="font-bold text-lg text-center text-yellow-300 mb-4">
+                  My Albums
+                </h2>
 
-                  <div className="block pt-6 p-4 bg-white rounded shadow-lg static">
+                <div className="block pt-6 p-4 bg-white rounded shadow-lg static">
 
-                    { (myActiveAlbums.length === 0 && myAlbums === []) &&
+                  { (myActiveAlbums.length === 0 && myAlbums === []) &&
                       <div className="px-20 mt-4">
                         <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
                       </div>
-                    }
-                    { (myActiveAlbums.length === 0 && myAlbums === null) &&
+                  }
+                  { (myActiveAlbums.length === 0 && myAlbums === null) &&
                       <div className="px-20 mt-4">
                         <p className="text-center bg-yellow-300 text-gray-700 tracking-wide rounded-lg w-full px-20">Loading...</p>
                       </div>
-                    }
+                  }
 
-                    {/* <div className="flex flex-row lg:flex-wrap lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto"> */}
-                    <div className="flex flex-row lg:grid lg:grid-cols-2 lg:gap-2 lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-x-auto">
+                  {/* <div className="flex flex-row lg:flex-wrap lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto"> */}
+                  <div className="flex flex-row lg:grid lg:grid-cols-2 lg:gap-2 items-center overflow-x-scroll lg:overflow-x-auto">
                       
-                      { myAlbumsPage === 0 &&
-                        <div className={`flex m-2 w-11/12 content-center justify-center items-center bg-blue-300 rounded-xl shadow-lg p-8 ${myActiveAlbums.length % 2 === 0 && "col-span-2"}`}
+                    { myAlbumsPage === 0 &&
+                        <div className={`flex flex-row m-2 w-11/12 h-60 content-center justify-center items-center rounded-xl bg-video-players bg-yellow-200 bg-contain bg-center bg-no-repeat shadow-lg p-8 ${myActiveAlbums.length % 2 === 0 && "col-span-2"}`}
                           style={{"min-width": "80%"}}
                         >
                           <button
-                            className="bg-gray-800 text-yellow-300 p-5 rounded font-bold text-lg uppercase shadow-lg text-center hover:bg-yellow-300 hover:text-gray-800"
+                            className="bg-yellow-300 text-gray-800 whitespace-nowrap p-2 rounded-lg font-bold text-lg uppercase shadow-lg text-center hover:bg-gray-800 hover:text-yellow-300"
                             onClick={() => router.push("/albums/new")}
                           >
                           New Album
                           </button>
                         </div>
-                      }
+                    }
 
-                      { myActiveAlbums.map((album, i) => 
-                        <div key={i}
-                          className="m-2 w-11/12"
-                        >
-                          <AlbumAndCommentsPreview
-                            key={i}
-                            album={album}
-                            comments={currentComments[i] || []}
-                            duration={playerFrames[i]}
-                            pip={pips[i]}
-                            playing={playings[i]}
-                            playerRef={playerRefs[i]}
-                            swingIdx={currentSwings[i]}
-                            swingFrames={SWING_FRAMES}
-                            user={user}
+                    { myActiveAlbums.map((album, i) => 
+                      <div key={i}
+                        className="m-2 w-11/12"
+                      >
+                        <AlbumAndComments
+                          key={i}
+                          album={album}
+                          comments={currentComments[i] || []}
+                          duration={playerFrames[i]}
+                          pip={pips[i]}
+                          playing={playings[i]}
+                          playerRef={playerRefs[i]}
+                          swingIdx={currentSwings[i]}
+                          swingFrames={SWING_FRAMES}
+                          user={user}
 
-                            onSetSwingIndex={onSetCurrentSwings(i)}
-                            onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
-                            onTogglePlay={onTogglePlay(i)}
-                            onTogglePip={onTogglePip(i)}
-                            onPlayerProgress={onPlayerProgress(i)}
-                          />
-                        </div>  
-                      )}
-                    </div>
+                          onSetSwingIndex={onSetCurrentSwings(i)}
+                          onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                          onTogglePlay={onTogglePlay(i)}
+                          onTogglePip={onTogglePip(i)}
+                          onPlayerProgress={onPlayerProgress(i)}
+                        />
+                      </div>  
+                    )}
+                  </div>
 
-                    { myAlbumsPage > 0 &&
+                  { myAlbumsPage > 0 &&
                         <div className="w-full content-center justify-center items-center mb-1">
                           <input type="button"
                             className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
@@ -358,9 +372,9 @@ const Home = ({
                             onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
                           />
                         </div>
-                    }
+                  }
 
-                    { myActiveAlbums.length === myAlbumsPerPage &&
+                  { myActiveAlbums.length === myAlbumsPerPage &&
                       <div className="w-full content-center justify-center items-center">
                         <input type="button"
                           className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
@@ -368,43 +382,59 @@ const Home = ({
                           onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
                         />
                       </div>
-                    }
-                  </div>
+                  }
                 </div>
               </div>
             </div>
 
             {/* Shared Albums */}
             <div className="flex flex-col lg:absolute lg:w-1/3 h-full pb-4 lg:pb-0 lg:px-4 right-0 top-0">
-              <div className="bg-white rounded shadow-lg static p-4 h-full">
+              <div className="bg-white rounded bg-yellow-300 shadow-lg content-center justify-start items-center static p-4 h-full">
                 <h2 className="font-bold text-lg text-center tracking-wider mb-1 w-full">
                 Shared Albums
                 </h2>
 
-                <div className="flex flex-row content-center justify-center items-center mb-3">
-                  <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "shared" && "bg-gray-300 shadow-md"}`}>
-                    <input type="button"
-                      value="shared"
-                      onClick={() => setAlbumType("shared")}
-                      className="px-2 m-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                    />
+                <div className="w-full flex flex-col content-center justify-center items-center mb-3">
+                  <div className="flex flex-col w-40 content-center justify-center items-start">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-3 rounded-xl ${albumType === "shared" ? "bg-gray-800 text-yellow-300" : "bg-yellow-300"}`}>
+                      <input type="radio"
+                        id="filterRequested"
+                        checked={albumType === "shared"}
+                        onChange={() => setAlbumType("shared")}
+                      />
+                      <label htmlFor="filterRequested"
+                        className="ml-2 text-sm font-semibold uppercase"
+                      >Requested</label>
+                    </div>
+
+                    <div className={`flex content-center justify-center items-center py-0.5 px-3 rounded-xl ${albumType === "friends" ? "bg-gray-800 text-yellow-300" : "bg-yellow-300"}`}>
+                      <input type="radio"
+                        id="filterFriends"
+                        checked={albumType === "friends"}
+                        onChange={() => setAlbumType("friends")}
+                      />
+                      <label htmlFor="filterFriends"
+                        className="ml-2 text-sm font-semibold uppercase"
+                      >Friends</label>
+                    </div>
+
+                    <div className={`flex content-center justify-center items-center py-0.5 px-3 rounded-xl ${albumType === "public" ? "bg-gray-800 text-yellow-300" : "bg-yellow-300"}`}>
+                      <input type="radio"
+                        id="filterPublic"
+                        checked={albumType === "public"}
+                        onChange={() => setAlbumType("public")}
+                      />
+                      <label htmlFor="filterPublic"
+                        className="ml-2 text-sm font-semibold uppercase"
+                      >Public</label>
+                    </div>
                   </div>
 
-                  <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "friends" && "bg-gray-300 shadow-md"}`}>
-                    <input type="button"
-                      value="friends"
-                      onClick={() => setAlbumType("friends")}
-                      className="px-2 m-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                    />
-                  </div>
-
-                  <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "public" && "bg-gray-300 shadow-md"}`}>
-                    <input type="button"
-                      value="public"
-                      onClick={() => setAlbumType("public")}
-                      className="px-2 m-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                    />
-                  </div>
+                  { albumType === "shared" &&
+                      <p className="text-xs text-center w-full mb-1 text-gray-800">
+                        Your friends have requested your review on these albums
+                      </p>
+                  }
                 </div>
 
                 { (sharedActiveAlbums.length === 0 && sharedAlbums === []) &&
@@ -419,29 +449,33 @@ const Home = ({
                 }
 
                 <div className="flex flex-row lg:flex-col overflow-x-scroll lg:overflow-x-auto">              
-                  { sharedActiveAlbums.map((album, i) => 
-                    <div key={i}
-                      className="mx-1 lg:mx-0 w-11/12 lg:w-full"
-                    >
-                      <AlbumAndCommentsPreview
-                        key={i}
-                        album={album}
-                        comments={currentComments[i] || []}
-                        duration={playerFrames[i]}
-                        pip={pips[i]}
-                        playing={playings[i]}
-                        playerRef={playerRefs[i]}
-                        swingIdx={currentSwings[i]}
-                        swingFrames={SWING_FRAMES}
-                        user={user}
+                  { sharedActiveAlbums.map((album, i) => {
+                    const sharedKey = myActiveAlbums.length + i
+                    return(
+                      <div key={sharedKey}
+                        className="mx-1 lg:mx-0 w-11/12 lg:w-full"
+                      >
+                        <AlbumAndComments
+                          key={sharedKey}
+                          album={album}
+                          comments={currentComments[sharedKey] || []}
+                          duration={playerFrames[sharedKey]}
+                          pip={pips[sharedKey]}
+                          playing={playings[sharedKey]}
+                          playerRef={playerRefs[sharedKey]}
+                          swingIdx={currentSwings[sharedKey]}
+                          swingFrames={SWING_FRAMES}
+                          user={user}
 
-                        onSetSwingIndex={onSetCurrentSwings(i)}
-                        onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
-                        onTogglePlay={onTogglePlay(i)}
-                        onTogglePip={onTogglePip(i)}
-                        onPlayerProgress={onPlayerProgress(i)}
-                      />
-                    </div>  
+                          onSetSwingIndex={onSetCurrentSwings(sharedKey)}
+                          onHandleSeekChange={onHandleSeekChange(playerRefs[sharedKey], sharedKey)}
+                          onTogglePlay={onTogglePlay(sharedKey)}
+                          onTogglePip={onTogglePip(sharedKey)}
+                          onPlayerProgress={onPlayerProgress(sharedKey)}
+                        />
+                      </div> 
+                    )
+                  } 
                   )}
                 </div>
 

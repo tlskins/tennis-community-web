@@ -12,8 +12,8 @@ const HowToUpload = ({ isFirst, isUploadFile }) => {
   const [showCamAngles, setShowCamAngles] = useState(false)
 
   return(
-    <div className="p-4 flex flex-row bg-blue-300 rounded shadow-md mb-3">
-      <div className="flex flex-col overflow-auto">
+    <div className="p-4 flex flex-row bg-green-600 rounded shadow-lg mb-3">
+      <div className="flex flex-col overflow-auto text-white">
         <h2 className="font-bold text-lg text-center tracking-wider mb-6 w-full">
           Upload {isFirst ? "your first" : "a"} video!
         </h2>

@@ -7,7 +7,7 @@ module.exports = {
         "accent-1": "#333",
       },
       backgroundImage: {
-        "smartphone": "url('/smartphone.svg')",
+        "video-players": "url('/video-mobile-desktop.svg')",
       },
     },
   },

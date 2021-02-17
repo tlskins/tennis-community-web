@@ -1,23 +1,19 @@
 import {
   NEW_NOTIFICATION,
   REMOVE_NOTIFICATION,
-  SHOW_INVITE_FORM,
-  TOGGLE_SHOW_NEW_USER,
+  SET_LOGIN_FORM_VISIBLE,
 } from "./action"
 
 export const flashNotificationInitialState = []
-export const navBarInitialState = { showNewUser: 0, showInviteForm: 0 }
+export const navBarInitialState = { showLoginForm: "" }
 
 export function navBarReducer(
   state = navBarInitialState,
   action
 ) {
   switch (action.type) {
-  case TOGGLE_SHOW_NEW_USER: {
-    return { ...state, showNewUser: state.showNewUser+1 }
-  }
-  case SHOW_INVITE_FORM: {
-    return { ...state, showInviteForm: state.showInviteForm+1 }
+  case SET_LOGIN_FORM_VISIBLE: {
+    return { ...state, showLoginForm: action.payload }
   }
   default:
     return state

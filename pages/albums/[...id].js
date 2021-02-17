@@ -8,7 +8,7 @@ import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
 import { Line } from "react-chartjs-2"
 
-import { newNotification, showInviteForm } from "../../state/ui/action"
+import { newNotification, setLoginFormVisible } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
 import SwingPlayer from "../../components/SwingPlayer"
@@ -84,7 +84,7 @@ const Album = ({
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([])
 
-  const [activeSideBar, setActiveSidebar] = useState("Album Overview")
+  const [activeSideBar, setActiveSidebar] = useState(user ? "Album Overview" : "Album Comments")
   const [expandedSideBar, setExpandedSideBar] = useState(false)
   const [albumPage, setAlbumPage] = useState(0)
   const [filteredRallies, setFilteredRallies] = useState([])
@@ -109,6 +109,8 @@ const Album = ({
 
   let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
   const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
+
+  console.log("render", playerRefs)
 
   useEffect(() => {
     if (albumId) {
@@ -182,8 +184,9 @@ const Album = ({
       setPlayerRefs(ref => pageVideos.map((_, i) => ref[i] || createRef()))
       setPlayings(pageVideos.map(() => true))
       setPips(pageVideos.map(() => false))
+      setAllPlaying(true)
     }
-  }, [album?.id, albumPage])
+  }, [album?.id, filteredRallies, albumPage, swingsPerPage])
 
   useEffect(() => {
     if (user && recentUploads === null) {
@@ -1063,7 +1066,7 @@ const mapDispatchToProps = (dispatch) => {
     getRecentUploads: GetRecentUploads(dispatch),
     inviteUser: InviteUser(dispatch),
     loadAlbum: LoadAlbum(dispatch),
-    onShowInviteForm: () => dispatch(showInviteForm()),
+    onShowInviteForm: () => dispatch(setLoginFormVisible("INVITE")),
     postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
     flashMessage: args => dispatch(newNotification(args)),

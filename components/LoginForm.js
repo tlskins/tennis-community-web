@@ -4,7 +4,7 @@ import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 
 import { AcceptInvite, CreateUser, SignIn, SignOut } from "../behavior/coordinators/users"
-import { newNotification } from "../state/ui/action"
+import { newNotification, setLoginFormVisible } from "../state/ui/action"
 
 
 import {
@@ -22,28 +22,15 @@ const LoginForm = ({
   displayAlert,
   signIn,
   signOut,
-  showNewUser,
-  showInviteForm,
+  setFormType,
+  formType,
 }) => {
   const router = useRouter()
-  const [formType, setFormType] = useState("SIGN_IN") // SIGN_IN - REGISTER - INVITE
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [userName, setUserName] = useState("")
-
-  useEffect(() => {
-    if (showNewUser) {
-      setFormType("REGISTER")
-    }
-  }, [showNewUser])
-
-  useEffect(() => {
-    if (showInviteForm) {
-      setFormType("INVITE")
-    }
-  }, [showInviteForm])
   
   useEffect(async () => {
     if (confirmation?.email) {
@@ -87,6 +74,7 @@ const LoginForm = ({
     })
     if (success) {
       clearForm()
+      setFormType("")
       displayAlert({ message: `New user "${userName}" successfully created!`})
       router.push(`/${confirmation.url}`)
     }
@@ -96,15 +84,22 @@ const LoginForm = ({
     const success = await signIn({ email, password })
     if (success) {
       clearForm()
-      router.push("/profile")
+      setFormType("")
+      router.push("/home")
     }
+  }
+
+  const onSignOut = async () => {
+    await signOut()
+    window.localStorage.setItem("authToken", "")
+    router.push("/")
   }
 
   return (
     <div>
       { user &&
         <div className="p-8">
-          <button onClick={signOut}>
+          <button onClick={onSignOut}>
             Sign Out
           </button>
         </div>
@@ -301,8 +296,7 @@ const mapStateToProps = (state) => {
   return {
     confirmation: state.confirmation,
     user: state.user,
-    showNewUser: state.navBar.showNewUser,
-    showInviteForm: state.navBar.showInviteForm,
+    formType: state.navBar.showLoginForm,
   }
 }
 
@@ -310,6 +304,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     acceptInvite: AcceptInvite(dispatch),
     createUser: CreateUser(dispatch),
+    setFormType: formType => dispatch(setLoginFormVisible(formType)),
     signIn: SignIn(dispatch),
     signOut: SignOut(dispatch),
     displayAlert: args => dispatch(newNotification(args))
@@ -319,14 +314,14 @@ const mapDispatchToProps = (dispatch) => {
 
 LoginForm.propTypes = {
   confirmation: PropTypes.object,
-  showNewUser: PropTypes.bool,
-  showInviteForm: PropTypes.bool,
   user: PropTypes.object,
+  formType: PropTypes.string,
 
   acceptInvite: PropTypes.func,
   createUser: PropTypes.func,
   confirmUser: PropTypes.func,
   displayAlert: PropTypes.func,
+  setFormType: PropTypes.func,
   signIn: PropTypes.func,
   signOut: PropTypes.func,
 }

@@ -50,7 +50,7 @@ const AlbumAndComments = ({
           </p>
         </div>
 
-        <div className="h-40 w-full overflow-y-scroll bg-gray-300 p-1 rounded-lg">
+        <div className="h-40 w-full overflow-y-auto bg-gray-300 p-1 rounded-lg">
           { (album?.comments || []).map((comment, j) => {
             const poster = usersCache[comment.userId]
             return(
@@ -223,7 +223,7 @@ const AlbumAndComments = ({
           </div>
         </div>
 
-        <div className="h-40 w-full overflow-y-scroll bg-gray-300 p-1 rounded-lg">
+        <div className="h-40 w-full overflow-y-auto bg-gray-300 p-1 rounded-lg">
           { (swing?.comments || []).map((comment, j) => {
             const poster = usersCache[comment.userId]
             return(

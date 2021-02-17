@@ -6,12 +6,12 @@ import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Moment from "moment"
 
-import { newNotification, showInviteForm } from "../../../../state/ui/action"
+import { newNotification, setLoginFormVisible } from "../../../../state/ui/action"
 import Notifications from "../../../../components/Notifications"
 import ProComparison from "../../../../components/ProComparison"
 import VideoResources from "../../../../components/VideoResources"
 import Sidebar from "../../../../components/Sidebar"
-import { getUserIcon, getUserType } from "../../../../behavior/users"
+import { getUserIcon } from "../../../../behavior/users"
 import { LoadAlbum, PostComment, FlagComment, UpdateSwing } from "../../../../behavior/coordinators/albums"
 import { SearchFriends } from "../../../../behavior/coordinators/friends"
 import speechBubble from "../../../../public/speech-bubble.svg"
@@ -713,7 +713,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     flagComment: FlagComment(dispatch),
     loadAlbum: LoadAlbum(dispatch),
-    onShowInviteForm: () => dispatch(showInviteForm()),
+    onShowInviteForm: () => dispatch(setLoginFormVisible("INVITE")),
     postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
     toggleFlashMessage: args => dispatch(newNotification(args)),

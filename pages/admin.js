@@ -19,7 +19,8 @@ import {
 } from "../behavior/coordinators/admin"
 import { UpdateAlbum } from "../behavior/coordinators/albums"
 import { SearchFriends } from "../behavior/coordinators/friends"
-  
+import Sidebar from "../components/Sidebar"
+
 const ALBUMS_LIMIT = 20
 const USERS_LIMIT = 20
 const COMMENTS_LIMIT = 20
@@ -169,17 +170,15 @@ const Admin = ({
   }
 
   return (
-    <div className="flex flex-col h-screen min-h-screen">
+    <div>
       { (user && user.id) &&
         <Notifications />
       }
-      <main className="flex flex-1 overflow-y-auto">
+      <main className="overflow-y-scroll min-h-screen static">
 
-        {/* Begin Sidebar */}
-
-        <div className="h-screen top-0 sticky p-4 bg-white w-1/5 overflow-y-scroll border-r border-gray-400">
-          <div className="flex flex-col content-center justify-center items-center text-sm">
-
+        <div className="lg:flex lg:flex-row min-h-screen">
+          {/* Begin Sidebar */}
+          <Sidebar>
             {/* Recent Albums Sidebar */}
             <div className="mb-2">
               <h2 className="text-blue-400 underline cursor-pointer text-center"
@@ -340,238 +339,235 @@ const Admin = ({
 
               </div>
             </div>
-          </div>
-        </div>
+          </Sidebar>
+        
+          {/* Begin Main */}
 
-        {/* End Sidebar */}
+          <div className="p-4 block lg:flex lg:flex-col lg:flex-wrap lg:w-4/5 bg-gray-100 overflow-x-auto">
 
-        {/* Begin Main */}
+            {/* Recent Albums */}
+            { activeSideBar === "Recent Albums" &&
+              <div className="p-4 flex flex-col bg-white rounded-lg overflow-x-auto">
+                <p className="text-center mb-2 underline font-semibold">Recent Albums</p>
 
-        <div className="p-4 flex flex-col flex-wrap w-4/5 bg-gray-100">
-
-          {/* Recent Albums */}
-          { activeSideBar === "Recent Albums" &&
-            <div className="p-4 flex flex-col bg-white rounded-lg">
-              <p className="text-center mb-2 underline font-semibold">Recent Albums</p>
-
-              <div className="grid grid-cols-10 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
-                <div className="border-r border-gray-400 col-span-3">Name</div>
-                <div className="border-r border-gray-400 col-span-2">Created</div>
-                <div className="border-r border-gray-400">Creator</div>
-                <div className="border-r border-gray-400">Public?</div>
-                <div className="border-r border-gray-400">Home?</div>
-                <div className="border-r border-gray-400">Friends?</div>
-                <div>URL</div>
-              </div>
-              { recentAlbums.map(album => {
-                return(
-                  <div key={album.id}
-                    className="grid grid-cols-10 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
-                  >
-                    <div className="border-r border-gray-400 col-span-3">{ album.name }</div>
-                    <div className="border-r border-gray-400 col-span-2">{ Moment(album.createdAt).format("LLL") }</div>
-                    <div className="border-r border-gray-400">{ usersCache[album.userId]?.userName || "..." }</div>
-                    <div className="border-r border-gray-400">{ album.isPublic ? "Yes" : "No" }</div>
-                    <div className="border-r border-gray-400">
-                      { album.isPublic ?
-                        <input type="button"
-                          className="rounded-md bg-blue-700 text-white py-0.5 px-1 cursor-pointer text-xs shadow-md border border-gray-400"
-                          value={album.homeApproved ? "Approved" : "UnApproved"}
-                          onClick={onUpdateAlbumHome(album)}
-                        />
-                        :
-                        "N/A"
-                      }
-                      
-                    </div>
-                    <div className="border-r border-gray-400">{ album.isViewableByFriends ? "Yes" : "No" }</div>
-                    <div>
-                      <a className="text-blue-400 underline"
-                        href={`/albums/${album.id}`}
-                      >
-                        Link
-                      </a>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          }
-
-          {/* Recent Users */}
-          { activeSideBar === "Recent Users" &&
-            <div className="p-4 flex flex-col bg-white rounded-lg">
-              <p className="text-center mb-2 underline font-semibold">Recent Users</p>
-
-              <div className="grid grid-cols-5 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
-                <div className="border-r border-gray-400">Name</div>
-                <div className="border-r border-gray-400">UserName</div>
-                <div className="border-r border-gray-400">Email</div>
-                <div className="border-r border-gray-400">Created</div>
-                <div>Status</div>
-              </div>
-              { recentUsers.map(user => {
-                return(
-                  <div key={user.id}
-                    className="grid grid-cols-5 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
-                  >
-                    <div className="border-r border-gray-400">{ `${user.firstName} ${user.lastName}` }</div>
-                    <div className="border-r border-gray-400">{ user.userName }</div>
-                    <div className="border-r border-gray-400">{ user.email }</div>
-                    <div className="border-r border-gray-400">{ Moment(user.createdAt).format("LLL") }</div>
-                    <div>{ user.status }</div>
-                  </div>
-                )
-              })}
-            </div>
-          }
-
-          {/* Recent Comments */}
-          { activeSideBar === "Recent Comments" &&
-            <div className="flex flex-col">
-              <div className="p-4 flex flex-col bg-white rounded-lg">
-                <p className="text-center mb-2 underline font-semibold">Album Comments</p>
-                <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
-                  <div className="border-r border-gray-400">Name</div>
-                  <div className="border-r border-gray-400">User</div>
-                  <div className="border-r border-gray-400 col-span-2">Posted</div>
-                  <div className="border-r border-gray-400">Link</div>
-                  <div className="col-span-7">Text</div>
+                <div className="grid grid-cols-10 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0 overflow-x-auto">
+                  <div className="border-r border-gray-400 col-span-3">Name</div>
+                  <div className="border-r border-gray-400 col-span-2">Created</div>
+                  <div className="border-r border-gray-400">Creator</div>
+                  <div className="border-r border-gray-400">Public?</div>
+                  <div className="border-r border-gray-400">Home?</div>
+                  <div className="border-r border-gray-400">Friends?</div>
+                  <div>URL</div>
                 </div>
-                { recentAlbumComments.map(comment => {
+                { recentAlbums.map(album => {
                   return(
-                    <div key={comment.id}
-                      className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                    <div key={album.id}
+                      className="grid grid-cols-10 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
                     >
-                      <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
-                      <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
-                      <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
+                      <div className="border-r border-gray-400 col-span-3">{ album.name }</div>
+                      <div className="border-r border-gray-400 col-span-2">{ Moment(album.createdAt).format("LLL") }</div>
+                      <div className="border-r border-gray-400">{ usersCache[album.userId]?.userName || "..." }</div>
+                      <div className="border-r border-gray-400">{ album.isPublic ? "Yes" : "No" }</div>
                       <div className="border-r border-gray-400">
-                        <a className="text-blue-400 underline"
-                          href={`/albums/${comment.albumId}`}
-                        >
-                              Link
-                        </a>
+                        { album.isPublic ?
+                          <input type="button"
+                            className="rounded-md bg-blue-700 text-white py-0.5 px-1 cursor-pointer text-xs shadow-md border border-gray-400"
+                            value={album.homeApproved ? "Approved" : "UnApproved"}
+                            onClick={onUpdateAlbumHome(album)}
+                          />
+                          :
+                          "N/A"
+                        }
+                        
                       </div>
-                      <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
-                    </div>
-                  )
-                })}
-              </div>
-
-              <div className="p-4 flex flex-col bg-white rounded-lg">
-                <p className="text-center mb-2 underline font-semibold">Swing Comments</p>
-                <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
-                  <div className="border-r border-gray-400">Name</div>
-                  <div className="border-r border-gray-400">User</div>
-                  <div className="border-r border-gray-400 col-span-2">Posted</div>
-                  <div className="border-r border-gray-400">Link</div>
-                  <div className="col-span-7">Text</div>
-                </div>
-                { recentSwingComments.map(comment => {
-                  return(
-                    <div key={comment.id}
-                      className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
-                    >
-                      <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
-                      <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
-                      <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
-                      <div className="border-r border-gray-400">
+                      <div className="border-r border-gray-400">{ album.isViewableByFriends ? "Yes" : "No" }</div>
+                      <div>
                         <a className="text-blue-400 underline"
-                          href={`/albums/${comment.albumId}/swings/${comment.swingId}`}
+                          href={`/albums/${album.id}`}
                         >
                           Link
                         </a>
                       </div>
-                      <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
                     </div>
                   )
                 })}
               </div>
-            </div>
-          }
+            }
 
-          {/* Recent Flagged Albums */}
-          { activeSideBar === "Recent Flagged Albums" &&
-            <div className="p-4 flex flex-col bg-white rounded-lg">
-              <p className="text-center mb-2 underline font-semibold">Flagged Albums</p>
+            {/* Recent Users */}
+            { activeSideBar === "Recent Users" &&
+              <div className="p-4 flex flex-col bg-white rounded-lg">
+                <p className="text-center mb-2 underline font-semibold">Recent Users</p>
 
-              <div className="grid grid-cols-5 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
-                <div className="border-r border-gray-400">Album</div>
-                <div className="border-r border-gray-400">Creator</div>
-                <div className="border-r border-gray-400">Created</div>
-                <div className="border-r border-gray-400">Resolved</div>
-                <div>Link</div>
+                <div className="grid grid-cols-5 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                  <div className="border-r border-gray-400">Name</div>
+                  <div className="border-r border-gray-400">UserName</div>
+                  <div className="border-r border-gray-400">Email</div>
+                  <div className="border-r border-gray-400">Created</div>
+                  <div>Status</div>
+                </div>
+                { recentUsers.map(user => {
+                  return(
+                    <div key={user.id}
+                      className="grid grid-cols-5 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                    >
+                      <div className="border-r border-gray-400">{ `${user.firstName} ${user.lastName}` }</div>
+                      <div className="border-r border-gray-400">{ user.userName }</div>
+                      <div className="border-r border-gray-400">{ user.email }</div>
+                      <div className="border-r border-gray-400">{ Moment(user.createdAt).format("LLL") }</div>
+                      <div>{ user.status }</div>
+                    </div>
+                  )
+                })}
               </div>
-              { recentFlaggedAlbums.map(flag => {
-                return(
-                  <div key={flag.id}
-                    className="grid grid-cols-5 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
-                  >
-                    <div className="border-r border-gray-400">{ flag.albumName }</div>
-                    <div className="border-r border-gray-400">{ usersCache[flag.albumUserId] ? `${usersCache[flag.albumUserId].firstName} ${usersCache[flag.albumUserId].lastName}` : "..." }</div>
-                    <div className="border-r border-gray-400">{ Moment(flag.createdAt).format("LLL") }</div>
-                    <div className="border-r border-gray-400">
-                      <input type="button"
-                        className="rounded-md bg-blue-700 text-white py-0.5 px-1 cursor-pointer text-xs shadow-md border border-gray-400"
-                        value={flag.resolved ? "Resolved" : "Unresolved"}
-                        onClick={onUpdateAlbumFlag(flag)}
-                      />
-                    </div>
-                    <div>
-                      <a className="text-blue-400 underline"
-                        href={`/albums/${flag.albumId}`}
-                      >
-                        Link
-                      </a>
-                    </div>
+            }
+
+            {/* Recent Comments */}
+            { activeSideBar === "Recent Comments" &&
+              <div className="flex flex-col">
+                <div className="p-4 flex flex-col bg-white rounded-lg">
+                  <p className="text-center mb-2 underline font-semibold">Album Comments</p>
+                  <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                    <div className="border-r border-gray-400">Name</div>
+                    <div className="border-r border-gray-400">User</div>
+                    <div className="border-r border-gray-400 col-span-2">Posted</div>
+                    <div className="border-r border-gray-400">Link</div>
+                    <div className="col-span-7">Text</div>
                   </div>
-                )
-              })}
-            </div>
-          }
+                  { recentAlbumComments.map(comment => {
+                    return(
+                      <div key={comment.id}
+                        className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                      >
+                        <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
+                        <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
+                        <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
+                        <div className="border-r border-gray-400">
+                          <a className="text-blue-400 underline"
+                            href={`/albums/${comment.albumId}`}
+                          >
+                                Link
+                          </a>
+                        </div>
+                        <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
+                      </div>
+                    )
+                  })}
+                </div>
 
-          {/* Recent Flagged Comments */}
-          { activeSideBar === "Recent Flagged Comments" &&
-            <div className="p-4 flex flex-col bg-white rounded-lg">
-              <p className="text-center mb-2 underline font-semibold">Flagged Comments</p>
-
-              <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
-                <div className="border-r border-gray-400">Commentor</div>
-                <div className="border-r border-gray-400 col-span-2">Posted</div>
-                <div className="border-r border-gray-400">Resolved</div>
-                <div className="border-r border-gray-400">Link</div>
-                <div className="col-span-7">Text</div>
+                <div className="p-4 flex flex-col bg-white rounded-lg">
+                  <p className="text-center mb-2 underline font-semibold">Swing Comments</p>
+                  <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                    <div className="border-r border-gray-400">Name</div>
+                    <div className="border-r border-gray-400">User</div>
+                    <div className="border-r border-gray-400 col-span-2">Posted</div>
+                    <div className="border-r border-gray-400">Link</div>
+                    <div className="col-span-7">Text</div>
+                  </div>
+                  { recentSwingComments.map(comment => {
+                    return(
+                      <div key={comment.id}
+                        className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                      >
+                        <div className="border-r border-gray-400">{ usersCache[comment.userId] ? `${usersCache[comment.userId].firstName} ${usersCache[comment.userId].lastName}` : "..." }</div>
+                        <div className="border-r border-gray-400">{ usersCache[comment.userId]?.userName || "..." }</div>
+                        <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
+                        <div className="border-r border-gray-400">
+                          <a className="text-blue-400 underline"
+                            href={`/albums/${comment.albumId}/swings/${comment.swingId}`}
+                          >
+                            Link
+                          </a>
+                        </div>
+                        <div className="col-span-7 overflow-y-scroll">{ comment.text }</div>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
-              { recentFlaggedComments.map(flag => {
-                return(
-                  <div key={flag.id}
-                    className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
-                  >
-                    <div className="border-r border-gray-400">{ usersCache[flag.commenterId] ? `${usersCache[flag.commenterId].firstName} ${usersCache[flag.commenterId].lastName}` : "..." }</div>
-                    <div className="border-r border-gray-400 col-span-2">{ Moment(flag.createdAt).format("LLL") }</div>
-                    <div className="border-r border-gray-400">
-                      <input type="button"
-                        className="rounded-md bg-blue-700 text-white py-0.5 px-1 cursor-pointer text-xs shadow-md border border-gray-400"
-                        value={flag.resolved ? "Resolved" : "Unresolved"}
-                        onClick={onUpdateCommentFlag(flag)}
-                      />
+            }
+
+            {/* Recent Flagged Albums */}
+            { activeSideBar === "Recent Flagged Albums" &&
+              <div className="p-4 flex flex-col bg-white rounded-lg">
+                <p className="text-center mb-2 underline font-semibold">Flagged Albums</p>
+
+                <div className="grid grid-cols-5 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                  <div className="border-r border-gray-400">Album</div>
+                  <div className="border-r border-gray-400">Creator</div>
+                  <div className="border-r border-gray-400">Created</div>
+                  <div className="border-r border-gray-400">Resolved</div>
+                  <div>Link</div>
+                </div>
+                { recentFlaggedAlbums.map(flag => {
+                  return(
+                    <div key={flag.id}
+                      className="grid grid-cols-5 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                    >
+                      <div className="border-r border-gray-400">{ flag.albumName }</div>
+                      <div className="border-r border-gray-400">{ usersCache[flag.albumUserId] ? `${usersCache[flag.albumUserId].firstName} ${usersCache[flag.albumUserId].lastName}` : "..." }</div>
+                      <div className="border-r border-gray-400">{ Moment(flag.createdAt).format("LLL") }</div>
+                      <div className="border-r border-gray-400">
+                        <input type="button"
+                          className="rounded-md bg-blue-700 text-white py-0.5 px-1 cursor-pointer text-xs shadow-md border border-gray-400"
+                          value={flag.resolved ? "Resolved" : "Unresolved"}
+                          onClick={onUpdateAlbumFlag(flag)}
+                        />
+                      </div>
+                      <div>
+                        <a className="text-blue-400 underline"
+                          href={`/albums/${flag.albumId}`}
+                        >
+                          Link
+                        </a>
+                      </div>
                     </div>
-                    <div className="border-r border-gray-400">
-                      <a className="text-blue-400 underline"
-                        href={flag.swingId ? `/albums/${flag.albumId}/swings/${flag.swingId}` : `/albums/${flag.albumId}`}
-                      >
-                        Link
-                      </a>
+                  )
+                })}
+              </div>
+            }
+
+            {/* Recent Flagged Comments */}
+            { activeSideBar === "Recent Flagged Comments" &&
+              <div className="p-4 flex flex-col bg-white rounded-lg">
+                <p className="text-center mb-2 underline font-semibold">Flagged Comments</p>
+
+                <div className="grid grid-cols-12 gap-4 border border-gray-400 bg-gray-100 p-0.5 rounded sticky top-0">
+                  <div className="border-r border-gray-400">Commentor</div>
+                  <div className="border-r border-gray-400 col-span-2">Posted</div>
+                  <div className="border-r border-gray-400">Resolved</div>
+                  <div className="border-r border-gray-400">Link</div>
+                  <div className="col-span-7">Text</div>
+                </div>
+                { recentFlaggedComments.map(flag => {
+                  return(
+                    <div key={flag.id}
+                      className="grid grid-cols-12 gap-4 border border-gray-400 p-0.5 rounded mt-1 text-sm"
+                    >
+                      <div className="border-r border-gray-400">{ usersCache[flag.commenterId] ? `${usersCache[flag.commenterId].firstName} ${usersCache[flag.commenterId].lastName}` : "..." }</div>
+                      <div className="border-r border-gray-400 col-span-2">{ Moment(flag.createdAt).format("LLL") }</div>
+                      <div className="border-r border-gray-400">
+                        <input type="button"
+                          className="rounded-md bg-blue-700 text-white py-0.5 px-1 cursor-pointer text-xs shadow-md border border-gray-400"
+                          value={flag.resolved ? "Resolved" : "Unresolved"}
+                          onClick={onUpdateCommentFlag(flag)}
+                        />
+                      </div>
+                      <div className="border-r border-gray-400">
+                        <a className="text-blue-400 underline"
+                          href={flag.swingId ? `/albums/${flag.albumId}/swings/${flag.swingId}` : `/albums/${flag.albumId}`}
+                        >
+                          Link
+                        </a>
+                      </div>
+                      <div className="col-span-7 overflow-y-scroll">{ flag.text }</div>
                     </div>
-                    <div className="col-span-7 overflow-y-scroll">{ flag.text }</div>
-                  </div>
-                )
-              })}
-            </div>
-          }
+                  )
+                })}
+              </div>
+            }
+          </div>
         </div>
-        {/* End Main */}
       </main>
     </div>
   )

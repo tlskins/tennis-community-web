@@ -5,10 +5,11 @@ import Link from "next/link"
 import { useRouter } from "next/router"
 import Moment from "moment"
 
-import { ConfirmUser, SignOut, LoadConfirmation } from "../behavior/coordinators/users"
+import { ConfirmUser, LoadConfirmation } from "../behavior/coordinators/users"
 import { getUserIcon } from "../behavior/users"
-import { newNotification } from "../state/ui/action"
+import { newNotification, setLoginFormVisible } from "../state/ui/action"
 import LoginForm from "./LoginForm"
+import ProfileForm from "./ProfileForm"
 import Modal from "./Modal"
 
 import {
@@ -25,14 +26,13 @@ const NavBar = ({
   confirmUser,
   displayAlert,
   loadConfirmation,
-  showNewUser,
-  showInviteForm,
-  signOut,
+  setShowLoginForm,
+  showLoginForm,
 }) => {
   const router = useRouter()
   const { confirmation: confirmationID } = router.query
 
-  const [showModal, setShowModal] = useState(false)
+  const [showProfileForm, setShowProfileForm] = useState(false)
 
   useEffect(() => {
     if (confirmationID) {
@@ -52,23 +52,15 @@ const NavBar = ({
           id: Moment().toString(),
           message: "User confirmed!"
         })
-        router.push("/profile")
+        router.push("/home")
       }
     }
   }, [confirmation])
 
 
   useEffect(() => {
-    if (showNewUser || showInviteForm) {
-      setShowModal(true)
-    }
-  }, [showNewUser, showInviteForm])
-
-  const onSignOut = async () => {
-    await signOut()
-    window.localStorage.setItem("authToken", "")
-    router.push("/")
-  }
+    setShowProfileForm(showLoginForm)
+  }, [showLoginForm])
 
   return(
     <NavigationBar>
@@ -78,13 +70,13 @@ const NavBar = ({
       { !user || !user.id ?
         <LinksContainer>
           <div className="static">
-            <a href="#" onClick={() => setShowModal(!showModal)}
+            <a href="#" onClick={() => setShowLoginForm(confirmation?.email ? "INVITE" : "SIGN_IN")}
               className="text-yellow-300"
             >
               { confirmation?.email ? "Accept Invitation" : "Sign In" }
             </a>
-            { showModal &&
-              <Modal width="400" hideModal={ () => setShowModal(false)}>
+            { showLoginForm &&
+              <Modal width="400" hideModal={ () => setShowLoginForm("")}>
                 <LoginForm/>
               </Modal>
             }
@@ -92,8 +84,8 @@ const NavBar = ({
         </LinksContainer>
         :
         <LinksContainer>
-          <LinkClass active={ router.pathname === "/profile" }>
-            <Link href="/profile">Profile</Link>
+          <LinkClass active={ router.pathname === "/home" }>
+            <Link href="/home">Home</Link>
           </LinkClass>
           <LinkClass active={ router.pathname === "/albums" }>
             <Link href="/albums">Albums</Link>
@@ -103,14 +95,15 @@ const NavBar = ({
               <Link href="/admin">Admin</Link>
             </LinkClass>
           }
-          <LinkClass>
-            <div className="flex flex-row content-center justify-center items-center">
-              <a className="inline-block whitespace-nowrap" href="#" onClick={ onSignOut }>Sign Out</a>
-              <img src={getUserIcon(user)}
-                className="w-4 h-4"
-              />
-            </div>
-          </LinkClass>
+          <img src={getUserIcon(user)}
+            className="w-8 h-8 mx-3 rounded-full cursor-pointer bg-white bg-opacity-25"
+            onClick={() => setShowProfileForm(!showProfileForm)}
+          />
+          { showProfileForm &&
+            <Modal width="400" hideModal={ () => setShowProfileForm(false)}>
+              <ProfileForm/>
+            </Modal>
+          }
         </LinksContainer>
       }
     </NavigationBar>
@@ -120,8 +113,7 @@ const NavBar = ({
 const mapStateToProps = (state) => {
   return {
     confirmation: state.confirmation,
-    showNewUser: state.navBar.showNewUser,
-    showInviteForm: state.navBar.showInviteForm,
+    showLoginForm: state.navBar.showLoginForm,
     user: state.user,
   }
 }
@@ -131,20 +123,19 @@ const mapDispatchToProps = (dispatch) => {
     confirmUser: ConfirmUser(dispatch),
     displayAlert: args => dispatch(newNotification(args)),
     loadConfirmation: LoadConfirmation(dispatch),
-    signOut: SignOut(dispatch),
+    setShowLoginForm: formType => dispatch(setLoginFormVisible(formType))
   }
 }
 
 NavBar.propTypes = {
   confirmation: PropTypes.object,
-  showNewUser: PropTypes.number,
-  showInviteForm: PropTypes.number,
+  showLoginForm: PropTypes.string,
   user: PropTypes.object,
 
   confirmUser: PropTypes.func,
   displayAlert: PropTypes.func,
   loadConfirmation: PropTypes.func,
-  signOut: PropTypes.func,
+  setShowLoginForm: PropTypes.func,
 }
 
 

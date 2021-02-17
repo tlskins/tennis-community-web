@@ -74,6 +74,7 @@ const LoginForm = ({
     })
     if (success) {
       clearForm()
+      setFormType("")
       displayAlert({ message: `New user "${userName}" successfully created!`})
       router.push(`/${confirmation.url}`)
     }
@@ -83,15 +84,22 @@ const LoginForm = ({
     const success = await signIn({ email, password })
     if (success) {
       clearForm()
+      setFormType("")
       router.push("/profile")
     }
+  }
+
+  const onSignOut = async () => {
+    await signOut()
+    window.localStorage.setItem("authToken", "")
+    router.push("/")
   }
 
   return (
     <div>
       { user &&
         <div className="p-8">
-          <button onClick={signOut}>
+          <button onClick={onSignOut}>
             Sign Out
           </button>
         </div>

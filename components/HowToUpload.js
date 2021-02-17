@@ -1,5 +1,6 @@
 import React, { useState } from "react"
 import PropTypes from "prop-types"
+import Image from "next/image"
 
 import SwingUploader from "./SwingUploader"
 import uploadYellow from "../public/upload-yellow.svg"
@@ -8,6 +9,7 @@ import uploadBlue from "../public/upload-blue.svg"
 
 const HowToUpload = ({ isFirst, isUploadFile }) => {
   const [hoverUpload, setHoverUpload] = useState(false)
+  const [showCamAngles, setShowCamAngles] = useState(false)
 
   return(
     <div className="p-4 flex flex-row bg-blue-300 rounded shadow-md mb-3">
@@ -30,7 +32,17 @@ const HowToUpload = ({ isFirst, isUploadFile }) => {
                 <div className="pl-6">
                   <ul className="list-disc">
                     <li>Using a mobile phone, or camera, record yourself playing a match, rallying, or hitting against the wall.</li>
-                    <li>Prop your phone up so that you get a good profile view of yourself. Generally this means the phone is at or behind the baseline.</li>
+                    <li>Prop your phone up so that you get a good profile view of yourself
+                      <span className="underline text-blue-700 cursor-pointer ml-2"
+                        onMouseEnter={() => setShowCamAngles(true)}
+                        onMouseLeave={() => setShowCamAngles(false)}
+                      >from the baseline or corner</span>
+                    </li>
+                    { showCamAngles &&
+                      <Image src="/cam-angles.svg" alt="Camera Angles" width="500" height="400"
+                        onClick={() => setShowCamAngles(false)}
+                      />
+                    }
                   </ul>
                 </div>
               </li>
@@ -39,6 +51,7 @@ const HowToUpload = ({ isFirst, isUploadFile }) => {
                 <span className="font-semibold">Upload your video</span>
                 <div className="pl-6">
                   <ul className="list-disc">
+                    <li>You can upload a video from your computer or phone (most modern phones compress before uploading files now)</li>
                     <li>The upload will take about 10 minutes for the AI to export all the swings into an Album.</li>
                   </ul>
                   { isUploadFile && 

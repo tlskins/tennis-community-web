@@ -43,11 +43,11 @@ const AlbumAndCommentsPreview = ({
         </div>
 
         <p className="px-2 mx-1 text-xs">
-          Owner: <span className="text-blue-400 underline mx-1">{ usersCache[album.userId]?.userName || "..." }</span>
+          Owner: <span className="text-blue-400 mx-1">@{ usersCache[album.userId]?.userName || "..." }</span>
         </p>
 
         <p className="px-2 mx-1 text-xs">
-          Updated: <span className="text-blue-400 underline mx-1">{ Moment(album.updatedAt).format("M/DD/YYYY") }</span>
+          Updated: <span className="text-blue-400 mx-1">{ Moment(album.updatedAt).format("M/D/YY h:mm a") }</span>
         </p>
 
         <div className="flex flex-row px-2 mx-1 text-xs">
@@ -90,7 +90,7 @@ const AlbumAndCommentsPreview = ({
           </p>
 
           <p className="text-xs bg-white rounded-lg mx-1 mb-1 text-xs px-1">
-            { album.swingVideos[album.swingVideos.length-1].rally || 1 } <span className="font-semibold">rallies</span>
+            { album.swingVideos[album.swingVideos.length-1]?.rally || 1 } <span className="font-semibold">rallies</span>
           </p>
 
           <div className="flex flex-row bg-white rounded-lg mx-1 mb-1 text-xs px-1 w-10">

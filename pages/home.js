@@ -378,8 +378,8 @@ const Home = ({
                 Shared Albums
                 </h2>
 
-                <div className="w-full flex content-center justify-center items-center">
-                  <div className="flex flex-col w-40 content-center justify-center items-start mb-3">
+                <div className="w-full flex flex-col content-center justify-center items-center mb-3">
+                  <div className="flex flex-col w-40 content-center justify-center items-start">
                     <div className={`flex content-center justify-center items-center py-0.5 px-3 rounded-xl ${albumType === "shared" ? "bg-gray-800 text-yellow-300" : "bg-yellow-300"}`}>
                       <input type="radio"
                         id="filterRequested"
@@ -412,32 +412,13 @@ const Home = ({
                         className="ml-2 text-sm font-semibold uppercase"
                       >Public</label>
                     </div>
-
-
-                    {/* <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "shared" && "bg-gray-300 shadow-md"}`}>
-                    <input type="button"
-                      value="shared"
-                      onClick={() => setAlbumType("shared")}
-                      className="px-2 m-1 rounded-lg bg-red-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                    />
                   </div>
 
-                  <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "friends" && "bg-gray-300 shadow-md"}`}>
-                    <input type="button"
-                      value="friends"
-                      onClick={() => setAlbumType("friends")}
-                      className="px-2 m-1 rounded-lg bg-green-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                    />
-                  </div>
-
-                  <div className={`m-1 py-0.5 px-1 rounded-lg ${albumType === "public" && "bg-gray-300 shadow-md"}`}>
-                    <input type="button"
-                      value="public"
-                      onClick={() => setAlbumType("public")}
-                      className="px-2 m-1 rounded-lg bg-blue-300 border border-gray-400 shadow-md font-semibold text-xs tracking-wide cursor-pointer"
-                    />
-                  </div> */}
-                  </div>
+                  { albumType === "shared" &&
+                      <p className="text-xs text-center w-full mb-1 text-gray-800">
+                        Your friends have requested your review on these albums
+                      </p>
+                  }
                 </div>
 
                 { (sharedActiveAlbums.length === 0 && sharedAlbums === []) &&

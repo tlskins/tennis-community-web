@@ -4,12 +4,29 @@ import { HandleError } from "./errors"
 import { newNotification } from "../../state/ui/action"
 import { setMyAlbums, setFriendsAlbums, setSharedAlbums, setPublicAlbums } from "../../state/album/action"
 
+const pAlbum = json => {
+  return {
+    ...json,
+    swingVideos: json.swingVideos.map( swing => ({
+      ...swing,
+      jpgURL: swing.jpgURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),
+      gifURL: swing.gifURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),
+      videoURL: swing.videoURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),
+    }))
+  }
+}
+
+const pAlbums = json => {
+  return json.map( data => pAlbum(data))
+}
+
 
 export const LoadMyAlbums = (dispatch) => async ({ limit, offset } = {}) => {
   try {
     const response = await put("/albums/search", { my: true, limit, offset })
-    dispatch(setMyAlbums(response.data))
-    return response.data
+    const albums = pAlbums(response.data)
+    dispatch(setMyAlbums(albums))
+    return albums
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -20,8 +37,9 @@ export const LoadMyAlbums = (dispatch) => async ({ limit, offset } = {}) => {
 export const LoadFriendsAlbums = (dispatch) => async ({ limit, offset } = {}) => {
   try {
     const response = await put("/albums/search", { friends: true, limit, offset })
-    dispatch(setFriendsAlbums(response.data))
-    return response.data
+    const albums = pAlbums(response.data)
+    dispatch(setFriendsAlbums(albums))
+    return albums
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -32,8 +50,9 @@ export const LoadFriendsAlbums = (dispatch) => async ({ limit, offset } = {}) =>
 export const LoadSharedAlbums = (dispatch) => async ({ limit, offset } = {}) => {
   try {
     const response = await put("/albums/search", { shared: true, limit, offset })
-    dispatch(setSharedAlbums(response.data))
-    return response.data
+    const albums = pAlbums(response.data)
+    dispatch(setSharedAlbums(albums))
+    return albums
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -48,8 +67,9 @@ export const LoadPublicAlbums = (dispatch) => async ({ homeApproved, limit, offs
       params.homeApproved = homeApproved
     }
     const response = await put("/albums/search", params)
-    dispatch(setPublicAlbums(response.data))
-    return response.data
+    const albums = pAlbums(response.data)
+    dispatch(setPublicAlbums(albums))
+    return albums
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -60,7 +80,8 @@ export const LoadPublicAlbums = (dispatch) => async ({ homeApproved, limit, offs
 export const LoadAlbum = (dispatch) => async (albumId) => {
   try {
     const response = await get(`/albums/${albumId}`)
-    dispatch(setAlbum(response.data))
+    const album = pAlbum( response.data )
+    dispatch(setAlbum(album))
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -80,10 +101,11 @@ export const DeleteAlbum = (dispatch) => async (albumId) => {
   return true
 }
 
-export const UpdateAlbum = (dispatch) => async (album, shareAlbum = false, calculateMetrics = false) => {
+export const UpdateAlbum = (dispatch) => async (data, shareAlbum = false, calculateMetrics = false) => {
   try {
-    const response = await put(`/albums/${album.id}`, { ...album, shareAlbum, calculateMetrics })
-    dispatch(setAlbum(response.data))
+    const response = await put(`/albums/${album.id}`, { ...data, shareAlbum, calculateMetrics })
+    const album = pAlbum( response.data )
+    dispatch(setAlbum(album))
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -95,8 +117,9 @@ export const UpdateAlbum = (dispatch) => async (album, shareAlbum = false, calcu
 export const UpdateSwing = (dispatch) => async (data) => {
   try {
     const response = await put("/albums/swings", data)
-    dispatch(setAlbum(response.data))
-    dispatch(newNotification({ message: `Swing "${data.name}" updated!` }))
+    const album = pAlbum( response.data )
+    dispatch(setAlbum(album))
+    dispatch(newNotification({ message: `Swing "${album.name}" updated!` }))
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -105,10 +128,11 @@ export const UpdateSwing = (dispatch) => async (data) => {
   return true
 }
 
-export const CreateAlbum = (dispatch) => async album => {
+export const CreateAlbum = (dispatch) => async data => {
   try {
-    const response = await post("/albums", album)
-    dispatch(setAlbum(response.data))
+    const response = await post("/albums", data)
+    const album = pAlbum( response.data )
+    dispatch(setAlbum(album))
   }
   catch( err ) {
     HandleError(dispatch, err)
@@ -127,7 +151,8 @@ export const PostComment = (dispatch) => async ({ albumId, swingId, replyId, tex
       params.replyId = replyId
     }
     const response = await post(`/albums/${albumId}/comments`, params)
-    dispatch(setAlbum(response.data))
+    const album = pAlbum( response.data )
+    dispatch(setAlbum(album))
   }
   catch( err ) {
     HandleError(dispatch, err)

@@ -7,7 +7,7 @@ import { GrSearch } from "react-icons/gr"
 
 import Notifications from "../components/Notifications"
 import HowToUpload from "../components/HowToUpload"
-import AlbumAndCommentsPreview from "../components/AlbumAndCommentsPreview"
+import AlbumAndComments from "../components/AlbumAndComments"
 import VideoResources from "../components/VideoResources"
 import ProComparison from "../components/ProComparison"
 import { LoadUser, UpdateUserProfile } from "../behavior/coordinators/users"
@@ -326,7 +326,7 @@ const Home = ({
                       <div key={i}
                         className="m-2 w-11/12"
                       >
-                        <AlbumAndCommentsPreview
+                        <AlbumAndComments
                           key={i}
                           album={album}
                           comments={currentComments[i] || []}
@@ -439,7 +439,7 @@ const Home = ({
                       <div key={sharedKey}
                         className="mx-1 lg:mx-0 w-11/12 lg:w-full"
                       >
-                        <AlbumAndCommentsPreview
+                        <AlbumAndComments
                           key={sharedKey}
                           album={album}
                           comments={currentComments[sharedKey] || []}

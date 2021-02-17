@@ -3,7 +3,6 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment"
 import Link from "next/link"
-import { useRouter } from "next/router"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 
@@ -20,7 +19,6 @@ import {
   FlagAlbum,
 } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
-import flag from "../../public/flag.svg"
 import { GrSearch } from "react-icons/gr"
 import { FaWindowClose } from "react-icons/fa"
 import { IconContext } from "react-icons"
@@ -61,8 +59,6 @@ const AlbumsIndex = ({
   searchFriends,
   toggleFlashMessage,
 }) => {
-  const router = useRouter()
-
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
@@ -239,36 +235,59 @@ const AlbumsIndex = ({
 
             {/* Album Filters */}
             <div className="flex flex-wrap mb-3 content-center justify-center items-center">
-              <div className={`m-1 px-0.5 rounded-lg ${albumType === "owner" && "bg-gray-300"}`}>
-                <input type="button"
-                  value="owner"
-                  onClick={() => setAlbumType("owner")}
-                  className={`px-2 m-1 rounded-lg ${albumType === "owner" ? "bg-black text-yellow-300 underline" : "bg-yellow-300"} shadow-md border border-gray-400 font-semibold text-xs tracking-wide cursor-pointer`}
-                />
-              </div>
 
-              <div className={`m-1 px-0.5 rounded-lg ${albumType === "shared" && "bg-gray-300"}`}>
-                <input type="button"
-                  value="shared"
-                  onClick={() => setAlbumType("shared")}
-                  className={`px-2 m-1 rounded-lg ${albumType === "shared" ? "bg-black text-yellow-300 underline" : "bg-red-300"} shadow-md border border-gray-400 font-semibold text-xs tracking-wide cursor-pointer`}
-                />
-              </div>
+              <div className="w-full flex flex-col content-center justify-center items-center">
+                <div className="flex flex-col w-40 content-center justify-center items-start">
+                  <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "owner" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                    <input type="radio"
+                      id="filterRequested"
+                      checked={albumType === "owner"}
+                      onChange={() => setAlbumType("owner")}
+                    />
+                    <label htmlFor="filterRequested"
+                      className="ml-2 text-sm font-semibold uppercase"
+                    >My</label>
+                  </div>
 
-              <div className={`m-1 px-0.5 rounded-lg ${albumType === "friends" && "bg-gray-300"}`}>
-                <input type="button"
-                  value="friends"
-                  onClick={() => setAlbumType("friends")}
-                  className={`px-2 m-1 rounded-lg ${albumType === "friends" ? "bg-black text-yellow-300 underline" : "bg-green-300"} shadow-md border border-gray-400 font-semibold text-xs tracking-wide cursor-pointer`}
-                />
-              </div>
+                  <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "shared" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                    <input type="radio"
+                      id="filterRequested"
+                      checked={albumType === "shared"}
+                      onChange={() => setAlbumType("shared")}
+                    />
+                    <label htmlFor="filterRequested"
+                      className="ml-2 text-sm font-semibold uppercase"
+                    >Requested</label>
+                  </div>
 
-              <div className={`m-1 px-0.5 rounded-lg ${albumType === "public" && "bg-gray-300"}`}>
-                <input type="button"
-                  value="public"
-                  onClick={() => setAlbumType("public")}
-                  className={`px-2 m-1 rounded-lg ${albumType === "public" ? "bg-black text-yellow-300 underline" : "bg-blue-300"} shadow-md border border-gray-400 font-semibold text-xs tracking-wide cursor-pointer`}
-                />
+                  <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "friends" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                    <input type="radio"
+                      id="filterFriends"
+                      checked={albumType === "friends"}
+                      onChange={() => setAlbumType("friends")}
+                    />
+                    <label htmlFor="filterFriends"
+                      className="ml-2 text-sm font-semibold uppercase"
+                    >Friends</label>
+                  </div>
+
+                  <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "public" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                    <input type="radio"
+                      id="filterPublic"
+                      checked={albumType === "public"}
+                      onChange={() => setAlbumType("public")}
+                    />
+                    <label htmlFor="filterPublic"
+                      className="ml-2 text-sm font-semibold uppercase"
+                    >Public</label>
+                  </div>
+                </div>
+
+                { albumType === "shared" &&
+                  <p className="text-xs text-center w-full mb-1 text-gray-800">
+                    Your friends have requested your review on these albums
+                  </p>
+                }
               </div>
             </div>
 
@@ -352,26 +371,26 @@ const AlbumsIndex = ({
           {/* Begin Album Videos */}
           <div className="flex flex-col p-4 bg-gray-200 lg:w-3/4">
             <div className="flex flex-col rounded bg-white px-2 py-4 shadow-md mb-2 content-center justify-center items-center">              
-              <div className="flex flex-wrap py-4 content-center justify-center items-center">
+              <div className="flex flex-col w-full lg:w-1/2 py-4 content-center justify-center items-center">
                 { activeAlbums.length === 0 &&
-                    <div className="flex flex-col w-full relative content-center justify-center items-center rounded-md p-2">
-                      <h2 className="font-semibold text-center">None</h2>
-                    </div>
+                  <div className="flex flex-col w-full relative content-center justify-center items-center rounded-md p-2">
+                    <h2 className="font-semibold text-center">None</h2>
+                  </div>
                 }
                 <div className="w-full flex flex-col content-center justify-center items-center">
                   { page > 0 &&
-                  <button
-                    onClick={() => setPage(page-1)}
-                    className="rounded border-2 border-gray-400 w-full lg:w-1/3 text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer mb-2"
-                  >
-                    Last Page ({ page })
-                  </button>
+                    <button
+                      onClick={() => setPage(page-1)}
+                      className="rounded border-2 border-gray-400 w-full lg:w-1/3 text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer mb-2"
+                    >
+                      Last Page ({ page })
+                    </button>
                   }
                 </div>
                 { activeAlbums.map( (album, i) => {
                   return (
                     <div key={i}
-                      className="flex flex-col lg:w-7/12 relative content-center justify-center items-center hover:bg-blue-100 rounded mb-6 p-2"
+                      className="flex flex-col w-full relative content-center justify-center items-center rounded mb-1 p-8"
                     >
                       { (album.userId === user?.id && !toDeleteAlbum) &&
                         <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
@@ -398,51 +417,37 @@ const AlbumsIndex = ({
                           Confirm?
                         </button>
                       }
-
-                      <div className="flex flex row">
-                        <p className="font-semibold text-blue-700 underline cursor-pointer"
-                          onClick={() => router.push(`/albums/${album.id}`)}
+                      { (user && album.userId != user.id) &&
+                        <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"
+                          onClick={onFlagAlbum(album)}
                         >
-                          { album.name }
-                        </p>
+                          Flag Inapproriate
+                        </button>
+                      }
 
-                        { (user && album.userId != user.id) &&
-                          <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
-                            <img src={flag}
-                              className="w-4 h-4 cursor-pointer"
-                              onClick={onFlagAlbum(album)}
-                            />
-                          </div>
-                        }
+                      <div className="w-full">
+                        <AlbumAndComments
+                          album={album}
+                          comments={[]}
+                          duration={playerFrames[i]}
+                          pip={pips[i]}
+                          playing={playings[i]}
+                          playerRef={playerRefs[i]}
+                          swingIdx={currentSwings[i]}
+                          swingFrames={SWING_FRAMES}
+                          user={user}
+
+                          onSetSwingIndex={onSetCurrentSwings(i)}
+                          onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                          onTogglePlay={onTogglePlay(i)}
+                          onTogglePip={onTogglePip(i)}
+                          onPlayerProgress={onPlayerProgress(i)}
+                        />
                       </div>
-
-                      <p className="text-xs">
-                        <span className="font-semibold text-xs"> Created: </span> { Moment(album.createdAt).format("lll") }
-                      </p>
-
-                      <p className="text-xs">
-                        <span className="font-semibold text-xs"> Updated: </span> { Moment(album.updatedAt).format("lll") }
-                      </p>
-
-                      <AlbumAndComments
-                        album={album}
-                        duration={playerFrames[i]}
-                        pip={pips[i]}
-                        playing={playings[i]}
-                        playerRef={playerRefs[i]}
-                        swingIdx={currentSwings[i]}
-                        swingFrames={SWING_FRAMES}
-                        user={user}
-
-                        onSetSwingIndex={onSetCurrentSwings(i)}
-                        onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
-                        onTogglePlay={onTogglePlay(i)}
-                        onTogglePip={onTogglePip(i)}
-                        onPlayerProgress={onPlayerProgress(i)}
-                      />
                     </div>
                   )
                 })}
+                
                 <div className="w-full flex flex-col content-center justify-center items-center">
                   { (page < (filteredAlbums.length / ALBUMS_PER_COL)-1) &&
                   <button

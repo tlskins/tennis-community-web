@@ -267,74 +267,73 @@ const Home = ({
           <div className="block relative">
             {/* My Albums */}
             <div className="flex flex-col lg:w-2/3 lg:mr-4">
-              <div className="pt-6 pb-20 px-10 bg-white rounded shadow-lg static mb-6">
-                <div className="w-full">
-                  <img src={hoverUploadButton ? uploadBlue : uploadYellow}
-                    className="w-10 h-8 relative cursor-pointer"
-                    onMouseEnter={() => setHoverUploadButton(true)}
-                    onMouseLeave={() => setHoverUploadButton(false)}
-                    onClick={() => setShowHowTo(!showHowTo)}
-                  />
-                  <h2 className="font-bold text-lg text-center mb-2">
-                    My Albums
-                  </h2>
+              <div className="pt-6 pb-20 px-10 w-full bg-white rounded shadow-lg relative mb-6">
+                <img src={hoverUploadButton ? uploadBlue : uploadYellow}
+                  className="w-10 h-8 left-10 absolute cursor-pointer"
+                  onMouseEnter={() => setHoverUploadButton(true)}
+                  onMouseLeave={() => setHoverUploadButton(false)}
+                  onClick={() => setShowHowTo(!showHowTo)}
+                />
+                <h2 className="font-bold text-lg text-center mb-4">
+                  My Albums
+                </h2>
 
-                  <div className="block pt-6 p-4 bg-white rounded shadow-lg static">
+                <div className="block pt-6 p-4 bg-white rounded shadow-lg static">
 
-                    { (myActiveAlbums.length === 0 && myAlbums === []) &&
+                  { (myActiveAlbums.length === 0 && myAlbums === []) &&
                       <div className="px-20 mt-4">
                         <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
                       </div>
-                    }
-                    { (myActiveAlbums.length === 0 && myAlbums === null) &&
+                  }
+                  { (myActiveAlbums.length === 0 && myAlbums === null) &&
                       <div className="px-20 mt-4">
                         <p className="text-center bg-yellow-300 text-gray-700 tracking-wide rounded-lg w-full px-20">Loading...</p>
                       </div>
-                    }
+                  }
 
-                    {/* <div className="flex flex-row lg:flex-wrap lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto"> */}
-                    <div className="flex flex-row lg:grid lg:grid-cols-2 lg:gap-2 lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-x-auto">
+                  {/* <div className="flex flex-row lg:flex-wrap lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto"> */}
+                  <div className="flex flex-row lg:grid lg:grid-cols-2 lg:gap-2 items-center overflow-x-scroll lg:overflow-x-auto">
                       
-                      { myAlbumsPage === 0 &&
-                        <div className={`flex m-2 w-11/12 content-center justify-center items-center bg-blue-300 rounded-xl shadow-lg p-8 ${myActiveAlbums.length % 2 === 0 && "col-span-2"}`}
+                    { myAlbumsPage === 0 &&
+                        <div className={`flex flex-row m-2 w-11/12 h-full content-center justify-center items-center rounded-xl bg-gray-100 shadow-lg p-8 ${myActiveAlbums.length % 2 === 0 && "col-span-2"}`}
                           style={{"min-width": "80%"}}
                         >
                           <button
-                            className="bg-gray-800 text-yellow-300 p-5 rounded font-bold text-lg uppercase shadow-lg text-center hover:bg-yellow-300 hover:text-gray-800"
+                            className="bg-gray-800 bg-smartphone bg-contain bg-center bg-no-repeat text-yellow-200 p-10 rounded-lg font-bold text-lg uppercase shadow-lg text-center hover:bg-yellow-300 hover:text-gray-800"
                             onClick={() => router.push("/albums/new")}
                           >
                           New Album
                           </button>
                         </div>
-                      }
+                    }
 
-                      { myActiveAlbums.map((album, i) => 
-                        <div key={i}
-                          className="m-2 w-11/12"
-                        >
-                          <AlbumAndCommentsPreview
-                            key={i}
-                            album={album}
-                            comments={currentComments[i] || []}
-                            duration={playerFrames[i]}
-                            pip={pips[i]}
-                            playing={playings[i]}
-                            playerRef={playerRefs[i]}
-                            swingIdx={currentSwings[i]}
-                            swingFrames={SWING_FRAMES}
-                            user={user}
+                    { myActiveAlbums.map((album, i) => 
+                      <div key={i}
+                        className="m-2 w-11/12"
+                      >
+                        <AlbumAndCommentsPreview
+                          key={i}
+                          album={album}
+                          comments={currentComments[i] || []}
+                          duration={playerFrames[i]}
+                          pip={pips[i]}
+                          playing={playings[i]}
+                          playerRef={playerRefs[i]}
+                          swingIdx={currentSwings[i]}
+                          swingFrames={SWING_FRAMES}
+                          user={user}
 
-                            onSetSwingIndex={onSetCurrentSwings(i)}
-                            onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
-                            onTogglePlay={onTogglePlay(i)}
-                            onTogglePip={onTogglePip(i)}
-                            onPlayerProgress={onPlayerProgress(i)}
-                          />
-                        </div>  
-                      )}
-                    </div>
+                          onSetSwingIndex={onSetCurrentSwings(i)}
+                          onHandleSeekChange={onHandleSeekChange(playerRefs[i], i)}
+                          onTogglePlay={onTogglePlay(i)}
+                          onTogglePip={onTogglePip(i)}
+                          onPlayerProgress={onPlayerProgress(i)}
+                        />
+                      </div>  
+                    )}
+                  </div>
 
-                    { myAlbumsPage > 0 &&
+                  { myAlbumsPage > 0 &&
                         <div className="w-full content-center justify-center items-center mb-1">
                           <input type="button"
                             className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
@@ -342,9 +341,9 @@ const Home = ({
                             onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
                           />
                         </div>
-                    }
+                  }
 
-                    { myActiveAlbums.length === myAlbumsPerPage &&
+                  { myActiveAlbums.length === myAlbumsPerPage &&
                       <div className="w-full content-center justify-center items-center">
                         <input type="button"
                           className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
@@ -352,8 +351,7 @@ const Home = ({
                           onClick={() => setMyAlbumsPage(myAlbumsPage+1)}
                         />
                       </div>
-                    }
-                  </div>
+                  }
                 </div>
               </div>
             </div>

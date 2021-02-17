@@ -85,7 +85,7 @@ const LoginForm = ({
     if (success) {
       clearForm()
       setFormType("")
-      router.push("/profile")
+      router.push("/home")
     }
   }
 

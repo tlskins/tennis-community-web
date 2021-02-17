@@ -67,7 +67,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
   }
 
   const onGetStarted = () => {
-    user ? router.push("/profile") : onShowNewUser()
+    user ? router.push("/home") : onShowNewUser()
   }
 
   return (

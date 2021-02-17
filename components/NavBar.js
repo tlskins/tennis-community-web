@@ -52,7 +52,7 @@ const NavBar = ({
           id: Moment().toString(),
           message: "User confirmed!"
         })
-        router.push("/profile")
+        router.push("/home")
       }
     }
   }, [confirmation])
@@ -84,8 +84,8 @@ const NavBar = ({
         </LinksContainer>
         :
         <LinksContainer>
-          <LinkClass active={ router.pathname === "/profile" }>
-            <Link href="/profile">Profile</Link>
+          <LinkClass active={ router.pathname === "/home" }>
+            <Link href="/home">Home</Link>
           </LinkClass>
           <LinkClass active={ router.pathname === "/albums" }>
             <Link href="/albums">Albums</Link>

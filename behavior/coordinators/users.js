@@ -19,7 +19,7 @@ export const CreateUser = (dispatch) => async ({ firstName, lastName, email, pas
 
 export const UpdateUserProfile = (dispatch) => async updates => {
   try {
-    const response = await put("/users/profile", updates)
+    const response = await put("/users/home", updates)
     dispatch(setUser(response.data))
   }
   catch( err ) {

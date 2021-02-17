@@ -84,7 +84,7 @@ const Album = ({
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([])
 
-  const [activeSideBar, setActiveSidebar] = useState("Album Overview")
+  const [activeSideBar, setActiveSidebar] = useState(user ? "Album Overview" : "Album Comments")
   const [expandedSideBar, setExpandedSideBar] = useState(false)
   const [albumPage, setAlbumPage] = useState(0)
   const [filteredRallies, setFilteredRallies] = useState([])

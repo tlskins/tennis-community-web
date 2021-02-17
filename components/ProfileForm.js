@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment"
+import { useRouter } from "next/router"
 
 import { UpdateUserProfile, SignOut } from "../behavior/coordinators/users"
 import { newNotification } from "../state/ui/action"
@@ -17,8 +18,10 @@ const ProfileForm = ({
   user,
 
   newFlashMessage,
+  signOut,
   updateUserProfile,
 }) => {
+  const router = useRouter()
 
   const [email,] = useState(user?.email)
   const [userName, setUserName] = useState(user?.userName)
@@ -26,6 +29,11 @@ const ProfileForm = ({
   const [lastName, setLastName] = useState(user?.lastName)
   const [iconNumber, setIconNumber] = useState(user?.iconNumber)
 
+  const onSignOut = async () => {
+    await signOut()
+    window.localStorage.setItem("authToken", "")
+    router.push("/")
+  }
 
   const onUpdateUserProfile = async () => {
     const success = updateUserProfile({
@@ -42,6 +50,13 @@ const ProfileForm = ({
   return (
     <div>
       <SignInForm>
+        { user &&
+        <div className="p-8">
+          <button onClick={onSignOut}>
+            Sign Out
+          </button>
+        </div>
+        }
         <h2>
           Profile
         </h2>

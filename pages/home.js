@@ -38,7 +38,7 @@ const myAlbumsPerPage1 = 3
 const sharedAlbumsPerPage = 3
 let timer
 
-const Profile = ({
+const Home = ({
   reduxMyAlbums,
   reduxFriendsAlbums,
   reduxSharedAlbums,
@@ -296,7 +296,7 @@ const Profile = ({
                     <div className="flex flex-row lg:grid lg:grid-cols-2 lg:gap-2 lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-x-auto">
                       
                       { myAlbumsPage === 0 &&
-                        <div className="flex m-2 w-11/12 content-center justify-center items-center lg:bg-gray-100 lg:shadow-lg p-8"
+                        <div className={`flex m-2 w-11/12 content-center justify-center items-center bg-blue-300 rounded-xl shadow-lg p-8 ${myActiveAlbums.length % 2 === 0 && "col-span-2"}`}
                           style={{"min-width": "80%"}}
                         >
                           <button
@@ -639,7 +639,7 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
   
-Profile.propTypes = {
+Home.propTypes = {
   reduxMyAlbums: PropTypes.arrayOf(PropTypes.object),
   reduxFriendsAlbums: PropTypes.arrayOf(PropTypes.object),
   reduxSharedAlbums: PropTypes.arrayOf(PropTypes.object),
@@ -660,4 +660,4 @@ Profile.propTypes = {
   updateUserProfile: PropTypes.func,
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Profile)
+export default connect(mapStateToProps, mapDispatchToProps)(Home)

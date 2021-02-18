@@ -32,7 +32,7 @@ const AlbumAndComments = ({
     <div key={album.id} className="lg:flex flex-row content-center justify-center items-center bg-gray-100 mb-6 p-2 rounded shadow-lg w-full">
 
       {/* Details Panel */}
-      <div className="lg:flex flex-col w-52 content-center justify-center items-start py-2 mr-2">
+      <div className="lg:flex flex-col w-full content-center justify-center items-center lg:items-start py-2 mr-2">
         <div className="px-2 mx-1 text-xs">
           Album:
           <a className="text-blue-400 underline mx-1"
@@ -79,7 +79,7 @@ const AlbumAndComments = ({
         </div>
 
         { album.friendIds.includes(user.id) &&
-          <p className="flex flex-row w-full px-2 mt-2 rounded shadow-lg bg-black text-yellow-300 text-xs font-semibold content-center justify-center items-center">
+          <p className="flex flex-row w-full px-2 mt-2 rounded shadow-lg bg-black text-yellow-300 text-xs font-semibold content-center justify-center items-center text-center">
             Your review requested!
           </p>
         }
@@ -136,7 +136,7 @@ const AlbumAndComments = ({
 
       {/* Video Player */}
       <div className="lg:flex flex-col lg:w-3/5 content-center justify-center items-center py-2 shadow-lg">
-        <div className="content-center justify-center items-center">
+        <div className="content-center justify-center items-center p-2">
           <ReactPlayer
             ref={playerRef}
             url={album.swingVideos[swingIdx]?.videoURL} 
@@ -156,7 +156,7 @@ const AlbumAndComments = ({
               }
             }}
             height=""
-            width="220px"
+            width=""
           />
         </div>
         

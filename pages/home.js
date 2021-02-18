@@ -326,8 +326,8 @@ const Home = ({
                   <div className="flex flex-row lg:grid lg:grid-cols-2 lg:gap-2 items-center overflow-x-scroll lg:overflow-x-auto">
                       
                     { myAlbumsPage === 0 &&
-                        <div className={`flex flex-row m-2 w-11/12 h-60 content-center justify-center items-center rounded-xl bg-video-players bg-yellow-200 bg-contain bg-center bg-no-repeat shadow-lg p-8 ${myActiveAlbums.length % 2 === 0 && "col-span-2"}`}
-                          style={{"min-width": "80%"}}
+                        <div className={`flex flex-row m-1 w-11/12 h-60 content-center justify-center items-center rounded-xl bg-video-players bg-yellow-200 bg-contain bg-center bg-no-repeat shadow-lg ${myActiveAlbums.length % 2 === 0 && "col-span-2"}`}
+                          style={{"min-width": "90%"}}
                         >
                           <button
                             className="bg-yellow-300 text-gray-800 whitespace-nowrap p-2 rounded-lg font-bold text-lg uppercase shadow-lg text-center hover:bg-gray-800 hover:text-yellow-300"
@@ -340,7 +340,7 @@ const Home = ({
 
                     { myActiveAlbums.map((album, i) => 
                       <div key={i}
-                        className="m-2 w-11/12"
+                        className="mx-2 w-11/12"
                       >
                         <AlbumAndComments
                           key={i}
@@ -365,13 +365,13 @@ const Home = ({
                   </div>
 
                   { myAlbumsPage > 0 &&
-                        <div className="w-full content-center justify-center items-center mb-1">
-                          <input type="button"
-                            className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
-                            value={`Previous Page (${myAlbumsPage})`}
-                            onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
-                          />
-                        </div>
+                      <div className="w-full content-center justify-center items-center mb-1">
+                        <input type="button"
+                          className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                          value={`Previous Page (${myAlbumsPage})`}
+                          onClick={() => setMyAlbumsPage(myAlbumsPage-1)}
+                        />
+                      </div>
                   }
 
                   { myActiveAlbums.length === myAlbumsPerPage &&

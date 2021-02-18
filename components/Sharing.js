@@ -54,7 +54,7 @@ const Sharing = ({
   })
 
   return(
-    <div className="flex flex-col p-8 bg-white rounded shadow-lg">
+    <div className="flex flex-col p-8 bg-gray-200 rounded shadow-lg">
       <p className="mb-2 font-semibold tracking-wide">Share with</p>
       <div className="flex flex-row">
         { user.disablePublicAlbums &&

@@ -331,7 +331,7 @@ const Album = ({
   }
 
   const onShareAlbum = async () => {
-    updateAlbum(
+    const success = await updateAlbum(
       {
         id: album.id,
         name: album.name,
@@ -341,6 +341,13 @@ const Album = ({
       },
       true,
     )
+    if (success) {
+      flashMessage({
+        id: Moment().toString(),
+        message: "Album sharing updated!",
+      })
+    }
+
     if (invEmail) {
       const success = await inviteUser({
         email: invEmail,
@@ -620,7 +627,7 @@ const Album = ({
                     showUsage={showSharingUsage}
                   />
                   <input type='button'
-                    className="w-14 rounded py-0.5 px-2 my-2 text-xs font-semibold bg-blue-700 text-white"
+                    className="w-14 rounded py-0.5 px-2 mt-4 text-xs font-semibold bg-blue-700 text-white cursor-pointer"
                     onClick={onShareAlbum}
                     value="Share"
                   />

@@ -103,7 +103,7 @@ export const DeleteAlbum = (dispatch) => async (albumId) => {
 
 export const UpdateAlbum = (dispatch) => async (data, shareAlbum = false, calculateMetrics = false) => {
   try {
-    const response = await put(`/albums/${album.id}`, { ...data, shareAlbum, calculateMetrics })
+    const response = await put(`/albums/${data.id}`, { ...data, shareAlbum, calculateMetrics })
     const album = pAlbum( response.data )
     dispatch(setAlbum(album))
   }

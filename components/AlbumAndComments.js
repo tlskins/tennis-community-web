@@ -180,7 +180,7 @@ const AlbumAndComments = ({
                 </IconContext.Provider>
             }
 
-            <a className="text-xs text-blue-400 underline mr-1"
+            <a className="text-xs text-blue-400 underline mx-2"
               href={`/albums/${album.id}/swings/${album.swingVideos[swingIdx]?.id}`}
             >
               { album.swingVideos[swingIdx]?.name } 

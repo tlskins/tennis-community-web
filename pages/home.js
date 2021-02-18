@@ -431,9 +431,9 @@ const Home = ({
                   </div>
 
                   { albumType === "shared" &&
-                      <p className="text-xs text-center w-full mb-1 text-gray-800">
-                        Your friends have requested your review on these albums
-                      </p>
+                    <p className="text-xs text-center w-full mb-1 text-gray-800">
+                      Your friends have requested your review on these albums
+                    </p>
                   }
                 </div>
 
@@ -453,7 +453,8 @@ const Home = ({
                     const sharedKey = myActiveAlbums.length + i
                     return(
                       <div key={sharedKey}
-                        className="mx-1 lg:mx-0 w-11/12 lg:w-full"
+                        className="mx-1 lg:mx-0 w-full"
+                        style={{ minWidth: "90%" }}
                       >
                         <AlbumAndComments
                           key={sharedKey}
@@ -480,19 +481,19 @@ const Home = ({
                 </div>
 
                 { sharedAlbumsPage > 0 &&
-                <div className="w-full content-center justify-center items-center mb-1">
-                  <input type="button"
-                    className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
-                    value={`Previous Page (${sharedAlbumsPage})`}
-                    onClick={() => setSharedAlbumsPage(sharedAlbumsPage-1)}
-                  />
-                </div>
+                  <div className="w-full content-center justify-center items-center mb-1">
+                    <input type="button"
+                      className="rounded w-full text-sm tracking-wider font-bold bg-gray-800 text-yellow-300 shadow-md cursor-pointer"
+                      value={`Previous Page (${sharedAlbumsPage})`}
+                      onClick={() => setSharedAlbumsPage(sharedAlbumsPage-1)}
+                    />
+                  </div>
                 }
 
                 { sharedActiveAlbums.length === sharedAlbumsPerPage &&
                 <div className="w-full content-center justify-center items-center">
                   <input type="button"
-                    className="rounded w-full text-sm tracking-wider font-bold bg-yellow-300 shadow-md cursor-pointer"
+                    className="rounded w-full text-sm tracking-wider font-bold bg-gray-800 text-yellow-300 shadow-md cursor-pointer"
                     value={`Next Page (${sharedAlbumsPage+2})`}
                     onClick={() => setSharedAlbumsPage(sharedAlbumsPage+1)}
                   />
@@ -506,7 +507,7 @@ const Home = ({
 
               {/* Friends */}
               <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 lg:h-96">
-                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-auto">
+                <div className="p-4 lg:mr-4 lg:w-1/3 my-3 lg:my-0 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-auto">
                   <div className="content-center justify-center items-center w-full relative">
                     <SearchBoxContainer>
                       <SearchBox
@@ -536,7 +537,7 @@ const Home = ({
                 </div>
 
                 {/* Friends */}
-                <div className="p-4 lg:mr-4 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-auto">
+                <div className="p-4 lg:mr-4 lg:w-1/3 my-3 lg:my-0 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-auto">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
                     Friends
@@ -569,7 +570,7 @@ const Home = ({
                 </div>
 
                 {/* Requests */}
-                <div className="p-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-auto">
+                <div className="p-4 mb-4 lg:mb-0 lg:w-1/3 my-3 lg:my-0 content-center justify-center items-center bg-gray-100 rounded shadow-lg overflow-y-auto">
                   <div className="content-center justify-center items-center mb-2">
                     <h2 className="underline font-semibold text-center">
                     Requests

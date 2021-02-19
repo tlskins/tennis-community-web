@@ -1,7 +1,6 @@
 import React, { useEffect, useState, createRef, Fragment } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
-import Moment from "moment-timezone"
 import { useRouter } from "next/router"
 import { GrSearch } from "react-icons/gr"
 
@@ -67,13 +66,13 @@ const Home = ({
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([])
   const [currentSwings, setCurrentSwings] = useState([])
-  const [currentComments, setCurrentComments] = useState([])
 
   const [myAlbumsPage, setMyAlbumsPage] = useState(0)
   const [sharedAlbumsPage, setSharedAlbumsPage] = useState(0)
   const [myAlbums, setMyAlbums] = useState(null)
   const [sharedAlbums, setSharedAlbums] = useState(null)
   const [albumType, setAlbumType] = useState("shared") // friends - shared - public
+  const [pendingAlbumReqs, setPendingAlbumReqs] = useState(0)
 
   const [friendsSearch, setFriendsSearch] = useState("")
   const [foundUsers, setFoundUsers] = useState([])
@@ -88,9 +87,10 @@ const Home = ({
     }
   }, [user])
 
-  // load albums by relevance then presence
   useEffect( async () => {
     loadMyAlbums()
+
+    // load shared albums by relevance then presence
     const shared = await loadSharedAlbums()
     if (shared && shared.length > 0) return
 
@@ -103,6 +103,13 @@ const Home = ({
     loadPublicAlbums()
     setAlbumType("public")
   }, [])
+
+  useEffect(async () => {
+    if (user) {
+      const count = reduxSharedAlbums.filter( album => album.allComments.every( com => com.userId !== user.id )).length
+      setPendingAlbumReqs(count)
+    }
+  }, [reduxSharedAlbums, user])
 
   useEffect(async () => {
     if (reduxMyAlbums) setMyAlbums([...reduxMyAlbums])
@@ -131,41 +138,26 @@ const Home = ({
     setPlayings(activeAlbums.map(() => false))
     setPips(activeAlbums.map(() => false))
     setCurrentSwings(activeAlbums.map(() => 0))
-    // show 3 most recent album or swing comments for each album
-    setCurrentComments(activeAlbums.map(album => {
-      let comments = [
-        ...(album?.comments || []),
-        ...((album?.swingVideos || []).map( swing => 
-          swing.comments.map( comment => 
-            ({ ...comment, swingName: swing.name, swingId: swing.id })
-          )
-        ).flat()),
-      ]
-      comments = comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
-      return comments.slice(0,3).filter( c => !!c )
-    }))
   }, [myAlbums, myAlbumsPage, user])
 
   useEffect(() => {
     const userIdsSet = new Set([])
 
-    if (currentComments.length > 0) {
-      currentComments.forEach( comments => {
-        comments.forEach( comment => {
-          if (!usersCache[comment.userId]) userIdsSet.add(comment.userId)
-        })
+    const allAlbums = [...(myAlbums || []), ...(sharedAlbums || [])]
+    allAlbums.forEach( album => {
+      if (!usersCache[album.userId]) {
+        userIdsSet.add(album.userId)
+      }
+      album.allComments.forEach( comment => {
+        if (!usersCache[comment.userId]) {
+          userIdsSet.add(comment.userId)
+        }
       })
-    }
-
-    if (myAlbums?.length > 0) {
-      myAlbums.forEach( album => {
-        if (!usersCache[album.userId]) userIdsSet.add(album.userId)
-      })
-    }
+    })
 
     const ids = Array.from(userIdsSet)
     if (ids.length > 0) searchFriends({ ids })
-  }, [currentComments, myAlbums, sharedAlbums])
+  }, [myAlbums, sharedAlbums])
 
   useEffect(() => {
     if (user?.friendRequests.length > 0 || user?.friendIds.length > 0) {
@@ -329,7 +321,6 @@ const Home = ({
                         <AlbumAndComments
                           key={i}
                           album={album}
-                          comments={currentComments[i] || []}
                           duration={playerFrames[i]}
                           pip={pips[i]}
                           playing={playings[i]}
@@ -389,6 +380,11 @@ const Home = ({
                       <label htmlFor="filterRequested"
                         className="ml-2 text-sm font-semibold uppercase"
                       >Requested</label>
+                      { pendingAlbumReqs > 0 &&
+                      <div className="ml-2 h-5 w-5 rounded-full bg-blue-300 text-black shadow-lg font-bold flex items-center justify-center text-center">
+                        { pendingAlbumReqs }
+                      </div>
+                      }
                     </div>
 
                     <div className={`flex content-center justify-center items-center py-0.5 px-3 rounded-xl ${albumType === "friends" ? "bg-gray-800 text-yellow-300" : "bg-yellow-300"}`}>
@@ -443,7 +439,6 @@ const Home = ({
                         <AlbumAndComments
                           key={sharedKey}
                           album={album}
-                          comments={currentComments[sharedKey] || []}
                           duration={playerFrames[sharedKey]}
                           pip={pips[sharedKey]}
                           playing={playings[sharedKey]}

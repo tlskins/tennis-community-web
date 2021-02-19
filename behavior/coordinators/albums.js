@@ -4,9 +4,19 @@ import { HandleError } from "./errors"
 import { newNotification } from "../../state/ui/action"
 import { setMyAlbums, setFriendsAlbums, setSharedAlbums, setPublicAlbums } from "../../state/album/action"
 
+import Moment from "moment"
+
 const pAlbum = json => {
   return {
     ...json,
+    allComments: [
+      ...(json?.comments || []),
+      ...((json?.swingVideos || []).map( swing => 
+        (swing.comments || []).map( comment => 
+          ({ ...comment, swingName: swing.name, swingId: swing.id })
+        )
+      ).flat()),
+    ].sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1),
     swingVideos: json.swingVideos.map( swing => ({
       ...swing,
       jpgURL: swing.jpgURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),

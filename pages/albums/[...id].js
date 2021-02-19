@@ -130,7 +130,7 @@ const Album = ({
     setIsPublic(album?.isPublic || false)
     setIsViewableByFriends(album?.isViewableByFriends || false)
     setFriendIds(album?.friendIds || [])
-    if (album) {
+    if (album && album.swingVideos.length > 0) {
       const maxSec = album.swingVideos[album.swingVideos.length-1].timestampSecs
       const swingsByRally = album.swingVideos.reduce((acc, swing) => {
         const rally = swing.rally || 1

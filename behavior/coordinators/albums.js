@@ -16,13 +16,7 @@ const pAlbum = json => {
           ({ ...comment, swingName: swing.name, swingId: swing.id })
         )
       ).flat()),
-    ].sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1),
-    swingVideos: json.swingVideos.map( swing => ({
-      ...swing,
-      jpgURL: swing.jpgURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),
-      gifURL: swing.gifURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),
-      videoURL: swing.videoURL.replace(/http.+com/, process.env.NEXT_PUBLIC_CDN_URL),
-    }))
+    ].sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
   }
 }
 

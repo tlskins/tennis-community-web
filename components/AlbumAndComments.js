@@ -12,7 +12,6 @@ import speechBubble from "../public/speech-bubble.svg"
 
 const AlbumAndComments = ({
   album,
-  comments,
   duration,
   pip,
   playing,
@@ -94,13 +93,13 @@ const AlbumAndComments = ({
           </p>
 
           <div className="flex flex-row bg-white rounded-lg mx-1 mb-1 text-xs px-1 w-10">
-            <p className="mr-0.5 text-center">{ (album.comments?.length || 0) + album.swingVideos.reduce((acc, swing) => acc + (swing.comments?.length || 0), 0) }</p>
+            <p className="mr-0.5 text-center">{ (album.allComments?.length || 0) }</p>
             <img src={speechBubble} className="w-5 h-5"/>
           </div>
         </div>
 
         <div className="h-32 w-full overflow-y-auto bg-gray-300 p-1 rounded hidden lg:block">
-          { comments.map((comment, j) => {
+          { album.allComments.map((comment, j) => {
             const poster = usersCache[comment.userId]
             return(
               <div key={j} className="px-2 pt-1 mb-1 bg-white rounded shadow-lg">
@@ -128,7 +127,7 @@ const AlbumAndComments = ({
               </div>
             )
           })}
-          { comments.length === 0 &&
+          { album.allComments.length === 0 &&
             <p className="text-xs w-full rounded-lg bg-yellow-300 text-center">No Comments</p>
           }
         </div>
@@ -252,7 +251,6 @@ const mapStateToProps = (state) => {
   
 AlbumAndComments.propTypes = {
   album: PropTypes.object,
-  comments: PropTypes.arrayOf(PropTypes.object),
   duration: PropTypes.number,
   pip: PropTypes.bool,
   playing: PropTypes.bool,

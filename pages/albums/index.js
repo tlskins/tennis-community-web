@@ -74,6 +74,7 @@ const AlbumsIndex = ({
   const [startDate, setStartDate] = useState(undefined)
   const [endDate, setEndDate] = useState(undefined)
   const [isMyAlbumsLoaded, setIsMyAlbumsLoaded] = useState(false)
+  const [pendingAlbumReqs, setPendingAlbumReqs] = useState(0)
 
   var sourceAlbums
   switch(albumType) {
@@ -93,29 +94,35 @@ const AlbumsIndex = ({
   const activeAlbums = filteredAlbums.slice(page * ALBUMS_PER_COL, (page+1) * ALBUMS_PER_COL).filter( a => !!a )
 
   useEffect(async () => {
+    if (user) loadSharedAlbums()
+  }, [])
+
+  useEffect(async () => {
     if (user) {
       switch(albumType) {
       case "owner":
-        if (myAlbums.length === 0) {
-          await loadMyAlbums()
-          setIsMyAlbumsLoaded(true)
-        }
+        await loadMyAlbums()
+        setIsMyAlbumsLoaded(true)
         break
-      case "friends":
-        if (friendsAlbums.length === 0) loadFriendsAlbums()
+      case "friends": loadFriendsAlbums()
         break
-      case "shared":
-        if (sharedAlbums.length === 0) loadSharedAlbums()
+      case "shared": loadSharedAlbums()
         break
-      case "public":
-        if (publicAlbums.length === 0) loadPublicAlbums()
+      case "public": loadPublicAlbums()
         break
       default: break
       }
     } else {
       setIsMyAlbumsLoaded(true)
     }
-  }, [user, albumType, myAlbums, friendsAlbums, sharedAlbums, publicAlbums])
+  }, [user, albumType])
+
+  useEffect(async () => {
+    if (user) {
+      const count = sharedAlbums.filter( album => album.allComments.every( com => com.userId !== user.id )).length
+      setPendingAlbumReqs(count)
+    }
+  }, [sharedAlbums, user])
 
   useEffect(() => {
     if (isMyAlbumsLoaded) {
@@ -136,16 +143,13 @@ const AlbumsIndex = ({
     // load users cache
     if (activeAlbums.length > 0) {
       const commentersSet = new Set([])
+
       activeAlbums.forEach( album => {
-        (album.comments || []).forEach( comment => {
+        album.allComments.forEach( comment => {
           if (!usersCache[comment.userId]) commentersSet.add(comment.userId)
         })
-        album.swingVideos.forEach( swing => {
-          (swing.comments || []).forEach( comment => {
-            if (!usersCache[comment.userId]) commentersSet.add(comment.userId)
-          })
-        })
       })
+
       const ids = Array.from(commentersSet)
       if (ids.length > 0) searchFriends({ ids })
     }
@@ -274,6 +278,11 @@ const AlbumsIndex = ({
                     <label htmlFor="filterRequested"
                       className="ml-2 text-sm font-semibold uppercase"
                     >Requested</label>
+                    { pendingAlbumReqs > 0 &&
+                      <div className="ml-2 h-6 w-6 rounded-full bg-blue-300 text-black shadow-lg font-bold flex items-center justify-center text-center">
+                        { pendingAlbumReqs }
+                      </div>
+                    }
                   </div>
 
                   <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "friends" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
@@ -444,7 +453,6 @@ const AlbumsIndex = ({
                       <div className="w-full">
                         <AlbumAndComments
                           album={album}
-                          comments={[]}
                           duration={playerFrames[i]}
                           pip={pips[i]}
                           playing={playings[i]}

@@ -17,14 +17,20 @@ const Notifications = ({
   loadUser,
 }) => {
   const router = useRouter()
-
-  if (user) {
-    useInterval(loadUser, 45000, 30)
-  }
   
   const uploadNoteIds = user.uploadNotifications.map( note => note.id)
   const friendNoteIds = user.friendNotifications.map( note => note.id)
   const commentNoteIds = user.commentNotifications.map( note => note.id)
+
+  if (user) {
+    useInterval(loadUser, 45000, 30)
+  }
+
+  useEffect(() => {
+    if (user) {
+      loadUser()
+    }
+  }, [])
 
   useEffect(() => {
     if (user.uploadNotifications?.length > 0) {

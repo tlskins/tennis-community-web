@@ -142,15 +142,16 @@ const AlbumsIndex = ({
 
     // load users cache
     if (activeAlbums.length > 0) {
-      const commentersSet = new Set([])
+      const userIdsSet = new Set([])
 
       activeAlbums.forEach( album => {
+        if (!usersCache[album.userId]) userIdsSet.add(album.userId)
         album.allComments.forEach( comment => {
-          if (!usersCache[comment.userId]) commentersSet.add(comment.userId)
+          if (!usersCache[comment.userId]) userIdsSet.add(comment.userId)
         })
       })
 
-      const ids = Array.from(commentersSet)
+      const ids = Array.from(userIdsSet)
       if (ids.length > 0) searchFriends({ ids })
     }
   }, [myAlbums, friendsAlbums, publicAlbums, page])

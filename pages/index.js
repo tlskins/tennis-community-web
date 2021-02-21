@@ -72,7 +72,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
   }
 
   return (
-    <div>
+    <>
       <Head>
         {/* <!-- HTML Meta Tags --> */}
         <title>Hive Tennis</title>
@@ -196,7 +196,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
           <p className="footer-subtitle">Reach us at <a href="mailto: queenbee@hivetennis.com">queenbee@hivetennis.com</a></p>
         </FooterInner>
       </Footer>
-    </div>
+    </>
   )
 }
 

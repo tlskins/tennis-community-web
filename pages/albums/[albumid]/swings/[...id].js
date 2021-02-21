@@ -720,6 +720,22 @@ const mapDispatchToProps = (dispatch) => {
     updateSwing: UpdateSwing(dispatch),
   }
 }
+
+export async function getStaticProps() {
+  return {
+    props: {
+      pageTitle: "Hive Tennis - Swing",
+      pageDesc: "View my tennis swing!"
+    }
+  }
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: [],
+    fallback: true,
+  }
+}
   
 Album.propTypes = {
   album: PropTypes.object,

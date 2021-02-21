@@ -1108,6 +1108,12 @@ export async function getStaticProps() {
     }
   }
 }
+
+export async function getStaticPaths() {
+  return {
+    paths: []
+  }
+}
   
 Album.propTypes = {
   album: PropTypes.object,

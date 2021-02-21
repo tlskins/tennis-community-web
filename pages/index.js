@@ -2,6 +2,7 @@ import React, { useState, useEffect, createRef } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
+import Head from "next/head"
 import Moment from "moment"
 import Head from "next/head"
 
@@ -89,6 +90,26 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
             gtag('config', ${process.env.NEXT_PUBLIC_GTM_ID});
         `,}}>
         </script>
+        {/* <!-- HTML Meta Tags --> */}
+        <title>Hive Tennis</title>
+        <meta name="description" content="Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!"/>
+
+        {/* <!-- Facebook Meta Tags --> */}
+        <meta property="og:url" content="https://tennis-community-web.vercel.app/"/>
+        <meta property="og:type" content="website"/>
+        <meta property="og:title" content="Hive Tennis"/>
+        <meta property="og:description" content="Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!"/>
+        <meta property="og:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"/>
+
+        {/* <!-- Twitter Meta Tags --> */}
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta property="twitter:domain" content="tennis-community-web.vercel.app"/>
+        <meta property="twitter:url" content="https://tennis-community-web.vercel.app/"/>
+        <meta name="twitter:title" content="Hive Tennis"/>
+        <meta name="twitter:description" content="Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!"/>
+        <meta name="twitter:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"/>
+
+        {/* <!-- Meta Tags Generated via https://www.opengraph.xyz --> */}
       </Head>
       <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>

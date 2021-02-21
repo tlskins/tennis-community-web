@@ -1111,7 +1111,8 @@ export async function getStaticProps() {
 
 export async function getStaticPaths() {
   return {
-    paths: []
+    paths: [],
+    fallback: true,
   }
 }
   

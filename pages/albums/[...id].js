@@ -394,27 +394,6 @@ const Album = ({
             gtag('config', ${process.env.NEXT_PUBLIC_GTM_ID});
         `,}}>
         </script>
-
-        {/* <!-- HTML Meta Tags --> */}
-        <title>Hive Tennis Album</title>
-        <meta name="description" content="Check out this album of my tennis swings!"/>
-
-        {/* <!-- Facebook Meta Tags --> */}
-        <meta property="og:url" content="https://tennis-community-web.vercel.app/"/>
-        <meta property="og:type" content="website"/>
-        <meta property="og:title" content="Hive Tennis"/>
-        <meta property="og:description" content="Check out this album of my tennis swings!"/>
-        <meta property="og:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"/>
-
-        {/* <!-- Twitter Meta Tags --> */}
-        <meta name="twitter:card" content="summary_large_image"/>
-        <meta property="twitter:domain" content="tennis-community-web.vercel.app"/>
-        <meta property="twitter:url" content="https://tennis-community-web.vercel.app/"/>
-        <meta name="twitter:title" content="Hive Tennis"/>
-        <meta name="twitter:description" content="Check out this album of my tennis swings!"/>
-        <meta name="twitter:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"/>
-
-        {/* <!-- Meta Tags Generated via https://www.opengraph.xyz --> */}
       </Head>
       { (user && user.id) &&
         <Notifications />

@@ -13,7 +13,7 @@ import styled from "@emotion/styled"
 import colors from "../styles/colors.js"
 
 
-const PAGE_URL = "tennis-community-web.vercel.app"
+const PAGE_URL = "hivetennis.com"
 
 function WrappedApp({ Component, pageProps }) {
   const store = useStore()

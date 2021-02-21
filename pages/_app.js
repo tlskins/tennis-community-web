@@ -20,7 +20,7 @@ function WrappedApp({ Component, pageProps }) {
   console.log("pageprops", pageProps)
   const {
     pageTitle = "Hive Tennis",
-    pageDesc = "Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!",
+    pageDesc = "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!",
     ogImage = "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg",
   } = pageProps
 

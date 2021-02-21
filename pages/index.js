@@ -77,7 +77,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
     <div>
       <Head>
         {/* Twitter */}
-        {/* <meta name="twitter:card" content={description} key="twcard" /> */}
+        <meta name="twitter:card" content={description} key="twcard" />
 
         {/* Open Graph */}
         <meta property="og:url" content="www.hivetennis.com" key="ogurl" />

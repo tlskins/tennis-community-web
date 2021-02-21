@@ -4,7 +4,6 @@ import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Head from "next/head"
 import Moment from "moment"
-import Head from "next/head"
 
 import { LoadPublicAlbums } from "../behavior/coordinators/albums"
 import { setLoginFormVisible } from "../state/ui/action"

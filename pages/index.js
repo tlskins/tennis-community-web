@@ -76,22 +76,23 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
       <Head>
         {/* <!-- HTML Meta Tags --> */}
         <title>Hive Tennis</title>
-        <meta name="description" content="Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!"/>
+        <meta name="description" content="Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!" key="desc"/>
 
         {/* <!-- Facebook Meta Tags --> */}
-        <meta property="og:url" content="https://tennis-community-web.vercel.app/"/>
-        <meta property="og:type" content="website"/>
-        <meta property="og:title" content="Hive Tennis"/>
-        <meta property="og:description" content="Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!"/>
-        <meta property="og:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"/>
+        <meta property="og:url" content="https://tennis-community-web.vercel.app/" key="ogurl" />
+
+        <meta property="og:type" content="website" key="ogtype"/>
+        <meta property="og:title" content="Hive Tennis" key="ogtitle"/>
+        <meta property="og:description" content="Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!" key="ogdesc"/>
+        <meta property="og:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg" key="ogimg"/>
 
         {/* <!-- Twitter Meta Tags --> */}
-        <meta name="twitter:card" content="summary_large_image"/>
-        <meta property="twitter:domain" content="tennis-community-web.vercel.app"/>
-        <meta property="twitter:url" content="https://tennis-community-web.vercel.app/"/>
-        <meta name="twitter:title" content="Hive Tennis"/>
-        <meta name="twitter:description" content="Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!"/>
-        <meta name="twitter:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"/>
+        <meta name="twitter:card" content="summary_large_image" key="twitter_card"/>
+        <meta property="twitter:domain" content="tennis-community-web.vercel.app" key="twitter_dom"/>
+        <meta property="twitter:url" content="https://tennis-community-web.vercel.app/" key="twitter_url"/>
+        <meta name="twitter:title" content="Hive Tennis" key="twitter_title"/>
+        <meta name="twitter:description" content="Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!" key="twitter_desc"/>
+        <meta name="twitter:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg" key="twitter_img"/>
 
         {/* <!-- Meta Tags Generated via https://www.opengraph.xyz --> */}
       </Head>

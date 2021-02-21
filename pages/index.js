@@ -2,6 +2,7 @@ import React, { useState, useEffect, createRef } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
+import Head from "next/head"
 import Moment from "moment"
 
 import { LoadPublicAlbums } from "../behavior/coordinators/albums"
@@ -70,8 +71,21 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
     user ? router.push("/home") : onShowNewUser()
   }
 
+  const description = "Automatically cut swings from your tennis videos! HiveTennis is a platform to quickly cut, analyze, and get feedback on your tennis!"
+
   return (
     <div>
+      <Head>
+        {/* Twitter */}
+        {/* <meta name="twitter:card" content={description} key="twcard" /> */}
+
+        {/* Open Graph */}
+        <meta property="og:url" content="www.hivetennis.com" key="ogurl" />
+        <meta property="og:image" content={publicAlbums[0]?.swingVideos[0]?.jpgURL} key="ogimage" />
+        <meta property="og:site_name" content="Hive Tennis" key="ogsitename" />
+        <meta property="og:title" content="Hive Tennis" key="ogtitle" />
+        <meta property="og:description" content={description} key="ogdesc" />
+      </Head>
       <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>
           <HeaderTitle>We automatically cut every swing from your tennis videos</HeaderTitle>

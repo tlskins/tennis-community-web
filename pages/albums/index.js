@@ -33,7 +33,7 @@ import {
 
 
 const SWING_FRAMES = 60
-const ALBUMS_PER_COL = 3
+const ALBUMS_PER_COL = 4
 
 const filterAlbums = (albums, search, rgx, start, end) => {
   let filtered = albums.filter( alb => search ? rgx.test(alb.name) : true)
@@ -400,7 +400,7 @@ const AlbumsIndex = ({
                 { activeAlbums.map( (album, i) => {
                   return (
                     <div key={i}
-                      className="flex flex-col w-full relative content-center justify-center items-center rounded mb-1 p-8"
+                      className="flex flex-col w-full relative content-center justify-center items-center rounded p-2"
                     >
                       { (album.userId === user?.id && !toDeleteAlbum) &&
                         <button className="absolute top-2 right-4 underline text-sm text-blue-400 cursor-pointer"

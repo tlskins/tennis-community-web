@@ -1099,6 +1099,15 @@ const mapDispatchToProps = (dispatch) => {
     updateAlbumRedux: updatedAlbum => dispatch(setAlbum(updatedAlbum))
   }
 }
+
+export async function getStaticProps() {
+  return {
+    props: {
+      pageTitle: "Hive Tennis - Swing Album",
+      pageDesc: "View album of my swings!"
+    }
+  }
+}
   
 Album.propTypes = {
   album: PropTypes.object,

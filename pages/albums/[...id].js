@@ -757,40 +757,40 @@ const Album = ({
                           { comments.filter( com => !com.isHidden ).length === 0 &&
                             <p className="text-center p-2"> No comments </p>
                           }
-                          <div className="overflow-y-scroll">
+                          <div className="overflow-y-scroll h-96">
                             { comments.filter( com => !com.isHidden ).map( comment => {
                               return(
                                 <div key={comment.id}
-                                  className="my-2 p-0.5 rounded shadow-lg bg-white hover:bg-blue-100 cursor-pointer"
+                                  className={`my-2 p-0.5 rounded shadow-lg bg-white ${comment.userId !== user.id && "border-2 border-blue-300"}`}
                                 >
                                   { comment.replyId &&
-                                  <div className="p-2 border border-black rounded text-xs bg-gray-300">
-                                    <p>reply to</p>
-                                    <p className="pl-2 text-gray-700">
-                                      { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
-                                    </p>
-                                    <div className="flex flex-row items-center">
-                                      <p className="mx-2 text-xs text-blue-500 align-middle">
-                                        @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                    <div className="p-2 border border-black rounded text-xs bg-gray-300">
+                                      <p>reply to</p>
+                                      <p className="pl-2 text-gray-700">
+                                        { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
                                       </p>
-                                      <p className="mx-2 text-sm align-middle font-bold">
-                                        |
-                                      </p>
-                                      <p className="mx-2 text-xs text-gray-500 align-middle">
-                                        { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY h:mm a") }
-                                      </p>
+                                      <div className="flex flex-row items-center">
+                                        <p className="mx-2 text-xs text-blue-500 align-middle">
+                                          @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                        </p>
+                                        <p className="mx-2 text-sm align-middle font-bold">
+                                          |
+                                        </p>
+                                        <p className="mx-2 text-xs text-gray-500 align-middle">
+                                          { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY h:mm a") }
+                                        </p>
+                                      </div>
                                     </div>
-                                  </div>
                                   }
-                                  <div className="flex flex-col pt-1 my-0.5">
-                                    <p className="p-1">
+                                  <div className="flex flex-col py-1 my-0.5">
+                                    <p className="py-1 px-2 mx-1 mb-2 mt-1 bg-gray-100 rounded">
                                       { comment.text }
                                     </p>
-                                    <div className="flex flex-row content-center justify-center items-center">
-                                      <img src={getUserIcon(user)}
+                                    <div className="mx-1 flex flex-row content-center justify-center items-center">
+                                      {/* <img src={getUserIcon(user)}
                                         className="w-5 h-5 ml-1"
-                                      />
-                                      <p className="mx-1 text-xs text-blue-500 align-middle">
+                                      /> */}
+                                      <p className={`mx-1 text-xs ${comment.userId === user.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
                                       @{ usersCache[comment.userId]?.userName || "..." }
                                       </p>
                                       <p className="mx-1 text-sm align-middle font-bold">
@@ -798,39 +798,39 @@ const Album = ({
                                       </p>
                                       { comment.swingId &&
                                         <>
-                                          <a className="mx-1 text-xs text-blue-500 align-middle underline"
+                                          <a className="mx-1 text-xs px-2 rounded-lg bg-blue-700 text-white align-middle"
                                             href={`/albums/${albumId}/swings/${comment.swingId}`}
                                           >
-                                          Swing { comment.swingName }
+                                          swing { comment.swingName }
                                           </a>
                                           <p className="mx-1 text-sm align-middle font-bold">
-                                        |
+                                          |
                                           </p>
                                         </>
                                       }
                                       <p className="mx-1 text-xs text-gray-500 align-middle">
-                                        { Moment(comment.createdAt).format("MMM D YYYY h:mm a") }
+                                        { Moment(comment.createdAt).format("MMM D h:mm a") }
                                       </p>
                                       <p className="mx-1 text-sm align-middle font-bold">
                                       |
                                       </p>
                                       { (user && !user.disableComments) &&
-                                      <input type='button'
-                                        className='border w-10 rounded py-0.5 px-1 mx-1 text-xs bg-green-700 text-white text-center cursor-pointer'
-                                        value='reply'
-                                        onClick={() => {
-                                          setReplyId(comment.id)
-                                          setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                                        }}
-                                      />
-                                      }
-                                      { user &&
-                                      <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
-                                        <img src={flag}
-                                          className="w-4 h-4 cursor-pointer"
-                                          onClick={onFlagComment(comment)}
+                                        <input type='button'
+                                          className='border w-10 rounded py-0.5 px-0.5 mx-0.5 text-xs bg-green-700 text-white text-center cursor-pointer'
+                                          value='reply'
+                                          onClick={() => {
+                                            setReplyId(comment.id)
+                                            setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                                          }}
                                         />
-                                      </div>
+                                      }
+                                      { (user && comment.userId !== user.id) &&
+                                        <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
+                                          <img src={flag}
+                                            className="w-4 h-4 cursor-pointer"
+                                            onClick={onFlagComment(comment)}
+                                          />
+                                        </div>
                                       }
                                     </div>
                                   </div>
@@ -850,7 +850,7 @@ const Album = ({
           {/* End Sidebar */}
 
           {/* Begin Album Videos */}
-          <div className={`p-4 block lg:flex lg:flex-col lg:${mainWidth} relative content-center justify-center items-center`}>
+          <div className={`p-4 block lg:flex lg:flex-col lg:${mainWidth} relative bg-white lg:bg-transparent content-center justify-center items-center`}>
             
             <a href="/albums"
               className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-4 hidden lg:block"
@@ -877,7 +877,7 @@ const Album = ({
               </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white px-2 py-4 shadow-lg mb-2">
+            <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-gray-700 lg:bg-white px-2 py-4 shadow-lg mb-2">
               { pageVideos.map( (swing, i) => {
                 const viewScale = albumView === "video" ? "items-center lg:w-1/3 lg:h-1/3" : "m-2"
                 return (

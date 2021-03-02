@@ -625,10 +625,10 @@ const Album = ({
                           <p className="p-1">
                             { comment.text }
                           </p>
-                          <div className="flex flex-row content-center justify-center items-center">
-                            <img src={getUserIcon(usersCache[comment.userId])}
+                          <div className="mx-1 flex flex-row content-center justify-center items-center">
+                            {/* <img src={getUserIcon(usersCache[comment.userId])}
                               className="w-5 h-5 ml-1 cursor-pointer"
-                            />
+                            /> */}
                             <p className="mx-1 text-xs text-blue-500 align-middle">
                               @{ usersCache[comment.userId]?.userName || "..." }
                             </p>
@@ -636,7 +636,7 @@ const Album = ({
                             |
                             </p>
                             <p className="mx-1 text-xs text-gray-500 align-middle">
-                              { Moment(comment.createdAt).format("MMM D YYYY H:m a") }
+                              { Moment(comment.createdAt).format("MMM D H:m a") }
                             </p>
                             <p className="mx-1 text-sm align-middle font-bold">
                             |

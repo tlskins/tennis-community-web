@@ -75,7 +75,7 @@ const NewAlbum = ({
   }
 
   const onSaveAlbum = async () => {
-    displayAlert({ id: Moment().toString(), bgColor: "bg-green-300", message: "Uploading..." })
+    displayAlert({ id: Moment().toString(), message: "Uploading..." })
     if ( await createAlbum({
       name: newAlbumName,
       status: "Created",
@@ -112,7 +112,9 @@ const NewAlbum = ({
         <div className="lg:flex flex-col block">
           {/* Begin Main */}
 
-          <HowToUpload isFirst={myAlbums.length === 0} />
+          <div className="mt-1">
+            <HowToUpload isFirst={myAlbums.length === 0} />
+          </div>
 
           <div className="p-4 flex flex-col bg-gray-100 rounded-md content-center justify-center items-center mb-6">
             <div className="w-full p-4 flex flex-col content-center justify-center items-center border border-black shadow-md">

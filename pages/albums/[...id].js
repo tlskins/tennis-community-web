@@ -782,7 +782,7 @@ const Album = ({
                                     </div>
                                   }
                                   <div className="flex flex-col py-1 my-0.5">
-                                    <p className="py-1 px-2 mx-1 mb-2 mt-1 bg-gray-100 rounded">
+                                    <p className="py-1 px-2 mx-1 mb-2 mt-1 bg-gray-100 shadow-lg rounded">
                                       { comment.text }
                                     </p>
                                     <div className="mx-1 flex flex-row content-center justify-center items-center">
@@ -1055,7 +1055,7 @@ const Album = ({
               </div>
               <button
                 onClick={() => setAlbumPage(albumPage+1)}
-                className={`rounder p-0.5 mx-1 text-white ${albumPage >= (swingVideos.length / swingsPerPage)-1 && "hidden"}`}
+                className={`rounder p-0.5 mx-1 text-white ${albumPage >= (swingVideos.length / swingsPerPage)-1 && "invisible"}`}
               >
                 &gt;
               </button>

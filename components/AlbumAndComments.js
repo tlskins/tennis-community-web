@@ -103,11 +103,9 @@ const AlbumAndComments = ({
             const poster = usersCache[comment.userId]
             return(
               <div key={j} className="px-2 pt-1 mb-1 bg-white rounded shadow-lg">
-                <textarea disabled={true}
-                  className="text-xs bg-gray-100 rounded-md shadow-md w-full p-0.5"
-                  value={comment.text}
-                  rows={2}
-                />
+                <p className="text-xs bg-gray-100 rounded-md shadow-md w-full p-0.5 mb-1">
+                  {comment.text}
+                </p>
                 <p className="text-xs w-full">
                   <span className="text-blue-400 underline">{ poster ? `@${poster.userName}` : "..." }</span>
                   { comment.swingId &&
@@ -116,7 +114,7 @@ const AlbumAndComments = ({
                       <a className="text-xs text-blue-500 align-middle underline"
                         href={`/albums/${album.id}/swings/${comment.swingId}`}
                       >
-                      Swing { comment.swingName }
+                      swing { comment.swingName }
                       </a>
                     </>
                   }

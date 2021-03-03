@@ -797,7 +797,7 @@ const Album = ({
                                       </p>
                                       { comment.swingId &&
                                         <>
-                                          <a className="mx-1 text-xs px-2 rounded-lg bg-blue-700 text-white align-middle"
+                                          <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
                                             href={`/albums/${albumId}/swings/${comment.swingId}`}
                                           >
                                           swing { comment.swingName }

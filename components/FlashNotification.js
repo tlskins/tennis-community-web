@@ -28,7 +28,7 @@ const FlashNotif = ({ notifications, onRemoveNotification }) => {
         return(
           <div key={i}
             onClick={ () => onRemoveNotification(id) }
-            className={ `${ bgColor } fixed right-0 w-3/4 lg:w-1/2 shadow-lg rounded justify-between text-center flex px-3 lg:py-2 text-gray-700 rounded text-lg` }
+            className={ "bg-yellow-300 fixed right-0 w-3/4 lg:w-1/2 shadow-lg rounded justify-between text-center flex px-3 lg:py-2 text-gray-700 rounded text-lg" }
           >
             <div className="flex flex-col items-center w-full py-6 tracking-wide font-bold">
               <p id="notif_message px-3">{ message }</p>

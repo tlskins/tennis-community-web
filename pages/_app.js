@@ -56,7 +56,6 @@ function WrappedApp({ Component, pageProps }) {
           <Component {...pageProps} />
         </ThemeProvider>
       </PersistGate>
-
     </>
   )
 }

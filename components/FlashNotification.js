@@ -20,11 +20,11 @@ import { removeNotification } from "../state/ui/action"
 const FlashNotif = ({ notifications, onRemoveNotification }) => {
   return (
     <div className="fixed absolute right-2 z-50 ml-12 mt-2 flex flex-col space-y-56 lg:space-y-40 items-start">
-      { (notifications || []).map( ({ id, bgColor: color, message, buttons }, i) => {
-        let bgColor = "bg-yellow-300"
-        if (color) {
-          bgColor = color
-        }
+      { (notifications || []).map( ({ id, bgColor, message, buttons }, i) => {
+        // let bgColor = "bg-yellow-300"
+        // if (color) {
+        //   bgColor = color
+        // }
         return(
           <div key={i}
             onClick={ () => onRemoveNotification(id) }

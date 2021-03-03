@@ -98,7 +98,7 @@ const AlbumAndComments = ({
           </div>
         </div>
 
-        <div className="h-32 w-full overflow-y-auto bg-gray-300 p-1 rounded hidden lg:block">
+        <div className="h-32 w-full overflow-y-auto bg-gray-300 border border-gray-300 p-1 rounded hidden lg:block">
           { album.allComments.map((comment, j) => {
             const poster = usersCache[comment.userId]
             return(
@@ -219,6 +219,7 @@ const AlbumAndComments = ({
             {/* Seek */}
             <input
               type='range'
+              className="w-10/12 lg:w-full"
               value={duration}
               min={0}
               max={swingFrames}

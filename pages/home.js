@@ -303,7 +303,7 @@ const Home = ({
                       
                     { myAlbumsPage === 0 &&
                         <div className={`flex flex-row m-1 w-11/12 h-60 content-center justify-center items-center rounded-xl bg-video-players bg-yellow-200 bg-contain bg-center bg-no-repeat shadow-lg ${myActiveAlbums.length % 2 === 0 && "col-span-2"}`}
-                          style={{"min-width": "90%"}}
+                          style={{"min-width": "85%"}}
                         >
                           <button
                             className="bg-yellow-300 text-gray-800 whitespace-nowrap p-2 rounded-lg font-bold text-lg uppercase shadow-lg text-center hover:bg-gray-800 hover:text-yellow-300"

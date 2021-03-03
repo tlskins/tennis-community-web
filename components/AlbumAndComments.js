@@ -42,8 +42,8 @@ const AlbumAndComments = ({
             <p className="mt-1">Shared</p>
             <p className="mt-1">Status</p>
           </div>
-          <div className="flex flex-col font-semibold text-xs">
-            <a className="text-blue-400 underline mx-1"
+          <div className="flex flex-col text-xs">
+            <a className="font-semibold text-blue-400 underline mx-1"
               href={`/albums/${album.id}`}
             >
               { album.name } 

@@ -124,13 +124,10 @@ const AlbumsIndex = ({
   }, [sharedAlbums, user])
 
   useEffect(() => {
-    if (isMyAlbumsLoaded) {
-      if (myAlbums.length === 0) {
-        loadPublicAlbums()
-        setAlbumType("public")
-      }
+    if (isMyAlbumsLoaded && myAlbums.length === 0) {
+      setAlbumType("public")
     }
-  }, [myAlbums, isMyAlbumsLoaded])
+  }, [isMyAlbumsLoaded])
 
   useEffect(() => {
     // set video players

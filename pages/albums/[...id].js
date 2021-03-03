@@ -755,18 +755,19 @@ const Album = ({
                         </div>
 
                         {/* Comments List  */}
-                        <div className="flex flex-col h-40 lg:h-full rounded shadow-lg bg-gray-100 px-1">
+                        <div className="flex flex-col overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
                           { comments.filter( com => !com.isHidden ).length === 0 &&
-                            <p className="text-center p-2"> No comments </p>
+                              <p className="text-center p-2"> No comments </p>
                           }
-                          <div className="overflow-y-auto h-96">
+                          
+                          <div className="h-96">
                             { comments.filter( com => !com.isHidden ).map( comment => {
                               return(
                                 <div key={comment.id}
-                                  className={`my-2 p-0.5 rounded shadow-lg bg-white ${comment.userId !== user.id && "border-2 border-blue-300"}`}
+                                  className={`px-2 py-1.5 mb-2 ${comment.userId === user.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
                                 >
                                   { comment.replyId &&
-                                    <div className="p-2 border border-black rounded text-xs bg-gray-300">
+                                    <div className="p-2 rounded shadow-lg text-xs bg-gray-300">
                                       <p>reply to</p>
                                       <p className="pl-2 text-gray-700">
                                         { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
@@ -784,8 +785,8 @@ const Album = ({
                                       </div>
                                     </div>
                                   }
-                                  <div className="flex flex-col py-1 my-0.5">
-                                    <p className="py-1 px-2 mx-1 mb-2 mt-1 bg-gray-100 shadow-lg rounded">
+                                  <div className="flex flex-col p-1 my-0.5">
+                                    <p className="text-xs bg-gray-300 rounded-md shadow w-full px-1 py-0.5 mb-1">
                                       { comment.text }
                                     </p>
                                     <div className="mx-1 flex flex-row content-center justify-center items-center">
@@ -840,7 +841,6 @@ const Album = ({
                               )
                             })}
                           </div>
-                          
                         </div>
                       </div>
                     </div>

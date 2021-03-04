@@ -242,7 +242,7 @@ const SwingModal = ({
         </div>
 
         {/* Controls Panel */}
-        <div className="block lg:flex flex-col p-1 mt-4 bg-gray-100 rounded shadow-lg">
+        <div className="block lg:flex flex-col p-1 mt-2 bg-gray-100 rounded shadow-lg">
           <div className="flex flex-row content-center justify-center items-center mt-1 text-xs">
             <div className="font-semibold mr-1">Rally { swing.rally }</div> | 
             <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs relative">
@@ -354,7 +354,7 @@ const SwingModal = ({
   return (
     <div className="lg:flex lg:flex-row p-2 lg:p-8 bg-gray-200 content-center justify-center items-center">
       {/* Swing Video Column */}
-      <div className={"lg:flex flex-col items-center py-4 px-8 rounded bg-white shadow-lg relative"}>
+      <div className={"lg:flex flex-col items-center py-2 lg:py-4 px-8 rounded bg-white shadow-lg relative"}>
         <div className="mb-2 flex content-center justify-center items-center">
           <div className="flex flex-row content-center justify-center items-center relative">
             <input type="button"
@@ -390,7 +390,7 @@ const SwingModal = ({
       <div className="lg:flex flex-col lg:ml-8 lg:mt-0 mt-2 items-center py-4 px-3 lg:px-8 overflow-y-auto rounded bg-white shadow-lg">
        
         <div className="flex flex-col w-full">
-          <div className="flex flex-col border-b-2 border-gray-400 mb-2 relative">
+          <div className="flex flex-col border-b-2 border-gray-400 lg:mb-2 relative">
             { replyId &&
                 <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
                   onClick={() => {
@@ -405,7 +405,7 @@ const SwingModal = ({
             <textarea
               className="p-2 rounded shadow-lg bg-gray-100 text-xs"
               placeholder={commentsPlaceholder}
-              rows="4"
+              rows="3"
               maxLength={500}
               value={comment}
               onClick={() => {
@@ -421,7 +421,7 @@ const SwingModal = ({
                   <svg className="absolute text-yellow-300 h-2 right-0 mr-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
                 </div>
             }
-            <div className="flex flex-row p-2 content-center justify-center items-center">
+            <div className="flex flex-row p-1 content-center justify-center items-center">
               <p className="mx-2 hidden lg:block text-xs text-gray-500 align-middle">
                 { Moment().format("MM/D h:mm a") }
               </p>
@@ -471,7 +471,7 @@ const SwingModal = ({
           </div>
 
           {/* Comments List  */}
-          <div className="flex flex-col h-52 lg:max-h-80 overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
+          <div className="flex flex-col h-28 lg:max-h-80 overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
             { comments.filter( com => !com.isHidden ).length === 0 &&
               <p className="text-center p-2"> No comments </p>
             }

@@ -91,6 +91,7 @@ const Album = ({
   const [albumPage, setAlbumPage] = useState(0)
   const [filteredRallies, setFilteredRallies] = useState([])
 
+  const [showSharing, setShowSharing] = useState(false)
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
@@ -380,7 +381,7 @@ const Album = ({
   } else if (replyId) {
     commentsPlaceholder = "Reply to comment"
   }
-  
+
   return (
     <div className="bg-gray-200">
       <Head>
@@ -427,31 +428,31 @@ const Album = ({
         <div className="lg:flex lg:flex-row min-h-screen">
           {/* Begin Sidebar */}
           <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
-            <div className="flex flex-col text-sm">
-              {/* Album Overview */}
-              <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center mb-2 relative">
-                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
-                    onClick={() => {
-                      if (activeSideBar === "Album Overview") {
-                        setActiveSidebar(undefined)
-                      } else {
-                        setActiveSidebar("Album Overview")
-                      }
-                    }}
-                  >
-                  Album Overview
-                  </h2>
-                  <div className="relative">
-                    <input type="button"
-                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
-                      value="?"
-                      onClick={() => {
-                        setShowOverviewUsage(activeSideBar !== "Album Overview" ? true : !showOverviewUsage)
-                        setActiveSidebar("Album Overview")
-                      }}
-                    />
-                    { showOverviewUsage &&
+            <div className="flex content-center justify-center items-center">
+              <div className="flex flex-col w-2/3 text-sm">
+                {/* Album Overview */}
+                <div>
+                  <div className="flex flex-row relative">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Album Overview" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Album Overview"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Album Overview" ? undefined : "Album Overview")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Album Overview
+                      </label>
+                    </div>
+
+                    <div className="relative">
+                      <input type="button"
+                        className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                        value="?"
+                        onClick={() => {
+                          setShowOverviewUsage(activeSideBar !== "Album Overview" ? true : !showOverviewUsage)
+                          setActiveSidebar("Album Overview")
+                        }}
+                      />
+                      { showOverviewUsage &&
                     <div className="absolute ml-10 -my-28 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">
                       <ul className="list-disc pl-6">
                         <li>Shows the swings and rallies that were clipped from the original video</li>
@@ -459,11 +460,12 @@ const Album = ({
                         <li>Toggle the Rally checkboxes to filter by Rally</li>
                       </ul>
                     </div>
-                    }
+                      }
+                    </div>
                   </div>
-                </div>
-                { activeSideBar === "Album Overview" &&
-                  <div className="flex flex-col rounded bg-white shadow-lg p-2 mb-2 overflow-scroll">
+                
+                  { activeSideBar === "Album Overview" &&
+                  <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2 overflow-scroll">
                     <div className="flex flex-col sticky left-0 content-center justify-center items-start pl-8 py-4 mb-4 rounded shadow-lg bg-gray-200 text-gray-700">
                       <p className="uppercase underline font-semibold mb-1">
                         { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies
@@ -545,135 +547,138 @@ const Album = ({
                         </ChartContainer>
                     }
                   </div>
-                }
-              </div>
+                  }
+                </div>
 
-              {/* Pro Comparison Sidebar */}
-              <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center mb-2">
-                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
-                    onClick={() => {
-                      if (activeSideBar === "Pro Comparison") {
-                        setActiveSidebar(undefined)
-                      } else {
+                {/* Pro Comparison Sidebar */}
+                <div>
+                  <div className="flex flex-row relative">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Pro Comparison" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Pro Comparison"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Pro Comparison" ? undefined : "Pro Comparison")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Pro Comparison
+                      </label>
+                    </div>
+
+                    <input type="button"
+                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                      value="?"
+                      onClick={() => {
+                        setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
                         setActiveSidebar("Pro Comparison")
-                      }
-                    }}
-                  >
-                  Pro Comparison
-                  </h2>
-                  <input type="button"
-                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
-                    value="?"
-                    onClick={() => {
-                      setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
-                      setActiveSidebar("Pro Comparison")
-                    }}
-                  />
-                </div>
-                { activeSideBar === "Pro Comparison" &&
-                <ProComparison showUsage={showProUsage} />
-                }
-              </div>
+                      }}
+                    />
+                  </div>
 
-              {/* Video Resources Sidebar */}
-              <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center mb-2">
-                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
-                    onClick={() => {
-                      if (activeSideBar === "Video Resources") {
-                        setActiveSidebar(undefined)
-                      } else {
+                  { activeSideBar === "Pro Comparison" &&
+                  <div className="my-2">
+                    <ProComparison showUsage={showProUsage} />
+                  </div>
+                  }
+                </div>
+
+                {/* Video Resources Sidebar */}
+                <div>
+                  <div className="flex flex-row relative">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Video Resources" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Video Resources"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Video Resources" ? undefined : "Video Resources")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Youtube Tutorials
+                      </label>
+                    </div>
+
+                    <input type="button"
+                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                      value="?"
+                      onClick={() => {
+                        setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
                         setActiveSidebar("Video Resources")
-                      }
-                    }}
-                  >
-                    Youtube Tutorials
-                  </h2>
-                  <input type="button"
-                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
-                    value="?"
-                    onClick={() => {
-                      setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
-                      setActiveSidebar("Video Resources")
-                    }}
-                  />
-                </div>
-                { activeSideBar === "Video Resources" &&
-                <VideoResources
-                  onExpand={playing => setExpandedSideBar(playing)}
-                  showUsage={showVideoUsage}
-                />
-                }
-              </div>
+                      }}
+                    />
+                  </div>
 
-              {/* Sharing Sidebar */}
-              { (user && user.id == album?.userId) &&
-              <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center mb-2">
-                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
-                    onClick={() => {
-                      if (activeSideBar === "Sharing") {
-                        setActiveSidebar(undefined)
-                      } else {
+                  { activeSideBar === "Video Resources" &&
+                  <div className="my-2">
+                    <VideoResources
+                      onExpand={playing => setExpandedSideBar(playing)}
+                      showUsage={showVideoUsage}
+                    />
+                  </div>
+                  }
+                </div>
+
+                { (user && user.id == album?.userId) &&
+                <div>
+                  <div className="flex flex-row relative">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Sharing" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Sharing"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Sharing" ? undefined : "Sharing")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Sharing
+                      </label>
+                    </div>
+
+                    <input type="button"
+                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                      value="?"
+                      onClick={() => {
+                        setShowSharingUsage(activeSideBar !== "Sharing" ? true : !showSharingUsage)
                         setActiveSidebar("Sharing")
-                      }
-                    }}
-                  >
-                    Sharing
-                  </h2>
-                  <input type="button"
-                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
-                    value="?"
-                    onClick={() => {
-                      setShowSharingUsage(activeSideBar !== "Sharing" ? true : !showSharingUsage)
-                      setActiveSidebar("Sharing")
-                    }}
-                  />
-                </div>
-                
-                { activeSideBar === "Sharing" &&
-                <div className="flex flex-col content-center justify-center items-center p-4 bg-white rounded">
-                  <Sharing
-                    isPublic={isPublic}
-                    setIsPublic={setIsPublic}
-                    isViewableByFriends={isViewableByFriends}
-                    setIsViewableByFriends={setIsViewableByFriends}
-                    friendIds={friendIds}
-                    setFriendIds={setFriendIds}
-                    invEmail={invEmail}
-                    setInvEmail={setInvEmail}
-                    invFirstName={invFirstName}
-                    setInvFirstName={setInvFirstName}
-                    invLastName={invLastName}
-                    setInvLastName={setInvLastName}
-                    showUsage={showSharingUsage}
-                  />
-                  <input type='button'
-                    className="w-14 rounded py-0.5 px-2 mt-4 text-xs font-semibold bg-blue-700 text-white cursor-pointer"
-                    onClick={onShareAlbum}
-                    value="Share"
-                  />
+                      }}
+                    />
+                  </div>
+
+                  { activeSideBar === "Sharing" &&
+                    <div className="flex flex-col content-center justify-center items-center my-2 p-4 bg-white rounded">
+                      <Sharing
+                        isPublic={isPublic}
+                        setIsPublic={setIsPublic}
+                        isViewableByFriends={isViewableByFriends}
+                        setIsViewableByFriends={setIsViewableByFriends}
+                        friendIds={friendIds}
+                        setFriendIds={setFriendIds}
+                        invEmail={invEmail}
+                        setInvEmail={setInvEmail}
+                        invFirstName={invFirstName}
+                        setInvFirstName={setInvFirstName}
+                        invLastName={invLastName}
+                        setInvLastName={setInvLastName}
+                        showUsage={showSharingUsage}
+                      />
+                      <input type='button'
+                        className="w-14 rounded py-0.5 px-2 mt-4 text-xs font-semibold bg-blue-700 text-white cursor-pointer"
+                        onClick={onShareAlbum}
+                        value="Share"
+                      />
+                    </div>
+                  }
                 </div>
                 }
-              </div>
-              }
 
-              {/* Comments Sidebar */}
-              <div className="mb-2 w-full">
-                <h2 className="text-gray-300 uppercase cursor-pointer text-center mb-2"
-                  onClick={() => {
-                    if (activeSideBar === "Album Comments") {
-                      setActiveSidebar(undefined)
-                    } else {
-                      setActiveSidebar("Album Comments")
-                    }
-                  }}
-                >
-                Album Comments
-                </h2>
-                { activeSideBar === "Album Comments" &&
-                  <div className="mb-2 rounded bg-white p-2">
+                {/* Comments Sidebar */}
+                <div className="w-full">
+                  <div className="flex flex-row relative">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Album Comments" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Album Comments"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Album Comments" ? undefined : "Album Comments")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Album Comments
+                      </label>
+                    </div>
+                  </div>
+
+                  { activeSideBar === "Album Comments" &&
+                  <div className="my-2 rounded bg-white p-2">
                     <div className="flex flex-col content-center justify-center items-center overscroll-contain">
                       <div className="flex flex-col w-full">
 
@@ -845,7 +850,8 @@ const Album = ({
                       </div>
                     </div>
                   </div>
-                }
+                  }
+                </div>
               </div>
             </div>
           </Sidebar>
@@ -860,7 +866,7 @@ const Album = ({
             back to albums
             </a>
 
-            <div className="mb-2 block lg:flex content-center justify-center items-center">
+            <div className="mb-2 block lg:flex flex-col content-center justify-center items-center">
               <div className="flex flex-row content-center justify-center items-center relative">
                 <input type="button"
                   className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-5 cursor-pointer hidden lg:block"

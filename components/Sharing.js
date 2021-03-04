@@ -54,38 +54,40 @@ const Sharing = ({
   })
 
   return(
-    <div className="flex flex-col p-8 bg-gray-200 rounded shadow-lg">
-      <p className="mb-2 font-semibold tracking-wide">Share with</p>
-      <div className="flex flex-row">
+    <div className="flex flex-col p-8 bg-gray-300 rounded shadow-lg">
+      {/* <p className="mb-2 font-semibold tracking-wide">Share with</p> */}
+      
+      <div className="flex flex-col mr-5">
         { user.disablePublicAlbums &&
           <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your public sharing has been disabled</p>
         }
         { !user.disablePublicAlbums &&
-          <Fragment>
-            <input id="public"
+          <div className="flex flex-row">
+            <input
               className="mr-2"
               type="checkbox"
               checked={isPublic}
               onChange={e => setIsPublic(e.target.checked)}
             />
-            <label htmlFor="public"> Public</label><br></br>
-          </Fragment>
+            <span className="font-semibold text-sm text-center"> Public</span>
+          </div>
         }
       </div>
 
-      <div className="flex flex-row">
-        <input id="public"
-          className="mr-2"
-          type="checkbox"
-          checked={isViewableByFriends}
-          onChange={e => setIsViewableByFriends(e.target.checked)}
-        />
-        <label htmlFor="public"> All Friends</label><br></br>
+      <div className="flex flex-col mr-5">
+        <div className="flex flex-row">
+          <input
+            className="mr-2"
+            type="checkbox"
+            checked={isViewableByFriends}
+            onChange={e => setIsViewableByFriends(e.target.checked)}
+          />
+          <span className="font-semibold text-sm text-center"> All friends</span>
+        </div>
       </div>
 
-      {/* Invite User */}
       { setInvEmail &&
-        <div className="flex flex-col">
+        <div className="flex flex-col mr-5">
           <div className="flex flex-row">
             <input id="inviteUser"
               className="mr-2"
@@ -93,25 +95,25 @@ const Sharing = ({
               checked={isInviting}
               onChange={() => setIsInviting(!isInviting)}
             />
-            <label htmlFor="inviteUser"> By email</label><br></br>
+            <span className="font-semibold text-sm text-center"> By email</span>
           </div>
 
           { isInviting &&
-              <div className="flex flex-col mt-2">
+              <div className="flex flex-col mr-2 mt-2">
                 <input type="text"
-                  className="rounded border border-black p-1 mb-1"
+                  className="rounded text-xs p-1 mb-1 rounded bg-gray-100 shadow-lg"
                   placeholder="email"
                   value={invEmail}
                   onChange={e => setInvEmail(e.target.value)}
                 />
                 <input type="text"
-                  className="rounded border border-black p-1 mb-1"
+                  className="rounded text-xs p-1 mb-1 rounded bg-gray-100 shadow-lg"
                   placeholder="first name (optional)"
                   value={invFirstName}
                   onChange={e => setInvFirstName(e.target.value)}
                 />
                 <input type="text"
-                  className="rounded border border-black p-1 mb-1"
+                  className="rounded text-xs p-1 mb-1 rounded bg-gray-100 shadow-lg"
                   placeholder="last name (optional)"
                   value={invLastName}
                   onChange={e => setInvLastName(e.target.value)}
@@ -122,9 +124,9 @@ const Sharing = ({
       }
 
       {/* Specific Friends */}
-      <div className="flex flex-col relative">
+      <div className="flex flex-col mr-5">
         <div className="flex flex-row">
-          <input id="specificFriends"
+          <input
             className="mr-2"
             type="checkbox"
             checked={isSearchingFriends}
@@ -133,19 +135,19 @@ const Sharing = ({
               setIsSearchingFriends(e.target.checked)
             }}
           />
-          <label htmlFor="specificFriends"> Request feedback from</label><br></br>
+          <span className="font-semibold text-sm text-center"> Requesting feedback</span>
         </div>
 
         { friendIds.length > 0 &&
-            <div>
+            <div className="max-h-20 overflow-y-auto w-full bg-white p-1 border border-white rounded">
               { friendIds.map( (friendId, i) => {
                 const friend = usersCache[friendId]
                 return(
                   <div key={friendId}
-                    className="rounded border border-black p-1 bg-green-200 cursor-pointer hover:bg-red-200 my-1"
+                    className="rounded shadow-lg text-xs font-semibold bg-green-300 py-1 px-1.5 cursor-pointer hover:bg-red-200 mt-1"
                     onClick={() => setFriendIds([...friendIds.slice(0,i), ...friendIds.slice(i+1,friendIds.length)])}
                   >
-                    <p>{ friend ? `@${friend.userName} (${friend.firstName} ${friend.lastName})` : "Loading..."}</p>
+                    <p>{ friend ? `${friend.firstName} ${friend.lastName}` : "Loading..."}</p>
                   </div>
                 )
               })}
@@ -155,17 +157,18 @@ const Sharing = ({
         { isSearchingFriends &&
             <Fragment>
               <input type="text"
-                className="rounded border border-black p-1 my-2"
+                className="rounded border border-black p-1 my-2 text-xs"
                 placeholder="search"
                 value={friendSearch}
                 onChange={e => setFriendSearch(e.target.value)}
               />
-              <div>
+
+              <div className="max-h-20 overflow-y-auto bg-white p-1 border border-white rounded">
                 { searchedFriendIds.map( friendId => {
                   const friend = usersCache[friendId]
                   return(
                     <div key={friendId}
-                      className="rounded border border-black p-1 bg-blue-200 cursor-pointer hover:bg-green-200 my-1"
+                      className="rounded shadow-lg text-xs font-semibold bg-blue-300 py-1 px-1.5 cursor-pointer hover:bg-green-300 mt-1"
                       onClick={() => setFriendIds([...friendIds, friendId])}
                     >
                       <p>{ friend ? `@${friend.userName} (${friend.firstName} ${friend.lastName})` : "Loading..."}</p>

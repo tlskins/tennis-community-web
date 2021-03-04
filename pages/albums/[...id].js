@@ -9,7 +9,8 @@ import { IconContext } from "react-icons"
 import { Line } from "react-chartjs-2"
 import axios from "axios"
 
-import { newNotification, setLoginFormVisible } from "../../state/ui/action"
+import { wrapper } from "../../state/store"
+import { newNotification, setLoginFormVisible, setHead } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
 import Modal from "../../components/Modal"
@@ -370,7 +371,7 @@ const Album = ({
         email: invEmail,
         firstName: invFirstName,
         lastName: invLastName,
-        inviterId: user.id,
+        inviterId: user?.id,
         URL: `albums/${album.id}`,
       })
       if (success) {
@@ -802,7 +803,7 @@ const Album = ({
                             { comments.filter( com => !com.isHidden ).map( comment => {
                               return(
                                 <div key={comment.id}
-                                  className={`px-2 py-1.5 mb-2 ${comment.userId === user.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
+                                  className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
                                 >
                                   { comment.replyId &&
                                     <div className="p-2 rounded shadow-lg text-xs bg-gray-300">
@@ -829,7 +830,7 @@ const Album = ({
                                     </p>
                                     
                                     <div className="mx-1 flex flex-row content-center justify-center items-center">
-                                      <p className={`mx-1 text-xs ${comment.userId === user.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
+                                      <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
                                       @{ usersCache[comment.userId]?.userName || "..." }
                                       </p>
                                       <p className="mx-1 text-sm align-middle font-bold">
@@ -1111,6 +1112,7 @@ const Album = ({
 const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
+    album: state.album,
     recentUploads: state.recentUploads,
     confirmation: state.confirmation,
     user: state.user,
@@ -1133,28 +1135,67 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export async function getStaticProps({ params }) {
-  // console.log("static", params)
-  const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
-  const album = pAlbum(data)
+// export async function getStaticProps({ params }) {
+//   // console.log("static", params)
+//   const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
+//   const album = pAlbum(data)
 
-  return {
-    props: {
-      album,
-      pageTitle: album.name,
-      pageDesc: `Check out my Tennis Album "${album.name}"`,
-      pageImg: album.swingVideos[0]?.jpgURL,
-    }
-  }
-}
+//   return {
+//     props: {
+//       album,
+//       pageTitle: album.name,
+//       pageDesc: `Check out my Tennis Album "${album.name}"`,
+//       pageImg: album.swingVideos[0]?.jpgURL,
+//     }
+//   }
+// }
 
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: true,
-  }
-}
+// export async function getStaticPaths() {
+//   return {
+//     paths: [],
+//     fallback: true,
+//   }
+// }
   
+// Album.getInitialProps = async ({ store, pathname, req, res }) => {
+//   console.log("req.url", req.url)
+//   const { data } = await axios.get(`${API_HOST}/albums/${req.url.split("/")[2]}`)
+//   const album = pAlbum(data)
+//   store.dispatch(setAlbum(album))
+// }
+
+export const getServerSideProps = wrapper.getServerSideProps(
+  async ({ store, req }) => {
+    console.log("getServerSideProps", req.url)
+    const rgxAlbumId = /albums\/([^ ?\/]+)/
+    const albumIdMatch = req.url.match(rgxAlbumId)
+    const albumId = albumIdMatch[1]
+    const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
+    const album = pAlbum(data)
+    store.dispatch(setAlbum(album))
+
+    const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
+    const swingIdMatch = req.url.match(rgxSwingId)
+    const swingId = swingIdMatch[1]
+    const swing = swingId && album.swingVideos.find( sw => sw.id === swingId )
+
+    let head = {
+      title: album.name,
+      desc: `Check out my Tennis Album "${album.name}"`,
+      img: album.swingVideos[0]?.jpgURL,
+    }
+    if (swing) {
+      head = {
+        title: album.name,
+        desc: `Check out my Tennis Album "${album.name}"`,
+        img: swing.jpgURL,
+      }
+    }
+
+    store.dispatch(setHead(head))
+  }
+)
+
 Album.propTypes = {
   album: PropTypes.object,
   confirmation: PropTypes.object,

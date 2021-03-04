@@ -2,10 +2,29 @@ import {
   NEW_NOTIFICATION,
   REMOVE_NOTIFICATION,
   SET_LOGIN_FORM_VISIBLE,
+  SET_HEAD,
 } from "./action"
 
 export const flashNotificationInitialState = []
 export const navBarInitialState = { showLoginForm: "" }
+export const headInitialState = {
+  title: "Hive Tennis",
+  desc: "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!",
+  img: "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg",
+}
+
+export function headReducer(
+  state = headInitialState,
+  action
+) {
+  switch (action.type) {
+  case SET_HEAD: {
+    return { ...state, ...action.payload }
+  }
+  default:
+    return state
+  }
+}
 
 export function navBarReducer(
   state = navBarInitialState,

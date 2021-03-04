@@ -480,7 +480,7 @@ const SwingModal = ({
             { comments.filter( com => !com.isHidden ).map( comment => {
               return(
                 <div key={comment.id}
-                  className={`px-2 py-1.5 mb-2 ${comment.userId === user.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
+                  className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
                 >
                   { comment.replyId &&
                       <div className="p-2 rounded shadow-lg text-xs bg-gray-300">
@@ -509,7 +509,7 @@ const SwingModal = ({
                     </p>
 
                     <div className="mx-1 flex flex-wrap w-full overflow-x-auto content-center justify-center items-center">
-                      <div className={`mx-1 text-xs ${comment.userId === user.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
+                      <div className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
                           @{ usersCache[comment.userId]?.userName || "..." }
                       </div>
                       <div className="mx-1 text-sm align-middle font-bold">

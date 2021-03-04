@@ -7,6 +7,8 @@ import {
   flashNotificationInitialState,
   navBarReducer,
   navBarInitialState,
+  headInitialState,
+  headReducer,
 } from "./ui/reducer"
 import {
   confirmationReducer,
@@ -34,6 +36,7 @@ const bindMiddleware = (middleware) => {
 }
 
 const combinedReducer = combineReducers({
+  head: headReducer,
   confirmation: confirmationReducer,
   flashNotification: flashNotificationReducer,
   user: userReducer,
@@ -60,6 +63,7 @@ const reducer = (state, action) => {
   } else if (action.type === LOG_OUT) {
     return {
       // UI
+      head: headInitialState,
       flashNotification: flashNotificationInitialState,
       navBar: navBarInitialState,
       // user

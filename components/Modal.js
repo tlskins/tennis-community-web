@@ -9,13 +9,13 @@ import {
 
 
 const Modal = props => {
-  const { hideModal, width, children } = props
+  const { hideModal, width, children, padding } = props
 
   return (
     <ModalOuter>
-      <ModalInner width={ width }>
+      <ModalInner width={ width } padding={padding}>
         <Close src={ close } onClick={ () => hideModal() }></Close>
-          { children }
+        { children }
       </ModalInner>
     </ModalOuter>
   )

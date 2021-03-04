@@ -12,10 +12,11 @@ import Draggable from "react-draggable"
 import { newNotification, setLoginFormVisible } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
+import Modal from "../../components/Modal"
+import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
-import { getUserIcon } from "../../behavior/users"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { useWindowDimensions } from "../../behavior/helpers"
 import {
@@ -66,6 +67,9 @@ const Album = ({
 }) => {
   const router = useRouter()
   const albumId = router.query.id && router.query.id[0]
+  const { swing } = router.query
+
+  console.log("swing", swing)
 
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
@@ -91,7 +95,6 @@ const Album = ({
   const [albumPage, setAlbumPage] = useState(0)
   const [filteredRallies, setFilteredRallies] = useState([])
 
-  const [showSharing, setShowSharing] = useState(false)
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
@@ -110,15 +113,21 @@ const Album = ({
   const [graphDatasets, setGraphDatasets] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
 
+  const [showSwingModal, setShowSwingModal] = useState(!!swing)
+
   let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
   const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
-  const { width, height } = useWindowDimensions()
+  const { width } = useWindowDimensions()
 
   useEffect(() => {
     if (albumId) {
       loadAlbum(albumId)
     }
   }, [albumId])
+
+  useEffect(() => {
+    setShowSwingModal(!!swing)
+  }, [swing])
 
   useEffect(() => {
     let allComments = [
@@ -424,16 +433,32 @@ const Album = ({
         <Notifications />
       }
 
+      { showSwingModal &&
+        <Modal
+          hideModal={ () => {
+            setShowSwingModal(false)
+            router.push({
+              pathname: `/albums/${albumId}`,
+              query: {},
+            })
+          }}
+          width="80%"
+          padding="10px"
+        >
+          <SwingModal swingId={swing} />
+        </Modal>
+      }
+
       <main className="bg-gray-200 min-h-screen h-full">
         <div className="lg:flex lg:flex-row min-h-screen">
           {/* Begin Sidebar */}
           <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
             <div className="flex content-center justify-center items-center">
-              <div className="flex flex-col w-2/3 text-sm">
+              <div className="flex flex-col text-sm">
                 {/* Album Overview */}
                 <div>
-                  <div className="flex flex-row relative">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Album Overview" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Overview" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                       <input type="radio"
                         checked={activeSideBar === "Album Overview"}
                         onClick={() => setActiveSidebar(activeSideBar === "Album Overview" ? undefined : "Album Overview")}
@@ -552,8 +577,8 @@ const Album = ({
 
                 {/* Pro Comparison Sidebar */}
                 <div>
-                  <div className="flex flex-row relative">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Pro Comparison" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Pro Comparison" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                       <input type="radio"
                         checked={activeSideBar === "Pro Comparison"}
                         onClick={() => setActiveSidebar(activeSideBar === "Pro Comparison" ? undefined : "Pro Comparison")}
@@ -582,8 +607,8 @@ const Album = ({
 
                 {/* Video Resources Sidebar */}
                 <div>
-                  <div className="flex flex-row relative">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Video Resources" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Video Resources" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                       <input type="radio"
                         checked={activeSideBar === "Video Resources"}
                         onClick={() => setActiveSidebar(activeSideBar === "Video Resources" ? undefined : "Video Resources")}
@@ -615,8 +640,8 @@ const Album = ({
 
                 { (user && user.id == album?.userId) &&
                 <div>
-                  <div className="flex flex-row relative">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Sharing" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Sharing" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                       <input type="radio"
                         checked={activeSideBar === "Sharing"}
                         onClick={() => setActiveSidebar(activeSideBar === "Sharing" ? undefined : "Sharing")}
@@ -665,8 +690,8 @@ const Album = ({
 
                 {/* Comments Sidebar */}
                 <div className="w-full">
-                  <div className="flex flex-row relative">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${activeSideBar === "Album Comments" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Comments" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                       <input type="radio"
                         checked={activeSideBar === "Album Comments"}
                         onClick={() => setActiveSidebar(activeSideBar === "Album Comments" ? undefined : "Album Comments")}
@@ -678,7 +703,7 @@ const Album = ({
                   </div>
 
                   { activeSideBar === "Album Comments" &&
-                  <div className="my-2 rounded bg-white p-2">
+                  <div className="my-2 rounded bg-white p-2 w-full">
                     <div className="flex flex-col content-center justify-center items-center overscroll-contain">
                       <div className="flex flex-col w-full">
 
@@ -713,7 +738,7 @@ const Album = ({
                           />
                           <div className="flex flex-row p-1 content-center justify-center items-center">
                             <p className="text-sm mr-2 text-gray-500 align-middle">
-                              { Moment().format("MMM D YYYY h:mm a") }
+                              { Moment().format("MMM D h:mm a") }
                             </p>
                             <p className="text-sm mr-2 align-middle font-bold">
                                 |
@@ -785,7 +810,7 @@ const Album = ({
                                           |
                                         </p>
                                         <p className="mx-2 text-xs text-gray-500 align-middle">
-                                          { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY h:mm a") }
+                                          { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D h:mm a") }
                                         </p>
                                       </div>
                                     </div>
@@ -794,10 +819,8 @@ const Album = ({
                                     <p className="text-xs bg-gray-300 rounded-md shadow w-full px-1 py-0.5 mb-1">
                                       { comment.text }
                                     </p>
+                                    
                                     <div className="mx-1 flex flex-row content-center justify-center items-center">
-                                      {/* <img src={getUserIcon(user)}
-                                        className="w-5 h-5 ml-1"
-                                      /> */}
                                       <p className={`mx-1 text-xs ${comment.userId === user.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
                                       @{ usersCache[comment.userId]?.userName || "..." }
                                       </p>

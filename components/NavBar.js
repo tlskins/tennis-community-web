@@ -81,7 +81,7 @@ const NavBar = ({
               { confirmation?.email ? "Accept Invitation" : "Sign In" }
             </a>
             { showLoginForm &&
-              <Modal width="400" hideModal={ () => setShowLoginForm("")}>
+              <Modal width="400px" hideModal={ () => setShowLoginForm("")}>
                 <LoginForm/>
               </Modal>
             }
@@ -105,7 +105,7 @@ const NavBar = ({
             onClick={() => setShowProfileForm(!showProfileForm)}
           />
           { showProfileForm &&
-            <Modal width="400" hideModal={ () => setShowProfileForm(false)}>
+            <Modal width="400px" hideModal={ () => setShowProfileForm(false)}>
               <ProfileForm/>
             </Modal>
           }

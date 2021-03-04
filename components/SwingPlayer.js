@@ -6,6 +6,7 @@ import { RiPictureInPicture2Fill, RiPictureInPictureExitFill } from "react-icons
 import { BsTrash } from "react-icons/bs"
 import { ImBubbles2 } from "react-icons/im"
 import { IconContext } from "react-icons"
+import { useRouter } from "next/router"
 
 
 const SwingPlayer = ({
@@ -28,6 +29,7 @@ const SwingPlayer = ({
   setPlayings,
   setPlayerFrames,
 }) => {
+  const router = useRouter()
   const duration = playerFrames[i]
   const ref = playerRefs[i]
   const pip = pips[i]
@@ -68,8 +70,11 @@ const SwingPlayer = ({
       {/* Controls Panel */}
       <div className="flex flex-col content-center justify-center p-1 mt-1 w-full bg-gray-100 rounded">
         <div className="flex flex-row content-center justify-center items-center">
-          <a className="text-xs text-blue-400 underline mr-1"
-            href={`/albums/${albumId}/swings/${swing.id}`}
+          <a className="text-xs text-blue-400 underline mr-1 cursor-pointer"
+            onClick={() => router.push({
+              pathname: `/albums/${albumId}`,
+              query: { swing: swing.id },
+            })}
           >
             Swing { swing.name } 
           </a>

@@ -26,12 +26,10 @@ function WrappedApp({ Component, pageProps }) {
 
   return (
     <>
-      <Head>
-        {/* <!-- HTML Meta Tags --> */}
+      {/* <Head>
         <title>Hive Tennis</title>
         <meta name="description" content={pageDesc} key="desc"/>
 
-        {/* <!-- Facebook Meta Tags --> */}
         <meta property="og:url" content={`https://${PAGE_URL}/`} key="ogurl" name="ogurl"/>
 
         <meta property="og:type" content="website" key="ogtype" name="ogtype"/>
@@ -39,16 +37,13 @@ function WrappedApp({ Component, pageProps }) {
         <meta property="og:description" content={pageDesc} key="ogdesc" name="ogdesc"/>
         <meta property="og:image" content={ogImage} key="ogimg" name="ogimg"/>
 
-        {/* <!-- Twitter Meta Tags --> */}
         <meta name="twitter:card" content="summary_large_image" key="twitter_card"/>
         <meta property="twitter:domain" content={PAGE_URL} key="twitter_dom" name="twitter_dom"/>
         <meta property="twitter:url" content={`https://${PAGE_URL}/`} key="twitter_url" name="twitter_url"/>
         <meta name="twitter:title" content={pageTitle} key="twitter_title"/>
         <meta name="twitter:description" content={pageDesc} key="twitter_desc"/>
         <meta name="twitter:image" content={ogImage} key="twitter_img"/>
-
-        {/* <!-- Meta Tags Generated via https://www.opengraph.xyz --> */}
-      </Head>
+      </Head> */}
       <PersistGate persistor={store.__persistor} loading={<div>Loading</div>}>
         <ThemeProvider theme={ colors }>
           { <FlashNotification /> }

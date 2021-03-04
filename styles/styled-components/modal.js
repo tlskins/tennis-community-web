@@ -31,19 +31,20 @@ export const ModalInner = styled.div`
   background: #fff;
   border-radius: 4px;
   margin: 30px 20px;
-  padding: 30px;
-  max-width: ${ props => props.width }px;
+  padding: ${ props => props.padding || "30px" };
+  max-width: ${ props => props.width };
   width: 100%;
   position: relative;
 `
 
 export const Close = styled.img`
   position: absolute;
-  right: 20px;
-  top: 20px;
-  width: 15px;
-  height: 15px;
+  right: 7px;
+  top: 7px;
+  width: 10px;
+  height: 10px;
   cursor: pointer;
   padding: 5px;
+  z-index: 10;
   box-sizing: content-box;
 `

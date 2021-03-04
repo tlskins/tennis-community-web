@@ -319,7 +319,7 @@ const Home = ({
                       
                     { myAlbumsPage === 0 &&
                         <div className={`flex flex-row m-1 w-11/12 h-60 content-center justify-center items-center rounded-xl bg-video-players bg-yellow-200 bg-contain bg-center bg-no-repeat shadow-lg ${myActiveAlbums.length % 2 === 0 && "col-span-2"}`}
-                          style={{"min-width": "90%"}}
+                          style={{"min-width": "85%"}}
                         >
                           <button
                             className="bg-yellow-300 text-gray-800 whitespace-nowrap p-2 rounded-lg font-bold text-lg uppercase shadow-lg text-center hover:bg-gray-800 hover:text-yellow-300"
@@ -549,7 +549,7 @@ const Home = ({
                           className="flex flex-row rounded-lg my-1 p-2 bg-yellow-300 shadow-md content-center justify-center items-center w-full"
                         >
                           <div className="flex flex-row">
-                            <span className="underline text-blue-400 mr-2 text-xs text-xs tracking-wider font-semibold">
+                            <span className="text-xs text-gray-700 tracking-wider font-semibold mr-2 mt-0.5">
                               { cache ? cache.userName : "..." } ({ cache ? `${cache.firstName} ${cache.lastName}` : "..." })
                             </span>
                             <button className="rounded mx-1 px-1 py-0.5 underline bg-red-400 cursor-pointer text-xs tracking-wide font-semibold"
@@ -580,10 +580,10 @@ const Home = ({
                         const cache = usersCache[req.toUserId]
                         return(
                           <div key={req.id}
-                            className="rounded my-1 p-2 bg-gray-200 shadow-md w-full"
+                            className="rounded my-1 p-2 bg-gray-700 shadow-md w-full"
                           >
                             <div className="flex flex-row content-center justify-center items-center">
-                              <p className="text-xs tracking-wider font-semibold mr-2">
+                              <p className="text-xs text-white tracking-wider font-semibold mr-2">
                               Pending to
                               </p>
                               <span className="underline text-blue-400 cursor-pointer text-xs tracking-wide font-semibold">
@@ -626,7 +626,7 @@ const Home = ({
               </div>
             
               {/* Video Resources */}
-              <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 mt-4">
+              {/* <div className="lg:flex flex-row bg-white rounded shadow-lg p-4 mt-4">
 
                 <div className="py-1 px-4 lg:mr-4 mb-4 lg:mb-0 lg:w-1/3 content-center justify-center items-center bg-gray-100 rounded shadow-lg">
                   <h2 className="font-bold text-lg text-center mb-2">
@@ -645,7 +645,7 @@ const Home = ({
                   />
                 </div>
                 
-              </div>
+              </div> */}
             </div>
 
           </div>

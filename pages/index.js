@@ -187,7 +187,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
       <Footer bg={ footerBg } mobileBg={ footerBgMobile }>
         <FooterInner>
           <p className="footer-title">Have questions or feedback?</p>
-          <p className="footer-subtitle">Reach us at <a href="mailto: queenbee@hivetennis.com">queenbee@hivetennis.com</a></p>
+          <p className="footer-subtitle">Reach us at <a href="mailto: admin@hivetennis.com">admin@hivetennis.com</a></p>
         </FooterInner>
       </Footer>
     </>

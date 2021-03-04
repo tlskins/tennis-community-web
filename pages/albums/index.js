@@ -125,13 +125,10 @@ const AlbumsIndex = ({
   }, [sharedAlbums, user])
 
   useEffect(() => {
-    if (isMyAlbumsLoaded) {
-      if (myAlbums.length === 0) {
-        loadPublicAlbums()
-        setAlbumType("public")
-      }
+    if (isMyAlbumsLoaded && myAlbums.length === 0) {
+      setAlbumType("public")
     }
-  }, [myAlbums, isMyAlbumsLoaded])
+  }, [isMyAlbumsLoaded])
 
   useEffect(() => {
     // set video players
@@ -319,27 +316,23 @@ const AlbumsIndex = ({
 
             {/* Page Nav */}
             <div className="flex flex-row content-center justify-center items-center p-2 mb-2">
-              { page > 0 &&
-                  <button
-                    onClick={() => setPage(page-1)}
-                    className="p-0.5 mx-1 cursor-pointer text-white tracking-wide"
-                  >
-                    &lt;
-                  </button>
-              }
+              <button
+                onClick={() => setPage(page-1)}
+                className={`p-0.5 cursor-pointer text-white tracking-wide ${page === 0 && "invisible"}`}
+              >
+                &lt;
+              </button>
 
               <h2 className="font-medium mx-2 text-center text-white tracking-wide uppercase">
                 Page { page+1 }
               </h2>
 
-              { (page < (filteredAlbums.length / ALBUMS_PER_COL)-1) &&
-                  <button
-                    onClick={() => setPage(page+1)}
-                    className="-0.5 mx-1 cursor-pointer text-white tracking-wide"
-                  >
-                    &gt;
-                  </button>
-              }
+              <button
+                onClick={() => setPage(page+1)}
+                className={`p-0.5 cursor-pointer text-white tracking-wide ${page >= (filteredAlbums.length / ALBUMS_PER_COL)-1 && "invisible"}`}
+              >
+                &gt;
+              </button>
             </div>
 
             <div className="content-center justify-center items-center">

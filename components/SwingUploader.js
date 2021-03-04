@@ -48,7 +48,7 @@ const SwingUploader = ({ displayAlert, uploadVideo, user }) => {
         />
         { selectedVideo &&
           <div >
-            <div>
+            <div className="flex flex-col content-center justify-center items-center">
               <p className="p-2">
                 Video Type: { selectedVideo.type }
               </p>
@@ -72,7 +72,7 @@ const SwingUploader = ({ displayAlert, uploadVideo, user }) => {
               />
 
               <div className="flex flex-col content-center justify-center items-center mx-1 p-2">
-                <button className="border-gray-400 border rounded shadow-lg bg-black text-yellow-300 tracking-wide m-2 p-1"
+                <button className="rounded shadow-lg bg-black text-yellow-300 font-semibold tracking-wide m-2 py-1 px-2"
                   onClick={onUploadVideo}
                 >
                   Upload

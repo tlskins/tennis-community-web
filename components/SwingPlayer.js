@@ -6,6 +6,7 @@ import { RiPictureInPicture2Fill, RiPictureInPictureExitFill } from "react-icons
 import { BsTrash } from "react-icons/bs"
 import { ImBubbles2 } from "react-icons/im"
 import { IconContext } from "react-icons"
+import { useRouter } from "next/router"
 
 
 const SwingPlayer = ({
@@ -28,6 +29,7 @@ const SwingPlayer = ({
   setPlayings,
   setPlayerFrames,
 }) => {
+  const router = useRouter()
   const duration = playerFrames[i]
   const ref = playerRefs[i]
   const pip = pips[i]
@@ -68,8 +70,11 @@ const SwingPlayer = ({
       {/* Controls Panel */}
       <div className="flex flex-col content-center justify-center p-1 mt-1 w-full bg-gray-100 rounded">
         <div className="flex flex-row content-center justify-center items-center">
-          <a className="text-xs text-blue-400 underline mr-1"
-            href={`/albums/${albumId}/swings/${swing.id}`}
+          <a className="text-xs text-blue-400 underline mr-1 cursor-pointer"
+            onClick={() => router.push({
+              pathname: `/albums/${albumId}`,
+              query: { swing: swing.id },
+            })}
           >
             Swing { swing.name } 
           </a>
@@ -93,10 +98,10 @@ const SwingPlayer = ({
             }
           </div>
 
-          <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs">
+          <div className={`flex flex-row bg-white ${(swing.comments?.length || 0) !== 0 && "border-2 border-blue-400"} rounded p-0.5 mx-1 text-xs`}>
             {(swing.comments?.length || 0)}
-            <IconContext.Provider value={{ color: "blue" }}>
-              <div className="ml-2 cursor-pointer">
+            <IconContext.Provider value={{ color: (swing.comments?.length || 0) === 0 ? "black" : "blue" }}>
+              <div className="mx-1 mt-0.5 cursor-pointer">
                 <ImBubbles2 />
               </div>
             </IconContext.Provider>

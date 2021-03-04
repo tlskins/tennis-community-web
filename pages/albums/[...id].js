@@ -7,15 +7,18 @@ import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
 import { Line } from "react-chartjs-2"
+import Draggable from "react-draggable"
 
 import { newNotification, setLoginFormVisible } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
+import Modal from "../../components/Modal"
+import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
-import { getUserIcon } from "../../behavior/users"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
+import { useWindowDimensions } from "../../behavior/helpers"
 import {
   LoadAlbum,
   UpdateAlbum,
@@ -64,6 +67,9 @@ const Album = ({
 }) => {
   const router = useRouter()
   const albumId = router.query.id && router.query.id[0]
+  const { swing } = router.query
+
+  console.log("swing", swing)
 
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
@@ -107,14 +113,21 @@ const Album = ({
   const [graphDatasets, setGraphDatasets] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
 
+  const [showSwingModal, setShowSwingModal] = useState(!!swing)
+
   let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
   const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
+  const { width } = useWindowDimensions()
 
   useEffect(() => {
     if (albumId) {
       loadAlbum(albumId)
     }
   }, [albumId])
+
+  useEffect(() => {
+    setShowSwingModal(!!swing)
+  }, [swing])
 
   useEffect(() => {
     let allComments = [
@@ -377,9 +390,9 @@ const Album = ({
   } else if (replyId) {
     commentsPlaceholder = "Reply to comment"
   }
-  
+
   return (
-    <div>
+    <div className="bg-gray-200">
       <Head>
         <script async
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
@@ -399,36 +412,51 @@ const Album = ({
         <Notifications />
       }
 
-      <main className="overflow-y-scroll bg-gray-200 min-h-screen">
+      { showSwingModal &&
+        <Modal
+          hideModal={ () => {
+            setShowSwingModal(false)
+            router.push({
+              pathname: `/albums/${albumId}`,
+              query: {},
+            })
+          }}
+          width="80%"
+          padding="10px"
+        >
+          <SwingModal swingId={swing} />
+        </Modal>
+      }
 
+      <main className="bg-gray-200 min-h-screen h-full">
         <div className="lg:flex lg:flex-row min-h-screen">
           {/* Begin Sidebar */}
           <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
-            <div className="flex flex-col text-sm">
-              {/* Album Overview */}
-              <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center mb-2 relative">
-                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
-                    onClick={() => {
-                      if (activeSideBar === "Album Overview") {
-                        setActiveSidebar(undefined)
-                      } else {
-                        setActiveSidebar("Album Overview")
-                      }
-                    }}
-                  >
-                  Album Overview
-                  </h2>
-                  <div className="relative">
-                    <input type="button"
-                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
-                      value="?"
-                      onClick={() => {
-                        setShowOverviewUsage(activeSideBar !== "Album Overview" ? true : !showOverviewUsage)
-                        setActiveSidebar("Album Overview")
-                      }}
-                    />
-                    { showOverviewUsage &&
+            <div className="flex content-center justify-center items-center">
+              <div className="flex flex-col text-sm">
+                {/* Album Overview */}
+                <div>
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Overview" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Album Overview"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Album Overview" ? undefined : "Album Overview")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Album Overview
+                      </label>
+                    </div>
+
+                    <div className="relative">
+                      <input type="button"
+                        className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                        value="?"
+                        onClick={() => {
+                          setShowOverviewUsage(activeSideBar !== "Album Overview" ? true : !showOverviewUsage)
+                          setActiveSidebar("Album Overview")
+                        }}
+                      />
+                      { showOverviewUsage &&
                     <div className="absolute ml-10 -my-28 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">
                       <ul className="list-disc pl-6">
                         <li>Shows the swings and rallies that were clipped from the original video</li>
@@ -436,11 +464,12 @@ const Album = ({
                         <li>Toggle the Rally checkboxes to filter by Rally</li>
                       </ul>
                     </div>
-                    }
+                      }
+                    </div>
                   </div>
-                </div>
-                { activeSideBar === "Album Overview" &&
-                  <div className="flex flex-col rounded bg-white shadow-lg p-2 mb-2 overflow-scroll">
+                
+                  { activeSideBar === "Album Overview" &&
+                  <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2 overflow-auto">
                     <div className="flex flex-col sticky left-0 content-center justify-center items-start pl-8 py-4 mb-4 rounded shadow-lg bg-gray-200 text-gray-700">
                       <p className="uppercase underline font-semibold mb-1">
                         { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies
@@ -522,135 +551,138 @@ const Album = ({
                         </ChartContainer>
                     }
                   </div>
-                }
-              </div>
+                  }
+                </div>
 
-              {/* Pro Comparison Sidebar */}
-              <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center mb-2">
-                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
-                    onClick={() => {
-                      if (activeSideBar === "Pro Comparison") {
-                        setActiveSidebar(undefined)
-                      } else {
+                {/* Pro Comparison Sidebar */}
+                <div>
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Pro Comparison" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Pro Comparison"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Pro Comparison" ? undefined : "Pro Comparison")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Pro Comparison
+                      </label>
+                    </div>
+
+                    <input type="button"
+                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                      value="?"
+                      onClick={() => {
+                        setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
                         setActiveSidebar("Pro Comparison")
-                      }
-                    }}
-                  >
-                  Pro Comparison
-                  </h2>
-                  <input type="button"
-                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
-                    value="?"
-                    onClick={() => {
-                      setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
-                      setActiveSidebar("Pro Comparison")
-                    }}
-                  />
-                </div>
-                { activeSideBar === "Pro Comparison" &&
-                <ProComparison showUsage={showProUsage} />
-                }
-              </div>
+                      }}
+                    />
+                  </div>
 
-              {/* Video Resources Sidebar */}
-              <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center mb-2">
-                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
-                    onClick={() => {
-                      if (activeSideBar === "Video Resources") {
-                        setActiveSidebar(undefined)
-                      } else {
+                  { activeSideBar === "Pro Comparison" &&
+                  <div className="my-2">
+                    <ProComparison showUsage={showProUsage} />
+                  </div>
+                  }
+                </div>
+
+                {/* Video Resources Sidebar */}
+                <div>
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Video Resources" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Video Resources"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Video Resources" ? undefined : "Video Resources")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Youtube Tutorials
+                      </label>
+                    </div>
+
+                    <input type="button"
+                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                      value="?"
+                      onClick={() => {
+                        setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
                         setActiveSidebar("Video Resources")
-                      }
-                    }}
-                  >
-                    Youtube Tutorials
-                  </h2>
-                  <input type="button"
-                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
-                    value="?"
-                    onClick={() => {
-                      setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
-                      setActiveSidebar("Video Resources")
-                    }}
-                  />
-                </div>
-                { activeSideBar === "Video Resources" &&
-                <VideoResources
-                  onExpand={playing => setExpandedSideBar(playing)}
-                  showUsage={showVideoUsage}
-                />
-                }
-              </div>
+                      }}
+                    />
+                  </div>
 
-              {/* Sharing Sidebar */}
-              { (user && user.id == album?.userId) &&
-              <div className="mb-2">
-                <div className="flex flex-row content-center justify-center items-center mb-2">
-                  <h2 className="text-gray-300 uppercase cursor-pointer text-center"
-                    onClick={() => {
-                      if (activeSideBar === "Sharing") {
-                        setActiveSidebar(undefined)
-                      } else {
+                  { activeSideBar === "Video Resources" &&
+                  <div className="my-2">
+                    <VideoResources
+                      onExpand={playing => setExpandedSideBar(playing)}
+                      showUsage={showVideoUsage}
+                    />
+                  </div>
+                  }
+                </div>
+
+                { (user && user.id == album?.userId) &&
+                <div>
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Sharing" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Sharing"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Sharing" ? undefined : "Sharing")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Sharing
+                      </label>
+                    </div>
+
+                    <input type="button"
+                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                      value="?"
+                      onClick={() => {
+                        setShowSharingUsage(activeSideBar !== "Sharing" ? true : !showSharingUsage)
                         setActiveSidebar("Sharing")
-                      }
-                    }}
-                  >
-                    Sharing
-                  </h2>
-                  <input type="button"
-                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 cursor-pointer hidden lg:block"
-                    value="?"
-                    onClick={() => {
-                      setShowSharingUsage(activeSideBar !== "Sharing" ? true : !showSharingUsage)
-                      setActiveSidebar("Sharing")
-                    }}
-                  />
-                </div>
-                
-                { activeSideBar === "Sharing" &&
-                <div className="flex flex-col content-center justify-center items-center p-4 bg-white rounded">
-                  <Sharing
-                    isPublic={isPublic}
-                    setIsPublic={setIsPublic}
-                    isViewableByFriends={isViewableByFriends}
-                    setIsViewableByFriends={setIsViewableByFriends}
-                    friendIds={friendIds}
-                    setFriendIds={setFriendIds}
-                    invEmail={invEmail}
-                    setInvEmail={setInvEmail}
-                    invFirstName={invFirstName}
-                    setInvFirstName={setInvFirstName}
-                    invLastName={invLastName}
-                    setInvLastName={setInvLastName}
-                    showUsage={showSharingUsage}
-                  />
-                  <input type='button'
-                    className="w-14 rounded py-0.5 px-2 mt-4 text-xs font-semibold bg-blue-700 text-white cursor-pointer"
-                    onClick={onShareAlbum}
-                    value="Share"
-                  />
+                      }}
+                    />
+                  </div>
+
+                  { activeSideBar === "Sharing" &&
+                    <div className="flex flex-col content-center justify-center items-center my-2 p-4 bg-white rounded">
+                      <Sharing
+                        isPublic={isPublic}
+                        setIsPublic={setIsPublic}
+                        isViewableByFriends={isViewableByFriends}
+                        setIsViewableByFriends={setIsViewableByFriends}
+                        friendIds={friendIds}
+                        setFriendIds={setFriendIds}
+                        invEmail={invEmail}
+                        setInvEmail={setInvEmail}
+                        invFirstName={invFirstName}
+                        setInvFirstName={setInvFirstName}
+                        invLastName={invLastName}
+                        setInvLastName={setInvLastName}
+                        showUsage={showSharingUsage}
+                      />
+                      <input type='button'
+                        className="w-14 rounded py-0.5 px-2 mt-4 text-xs font-semibold bg-blue-700 text-white cursor-pointer"
+                        onClick={onShareAlbum}
+                        value="Share"
+                      />
+                    </div>
+                  }
                 </div>
                 }
-              </div>
-              }
 
-              {/* Comments Sidebar */}
-              <div className="mb-2 w-full">
-                <h2 className="text-gray-300 uppercase cursor-pointer text-center mb-2"
-                  onClick={() => {
-                    if (activeSideBar === "Album Comments") {
-                      setActiveSidebar(undefined)
-                    } else {
-                      setActiveSidebar("Album Comments")
-                    }
-                  }}
-                >
-                Album Comments
-                </h2>
-                { activeSideBar === "Album Comments" &&
-                  <div className="mb-2 rounded bg-white p-2">
+                {/* Comments Sidebar */}
+                <div className="w-full">
+                  <div className="flex flex-row relative pl-20">
+                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Comments" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                      <input type="radio"
+                        checked={activeSideBar === "Album Comments"}
+                        onClick={() => setActiveSidebar(activeSideBar === "Album Comments" ? undefined : "Album Comments")}
+                      />
+                      <label className="ml-2 text-sm font-semibold uppercase">
+                      Album Comments
+                      </label>
+                    </div>
+                  </div>
+
+                  { activeSideBar === "Album Comments" &&
+                  <div className="my-2 rounded bg-white p-2 w-full">
                     <div className="flex flex-col content-center justify-center items-center overscroll-contain">
                       <div className="flex flex-col w-full">
 
@@ -685,7 +717,7 @@ const Album = ({
                           />
                           <div className="flex flex-row p-1 content-center justify-center items-center">
                             <p className="text-sm mr-2 text-gray-500 align-middle">
-                              { Moment().format("MMM D YYYY h:mm a") }
+                              { Moment().format("MMM D h:mm a") }
                             </p>
                             <p className="text-sm mr-2 align-middle font-bold">
                                 |
@@ -732,44 +764,43 @@ const Album = ({
                         </div>
 
                         {/* Comments List  */}
-                        <div className="flex flex-col h-40 lg:h-full pr-4 rounded shadow-lg bg-gray-100 px-1">
+                        <div className="flex flex-col overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
                           { comments.filter( com => !com.isHidden ).length === 0 &&
-                            <p className="text-center p-2"> No comments </p>
+                              <p className="text-center p-2"> No comments </p>
                           }
-                          <div className="overflow-y-scroll">
+                          
+                          <div className="h-96">
                             { comments.filter( com => !com.isHidden ).map( comment => {
                               return(
                                 <div key={comment.id}
-                                  className="my-2 p-0.5 rounded shadow-lg bg-white hover:bg-blue-100 cursor-pointer"
+                                  className={`px-2 py-1.5 mb-2 ${comment.userId === user.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
                                 >
                                   { comment.replyId &&
-                                  <div className="p-2 border border-black rounded text-xs bg-gray-300">
-                                    <p>reply to</p>
-                                    <p className="pl-2 text-gray-700">
-                                      { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
-                                    </p>
-                                    <div className="flex flex-row items-center">
-                                      <p className="mx-2 text-xs text-blue-500 align-middle">
-                                        @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                    <div className="p-2 rounded shadow-lg text-xs bg-gray-300">
+                                      <p>reply to</p>
+                                      <p className="pl-2 text-gray-700">
+                                        { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
                                       </p>
-                                      <p className="mx-2 text-sm align-middle font-bold">
-                                        |
-                                      </p>
-                                      <p className="mx-2 text-xs text-gray-500 align-middle">
-                                        { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D YYYY h:mm a") }
-                                      </p>
+                                      <div className="flex flex-row items-center">
+                                        <p className="mx-2 text-xs text-blue-500 align-middle">
+                                          @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                        </p>
+                                        <p className="mx-2 text-sm align-middle font-bold">
+                                          |
+                                        </p>
+                                        <p className="mx-2 text-xs text-gray-500 align-middle">
+                                          { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D h:mm a") }
+                                        </p>
+                                      </div>
                                     </div>
-                                  </div>
                                   }
-                                  <div className="flex flex-col pt-1 my-0.5">
-                                    <p className="p-1">
+                                  <div className="flex flex-col p-1 my-0.5">
+                                    <p className="text-xs bg-gray-300 rounded-md shadow w-full px-1 py-0.5 mb-1">
                                       { comment.text }
                                     </p>
-                                    <div className="flex flex-row content-center justify-center items-center">
-                                      <img src={getUserIcon(user)}
-                                        className="w-5 h-5 ml-1"
-                                      />
-                                      <p className="mx-1 text-xs text-blue-500 align-middle">
+                                    
+                                    <div className="mx-1 flex flex-row content-center justify-center items-center">
+                                      <p className={`mx-1 text-xs ${comment.userId === user.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
                                       @{ usersCache[comment.userId]?.userName || "..." }
                                       </p>
                                       <p className="mx-1 text-sm align-middle font-bold">
@@ -777,39 +808,39 @@ const Album = ({
                                       </p>
                                       { comment.swingId &&
                                         <>
-                                          <a className="mx-1 text-xs text-blue-500 align-middle underline"
+                                          <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
                                             href={`/albums/${albumId}/swings/${comment.swingId}`}
                                           >
-                                          Swing { comment.swingName }
+                                          swing { comment.swingName }
                                           </a>
                                           <p className="mx-1 text-sm align-middle font-bold">
-                                        |
+                                          |
                                           </p>
                                         </>
                                       }
                                       <p className="mx-1 text-xs text-gray-500 align-middle">
-                                        { Moment(comment.createdAt).format("MMM D YYYY h:mm a") }
+                                        { Moment(comment.createdAt).format("MMM D h:mm a") }
                                       </p>
                                       <p className="mx-1 text-sm align-middle font-bold">
                                       |
                                       </p>
                                       { (user && !user.disableComments) &&
-                                      <input type='button'
-                                        className='border w-10 rounded py-0.5 px-1 mx-1 text-xs bg-green-700 text-white text-center cursor-pointer'
-                                        value='reply'
-                                        onClick={() => {
-                                          setReplyId(comment.id)
-                                          setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                                        }}
-                                      />
-                                      }
-                                      { user &&
-                                      <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
-                                        <img src={flag}
-                                          className="w-4 h-4 cursor-pointer"
-                                          onClick={onFlagComment(comment)}
+                                        <input type='button'
+                                          className='border w-10 rounded py-0.5 px-0.5 mx-0.5 text-xs bg-green-700 text-white text-center cursor-pointer'
+                                          value='reply'
+                                          onClick={() => {
+                                            setReplyId(comment.id)
+                                            setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                                          }}
                                         />
-                                      </div>
+                                      }
+                                      { (user && comment.userId !== user.id) &&
+                                        <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
+                                          <img src={flag}
+                                            className="w-4 h-4 cursor-pointer"
+                                            onClick={onFlagComment(comment)}
+                                          />
+                                        </div>
                                       }
                                     </div>
                                   </div>
@@ -817,19 +848,19 @@ const Album = ({
                               )
                             })}
                           </div>
-                          
                         </div>
                       </div>
                     </div>
                   </div>
-                }
+                  }
+                </div>
               </div>
             </div>
           </Sidebar>
           {/* End Sidebar */}
 
           {/* Begin Album Videos */}
-          <div className={`p-4 block lg:flex lg:flex-col lg:${mainWidth} relative content-center justify-center items-center`}>
+          <div className={`p-4 block lg:flex lg:flex-col lg:${mainWidth} relative bg-gray-400 lg:bg-transparent content-center justify-center items-center`}>
             
             <a href="/albums"
               className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-4 hidden lg:block"
@@ -837,7 +868,7 @@ const Album = ({
             back to albums
             </a>
 
-            <div className="mb-2 block lg:flex content-center justify-center items-center">
+            <div className="mb-2 block lg:flex flex-col content-center justify-center items-center">
               <div className="flex flex-row content-center justify-center items-center relative">
                 <input type="button"
                   className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-5 cursor-pointer hidden lg:block"
@@ -856,7 +887,7 @@ const Album = ({
               </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white px-2 py-4 shadow-lg mb-2">
+            <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2">
               { pageVideos.map( (swing, i) => {
                 const viewScale = albumView === "video" ? "items-center lg:w-1/3 lg:h-1/3" : "m-2"
                 return (
@@ -907,147 +938,145 @@ const Album = ({
           </div>
           {/* End Album Videos */}
         </div>
-
       </main>
 
       {/* All Video Controls Footer */}
-      <div className="sticky flex flex-row bottom-0 left-0 right-0 bg-gray-200 border-t border-gray-400 content-center justify-center items-center">
-        <div className="hidden lg:flex flex-row w-20 lg:w-40">
-          <input type="button"
-            className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-5 cursor-pointer hidden lg:block"
-            value="?"
-            onClick={() => setShowFooterUsage(!showFooterUsage)}
-          />
-          <p className="text-center text-xs font-semibold tracking wider">
-          All Video Controls
-          </p>
-        </div>
+      <div className="sticky flex bottom-10 content-center justify-center items-center">
+        <Draggable
+          axis={width < 700 ? "y" : "both"}
+        >
+          <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 lg:w-1/4 content-center justify-center items-center">
+            <div className="hidden lg:flex flex-row">
+              <input type="button"
+                className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-1 cursor-pointer hidden lg:block"
+                value="?"
+                onClick={() => setShowFooterUsage(!showFooterUsage)}
+              />
+            </div>
         
-        <div className="flex flex-row py-2 px-1 content-center justify-center items-center lg:mx-4">
-          <div className="flex flex-col lg:flex-row">
-            <div className="relative flex items-row content-center justify-center items-center">
-              { allPlaying &&
-              <IconContext.Provider value={{ color: "red" }}>
-                <div className="m-2 content-center justify-center items-center cursor-pointer">
-                  <FaRegPauseCircle onClick={() => {
-                    setAllPlaying(false)
-                    setPlayings(Array(videosCount).fill().map(() => false))
-                  }}/>
-                </div>
-              </IconContext.Provider>
-              }
-              { !allPlaying &&
-              <IconContext.Provider value={{ color: "blue" }}>
-                <div className="m-2 content-center justify-center items-center cursor-pointer">
-                  <FaPlayCircle onClick={() => {
-                    setAllPlaying(true)
-                    setPlayings(Array(videosCount).fill().map(() => true))
-                  }}/>
-                </div>
-              </IconContext.Provider>
-              }
-              { showFooterUsage &&
-                <div className="absolute mr-40 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
-                  <p>Player seek for all videos at once</p>
-                  <p>Click once and use &lt;- and -&gt; keys to nav frame by frame</p>
-                  <svg className="absolute text-yellow-300 h-2 right-0 mr-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
-                </div>
-              }
-              <input
-                type='range'
-                min={0}
-                max={SWING_FRAMES}
-                step='1'
-                onMouseUp={handleAllSeekChange}
-                onKeyDown={handleAllSeekChange}
-              />
-            </div>
-            <div className="flex flex-row content-center justify-center items-center p-2">
-              <input type='button'
-                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                onClick={() => setPlaybackRate(0.1)}
-                value=".1x"
-              />
-              <input type='button'
-                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                onClick={() => setPlaybackRate(0.25)}
-                value=".25x"
-              />
-              <input type='button'
-                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                onClick={() => setPlaybackRate(0.5)}
-                value=".5x"
-              />
-              <input type='button'
-                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                onClick={() => setPlaybackRate(1)}
-                value="1x"
-              />
-              <input type='button'
-                className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                onClick={() => setPlaybackRate(1.5)}
-                value="1.5x"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col">
-          <div className="flex flex-row relative">
-            <div className="static">
-              <select
-                className="rounded py-0.5 px-1 mx-2 my-1 mr-1 border border-black bg-blue-600 text-white text-xs"
-                onChange={e => {
-                  setAlbumView(e.target.value)
-                  setSwingsPerPage(swingViewMap[e.target.value])
-                }}
-              >
-                { Object.entries(swingViewMap).map(([type, _], i) => {
-                  return(
-                    <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
-                  )
-                })}
-              </select>
-              { showFooterUsage &&
-              <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
-                Choose how to display your swings
-                <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
-              </div>
-              }
-            </div>
-          </div>
-          <div className="flex flex-row content-center justify-center items-center">
-            { albumPage > 0 &&
-              <button
-                onClick={() => setAlbumPage(albumPage-1)}
-                className="border border-black rounder p-0.5 mx-1"
-              >
-                &lt;
-              </button>
-            }
-            <div className="static">
-              <h2 className="underline text-sm text-blue-500">
-              Page { albumPage+1 }
-              </h2>
-              { showFooterUsage &&
-                <div className="absolute">
-                  <div className="absolute ml-20 w-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
-                    Show prev or next page of swings
-                    {/* <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg> */}
+            <div className="flex flex-row py-1 content-center justify-center items-center lg:mx-1">
+              <div className="flex flex-col">
+                <div className="relative flex items-row content-center justify-center items-center">
+                  { allPlaying &&
+                  <IconContext.Provider value={{ color: "red" }}>
+                    <div className="m-2 content-center justify-center items-center cursor-pointer">
+                      <FaRegPauseCircle onClick={() => {
+                        setAllPlaying(false)
+                        setPlayings(Array(videosCount).fill().map(() => false))
+                      }}/>
+                    </div>
+                  </IconContext.Provider>
+                  }
+                  { !allPlaying &&
+                  <IconContext.Provider value={{ color: "blue" }}>
+                    <div className="m-2 content-center justify-center items-center cursor-pointer">
+                      <FaPlayCircle onClick={() => {
+                        setAllPlaying(true)
+                        setPlayings(Array(videosCount).fill().map(() => true))
+                      }}/>
+                    </div>
+                  </IconContext.Provider>
+                  }
+                  { showFooterUsage &&
+                  <div className="absolute mr-40 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                    <p>Player seek for all videos at once</p>
+                    <p>Click once and use &lt;- and -&gt; keys to nav frame by frame</p>
+                    <svg className="absolute text-yellow-300 h-2 right-0 mr-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
                   </div>
+                  }
+                  <input
+                    type='range'
+                    min={0}
+                    max={SWING_FRAMES}
+                    step='1'
+                    onMouseUp={handleAllSeekChange}
+                    onKeyDown={handleAllSeekChange}
+                  />
                 </div>
-              }
+
+                <div className="flex flex-row content-center justify-center items-center">
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(0.1)}
+                    value=".1x"
+                  />
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(0.25)}
+                    value=".25x"
+                  />
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(0.5)}
+                    value=".5x"
+                  />
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(1)}
+                    value="1x"
+                  />
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(1.5)}
+                    value="1.5x"
+                  />
+                </div>
+              </div>
             </div>
-            { (albumPage < (swingVideos.length / swingsPerPage)-1) &&
+
+            <div className="flex flex-col">
+              <div className="flex flex-row relative static">
+                <select
+                  className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
+                  onChange={e => {
+                    setAlbumView(e.target.value)
+                    setSwingsPerPage(swingViewMap[e.target.value])
+                  }}
+                >
+                  { Object.entries(swingViewMap).map(([type, _], i) => {
+                    return(
+                      <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
+                    )
+                  })}
+                </select>
+                { showFooterUsage &&
+                <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                  Choose how to display your swings
+                  <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+                </div>
+                }
+              </div>
+
+              <div className="flex flex-row content-center justify-center items-center">
+                <button
+                  onClick={() => setAlbumPage(albumPage-1)}
+                  className={`rounder p-0.5 mx-1 text-white ${albumPage === 0 && "invisible"}`}
+                >
+                &lt;
+                </button>
+                <div className="static">
+                  <h2 className="text-sm text-white">
+                  Page { albumPage+1 }
+                  </h2>
+                  { showFooterUsage &&
+                  <div className="absolute">
+                    <div className="absolute ml-20 w-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                      Show prev or next page of swings
+                      {/* <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg> */}
+                    </div>
+                  </div>
+                  }
+                </div>
                 <button
                   onClick={() => setAlbumPage(albumPage+1)}
-                  className="border border-black rounder p-0.5 mx-1"
+                  className={`rounder p-0.5 mx-1 text-white ${albumPage >= (swingVideos.length / swingsPerPage)-1 && "invisible"}`}
                 >
-                  &gt;
+                &gt;
                 </button>
-            }
+              </div>
+            </div>
           </div>
-        </div>
+        </Draggable>
       </div>
     </div>
   )

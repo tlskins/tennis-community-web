@@ -65,7 +65,12 @@ const NavBar = ({
   return(
     <NavigationBar>
       <Link href="/">
-        <p className="inline-block whitespace-nowrap text-yellow-300 cursor-pointer">Hive Tennis</p>
+        <p className="inline-block whitespace-nowrap text-yellow-300 cursor-pointer">
+          Hive Tennis
+          <span className="rounded-full px-1 bg-yellow-300 text-black font-semibold text-xs ml-2">
+            Beta
+          </span>
+        </p>
       </Link>
       { !user || !user.id ?
         <LinksContainer>
@@ -76,7 +81,7 @@ const NavBar = ({
               { confirmation?.email ? "Accept Invitation" : "Sign In" }
             </a>
             { showLoginForm &&
-              <Modal width="400" hideModal={ () => setShowLoginForm("")}>
+              <Modal width="400px" hideModal={ () => setShowLoginForm("")}>
                 <LoginForm/>
               </Modal>
             }
@@ -100,7 +105,7 @@ const NavBar = ({
             onClick={() => setShowProfileForm(!showProfileForm)}
           />
           { showProfileForm &&
-            <Modal width="400" hideModal={ () => setShowProfileForm(false)}>
+            <Modal width="400px" hideModal={ () => setShowProfileForm(false)}>
               <ProfileForm/>
             </Modal>
           }

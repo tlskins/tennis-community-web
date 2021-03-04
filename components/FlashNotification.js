@@ -21,13 +21,14 @@ const FlashNotif = ({ notifications, onRemoveNotification }) => {
   return (
     <div className="fixed absolute right-2 z-50 ml-12 mt-2 flex flex-col space-y-56 lg:space-y-40 items-start">
       { (notifications || []).map( ({ id, bgColor, message, buttons }, i) => {
-        if (!bgColor) {
-          bgColor = "bg-yellow-300"
-        }
+        // let bgColor = "bg-yellow-300"
+        // if (color) {
+        //   bgColor = color
+        // }
         return(
           <div key={i}
             onClick={ () => onRemoveNotification(id) }
-            className={ `${ bgColor } fixed right-0 w-3/4 lg:w-1/2 shadow-lg rounded justify-between text-center flex px-3 lg:py-2 text-gray-700 rounded text-lg` }
+            className={ "bg-yellow-300 fixed right-0 w-3/4 lg:w-1/2 shadow-lg rounded justify-between text-center flex px-3 lg:py-2 text-gray-700 rounded text-lg" }
           >
             <div className="flex flex-col items-center w-full py-6 tracking-wide font-bold">
               <p id="notif_message px-3">{ message }</p>

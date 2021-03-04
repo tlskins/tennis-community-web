@@ -32,48 +32,58 @@ const AlbumAndComments = ({
 
       {/* Details Panel */}
       <div className="lg:flex flex-col w-full content-center justify-center items-center lg:items-start py-2 mr-2">
-        <div className="px-2 mx-1 text-xs">
-          Album:
-          <a className="text-blue-400 underline mx-1"
-            href={`/albums/${album.id}`}
-          >
-            { album.name } 
-          </a>
-        </div>
 
-        <p className="px-2 mx-1 text-xs">
-          Owner: <span className="text-blue-400 mx-1">@{ usersCache[album.userId]?.userName || "..." }</span>
-        </p>
-
-        <p className="px-2 mx-1 text-xs">
-          Updated: <span className="text-blue-400 mx-1">{ Moment(album.updatedAt).format("M/D/YY h:mm a") }</span>
-        </p>
-
-        <div className="flex flex-row px-2 mx-1 text-xs">
-          <div>
-            Shared:
+        <div className="grid grid-cols-2">
+          <div className="flex flex-col font-semibold text-xs text-right mr-2">
+            <p>Album</p>
+            <p>Owner</p>
+            <p>Created</p>
+            <p>Updated</p>
+            <p className="mt-1">Shared</p>
+            <p className="mt-1">Status</p>
           </div>
-          <div className="block ml-1">
-            { album.isViewableByFriends &&
-            <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-green-300 shadow-md">
-              friends
+          <div className="flex flex-col text-xs">
+            <a className="font-semibold text-blue-400 underline mx-1"
+              href={`/albums/${album.id}`}
+            >
+              { album.name } 
+            </a>
+            <span className="text-blue-400 mx-1">@{ usersCache[album.userId]?.userName || "..." }</span>
+            <span className="text-blue-400 mx-1">{ Moment(album.createdAt).format("M/D/YY h:mm a") }</span>
+            <span className="text-blue-400 mx-1">{ Moment(album.updatedAt).format("M/D/YY h:mm a") }</span>
+            <div className="block ml-1">
+              { album.isViewableByFriends &&
+                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-green-300 shadow-md">
+                  friends
+                </div>
+              }
+              { album.isPublic && 
+                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-blue-300 shadow-md">
+                  public
+                </div>
+              }
+              { album.friendIds.includes(user.id) && 
+                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-yellow-300 shadow-md">
+                  you
+                </div>
+              }
+              { (!album.isPublic && !album.isViewableByFriends && !album.friendIds.includes(user.id)) &&
+                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-gray-200 shadow-md">
+                  none
+                </div>
+              }
             </div>
-            }
-            { album.isPublic && 
-            <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-blue-300 shadow-md">
-              public
+            <div className="block ml-1">
+              { album.status === "Processing" ?
+                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-yellow-300 shadow-md">
+                  processing
+                </div>
+                : 
+                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-green-300 shadow-md">
+                  finished
+                </div>
+              }
             </div>
-            }
-            { album.friendIds.includes(user.id) && 
-            <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-yellow-300 shadow-md">
-              you
-            </div>
-            }
-            { (!album.isPublic && !album.isViewableByFriends && !album.friendIds.includes(user.id)) &&
-            <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-gray-200 shadow-md">
-              none
-            </div>
-            }
           </div>
         </div>
 
@@ -98,31 +108,28 @@ const AlbumAndComments = ({
           </div>
         </div>
 
-        <div className="h-32 w-full overflow-y-auto bg-gray-300 p-1 rounded hidden lg:block">
+        <div className="h-32 w-full overflow-y-auto bg-gray-300 border border-gray-300 p-1 rounded hidden lg:block">
           { album.allComments.map((comment, j) => {
             const poster = usersCache[comment.userId]
             return(
-              <div key={j} className="px-2 pt-1 mb-1 bg-white rounded shadow-lg">
-                <textarea disabled={true}
-                  className="text-xs bg-gray-100 rounded-md shadow-md w-full p-0.5"
-                  value={comment.text}
-                  rows={2}
-                />
+              <div key={j} className="px-2 py-1.5 mb-2 bg-white rounded shadow-lg">
+                <p className="text-xs bg-gray-300 rounded-md shadow w-full px-1 py-0.5 mb-1">
+                  {comment.text}
+                </p>
                 <p className="text-xs w-full">
                   <span className="text-blue-400 underline">{ poster ? `@${poster.userName}` : "..." }</span>
                   { comment.swingId &&
                     <>
                       <span className="mx-1">|</span>
-                      <a className="text-xs text-blue-500 align-middle underline"
+                      <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
                         href={`/albums/${album.id}/swings/${comment.swingId}`}
                       >
-                      Swing { comment.swingName }
+                      swing { comment.swingName }
                       </a>
                     </>
                   }
-                </p>
-                <p className="text-xs w-full">
-                  <span>{ Moment(album.updatedAt).format("lll") }</span>
+                  <span className="mx-1">|</span>
+                  <span>{ Moment(album.updatedAt).format("MMM D h:mm a") }</span>
                 </p>
               </div>
             )
@@ -221,6 +228,7 @@ const AlbumAndComments = ({
             {/* Seek */}
             <input
               type='range'
+              className="w-10/12 lg:w-full"
               value={duration}
               min={0}
               max={swingFrames}

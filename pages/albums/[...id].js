@@ -396,7 +396,7 @@ const Album = ({
   }
 
   return (
-    <div className="bg-gray-200">
+    <>
       <Head>
         <script async
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
@@ -433,11 +433,12 @@ const Album = ({
 
         {/* <!-- Meta Tags Generated via https://www.opengraph.xyz --> */}
       </Head>
-      { (user && user.id) &&
+      <div className="bg-gray-200">
+        { (user && user.id) &&
         <Notifications />
-      }
+        }
 
-      { showSwingModal &&
+        { showSwingModal &&
         <Modal
           hideModal={ () => {
             setShowSwingModal(false)
@@ -454,37 +455,37 @@ const Album = ({
             album={album}
           />
         </Modal>
-      }
+        }
 
-      <main className="bg-gray-200 min-h-screen h-full">
-        <div className="lg:flex lg:flex-row min-h-screen">
-          {/* Begin Sidebar */}
-          <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
-            <div className="flex content-center justify-center items-center">
-              <div className="flex flex-col text-sm">
-                {/* Album Overview */}
-                <div>
-                  <div className="flex flex-row relative pl-20">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Overview" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
-                      <input type="radio"
-                        checked={activeSideBar === "Album Overview"}
-                        onClick={() => setActiveSidebar(activeSideBar === "Album Overview" ? undefined : "Album Overview")}
-                      />
-                      <label className="ml-2 text-sm font-semibold uppercase">
+        <main className="bg-gray-200 min-h-screen h-full">
+          <div className="lg:flex lg:flex-row min-h-screen">
+            {/* Begin Sidebar */}
+            <Sidebar width={ expandedSideBar ? "50vw" : "25vw" }>
+              <div className="flex content-center justify-center items-center">
+                <div className="flex flex-col text-sm">
+                  {/* Album Overview */}
+                  <div>
+                    <div className="flex flex-row relative pl-20">
+                      <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Overview" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                        <input type="radio"
+                          checked={activeSideBar === "Album Overview"}
+                          onClick={() => setActiveSidebar(activeSideBar === "Album Overview" ? undefined : "Album Overview")}
+                        />
+                        <label className="ml-2 text-sm font-semibold uppercase">
                       Album Overview
-                      </label>
-                    </div>
+                        </label>
+                      </div>
 
-                    <div className="relative">
-                      <input type="button"
-                        className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
-                        value="?"
-                        onClick={() => {
-                          setShowOverviewUsage(activeSideBar !== "Album Overview" ? true : !showOverviewUsage)
-                          setActiveSidebar("Album Overview")
-                        }}
-                      />
-                      { showOverviewUsage &&
+                      <div className="relative">
+                        <input type="button"
+                          className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                          value="?"
+                          onClick={() => {
+                            setShowOverviewUsage(activeSideBar !== "Album Overview" ? true : !showOverviewUsage)
+                            setActiveSidebar("Album Overview")
+                          }}
+                        />
+                        { showOverviewUsage &&
                     <div className="absolute ml-10 -my-28 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">
                       <ul className="list-disc pl-6">
                         <li>Shows the swings and rallies that were clipped from the original video</li>
@@ -492,11 +493,11 @@ const Album = ({
                         <li>Toggle the Rally checkboxes to filter by Rally</li>
                       </ul>
                     </div>
-                      }
+                        }
+                      </div>
                     </div>
-                  </div>
                 
-                  { activeSideBar === "Album Overview" &&
+                    { activeSideBar === "Album Overview" &&
                   <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2 overflow-auto">
                     <div className="flex flex-col sticky left-0 content-center justify-center items-start pl-8 py-4 mb-4 rounded shadow-lg bg-gray-200 text-gray-700">
                       <p className="uppercase underline font-semibold mb-1">
@@ -579,73 +580,73 @@ const Album = ({
                         </ChartContainer>
                     }
                   </div>
-                  }
-                </div>
-
-                {/* Pro Comparison Sidebar */}
-                <div>
-                  <div className="flex flex-row relative pl-20">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Pro Comparison" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
-                      <input type="radio"
-                        checked={activeSideBar === "Pro Comparison"}
-                        onClick={() => setActiveSidebar(activeSideBar === "Pro Comparison" ? undefined : "Pro Comparison")}
-                      />
-                      <label className="ml-2 text-sm font-semibold uppercase">
-                      Pro Comparison
-                      </label>
-                    </div>
-
-                    <input type="button"
-                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
-                      value="?"
-                      onClick={() => {
-                        setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
-                        setActiveSidebar("Pro Comparison")
-                      }}
-                    />
+                    }
                   </div>
 
-                  { activeSideBar === "Pro Comparison" &&
+                  {/* Pro Comparison Sidebar */}
+                  <div>
+                    <div className="flex flex-row relative pl-20">
+                      <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Pro Comparison" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                        <input type="radio"
+                          checked={activeSideBar === "Pro Comparison"}
+                          onClick={() => setActiveSidebar(activeSideBar === "Pro Comparison" ? undefined : "Pro Comparison")}
+                        />
+                        <label className="ml-2 text-sm font-semibold uppercase">
+                      Pro Comparison
+                        </label>
+                      </div>
+
+                      <input type="button"
+                        className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                        value="?"
+                        onClick={() => {
+                          setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
+                          setActiveSidebar("Pro Comparison")
+                        }}
+                      />
+                    </div>
+
+                    { activeSideBar === "Pro Comparison" &&
                   <div className="my-2">
                     <ProComparison showUsage={showProUsage} />
                   </div>
-                  }
-                </div>
-
-                {/* Video Resources Sidebar */}
-                <div>
-                  <div className="flex flex-row relative pl-20">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Video Resources" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
-                      <input type="radio"
-                        checked={activeSideBar === "Video Resources"}
-                        onClick={() => setActiveSidebar(activeSideBar === "Video Resources" ? undefined : "Video Resources")}
-                      />
-                      <label className="ml-2 text-sm font-semibold uppercase">
-                      Youtube Tutorials
-                      </label>
-                    </div>
-
-                    <input type="button"
-                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
-                      value="?"
-                      onClick={() => {
-                        setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
-                        setActiveSidebar("Video Resources")
-                      }}
-                    />
+                    }
                   </div>
 
-                  { activeSideBar === "Video Resources" &&
+                  {/* Video Resources Sidebar */}
+                  <div>
+                    <div className="flex flex-row relative pl-20">
+                      <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Video Resources" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                        <input type="radio"
+                          checked={activeSideBar === "Video Resources"}
+                          onClick={() => setActiveSidebar(activeSideBar === "Video Resources" ? undefined : "Video Resources")}
+                        />
+                        <label className="ml-2 text-sm font-semibold uppercase">
+                      Youtube Tutorials
+                        </label>
+                      </div>
+
+                      <input type="button"
+                        className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                        value="?"
+                        onClick={() => {
+                          setShowVideoUsage(activeSideBar !== "Video Resources" ? true : !showVideoUsage)
+                          setActiveSidebar("Video Resources")
+                        }}
+                      />
+                    </div>
+
+                    { activeSideBar === "Video Resources" &&
                   <div className="my-2">
                     <VideoResources
                       onExpand={playing => setExpandedSideBar(playing)}
                       showUsage={showVideoUsage}
                     />
                   </div>
-                  }
-                </div>
+                    }
+                  </div>
 
-                { (user && user.id == album?.userId) &&
+                  { (user && user.id == album?.userId) &&
                 <div>
                   <div className="flex flex-row relative pl-20">
                     <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Sharing" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
@@ -693,23 +694,23 @@ const Album = ({
                     </div>
                   }
                 </div>
-                }
+                  }
 
-                {/* Comments Sidebar */}
-                <div className="w-full">
-                  <div className="flex flex-row relative pl-20">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Comments" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
-                      <input type="radio"
-                        checked={activeSideBar === "Album Comments"}
-                        onClick={() => setActiveSidebar(activeSideBar === "Album Comments" ? undefined : "Album Comments")}
-                      />
-                      <label className="ml-2 text-sm font-semibold uppercase">
+                  {/* Comments Sidebar */}
+                  <div className="w-full">
+                    <div className="flex flex-row relative pl-20">
+                      <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Comments" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                        <input type="radio"
+                          checked={activeSideBar === "Album Comments"}
+                          onClick={() => setActiveSidebar(activeSideBar === "Album Comments" ? undefined : "Album Comments")}
+                        />
+                        <label className="ml-2 text-sm font-semibold uppercase">
                       Album Comments
-                      </label>
+                        </label>
+                      </div>
                     </div>
-                  </div>
 
-                  { activeSideBar === "Album Comments" &&
+                    { activeSideBar === "Album Comments" &&
                   <div className="my-2 rounded bg-white p-2 w-full">
                     <div className="flex flex-col content-center justify-center items-center overscroll-contain">
                       <div className="flex flex-col w-full">
@@ -880,49 +881,49 @@ const Album = ({
                       </div>
                     </div>
                   </div>
+                    }
+                  </div>
+                </div>
+              </div>
+            </Sidebar>
+            {/* End Sidebar */}
+
+            {/* Begin Album Videos */}
+            <div className={`p-4 block lg:flex lg:flex-col lg:${mainWidth} relative bg-gray-400 lg:bg-transparent content-center justify-center items-center`}>
+            
+              <a href="/albums"
+                className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-4 hidden lg:block"
+              >
+            back to albums
+              </a>
+
+              <div className="mb-2 block lg:flex flex-col content-center justify-center items-center">
+                <div className="flex flex-row content-center justify-center items-center relative">
+                  <input type="button"
+                    className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-5 cursor-pointer hidden lg:block"
+                    value="?"
+                    onClick={() => setShowAlbumUsage(!showAlbumUsage)}
+                  />
+                  <input type="text"
+                    className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
+                    value={album?.name}
+                    onChange={onUpdateAlbumName}
+                    disabled={!user || user.id !== album?.userId}
+                  />
+                  { (user && user.id === album?.userId) &&
+                <img src={pencil} className="w-4 h-4 absolute right-2"/>
                   }
                 </div>
               </div>
-            </div>
-          </Sidebar>
-          {/* End Sidebar */}
 
-          {/* Begin Album Videos */}
-          <div className={`p-4 block lg:flex lg:flex-col lg:${mainWidth} relative bg-gray-400 lg:bg-transparent content-center justify-center items-center`}>
-            
-            <a href="/albums"
-              className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-4 hidden lg:block"
-            >
-            back to albums
-            </a>
-
-            <div className="mb-2 block lg:flex flex-col content-center justify-center items-center">
-              <div className="flex flex-row content-center justify-center items-center relative">
-                <input type="button"
-                  className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-5 cursor-pointer hidden lg:block"
-                  value="?"
-                  onClick={() => setShowAlbumUsage(!showAlbumUsage)}
-                />
-                <input type="text"
-                  className="text-lg text-center underline hover:bg-blue-100 p-1 rounded-lg border-2 border-gray-200"
-                  value={album?.name}
-                  onChange={onUpdateAlbumName}
-                  disabled={!user || user.id !== album?.userId}
-                />
-                { (user && user.id === album?.userId) &&
-                <img src={pencil} className="w-4 h-4 absolute right-2"/>
-                }
-              </div>
-            </div>
-
-            <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2">
-              { pageVideos.map( (swing, i) => {
-                const viewScale = albumView === "video" ? "items-center lg:w-1/3 lg:h-1/3" : "m-2"
-                return (
-                  <div className={`flex flex-col rounded-md ${viewScale}`}
-                    key={i}
-                  >
-                    { albumView === "video" &&
+              <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2">
+                { pageVideos.map( (swing, i) => {
+                  const viewScale = albumView === "video" ? "items-center lg:w-1/3 lg:h-1/3" : "m-2"
+                  return (
+                    <div className={`flex flex-col rounded-md ${viewScale}`}
+                      key={i}
+                    >
+                      { albumView === "video" &&
                       <SwingPlayer
                         albumId={albumId}
                         showAlbumUsage={showAlbumUsage}
@@ -942,47 +943,47 @@ const Album = ({
                         setPlayings={setPlayings}
                         setPlayerFrames={setPlayerFrames}
                       />
-                    }
-                    { albumView === "gif" &&
+                      }
+                      { albumView === "gif" &&
                     <div>
                       <img src={swing.gifURL}
                         alt="loading..."
                         style={{height: 180}}
                       />
                     </div>
-                    }
-                    { albumView === "jpg" &&
+                      }
+                      { albumView === "jpg" &&
                     <div>
                       <img src={swing.jpgURL}
                         alt="loading..."
                         style={{height: 180}}
                       />
                     </div>
-                    }
-                  </div>
-                )
-              })}
+                      }
+                    </div>
+                  )
+                })}
+              </div>
             </div>
+            {/* End Album Videos */}
           </div>
-          {/* End Album Videos */}
-        </div>
-      </main>
+        </main>
 
-      {/* All Video Controls Footer */}
-      <div className="sticky flex bottom-10 content-center justify-center items-center">
-        <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 lg:w-1/4 content-center justify-center items-center">
-          <div className="hidden lg:flex flex-row">
-            <input type="button"
-              className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-1 cursor-pointer hidden lg:block"
-              value="?"
-              onClick={() => setShowFooterUsage(!showFooterUsage)}
-            />
-          </div>
+        {/* All Video Controls Footer */}
+        <div className="sticky flex bottom-10 content-center justify-center items-center">
+          <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 lg:w-1/4 content-center justify-center items-center">
+            <div className="hidden lg:flex flex-row">
+              <input type="button"
+                className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-1 cursor-pointer hidden lg:block"
+                value="?"
+                onClick={() => setShowFooterUsage(!showFooterUsage)}
+              />
+            </div>
         
-          <div className="flex flex-row py-1 content-center justify-center items-center lg:mx-1">
-            <div className="flex flex-col">
-              <div className="relative flex items-row content-center justify-center items-center">
-                { allPlaying &&
+            <div className="flex flex-row py-1 content-center justify-center items-center lg:mx-1">
+              <div className="flex flex-col">
+                <div className="relative flex items-row content-center justify-center items-center">
+                  { allPlaying &&
                   <IconContext.Provider value={{ color: "red" }}>
                     <div className="m-2 content-center justify-center items-center cursor-pointer">
                       <FaRegPauseCircle onClick={() => {
@@ -991,8 +992,8 @@ const Album = ({
                       }}/>
                     </div>
                   </IconContext.Provider>
-                }
-                { !allPlaying &&
+                  }
+                  { !allPlaying &&
                   <IconContext.Provider value={{ color: "blue" }}>
                     <div className="m-2 content-center justify-center items-center cursor-pointer">
                       <FaPlayCircle onClick={() => {
@@ -1001,108 +1002,109 @@ const Album = ({
                       }}/>
                     </div>
                   </IconContext.Provider>
-                }
-                { showFooterUsage &&
+                  }
+                  { showFooterUsage &&
                   <div className="absolute mr-40 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                     <p>Player seek for all videos at once</p>
                     <p>Click once and use &lt;- and -&gt; keys to nav frame by frame</p>
                     <svg className="absolute text-yellow-300 h-2 right-0 mr-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
                   </div>
-                }
-                <input
-                  type='range'
-                  min={0}
-                  max={SWING_FRAMES}
-                  step='1'
-                  onMouseUp={handleAllSeekChange}
-                  onKeyDown={handleAllSeekChange}
-                />
-              </div>
+                  }
+                  <input
+                    type='range'
+                    min={0}
+                    max={SWING_FRAMES}
+                    step='1'
+                    onMouseUp={handleAllSeekChange}
+                    onKeyDown={handleAllSeekChange}
+                  />
+                </div>
 
-              <div className="flex flex-row content-center justify-center items-center">
-                <input type='button'
-                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                  onClick={() => setPlaybackRate(0.1)}
-                  value=".1x"
-                />
-                <input type='button'
-                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                  onClick={() => setPlaybackRate(0.25)}
-                  value=".25x"
-                />
-                <input type='button'
-                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                  onClick={() => setPlaybackRate(0.5)}
-                  value=".5x"
-                />
-                <input type='button'
-                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                  onClick={() => setPlaybackRate(1)}
-                  value="1x"
-                />
-                <input type='button'
-                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                  onClick={() => setPlaybackRate(1.5)}
-                  value="1.5x"
-                />
+                <div className="flex flex-row content-center justify-center items-center">
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(0.1)}
+                    value=".1x"
+                  />
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(0.25)}
+                    value=".25x"
+                  />
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(0.5)}
+                    value=".5x"
+                  />
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(1)}
+                    value="1x"
+                  />
+                  <input type='button'
+                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    onClick={() => setPlaybackRate(1.5)}
+                    value="1.5x"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex flex-col">
-            <div className="flex flex-row relative static">
-              <select
-                className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
-                onChange={e => {
-                  setAlbumView(e.target.value)
-                  setSwingsPerPage(windowWidth < 1000 ? Math.round(swingViewMap[e.target.value] / 3) : swingViewMap[e.target.value])
-                }}
-              >
-                { Object.entries(swingViewMap).map(([type, _], i) => {
-                  return(
-                    <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
-                  )
-                })}
-              </select>
-              { showFooterUsage &&
+            <div className="flex flex-col">
+              <div className="flex flex-row relative static">
+                <select
+                  className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
+                  onChange={e => {
+                    setAlbumView(e.target.value)
+                    setSwingsPerPage(windowWidth < 1000 ? Math.round(swingViewMap[e.target.value] / 3) : swingViewMap[e.target.value])
+                  }}
+                >
+                  { Object.entries(swingViewMap).map(([type, _], i) => {
+                    return(
+                      <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
+                    )
+                  })}
+                </select>
+                { showFooterUsage &&
                 <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                   Choose how to display your swings
                   <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
                 </div>
-              }
-            </div>
+                }
+              </div>
 
-            <div className="flex flex-row content-center justify-center items-center">
-              <button
-                onClick={() => setAlbumPage(albumPage-1)}
-                className={`rounder p-0.5 mx-1 text-white ${albumPage === 0 && "invisible"}`}
-              >
+              <div className="flex flex-row content-center justify-center items-center">
+                <button
+                  onClick={() => setAlbumPage(albumPage-1)}
+                  className={`rounder p-0.5 mx-1 text-white ${albumPage === 0 && "invisible"}`}
+                >
                 &lt;
-              </button>
-              <div className="static">
-                <h2 className="text-sm text-white">
+                </button>
+                <div className="static">
+                  <h2 className="text-sm text-white">
                   Page { albumPage+1 }
-                </h2>
-                { showFooterUsage &&
+                  </h2>
+                  { showFooterUsage &&
                   <div className="absolute">
                     <div className="absolute ml-20 w-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                       Show prev or next page of swings
                       {/* <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg> */}
                     </div>
                   </div>
-                }
-              </div>
-              <button
-                onClick={() => setAlbumPage(albumPage+1)}
-                className={`rounder p-0.5 mx-1 text-white ${albumPage >= (swingVideos.length / swingsPerPage)-1 && "invisible"}`}
-              >
+                  }
+                </div>
+                <button
+                  onClick={() => setAlbumPage(albumPage+1)}
+                  className={`rounder p-0.5 mx-1 text-white ${albumPage >= (swingVideos.length / swingsPerPage)-1 && "invisible"}`}
+                >
                 &gt;
-              </button>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -1132,7 +1134,7 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 export async function getStaticProps({ params }) {
-  console.log("static", params)
+  // console.log("static", params)
   const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
   const album = pAlbum(data)
 

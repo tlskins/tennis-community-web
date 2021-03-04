@@ -7,7 +7,6 @@ import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
 import { Line } from "react-chartjs-2"
-import Draggable from "react-draggable"
 
 import { newNotification, setLoginFormVisible } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
@@ -963,22 +962,19 @@ const Album = ({
 
       {/* All Video Controls Footer */}
       <div className="sticky flex bottom-10 content-center justify-center items-center">
-        <Draggable
-          axis={width < 700 ? "y" : "both"}
-        >
-          <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 lg:w-1/4 content-center justify-center items-center">
-            <div className="hidden lg:flex flex-row">
-              <input type="button"
-                className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-1 cursor-pointer hidden lg:block"
-                value="?"
-                onClick={() => setShowFooterUsage(!showFooterUsage)}
-              />
-            </div>
+        <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 lg:w-1/4 content-center justify-center items-center">
+          <div className="hidden lg:flex flex-row">
+            <input type="button"
+              className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-1 cursor-pointer hidden lg:block"
+              value="?"
+              onClick={() => setShowFooterUsage(!showFooterUsage)}
+            />
+          </div>
         
-            <div className="flex flex-row py-1 content-center justify-center items-center lg:mx-1">
-              <div className="flex flex-col">
-                <div className="relative flex items-row content-center justify-center items-center">
-                  { allPlaying &&
+          <div className="flex flex-row py-1 content-center justify-center items-center lg:mx-1">
+            <div className="flex flex-col">
+              <div className="relative flex items-row content-center justify-center items-center">
+                { allPlaying &&
                   <IconContext.Provider value={{ color: "red" }}>
                     <div className="m-2 content-center justify-center items-center cursor-pointer">
                       <FaRegPauseCircle onClick={() => {
@@ -987,8 +983,8 @@ const Album = ({
                       }}/>
                     </div>
                   </IconContext.Provider>
-                  }
-                  { !allPlaying &&
+                }
+                { !allPlaying &&
                   <IconContext.Provider value={{ color: "blue" }}>
                     <div className="m-2 content-center justify-center items-center cursor-pointer">
                       <FaPlayCircle onClick={() => {
@@ -997,107 +993,106 @@ const Album = ({
                       }}/>
                     </div>
                   </IconContext.Provider>
-                  }
-                  { showFooterUsage &&
+                }
+                { showFooterUsage &&
                   <div className="absolute mr-40 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                     <p>Player seek for all videos at once</p>
                     <p>Click once and use &lt;- and -&gt; keys to nav frame by frame</p>
                     <svg className="absolute text-yellow-300 h-2 right-0 mr-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
                   </div>
-                  }
-                  <input
-                    type='range'
-                    min={0}
-                    max={SWING_FRAMES}
-                    step='1'
-                    onMouseUp={handleAllSeekChange}
-                    onKeyDown={handleAllSeekChange}
-                  />
-                </div>
+                }
+                <input
+                  type='range'
+                  min={0}
+                  max={SWING_FRAMES}
+                  step='1'
+                  onMouseUp={handleAllSeekChange}
+                  onKeyDown={handleAllSeekChange}
+                />
+              </div>
 
-                <div className="flex flex-row content-center justify-center items-center">
-                  <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                    onClick={() => setPlaybackRate(0.1)}
-                    value=".1x"
-                  />
-                  <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                    onClick={() => setPlaybackRate(0.25)}
-                    value=".25x"
-                  />
-                  <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                    onClick={() => setPlaybackRate(0.5)}
-                    value=".5x"
-                  />
-                  <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                    onClick={() => setPlaybackRate(1)}
-                    value="1x"
-                  />
-                  <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
-                    onClick={() => setPlaybackRate(1.5)}
-                    value="1.5x"
-                  />
-                </div>
+              <div className="flex flex-row content-center justify-center items-center">
+                <input type='button'
+                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                  onClick={() => setPlaybackRate(0.1)}
+                  value=".1x"
+                />
+                <input type='button'
+                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                  onClick={() => setPlaybackRate(0.25)}
+                  value=".25x"
+                />
+                <input type='button'
+                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                  onClick={() => setPlaybackRate(0.5)}
+                  value=".5x"
+                />
+                <input type='button'
+                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                  onClick={() => setPlaybackRate(1)}
+                  value="1x"
+                />
+                <input type='button'
+                  className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                  onClick={() => setPlaybackRate(1.5)}
+                  value="1.5x"
+                />
               </div>
             </div>
+          </div>
 
-            <div className="flex flex-col">
-              <div className="flex flex-row relative static">
-                <select
-                  className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
-                  onChange={e => {
-                    setAlbumView(e.target.value)
-                    setSwingsPerPage(swingViewMap[e.target.value])
-                  }}
-                >
-                  { Object.entries(swingViewMap).map(([type, _], i) => {
-                    return(
-                      <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
-                    )
-                  })}
-                </select>
-                { showFooterUsage &&
+          <div className="flex flex-col">
+            <div className="flex flex-row relative static">
+              <select
+                className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
+                onChange={e => {
+                  setAlbumView(e.target.value)
+                  setSwingsPerPage(swingViewMap[e.target.value])
+                }}
+              >
+                { Object.entries(swingViewMap).map(([type, _], i) => {
+                  return(
+                    <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
+                  )
+                })}
+              </select>
+              { showFooterUsage &&
                 <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                   Choose how to display your swings
                   <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
                 </div>
-                }
-              </div>
+              }
+            </div>
 
-              <div className="flex flex-row content-center justify-center items-center">
-                <button
-                  onClick={() => setAlbumPage(albumPage-1)}
-                  className={`rounder p-0.5 mx-1 text-white ${albumPage === 0 && "invisible"}`}
-                >
+            <div className="flex flex-row content-center justify-center items-center">
+              <button
+                onClick={() => setAlbumPage(albumPage-1)}
+                className={`rounder p-0.5 mx-1 text-white ${albumPage === 0 && "invisible"}`}
+              >
                 &lt;
-                </button>
-                <div className="static">
-                  <h2 className="text-sm text-white">
+              </button>
+              <div className="static">
+                <h2 className="text-sm text-white">
                   Page { albumPage+1 }
-                  </h2>
-                  { showFooterUsage &&
+                </h2>
+                { showFooterUsage &&
                   <div className="absolute">
                     <div className="absolute ml-20 w-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                       Show prev or next page of swings
                       {/* <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg> */}
                     </div>
                   </div>
-                  }
-                </div>
-                <button
-                  onClick={() => setAlbumPage(albumPage+1)}
-                  className={`rounder p-0.5 mx-1 text-white ${albumPage >= (swingVideos.length / swingsPerPage)-1 && "invisible"}`}
-                >
-                &gt;
-                </button>
+                }
               </div>
+              <button
+                onClick={() => setAlbumPage(albumPage+1)}
+                className={`rounder p-0.5 mx-1 text-white ${albumPage >= (swingVideos.length / swingsPerPage)-1 && "invisible"}`}
+              >
+                &gt;
+              </button>
             </div>
           </div>
-        </Draggable>
+        </div>
       </div>
     </div>
   )

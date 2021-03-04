@@ -471,7 +471,7 @@ const SwingModal = ({
           </div>
 
           {/* Comments List  */}
-          <div className="flex flex-col h-52 lg:max-h-80 overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
+          <div className="flex flex-col h-44 lg:max-h-80 overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
             { comments.filter( com => !com.isHidden ).length === 0 &&
               <p className="text-center p-2"> No comments </p>
             }

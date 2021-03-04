@@ -465,7 +465,7 @@ const Album = ({
                   </div>
                 
                   { activeSideBar === "Album Overview" &&
-                  <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2 overflow-scroll">
+                  <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2 overflow-auto">
                     <div className="flex flex-col sticky left-0 content-center justify-center items-start pl-8 py-4 mb-4 rounded shadow-lg bg-gray-200 text-gray-700">
                       <p className="uppercase underline font-semibold mb-1">
                         { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies

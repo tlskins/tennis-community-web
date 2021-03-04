@@ -1176,7 +1176,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
 
     const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
     const swingIdMatch = req.url.match(rgxSwingId)
-    const swingId = swingIdMatch[1]
+    const swingId = swingIdMatch?.length > 1 && swingIdMatch[1]
     const swing = swingId && album.swingVideos.find( sw => sw.id === swingId )
 
     let head = {

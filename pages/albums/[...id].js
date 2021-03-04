@@ -7,6 +7,7 @@ import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
 import { Line } from "react-chartjs-2"
+import axios from "axios"
 
 import { newNotification, setLoginFormVisible } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
@@ -16,9 +17,11 @@ import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
-import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { useWindowDimensions } from "../../behavior/helpers"
+import { GetRecentUploads } from "../../behavior/coordinators/uploads"
+import { API_HOST } from "../../behavior/api/rest"
 import {
+  pAlbum,
   LoadAlbum,
   UpdateAlbum,
   PostComment,
@@ -56,13 +59,17 @@ const Album = ({
   flagComment,
   getRecentUploads,
   inviteUser,
-  loadAlbum,
+  // loadAlbum,
   onShowInviteForm,
   postComment,
   searchFriends,
   flashMessage,
   updateAlbum,
   updateAlbumRedux,
+  // static props
+  pageTitle,
+  pageDesc,
+  pageImg,
 }) => {
   const router = useRouter()
   const albumId = router.query.id && router.query.id[0]
@@ -116,11 +123,11 @@ const Album = ({
   let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
   const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
-  useEffect(() => {
-    if (albumId) {
-      loadAlbum(albumId)
-    }
-  }, [albumId])
+  // useEffect(() => {
+  //   if (albumId) {
+  //     loadAlbum(albumId)
+  //   }
+  // }, [albumId])
 
   useEffect(() => {
     setShowSwingModal(!!swing)
@@ -412,17 +419,17 @@ const Album = ({
         {/* <!-- Facebook Meta Tags --> */}
         <meta property="og:url" content="https://tennis-community-web.vercel.app/"/>
         <meta property="og:type" content="website"/>
-        <meta property="og:title" content="Hive Tennis"/>
-        <meta property="og:description" content="Check out this album of my tennis swings!"/>
-        <meta property="og:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"/>
+        <meta property="og:title" content={pageTitle || "Hive Tennis"}/>
+        <meta property="og:description" content={pageDesc || "Check out this album of my tennis swings!"}/>
+        <meta property="og:image" content={pageImg || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"}/>
 
         {/* <!-- Twitter Meta Tags --> */}
         <meta name="twitter:card" content="summary_large_image"/>
         <meta property="twitter:domain" content="tennis-community-web.vercel.app"/>
         <meta property="twitter:url" content="https://tennis-community-web.vercel.app/"/>
-        <meta name="twitter:title" content="Hive Tennis"/>
-        <meta name="twitter:description" content="Check out this album of my tennis swings!"/>
-        <meta name="twitter:image" content="https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"/>
+        <meta name="twitter:title" content={pageTitle || "Hive Tennis"}/>
+        <meta name="twitter:description" content={pageDesc || "Check out this album of my tennis swings!"}/>
+        <meta name="twitter:image" content={pageImg || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"}/>
 
         {/* <!-- Meta Tags Generated via https://www.opengraph.xyz --> */}
       </Head>
@@ -442,7 +449,10 @@ const Album = ({
           width="80%"
           padding="10px"
         >
-          <SwingModal swingId={swing} />
+          <SwingModal
+            swingId={swing}
+            album={album}
+          />
         </Modal>
       }
 
@@ -1100,7 +1110,6 @@ const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
     recentUploads: state.recentUploads,
-    album: state.album,
     confirmation: state.confirmation,
     user: state.user,
     usersCache: state.usersCache,
@@ -1122,11 +1131,17 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export async function getStaticProps() {
+export async function getStaticProps({ params }) {
+  console.log("static", params)
+  const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
+  const album = pAlbum(data)
+
   return {
     props: {
-      pageTitle: "Hive Tennis - Swing Album",
-      pageDesc: "View album of my swings!"
+      album,
+      pageTitle: album.name,
+      pageDesc: `Check out my Tennis Album "${album.name}"`,
+      pageImg: album.swingVideos[0]?.jpgURL,
     }
   }
 }
@@ -1144,6 +1159,9 @@ Album.propTypes = {
   user: PropTypes.object,
   usersCache: PropTypes.object,
   recentUploads: PropTypes.arrayOf(PropTypes.object),
+  pageTitle: PropTypes.string,
+  pageDesc: PropTypes.string,
+  pageImg: PropTypes.string,
 
   flagComment: PropTypes.func,
   flashMessage: PropTypes.func,

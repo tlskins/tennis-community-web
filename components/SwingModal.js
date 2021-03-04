@@ -50,6 +50,8 @@ const SwingModal = ({
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
 
+  console.log("swing", swingId, album)
+
   const [name, setName] = useState(swing?.name)
   const [showSwingUsage, setShowSwingUsage] = useState(false)
 
@@ -473,7 +475,7 @@ const SwingModal = ({
           {/* Comments List  */}
           <div className="flex flex-col h-28 lg:max-h-80 overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
             { comments.filter( com => !com.isHidden ).length === 0 &&
-              <p className="text-center p-2"> No comments </p>
+              <p className="text-center text-xs p-2"> No comments </p>
             }
             { comments.filter( com => !com.isHidden ).map( comment => {
               return(
@@ -558,7 +560,6 @@ const SwingModal = ({
 const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
-    album: state.album,
     confirmation: state.confirmation,
     user: state.user,
     usersCache: state.usersCache,
@@ -574,22 +575,6 @@ const mapDispatchToProps = (dispatch) => {
     searchFriends: SearchFriends(dispatch),
     toggleFlashMessage: args => dispatch(newNotification(args)),
     updateSwing: UpdateSwing(dispatch),
-  }
-}
-
-export async function getStaticProps() {
-  return {
-    props: {
-      pageTitle: "Hive Tennis - Swing",
-      pageDesc: "View my tennis swing!"
-    }
-  }
-}
-
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: true,
   }
 }
   

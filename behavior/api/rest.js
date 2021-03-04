@@ -1,7 +1,7 @@
 import axios from "axios"
 
 
-const API_HOST = process.env.VERCEL_GIT_COMMIT_REF === "production"
+export const API_HOST = process.env.VERCEL_GIT_COMMIT_REF === "production"
   ? process.env.NEXT_PUBLIC_PROD_API_HOST
   : process.env.NEXT_PUBLIC_API_HOST
 
@@ -15,10 +15,13 @@ export const axios_ = axios.create({
 
 axios_.interceptors.request.use(
   (config) => {
-    // add jwt accessToken to auth header if present in localstorage
-    const authToken = window.localStorage.getItem("authToken")
-    if (authToken) {
-      config.headers["Authorization"] = `Bearer ${authToken}`
+    // window not available for static generation
+    if (window) {
+      // add jwt accessToken to auth header if present in localstorage
+      const authToken = window.localStorage.getItem("authToken")
+      if (authToken) {
+        config.headers["Authorization"] = `Bearer ${authToken}`
+      }
     }
     return config
   },
@@ -29,7 +32,7 @@ axios_.interceptors.request.use(
 
 axios_.interceptors.response.use((response) => {
   // extract jwt from response data and store to localstorage
-  if (response && response.data) {
+  if (window && response && response.data) {
     const { authToken } = response.data
     if (authToken) {
       window.localStorage.setItem("authToken", authToken)

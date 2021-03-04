@@ -67,13 +67,12 @@ const Album = ({
   const router = useRouter()
   const albumId = router.query.id && router.query.id[0]
   const { swing } = router.query
-
-  console.log("swing", swing)
+  const { width: windowWidth } = useWindowDimensions()
 
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
   const [albumView, setAlbumView] = useState("video")
-  const [swingsPerPage, setSwingsPerPage] = useState(9)
+  const [swingsPerPage, setSwingsPerPage] = useState(windowWidth < 1000 ? Math.round(swingViewMap["video"] / 3) : swingViewMap["video"])
 
   const [showFooterUsage, setShowFooterUsage] = useState(false)
   const [showProUsage, setShowProUsage] = useState(false)
@@ -116,7 +115,6 @@ const Album = ({
 
   let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
   const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
-  const { width } = useWindowDimensions()
 
   useEffect(() => {
     if (albumId) {
@@ -513,12 +511,12 @@ const Album = ({
                         }
                       </div>
                       
-                      <a href="#"
-                        className="text-blue-700 underline cursor-pointer my-2"
+                      {/* <a href="#"
+                        className="text-blue-700 text-xs underline cursor-pointer my-2"
                         onClick={() => setShowGraph(!showGraph)}
                       >
                         { showGraph ? "Hide breakdown" : "Show breakdown from source video" }
-                      </a>
+                      </a> */}
                     </div>
 
                     { showGraph &&
@@ -1026,7 +1024,7 @@ const Album = ({
                 className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
                 onChange={e => {
                   setAlbumView(e.target.value)
-                  setSwingsPerPage(swingViewMap[e.target.value])
+                  setSwingsPerPage(windowWidth < 1000 ? Math.round(swingViewMap[e.target.value] / 3) : swingViewMap[e.target.value])
                 }}
               >
                 { Object.entries(swingViewMap).map(([type, _], i) => {

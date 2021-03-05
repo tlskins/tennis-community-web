@@ -1,5 +1,4 @@
 import React, { useEffect, useState, createRef } from "react"
-import Head from "next/head"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
@@ -9,11 +8,11 @@ import { IconContext } from "react-icons"
 import { Line } from "react-chartjs-2"
 import axios from "axios"
 
-import { wrapper } from "../../state/store"
-import { newNotification, setLoginFormVisible, setHead } from "../../state/ui/action"
+import { newNotification, setLoginFormVisible } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
 import Modal from "../../components/Modal"
+import PageHead from "../../components/PageHead"
 import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
@@ -394,41 +393,13 @@ const Album = ({
     commentsPlaceholder = "Reply to comment"
   }
 
-  console.log("albumhead", head)
-
   return (
     <>
-      <Head>
-        <script async
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-          
-            gtag('config', ${process.env.NEXT_PUBLIC_GTM_ID});
-        `,}}>
-        </script>
-
-        <title>Hive Tennis Album</title>
-        <meta name="description" content="Check out this album of my tennis swings!"/>
-
-        {/* <meta property="og:url" content="https://tennis-community-web.vercel.app/"/> */}
-        <meta property="og:type" content="website"/>
-        <meta property="og:title" content={head.title}/>
-        <meta property="og:description" content={head.desc}/>
-        <meta property="og:image" content={head.img}/>
-
-        <meta name="twitter:card" content="summary_large_image"/>
-        <meta property="twitter:domain" content="tennis-community-web.vercel.app"/>
-        <meta property="twitter:url" content="https://tennis-community-web.vercel.app/"/>
-        <meta name="twitter:title" content={head.title}/>
-        <meta name="twitter:description" content={head.desc}/>
-        <meta name="twitter:image" content={head.img}/>
-      </Head>
+      <PageHead
+        title={head.title}
+        desc={head.desc}
+        img={head.img}
+      />
       <div className="bg-gray-200">
         { (user && user.id) &&
         <Notifications />
@@ -1110,10 +1081,7 @@ const Album = ({
 }
 
 const mapStateToProps = (state) => {
-  // console.log("mapStateToProps", state)
   return {
-    // head: state.head,
-    // album: state.album,
     recentUploads: state.recentUploads,
     confirmation: state.confirmation,
     user: state.user,
@@ -1146,129 +1114,12 @@ export async function getServerSideProps({ params: { id }}) {
       album,
       head: {
         title: album.name,
-        desc: `Check out my Tennis Album "${album.name}"`,
+        desc: `Check out my tennis album "${album.name}"`,
         img: album.swingVideos[0]?.jpgURL,
       }
     }
   }
 }
-
-// export const getServerSideProps = wrapper.getServerSideProps(
-//   async ({ store, params: { id } }) => {
-//     console.log("getServerSideProps", id)
-//     const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
-//     const album = pAlbum(data)
-
-//     store.dispatch(setAlbum(album))
-//     const head = {
-//       title: album.name,
-//       desc: `Check out my Tennis Album "${album.name}"`,
-//       img: album.swingVideos[0]?.jpgURL,
-//     }
-//     store.dispatch(setHead(head))
-
-//     return { props: { head } }
-//   }
-// )
-
-// export const getStaticProps = wrapper.getStaticProps(
-//   async ({ store, params: { id } }) => {
-//     console.log("getStaticProps", id)
-//     const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
-//     const album = pAlbum(data)
-
-//     store.dispatch(setAlbum(album))
-//     const head = {
-//       title: album.name,
-//       desc: `Check out my Tennis Album "${album.name}"`,
-//       img: album.swingVideos[0]?.jpgURL,
-//     }
-//     store.dispatch(setHead(head))
-
-//     // return { props: { head } }
-//   }
-// )
-
-// export const getStaticPaths = wrapper.getStaticPaths(
-//   ({ store, preview }) => {
-//     console.log("getStaticPaths", preview)
-//     // store.dispatch({type: 'TICK', payload: 'was set in other page ' + preview});
-//   }
-// )
-
-// export async function getStaticProps({ params }) {
-//   console.log("static", params)
-//   const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
-//   const album = pAlbum(data)
-
-//   return {
-//     props: {
-//       album,
-//       head: {
-//         title: album.name,
-//         desc: `Check out my Tennis Album "${album.name}"`,
-//         img: album.swingVideos[0]?.jpgURL,
-//       },
-//     }
-//   }
-// }
-
-// export async function getStaticPaths() {
-//   return {
-//     paths: [],
-//     fallback: true,
-//   }
-// }
-  
-// Album.getInitialProps = async ({ store, pathname, req, res }) => {
-//   console.log("req.url", req.url)
-//   const { data } = await axios.get(`${API_HOST}/albums/${req.url.split("/")[2]}`)
-//   const album = pAlbum(data)
-//   store.dispatch(setAlbum(album))
-// }
-
-
-// Album.getInitialProps = async ({ store, pathname, req, res, query }) => {
-//   console.log("getInitialProps", req.url, query)
-//   // const rgxAlbumId = /albums\/([^ ?\/]+)/
-//   // const albumIdMatch = req.url.match(rgxAlbumId)
-//   // const albumId = albumIdMatch[1]
-//   // const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
-//   // const album = pAlbum(data)
-
-//   // const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
-//   // const swingIdMatch = req.url.match(rgxSwingId)
-//   // const swingId = swingIdMatch?.length > 1 && swingIdMatch[1]
-//   // const swing = swingId && album.swingVideos.find( sw => sw.id === swingId )
-
-//   // let head = {
-//   //   title: album.name,
-//   //   desc: `Check out my Tennis Album "${album.name}"`,
-//   //   img: album.swingVideos[0]?.jpgURL,
-//   // }
-//   // if (swing) {
-//   //   head = {
-//   //     title: album.name,
-//   //     desc: `Check out my Tennis Album "${album.name}"`,
-//   //     img: swing.jpgURL,
-//   //   }
-//   // }
-
-//   // store.dispatch(setHead(head))
-
-//   const albumId = query.id[0]
-//   const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
-//   const album = pAlbum(data)
-//   store.dispatch(setAlbum(album))
-
-//   return {
-//     head: {
-//       title: album.name,
-//       desc: `Check out my Tennis Album "${album.name}"`,
-//       img: album.swingVideos[0]?.jpgURL,
-//     }
-//   }
-// }
 
 Album.propTypes = {
   album: PropTypes.object,

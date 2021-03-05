@@ -7,8 +7,7 @@ import { GrSearch } from "react-icons/gr"
 import Notifications from "../components/Notifications"
 import HowToUpload from "../components/HowToUpload"
 import AlbumAndComments from "../components/AlbumAndComments"
-import VideoResources from "../components/VideoResources"
-import ProComparison from "../components/ProComparison"
+import PageHead from "../components/PageHead"
 import { LoadUser, UpdateUserProfile } from "../behavior/coordinators/users"
 import { 
   SearchFriends,
@@ -254,6 +253,7 @@ const Home = ({
 
   return (
     <div>
+      <PageHead />
       { (user && user.id) &&
         <Notifications />
       }

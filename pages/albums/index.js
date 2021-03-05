@@ -7,6 +7,7 @@ import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 
 import { newNotification } from "../../state/ui/action"
+import PageHead from "../../components/PageHead"
 import Notifications from "../../components/Notifications"
 import AlbumAndComments from "../../components/AlbumAndComments"
 import Sidebar from "../../components/Sidebar"
@@ -223,6 +224,7 @@ const AlbumsIndex = ({
 
   return (
     <div>
+      <PageHead />
       { (user && user.id) &&
         <Notifications />
       }

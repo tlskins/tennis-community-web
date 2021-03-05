@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment-timezone"
 
+import PageHead from "../../components/PageHead"
 import Notifications from "../../components/Notifications"
 import SwingUploader from "../../components/SwingUploader"
 import HowToUpload from "../../components/HowToUpload"
@@ -104,6 +105,7 @@ const NewAlbum = ({
 
   return (
     <div>
+      <PageHead />
       { (user && user.id) &&
         <Notifications />
       }

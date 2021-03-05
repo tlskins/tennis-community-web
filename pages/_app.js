@@ -19,6 +19,8 @@ function WrappedApp({ Component, pageProps }) {
   const store = useStore()
   const { head: { title, desc, img } } = store.getState()
 
+  console.log("WrappedApp", title, desc, img)
+
   return (
     <>
       <Head>
@@ -48,6 +50,13 @@ function WrappedApp({ Component, pageProps }) {
       </PersistGate>
     </>
   )
+}
+
+WrappedApp.getInitialProps = async ({ Component, ctx }) => {
+  const pageProps = Component.getInitialProps
+    ? await Component.getInitialProps(ctx)
+    : {}
+  return { pageProps }
 }
 
 WrappedApp.propTypes = {

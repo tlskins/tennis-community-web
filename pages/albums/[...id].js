@@ -1164,37 +1164,36 @@ const mapDispatchToProps = (dispatch) => {
 //   store.dispatch(setAlbum(album))
 // }
 
-export const getServerSideProps = wrapper.getServerSideProps(
-  async ({ store, req }) => {
-    console.log("getServerSideProps", req.url)
-    const rgxAlbumId = /albums\/([^ ?\/]+)/
-    const albumIdMatch = req.url.match(rgxAlbumId)
-    const albumId = albumIdMatch[1]
-    const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
-    const album = pAlbum(data)
 
-    const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
-    const swingIdMatch = req.url.match(rgxSwingId)
-    const swingId = swingIdMatch?.length > 1 && swingIdMatch[1]
-    const swing = swingId && album.swingVideos.find( sw => sw.id === swingId )
+Album.getInitialProps = async ({ store, pathname, req, res }) => {
+  console.log("getInitialProps", req.url)
+  const rgxAlbumId = /albums\/([^ ?\/]+)/
+  const albumIdMatch = req.url.match(rgxAlbumId)
+  const albumId = albumIdMatch[1]
+  const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
+  const album = pAlbum(data)
 
-    let head = {
+  const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
+  const swingIdMatch = req.url.match(rgxSwingId)
+  const swingId = swingIdMatch?.length > 1 && swingIdMatch[1]
+  const swing = swingId && album.swingVideos.find( sw => sw.id === swingId )
+
+  let head = {
+    title: album.name,
+    desc: `Check out my Tennis Album "${album.name}"`,
+    img: album.swingVideos[0]?.jpgURL,
+  }
+  if (swing) {
+    head = {
       title: album.name,
       desc: `Check out my Tennis Album "${album.name}"`,
-      img: album.swingVideos[0]?.jpgURL,
+      img: swing.jpgURL,
     }
-    if (swing) {
-      head = {
-        title: album.name,
-        desc: `Check out my Tennis Album "${album.name}"`,
-        img: swing.jpgURL,
-      }
-    }
-
-    store.dispatch(setHead(head))
-    store.dispatch(setAlbum(album))
   }
-)
+
+  store.dispatch(setHead(head))
+  store.dispatch(setAlbum(album))
+}
 
 Album.propTypes = {
   album: PropTypes.object,

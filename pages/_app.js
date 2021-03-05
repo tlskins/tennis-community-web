@@ -17,7 +17,7 @@ const PAGE_URL = "tennis-community-web.vercel.app"
 
 function WrappedApp({ Component, pageProps }) {
   const store = useStore()
-  const { title, desc, img } = pageProps
+  const { head: { title, desc, img } } = store.getState()
 
   console.log("WrappedApp", title, desc, img)
 

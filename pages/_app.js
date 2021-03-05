@@ -19,6 +19,7 @@ const App = ({ Component, pageProps }) => {
   const desc = pageProps.head?.desc
   const title = pageProps.head?.title
   const img = pageProps.head?.img
+  console.log("App", pageProps)
 
   return(
     <>

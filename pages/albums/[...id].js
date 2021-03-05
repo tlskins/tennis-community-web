@@ -1108,7 +1108,7 @@ const Album = ({
 }
 
 const mapStateToProps = (state) => {
-  console.log("mapStateToProps", state)
+  // console.log("mapStateToProps", state)
   return {
     head: state.head,
     // album: state.album,

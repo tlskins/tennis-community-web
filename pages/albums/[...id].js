@@ -396,7 +396,7 @@ const Album = ({
 
   return (
     <>
-      <Head>
+      {/* <Head>
         <script async
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
         />
@@ -426,7 +426,7 @@ const Album = ({
         <meta name="twitter:title" content={head.title}/>
         <meta name="twitter:description" content={head.desc}/>
         <meta name="twitter:image" content={head.img}/>
-      </Head>
+      </Head> */}
       <div className="bg-gray-200">
         { (user && user.id) &&
         <Notifications />
@@ -1182,13 +1182,16 @@ export async function getStaticProps({ params }) {
   const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
   const album = pAlbum(data)
 
-  const head = {
-    title: album.name,
-    desc: `Check out my Tennis Album "${album.name}"`,
-    img: album.swingVideos[0]?.jpgURL,
+  return {
+    props: {
+      album,
+      head: {
+        title: album.name,
+        desc: `Check out my Tennis Album "${album.name}"`,
+        img: album.swingVideos[0]?.jpgURL,
+      },
+    }
   }
-
-  return { props: { head, album } }
 }
 
 export async function getStaticPaths() {

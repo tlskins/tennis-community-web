@@ -1193,6 +1193,8 @@ Album.getInitialProps = async ({ store, pathname, req, res }) => {
 
   store.dispatch(setHead(head))
   store.dispatch(setAlbum(album))
+
+  return head
 }
 
 Album.propTypes = {

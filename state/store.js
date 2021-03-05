@@ -4,30 +4,26 @@ import { createLogger } from "redux-logger"
 
 import {
   flashNotificationReducer,
-  flashNotificationInitialState,
   navBarReducer,
-  navBarInitialState,
-  headInitialState,
-  headReducer,
 } from "./ui/reducer"
 import {
   confirmationReducer,
-  confirmationInitialState,
   userReducer,
-  userInitialState,
   usersCacheReducer,
-  usersCacheInitialState,
 } from "./user/reducer"
-import { recentUploadsReducer, recentUploadsInitialState } from "./upload/reducer"
+import { recentUploadsReducer } from "./upload/reducer"
 import {
   albumReducer,
-  albumInitialState,
   albumsReducer,
-  albumsInitialState,
 } from "./album/reducer"
 
+export const LOG_OUT = "LOG_OUT"
+
+export const logOut = () => ({
+  type: LOG_OUT
+})
+
 export const rootReducer = combineReducers({
-  head: headReducer,
   confirmation: confirmationReducer,
   flashNotification: flashNotificationReducer,
   user: userReducer,
@@ -47,9 +43,3 @@ export const store = createStore(
     loggerMiddleware
   )
 )
-
-export const LOG_OUT = "LOG_OUT"
-
-export const logOut = () => ({
-  type: LOG_OUT
-})

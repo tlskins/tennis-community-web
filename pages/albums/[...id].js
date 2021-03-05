@@ -464,6 +464,7 @@ const Album = ({
                         <input type="radio"
                           checked={activeSideBar === "Album Overview"}
                           onClick={() => setActiveSidebar(activeSideBar === "Album Overview" ? undefined : "Album Overview")}
+                          onChange={() => {}}
                         />
                         <label className="ml-2 text-sm font-semibold uppercase">
                       Album Overview
@@ -584,6 +585,7 @@ const Album = ({
                         <input type="radio"
                           checked={activeSideBar === "Pro Comparison"}
                           onClick={() => setActiveSidebar(activeSideBar === "Pro Comparison" ? undefined : "Pro Comparison")}
+                          onChange={() => {}}
                         />
                         <label className="ml-2 text-sm font-semibold uppercase">
                       Pro Comparison
@@ -614,6 +616,7 @@ const Album = ({
                         <input type="radio"
                           checked={activeSideBar === "Video Resources"}
                           onClick={() => setActiveSidebar(activeSideBar === "Video Resources" ? undefined : "Video Resources")}
+                          onChange={() => {}}
                         />
                         <label className="ml-2 text-sm font-semibold uppercase">
                       Youtube Tutorials
@@ -647,6 +650,7 @@ const Album = ({
                       <input type="radio"
                         checked={activeSideBar === "Sharing"}
                         onClick={() => setActiveSidebar(activeSideBar === "Sharing" ? undefined : "Sharing")}
+                        onChange={() => {}}
                       />
                       <label className="ml-2 text-sm font-semibold uppercase">
                       Sharing
@@ -697,6 +701,7 @@ const Album = ({
                         <input type="radio"
                           checked={activeSideBar === "Album Comments"}
                           onClick={() => setActiveSidebar(activeSideBar === "Album Comments" ? undefined : "Album Comments")}
+                          onChange={() => {}}
                         />
                         <label className="ml-2 text-sm font-semibold uppercase">
                       Album Comments

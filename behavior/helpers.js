@@ -27,6 +27,11 @@ export function useInterval(callback, delay, limit = 0) {
 }
 
 function getWindowDimensions() {
+  const isServer = typeof window === "undefined"
+  if (isServer) {
+    return { width: 1200, height: 700 }
+  }
+
   const { innerWidth: width, innerHeight: height } = window
   return {
     width,
@@ -42,8 +47,11 @@ export function useWindowDimensions() {
       setWindowDimensions(getWindowDimensions())
     }
 
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
+    const isServer = typeof window === "undefined"
+    if (!isServer) {
+      window.addEventListener("resize", handleResize)
+      return () => window.removeEventListener("resize", handleResize)
+    }
   }, [])
 
   return windowDimensions

@@ -21,7 +21,7 @@ const App = ({ Component, pageProps }) => {
   const img = pageProps.head?.img
 
   return(
-    <Provider store={store}>
+    <>
       <Head>
         <title>Hive Tennis</title>
         <meta name="description" content={desc} key="desc"/>
@@ -40,12 +40,14 @@ const App = ({ Component, pageProps }) => {
         <meta name="twitter:description" content={desc} key="twitter_desc"/>
         <meta name="twitter:image" content={img} key="twitter_img"/>
       </Head>
-      <ThemeProvider theme={ colors }>
-        { <FlashNotification /> }
-        <NavBar />
-        <Component {...pageProps} />
-      </ThemeProvider>
-    </Provider>
+      <Provider store={store}>
+        <ThemeProvider theme={ colors }>
+          { <FlashNotification /> }
+          <NavBar />
+          <Component {...pageProps} />
+        </ThemeProvider>
+      </Provider>
+    </>
   )
 }
 

@@ -396,7 +396,7 @@ const Album = ({
 
   return (
     <>
-      <Head>
+      {/* <Head>
         <script async
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
         />
@@ -411,27 +411,22 @@ const Album = ({
         `,}}>
         </script>
 
-        {/* <!-- HTML Meta Tags --> */}
         <title>Hive Tennis Album</title>
         <meta name="description" content="Check out this album of my tennis swings!"/>
 
-        {/* <!-- Facebook Meta Tags --> */}
         <meta property="og:url" content="https://tennis-community-web.vercel.app/"/>
         <meta property="og:type" content="website"/>
         <meta property="og:title" content={head.title}/>
         <meta property="og:description" content={head.desc}/>
         <meta property="og:image" content={head.img}/>
 
-        {/* <!-- Twitter Meta Tags --> */}
         <meta name="twitter:card" content="summary_large_image"/>
         <meta property="twitter:domain" content="tennis-community-web.vercel.app"/>
         <meta property="twitter:url" content="https://tennis-community-web.vercel.app/"/>
         <meta name="twitter:title" content={head.title}/>
         <meta name="twitter:description" content={head.desc}/>
         <meta name="twitter:image" content={head.img}/>
-
-        {/* <!-- Meta Tags Generated via https://www.opengraph.xyz --> */}
-      </Head>
+      </Head> */}
       <div className="bg-gray-200">
         { (user && user.id) &&
         <Notifications />
@@ -1141,11 +1136,14 @@ export const getStaticProps = wrapper.getStaticProps(
     const album = pAlbum(data)
 
     store.dispatch(setAlbum(album))
-    store.dispatch(setHead({
+    const head = {
       title: album.name,
       desc: `Check out my Tennis Album "${album.name}"`,
       img: album.swingVideos[0]?.jpgURL,
-    }))
+    }
+    // store.dispatch(setHead(head))
+
+    return { props: { head } }
   }
 )
 

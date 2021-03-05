@@ -19,7 +19,6 @@ export function headReducer(
 ) {
   switch (action.type) {
   case SET_HEAD: {
-    console.log("sethead", action.payload)
     return { ...state, ...action.payload }
   }
   default:

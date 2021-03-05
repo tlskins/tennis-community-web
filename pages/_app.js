@@ -15,15 +15,17 @@ import colors from "../styles/colors.js"
 
 const PAGE_URL = "tennis-community-web.vercel.app"
 
-function WrappedApp({ Component, pageProps, ...otherProps }) {
+function WrappedApp({ Component, pageProps }) {
   const store = useStore()
-  const { head: { title, desc, img } } = store.getState()
 
-  console.log("WrappedApp", otherProps)
+  console.log("WrappedApp", pageProps)
+  const title = pageProps.head?.title || "Hive Tennis"
+  const desc = pageProps.head?.desc || "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!"
+  const img = pageProps.head?.img || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"
 
   return (
     <>
-      {/* <Head>
+      <Head>
         <title>Hive Tennis</title>
         <meta name="description" content={desc} key="desc"/>
 
@@ -40,7 +42,7 @@ function WrappedApp({ Component, pageProps, ...otherProps }) {
         <meta name="twitter:title" content={title} key="twitter_title"/>
         <meta name="twitter:description" content={desc} key="twitter_desc"/>
         <meta name="twitter:image" content={img} key="twitter_img"/>
-      </Head> */}
+      </Head>
       <PersistGate persistor={store.__persistor} loading={<div>Loading</div>}>
         <ThemeProvider theme={ colors }>
           { <FlashNotification /> }
@@ -52,12 +54,12 @@ function WrappedApp({ Component, pageProps, ...otherProps }) {
   )
 }
 
-WrappedApp.getInitialProps = async ({ Component, ctx }) => {
-  const pageProps = Component.getInitialProps
-    ? await Component.getInitialProps(ctx)
-    : {}
-  return { pageProps }
-}
+// WrappedApp.getInitialProps = async ({ Component, ctx }) => {
+//   const pageProps = Component.getInitialProps
+//     ? await Component.getInitialProps(ctx)
+//     : {}
+//   return { pageProps }
+// }
 
 WrappedApp.propTypes = {
   Component: PropTypes.object,

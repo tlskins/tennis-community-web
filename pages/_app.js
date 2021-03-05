@@ -55,8 +55,8 @@ function WrappedApp({ Component, pageProps, ...otherProps }) {
 }
 
 WrappedApp.getInitialProps = async ({ Component, ctx }) => {
-  const pageProps = Component.getInitialProps
-    ? await Component.getInitialProps(ctx)
+  const pageProps = Component.getStaticProps
+    ? await Component.getStaticProps(ctx)
     : {}
   return { pageProps }
 }

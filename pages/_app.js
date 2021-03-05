@@ -2,7 +2,7 @@ import React from "react"
 import { wrapper } from "../state/store"
 import "../styles/index.css"
 import {PersistGate} from "redux-persist/integration/react"
-import {useStore} from "react-redux"
+import {useStore, useSelector} from "react-redux"
 import Head from "next/head"
 import PropTypes from "prop-types"
 
@@ -17,8 +17,8 @@ const PAGE_URL = "tennis-community-web.vercel.app"
 
 export default wrapper.withRedux(({ Component, pageProps }) => {
   const store = useStore()
-  const { head: { desc, title, img }} = store.getState()
-  console.log("wrapper", pageProps, desc, title, img)
+  const { head: { desc, title, img }} = useSelector(state => state)
+  console.log("wrapper", desc, title, img)
 
   return (
     <>

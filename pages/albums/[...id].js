@@ -1161,7 +1161,7 @@ export const getStaticProps = wrapper.getStaticProps(
     }
     store.dispatch(setHead(head))
 
-    return { props: { head } }
+    // return { props: { head } }
   }
 )
 

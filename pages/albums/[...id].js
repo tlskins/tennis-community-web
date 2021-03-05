@@ -416,7 +416,7 @@ const Album = ({
         <title>Hive Tennis Album</title>
         <meta name="description" content="Check out this album of my tennis swings!"/>
 
-        <meta property="og:url" content="https://tennis-community-web.vercel.app/"/>
+        {/* <meta property="og:url" content="https://tennis-community-web.vercel.app/"/> */}
         <meta property="og:type" content="website"/>
         <meta property="og:title" content={head.title}/>
         <meta property="og:description" content={head.desc}/>

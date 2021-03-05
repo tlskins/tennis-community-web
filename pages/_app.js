@@ -15,15 +15,15 @@ import colors from "../styles/colors.js"
 
 const PAGE_URL = "tennis-community-web.vercel.app"
 
-function WrappedApp({ Component, pageProps }) {
+function WrappedApp({ Component, pageProps, ...otherProps }) {
   const store = useStore()
   const { head: { title, desc, img } } = store.getState()
 
-  console.log("WrappedApp", title, desc, img)
+  console.log("WrappedApp", otherProps)
 
   return (
     <>
-      <Head>
+      {/* <Head>
         <title>Hive Tennis</title>
         <meta name="description" content={desc} key="desc"/>
 
@@ -40,7 +40,7 @@ function WrappedApp({ Component, pageProps }) {
         <meta name="twitter:title" content={title} key="twitter_title"/>
         <meta name="twitter:description" content={desc} key="twitter_desc"/>
         <meta name="twitter:image" content={img} key="twitter_img"/>
-      </Head>
+      </Head> */}
       <PersistGate persistor={store.__persistor} loading={<div>Loading</div>}>
         <ThemeProvider theme={ colors }>
           { <FlashNotification /> }

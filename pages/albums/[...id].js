@@ -68,9 +68,7 @@ const Album = ({
   updateAlbum,
   updateAlbumRedux,
   // static props
-  pageTitle,
-  pageDesc,
-  pageImg,
+  head,
 }) => {
   const router = useRouter()
   const albumId = router.query.id && router.query.id[0]
@@ -420,17 +418,17 @@ const Album = ({
         {/* <!-- Facebook Meta Tags --> */}
         <meta property="og:url" content="https://tennis-community-web.vercel.app/"/>
         <meta property="og:type" content="website"/>
-        <meta property="og:title" content={pageTitle || "Hive Tennis"}/>
-        <meta property="og:description" content={pageDesc || "Check out this album of my tennis swings!"}/>
-        <meta property="og:image" content={pageImg || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"}/>
+        <meta property="og:title" content={head.title}/>
+        <meta property="og:description" content={head.desc}/>
+        <meta property="og:image" content={head.img}/>
 
         {/* <!-- Twitter Meta Tags --> */}
         <meta name="twitter:card" content="summary_large_image"/>
         <meta property="twitter:domain" content="tennis-community-web.vercel.app"/>
         <meta property="twitter:url" content="https://tennis-community-web.vercel.app/"/>
-        <meta name="twitter:title" content={pageTitle || "Hive Tennis"}/>
-        <meta name="twitter:description" content={pageDesc || "Check out this album of my tennis swings!"}/>
-        <meta name="twitter:image" content={pageImg || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"}/>
+        <meta name="twitter:title" content={head.title}/>
+        <meta name="twitter:description" content={head.desc}/>
+        <meta name="twitter:image" content={head.img}/>
 
         {/* <!-- Meta Tags Generated via https://www.opengraph.xyz --> */}
       </Head>
@@ -1112,6 +1110,7 @@ const Album = ({
 const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
+    head: state.head,
     album: state.album,
     recentUploads: state.recentUploads,
     confirmation: state.confirmation,
@@ -1220,8 +1219,6 @@ export async function getStaticPaths() {
 //   const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
 //   const album = pAlbum(data)
 
-//   store.dispatch(setAlbum(album))
-
 //   return {
 //     title: album.name,
 //     desc: `Check out my Tennis Album "${album.name}"`,
@@ -1232,6 +1229,7 @@ export async function getStaticPaths() {
 Album.propTypes = {
   album: PropTypes.object,
   confirmation: PropTypes.object,
+  head: PropTypes.object,
   user: PropTypes.object,
   usersCache: PropTypes.object,
   recentUploads: PropTypes.arrayOf(PropTypes.object),

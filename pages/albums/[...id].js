@@ -1129,9 +1129,9 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export const getStaticProps = wrapper.getStaticProps(
+export const getServerSideProps = wrapper.getServerSideProps(
   async ({ store, params: { id } }) => {
-    console.log("getStaticProps", id)
+    console.log("getServerSideProps", id)
     const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
     const album = pAlbum(data)
 
@@ -1146,6 +1146,24 @@ export const getStaticProps = wrapper.getStaticProps(
     return { props: { head } }
   }
 )
+
+// export const getStaticProps = wrapper.getStaticProps(
+//   async ({ store, params: { id } }) => {
+//     console.log("getStaticProps", id)
+//     const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
+//     const album = pAlbum(data)
+
+//     store.dispatch(setAlbum(album))
+//     const head = {
+//       title: album.name,
+//       desc: `Check out my Tennis Album "${album.name}"`,
+//       img: album.swingVideos[0]?.jpgURL,
+//     }
+//     store.dispatch(setHead(head))
+
+//     return { props: { head } }
+//   }
+// )
 
 // export const getStaticPaths = wrapper.getStaticPaths(
 //   ({ store, preview }) => {
@@ -1169,12 +1187,12 @@ export const getStaticProps = wrapper.getStaticProps(
 //   }
 // }
 
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: true,
-  }
-}
+// export async function getStaticPaths() {
+//   return {
+//     paths: [],
+//     fallback: true,
+//   }
+// }
   
 // Album.getInitialProps = async ({ store, pathname, req, res }) => {
 //   console.log("req.url", req.url)

@@ -17,8 +17,9 @@ const PAGE_URL = "tennis-community-web.vercel.app"
 
 function WrappedApp({ Component, pageProps }) {
   const store = useStore()
+  const { head } = store.getState()
 
-  console.log("WrappedApp", pageProps)
+  console.log("WrappedApp", pageProps, head)
   const title = pageProps.head?.title || "Hive Tennis"
   const desc = pageProps.head?.desc || "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!"
   const img = pageProps.head?.img || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"

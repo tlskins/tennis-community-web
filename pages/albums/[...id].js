@@ -1141,7 +1141,7 @@ export const getStaticProps = wrapper.getStaticProps(
       desc: `Check out my Tennis Album "${album.name}"`,
       img: album.swingVideos[0]?.jpgURL,
     }
-    // store.dispatch(setHead(head))
+    store.dispatch(setHead(head))
 
     return { props: { head } }
   }

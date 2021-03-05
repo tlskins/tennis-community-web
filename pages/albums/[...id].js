@@ -1172,7 +1172,6 @@ export const getServerSideProps = wrapper.getServerSideProps(
     const albumId = albumIdMatch[1]
     const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
     const album = pAlbum(data)
-    store.dispatch(setAlbum(album))
 
     const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
     const swingIdMatch = req.url.match(rgxSwingId)
@@ -1193,6 +1192,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     }
 
     store.dispatch(setHead(head))
+    store.dispatch(setAlbum(album))
   }
 )
 

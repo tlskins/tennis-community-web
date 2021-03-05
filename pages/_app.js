@@ -22,7 +22,7 @@ export default wrapper.withRedux(({ Component, pageProps }) => {
 
   return (
     <>
-      <Head>
+      {/* <Head>
         <title>Hive Tennis</title>
         <meta name="description" content={desc} key="desc"/>
 
@@ -39,7 +39,7 @@ export default wrapper.withRedux(({ Component, pageProps }) => {
         <meta name="twitter:title" content={title} key="twitter_title"/>
         <meta name="twitter:description" content={desc} key="twitter_desc"/>
         <meta name="twitter:image" content={img} key="twitter_img"/>
-      </Head>
+      </Head> */}
       <PersistGate persistor={store.__persistor} loading={<div>Loading</div>}>
         <ThemeProvider theme={ colors }>
           { <FlashNotification /> }

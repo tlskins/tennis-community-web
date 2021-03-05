@@ -15,14 +15,17 @@ import colors from "../styles/colors.js"
 
 const PAGE_URL = "tennis-community-web.vercel.app"
 
-export default wrapper.withRedux(({ Component, pageProps }) => {
+export default wrapper.withRedux(({ Component, pageProps, ...otherProps }) => {
   const store = useStore()
-  const { head: { desc, title, img }} = useSelector(state => state)
-  console.log("wrapper", desc, title, img)
+  // const { head: { desc, title, img }} = useSelector(state => state)
+  console.log("wrapper", pageProps)
+  const desc = pageProps.head?.desc
+  const title = pageProps.head?.title
+  const img = pageProps.head?.img
 
   return (
     <>
-      {/* <Head>
+      <Head>
         <title>Hive Tennis</title>
         <meta name="description" content={desc} key="desc"/>
 
@@ -39,8 +42,8 @@ export default wrapper.withRedux(({ Component, pageProps }) => {
         <meta name="twitter:title" content={title} key="twitter_title"/>
         <meta name="twitter:description" content={desc} key="twitter_desc"/>
         <meta name="twitter:image" content={img} key="twitter_img"/>
-      </Head> */}
-      <PersistGate persistor={store.__persistor} loading={<div>Loading</div>}>
+      </Head>
+      <PersistGate persistor={store.__persistor}>
         <ThemeProvider theme={ colors }>
           { <FlashNotification /> }
           <NavBar />

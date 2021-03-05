@@ -396,7 +396,7 @@ const Album = ({
 
   return (
     <>
-      <Head>
+      {/* <Head>
         <script async
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
         />
@@ -426,7 +426,7 @@ const Album = ({
         <meta name="twitter:title" content={head.title}/>
         <meta name="twitter:description" content={head.desc}/>
         <meta name="twitter:image" content={head.img}/>
-      </Head>
+      </Head> */}
       <div className="bg-gray-200">
         { (user && user.id) &&
         <Notifications />
@@ -1106,7 +1106,7 @@ const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
     head: state.head,
-    album: state.album,
+    // album: state.album,
     recentUploads: state.recentUploads,
     confirmation: state.confirmation,
     user: state.user,
@@ -1147,23 +1147,23 @@ const mapDispatchToProps = (dispatch) => {
 //   }
 // )
 
-export const getStaticProps = wrapper.getStaticProps(
-  async ({ store, params: { id } }) => {
-    console.log("getStaticProps", id)
-    const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
-    const album = pAlbum(data)
+// export const getStaticProps = wrapper.getStaticProps(
+//   async ({ store, params: { id } }) => {
+//     console.log("getStaticProps", id)
+//     const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
+//     const album = pAlbum(data)
 
-    store.dispatch(setAlbum(album))
-    const head = {
-      title: album.name,
-      desc: `Check out my Tennis Album "${album.name}"`,
-      img: album.swingVideos[0]?.jpgURL,
-    }
-    store.dispatch(setHead(head))
+//     store.dispatch(setAlbum(album))
+//     const head = {
+//       title: album.name,
+//       desc: `Check out my Tennis Album "${album.name}"`,
+//       img: album.swingVideos[0]?.jpgURL,
+//     }
+//     store.dispatch(setHead(head))
 
-    // return { props: { head } }
-  }
-)
+//     // return { props: { head } }
+//   }
+// )
 
 // export const getStaticPaths = wrapper.getStaticPaths(
 //   ({ store, preview }) => {
@@ -1172,21 +1172,21 @@ export const getStaticProps = wrapper.getStaticProps(
 //   }
 // )
 
-// export async function getStaticProps({ store, params }) {
-//   console.log("static", params)
-//   const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
-//   const album = pAlbum(data)
-//   store.dispatch(setAlbum(album))
+export async function getStaticProps({ params }) {
+  console.log("static", params)
+  const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
+  const album = pAlbum(data)
+  // store.dispatch(setAlbum(album))
 
-//   const head = {
-//     title: album.name,
-//     desc: `Check out my Tennis Album "${album.name}"`,
-//     img: album.swingVideos[0]?.jpgURL,
-//   }
-//   store.dispatch(setHead(head))
+  const head = {
+    title: album.name,
+    desc: `Check out my Tennis Album "${album.name}"`,
+    img: album.swingVideos[0]?.jpgURL,
+  }
+  // store.dispatch(setHead(head))
 
-//   return { props: { head } }
-// }
+  return { props: { head, album } }
+}
 
 export async function getStaticPaths() {
   return {

@@ -1,6 +1,7 @@
 import { createStore, applyMiddleware, combineReducers } from "redux"
 import { HYDRATE, createWrapper } from "next-redux-wrapper"
 import thunkMiddleware from "redux-thunk"
+import logger from "redux-logger"
 
 import {
   flashNotificationReducer,
@@ -52,7 +53,6 @@ export const LOG_OUT = "LOG_OUT"
 export const logOut = () => ({
   type: LOG_OUT
 })
-  
 
 const reducer = (state, action) => {
   if (action.type === HYDRATE) {
@@ -82,10 +82,13 @@ const reducer = (state, action) => {
   }
 }
 
+const makeConfiguredStore = (reducer) =>
+  createStore(reducer, undefined, applyMiddleware(logger))
+
 const initStore = () => {
   const isServer = typeof window === "undefined"
   if (isServer) {
-    return createStore(reducer, bindMiddleware([thunkMiddleware]))
+    return makeConfiguredStore(reducer)
   } else {
     // we need it only on client side
     const {persistStore, persistReducer} = require("redux-persist")

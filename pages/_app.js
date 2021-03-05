@@ -15,14 +15,10 @@ import colors from "../styles/colors.js"
 
 const PAGE_URL = "tennis-community-web.vercel.app"
 
-function WrappedApp({ Component, pageProps, ...otherProps }) {
+export default wrapper.withRedux(({ Component, pageProps }) => {
   const store = useStore()
-  const { head } = store.getState()
-
-  console.log("WrappedApp", head, pageProps, otherProps)
-  const title = pageProps?.head?.title || "Hive Tennis"
-  const desc = pageProps?.head?.desc || "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!"
-  const img = pageProps?.head?.img || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"
+  const { head: { desc, title, img }} = store.getState()
+  console.log("wrapper", pageProps, desc, title, img)
 
   return (
     <>
@@ -53,18 +49,58 @@ function WrappedApp({ Component, pageProps, ...otherProps }) {
       </PersistGate>
     </>
   )
-}
+})
 
-WrappedApp.getInitialProps = async ({ Component, ctx }) => {
-  const pageProps = Component.getInitialProps
-    ? await Component.getInitialProps(ctx)
-    : {}
-  return { pageProps }
-}
+// function WrappedApp({ Component, pageProps, ...otherProps }) {
+//   const store = useStore()
+//   const { head } = useSelector(state => state)
 
-WrappedApp.propTypes = {
-  Component: PropTypes.object,
-  pageProps: PropTypes.object,
-}
+//   console.log("WrappedApp", head, pageProps, otherProps)
+//   const title = head.title || "Hive Tennis"
+//   const desc = head.desc || "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!"
+//   const img = head.img || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"
 
-export default wrapper.withRedux(WrappedApp)
+//   return (
+//     <>
+//       <Head>
+//         <title>Hive Tennis</title>
+//         <meta name="description" content={desc} key="desc"/>
+
+//         <meta property="og:url" content={`https://${PAGE_URL}/`} key="ogurl" name="ogurl"/>
+
+//         <meta property="og:type" content="website" key="ogtype" name="ogtype"/>
+//         <meta property="og:title" content={title} key="ogtitle" name="ogtitle"/>
+//         <meta property="og:description" content={desc} key="ogdesc" name="ogdesc"/>
+//         <meta property="og:image" content={img} key="ogimg" name="ogimg"/>
+
+//         <meta name="twitter:card" content="summary_large_image" key="twitter_card"/>
+//         <meta property="twitter:domain" content={PAGE_URL} key="twitter_dom" name="twitter_dom"/>
+//         <meta property="twitter:url" content={`https://${PAGE_URL}/`} key="twitter_url" name="twitter_url"/>
+//         <meta name="twitter:title" content={title} key="twitter_title"/>
+//         <meta name="twitter:description" content={desc} key="twitter_desc"/>
+//         <meta name="twitter:image" content={img} key="twitter_img"/>
+//       </Head>
+//       <PersistGate persistor={store.__persistor} loading={<div>Loading</div>}>
+//         <ThemeProvider theme={ colors }>
+//           { <FlashNotification /> }
+//           <NavBar />
+//           <Component {...pageProps} />
+//         </ThemeProvider>
+//       </PersistGate>
+//     </>
+//   )
+// }
+
+// WrappedApp.getInitialProps = async ({ Component, ctx }) => {
+//   const pageProps = Component.getInitialProps
+//     ? await Component.getInitialProps(ctx)
+//     : {}
+//   return { pageProps }
+// }
+
+// WrappedApp.propTypes = {
+//   Component: PropTypes.object,
+//   pageProps: PropTypes.object,
+// }
+
+// export default wrapper.withRedux(WrappedApp)

@@ -15,13 +15,13 @@ import colors from "../styles/colors.js"
 
 const PAGE_URL = "tennis-community-web.vercel.app"
 
-function WrappedApp({ Component, pageProps }) {
+function WrappedApp({ Component, pageProps, ...otherProps }) {
   const store = useStore()
 
-  console.log("WrappedApp", pageProps)
-  const title = pageProps?.title || "Hive Tennis"
-  const desc = pageProps?.desc || "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!"
-  const img = pageProps?.img || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"
+  console.log("WrappedApp", pageProps, otherProps)
+  const title = pageProps?.head?.title || "Hive Tennis"
+  const desc = pageProps?.head?.desc || "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!"
+  const img = pageProps?.head?.img || "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"
 
   return (
     <>

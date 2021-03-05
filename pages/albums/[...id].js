@@ -1134,6 +1134,23 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
+export async function getServerSideProps({ params: { id }}) {
+  console.log("getServerSideProps", id)
+  const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
+  const album = pAlbum(data)
+
+  return {
+    props: {
+      album,
+      head: {
+        title: album.name,
+        desc: `Check out my Tennis Album "${album.name}"`,
+        img: album.swingVideos[0]?.jpgURL,
+      }
+    }
+  }
+}
+
 // export const getServerSideProps = wrapper.getServerSideProps(
 //   async ({ store, params: { id } }) => {
 //     console.log("getServerSideProps", id)
@@ -1177,29 +1194,29 @@ const mapDispatchToProps = (dispatch) => {
 //   }
 // )
 
-export async function getStaticProps({ params }) {
-  console.log("static", params)
-  const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
-  const album = pAlbum(data)
+// export async function getStaticProps({ params }) {
+//   console.log("static", params)
+//   const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
+//   const album = pAlbum(data)
 
-  return {
-    props: {
-      album,
-      head: {
-        title: album.name,
-        desc: `Check out my Tennis Album "${album.name}"`,
-        img: album.swingVideos[0]?.jpgURL,
-      },
-    }
-  }
-}
+//   return {
+//     props: {
+//       album,
+//       head: {
+//         title: album.name,
+//         desc: `Check out my Tennis Album "${album.name}"`,
+//         img: album.swingVideos[0]?.jpgURL,
+//       },
+//     }
+//   }
+// }
 
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: true,
-  }
-}
+// export async function getStaticPaths() {
+//   return {
+//     paths: [],
+//     fallback: true,
+//   }
+// }
   
 // Album.getInitialProps = async ({ store, pathname, req, res }) => {
 //   console.log("req.url", req.url)

@@ -1129,23 +1129,23 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-export const getStaticProps = wrapper.getStaticProps(
-  async ({ store, params: { id } }) => {
-    console.log("getStaticProps", id)
-    const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
-    const album = pAlbum(data)
+// export const getStaticProps = wrapper.getStaticProps(
+//   async ({ store, params: { id } }) => {
+//     console.log("getStaticProps", id)
+//     const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
+//     const album = pAlbum(data)
 
-    store.dispatch(setAlbum(album))
-    const head = {
-      title: album.name,
-      desc: `Check out my Tennis Album "${album.name}"`,
-      img: album.swingVideos[0]?.jpgURL,
-    }
-    store.dispatch(setHead(head))
+//     store.dispatch(setAlbum(album))
+//     const head = {
+//       title: album.name,
+//       desc: `Check out my Tennis Album "${album.name}"`,
+//       img: album.swingVideos[0]?.jpgURL,
+//     }
+//     store.dispatch(setHead(head))
 
-    return { props: { head } }
-  }
-)
+//     return { props: { head } }
+//   }
+// )
 
 // export const getStaticPaths = wrapper.getStaticPaths(
 //   ({ store, preview }) => {
@@ -1169,12 +1169,12 @@ export const getStaticProps = wrapper.getStaticProps(
 //   }
 // }
 
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: true,
-  }
-}
+// export async function getStaticPaths() {
+//   return {
+//     paths: [],
+//     fallback: true,
+//   }
+// }
   
 // Album.getInitialProps = async ({ store, pathname, req, res }) => {
 //   console.log("req.url", req.url)
@@ -1184,45 +1184,45 @@ export async function getStaticPaths() {
 // }
 
 
-// Album.getInitialProps = async ({ store, pathname, req, res, query }) => {
-//   console.log("getInitialProps", req.url, query)
-//   // const rgxAlbumId = /albums\/([^ ?\/]+)/
-//   // const albumIdMatch = req.url.match(rgxAlbumId)
-//   // const albumId = albumIdMatch[1]
-//   // const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
-//   // const album = pAlbum(data)
+Album.getInitialProps = async ({ store, pathname, req, res, query }) => {
+  console.log("getInitialProps", req.url, query)
+  // const rgxAlbumId = /albums\/([^ ?\/]+)/
+  // const albumIdMatch = req.url.match(rgxAlbumId)
+  // const albumId = albumIdMatch[1]
+  // const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
+  // const album = pAlbum(data)
 
-//   // const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
-//   // const swingIdMatch = req.url.match(rgxSwingId)
-//   // const swingId = swingIdMatch?.length > 1 && swingIdMatch[1]
-//   // const swing = swingId && album.swingVideos.find( sw => sw.id === swingId )
+  // const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
+  // const swingIdMatch = req.url.match(rgxSwingId)
+  // const swingId = swingIdMatch?.length > 1 && swingIdMatch[1]
+  // const swing = swingId && album.swingVideos.find( sw => sw.id === swingId )
 
-//   // let head = {
-//   //   title: album.name,
-//   //   desc: `Check out my Tennis Album "${album.name}"`,
-//   //   img: album.swingVideos[0]?.jpgURL,
-//   // }
-//   // if (swing) {
-//   //   head = {
-//   //     title: album.name,
-//   //     desc: `Check out my Tennis Album "${album.name}"`,
-//   //     img: swing.jpgURL,
-//   //   }
-//   // }
+  // let head = {
+  //   title: album.name,
+  //   desc: `Check out my Tennis Album "${album.name}"`,
+  //   img: album.swingVideos[0]?.jpgURL,
+  // }
+  // if (swing) {
+  //   head = {
+  //     title: album.name,
+  //     desc: `Check out my Tennis Album "${album.name}"`,
+  //     img: swing.jpgURL,
+  //   }
+  // }
 
-//   // store.dispatch(setHead(head))
-//   // store.dispatch(setAlbum(album))
+  // store.dispatch(setHead(head))
 
-//   const albumId = query.id[0]
-//   const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
-//   const album = pAlbum(data)
+  const albumId = query.id[0]
+  const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
+  const album = pAlbum(data)
+  store.dispatch(setAlbum(album))
 
-//   return {
-//     title: album.name,
-//     desc: `Check out my Tennis Album "${album.name}"`,
-//     img: album.swingVideos[0]?.jpgURL,
-//   }
-// }
+  return {
+    title: album.name,
+    desc: `Check out my Tennis Album "${album.name}"`,
+    img: album.swingVideos[0]?.jpgURL,
+  }
+}
 
 Album.propTypes = {
   album: PropTypes.object,

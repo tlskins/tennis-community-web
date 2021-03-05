@@ -23,7 +23,7 @@ const App = ({ Component, pageProps }) => {
 
   return(
     <>
-      <Head>
+      {/* <Head>
         <title>Hive Tennis</title>
         <meta name="description" content={desc} key="desc"/>
 
@@ -40,7 +40,7 @@ const App = ({ Component, pageProps }) => {
         <meta name="twitter:title" content={title} key="twitter_title"/>
         <meta name="twitter:description" content={desc} key="twitter_desc"/>
         <meta name="twitter:image" content={img} key="twitter_img"/>
-      </Head>
+      </Head> */}
       <Provider store={store}>
         <ThemeProvider theme={ colors }>
           { <FlashNotification /> }

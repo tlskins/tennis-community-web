@@ -394,9 +394,11 @@ const Album = ({
     commentsPlaceholder = "Reply to comment"
   }
 
+  console.log("albumhead", head)
+
   return (
     <>
-      {/* <Head>
+      <Head>
         <script async
           src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
         />
@@ -426,7 +428,7 @@ const Album = ({
         <meta name="twitter:title" content={head.title}/>
         <meta name="twitter:description" content={head.desc}/>
         <meta name="twitter:image" content={head.img}/>
-      </Head> */}
+      </Head>
       <div className="bg-gray-200">
         { (user && user.id) &&
         <Notifications />
@@ -1110,7 +1112,7 @@ const Album = ({
 const mapStateToProps = (state) => {
   // console.log("mapStateToProps", state)
   return {
-    head: state.head,
+    // head: state.head,
     // album: state.album,
     recentUploads: state.recentUploads,
     confirmation: state.confirmation,

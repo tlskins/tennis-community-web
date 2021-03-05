@@ -16,14 +16,13 @@ import colors from "../styles/colors.js"
 const PAGE_URL = "tennis-community-web.vercel.app"
 
 const App = ({ Component, pageProps }) => {
-  const desc = pageProps.head?.desc
-  const title = pageProps.head?.title
-  const img = pageProps.head?.img
-  console.log("App", pageProps)
+  const desc = "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!"
+  const title = "Hive Tennis"
+  const img = "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg"
 
   return(
     <>
-      {/* <Head>
+      <Head>
         <title>Hive Tennis</title>
         <meta name="description" content={desc} key="desc"/>
 
@@ -40,7 +39,7 @@ const App = ({ Component, pageProps }) => {
         <meta name="twitter:title" content={title} key="twitter_title"/>
         <meta name="twitter:description" content={desc} key="twitter_desc"/>
         <meta name="twitter:image" content={img} key="twitter_img"/>
-      </Head> */}
+      </Head>
       <Provider store={store}>
         <ThemeProvider theme={ colors }>
           { <FlashNotification /> }

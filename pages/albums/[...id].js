@@ -1165,36 +1165,46 @@ const mapDispatchToProps = (dispatch) => {
 // }
 
 
-Album.getInitialProps = async ({ store, pathname, req, res }) => {
-  console.log("getInitialProps", req.url)
-  const rgxAlbumId = /albums\/([^ ?\/]+)/
-  const albumIdMatch = req.url.match(rgxAlbumId)
-  const albumId = albumIdMatch[1]
+Album.getInitialProps = async ({ store, pathname, req, res, query }) => {
+  console.log("getInitialProps", req.url, query)
+  // const rgxAlbumId = /albums\/([^ ?\/]+)/
+  // const albumIdMatch = req.url.match(rgxAlbumId)
+  // const albumId = albumIdMatch[1]
+  // const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
+  // const album = pAlbum(data)
+
+  // const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
+  // const swingIdMatch = req.url.match(rgxSwingId)
+  // const swingId = swingIdMatch?.length > 1 && swingIdMatch[1]
+  // const swing = swingId && album.swingVideos.find( sw => sw.id === swingId )
+
+  // let head = {
+  //   title: album.name,
+  //   desc: `Check out my Tennis Album "${album.name}"`,
+  //   img: album.swingVideos[0]?.jpgURL,
+  // }
+  // if (swing) {
+  //   head = {
+  //     title: album.name,
+  //     desc: `Check out my Tennis Album "${album.name}"`,
+  //     img: swing.jpgURL,
+  //   }
+  // }
+
+  // store.dispatch(setHead(head))
+  // store.dispatch(setAlbum(album))
+
+  const albumId = query.id[0]
   const { data } = await axios.get(`${API_HOST}/albums/${albumId}`)
   const album = pAlbum(data)
 
-  const rgxSwingId = /albums\/[^\/?]+\?swing=([^\/]+)/
-  const swingIdMatch = req.url.match(rgxSwingId)
-  const swingId = swingIdMatch?.length > 1 && swingIdMatch[1]
-  const swing = swingId && album.swingVideos.find( sw => sw.id === swingId )
+  store.dispatch(setAlbum(album))
 
-  let head = {
+  return {
     title: album.name,
     desc: `Check out my Tennis Album "${album.name}"`,
     img: album.swingVideos[0]?.jpgURL,
   }
-  if (swing) {
-    head = {
-      title: album.name,
-      desc: `Check out my Tennis Album "${album.name}"`,
-      img: swing.jpgURL,
-    }
-  }
-
-  store.dispatch(setHead(head))
-  store.dispatch(setAlbum(album))
-
-  return head
 }
 
 Album.propTypes = {

@@ -1176,14 +1176,12 @@ export async function getStaticProps({ params }) {
   console.log("static", params)
   const { data } = await axios.get(`${API_HOST}/albums/${params.id}`)
   const album = pAlbum(data)
-  // store.dispatch(setAlbum(album))
 
   const head = {
     title: album.name,
     desc: `Check out my Tennis Album "${album.name}"`,
     img: album.swingVideos[0]?.jpgURL,
   }
-  // store.dispatch(setHead(head))
 
   return { props: { head, album } }
 }

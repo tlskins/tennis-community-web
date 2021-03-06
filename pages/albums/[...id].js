@@ -1023,7 +1023,7 @@ const Album = ({
             </div>
 
             <div className="flex flex-col">
-              <div className="flex flex-row relative static">
+              {/* <div className="flex flex-row relative static">
                 <select
                   className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
                   onChange={e => {
@@ -1043,7 +1043,7 @@ const Album = ({
                   <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
                 </div>
                 }
-              </div>
+              </div> */}
 
               <div className="flex flex-row content-center justify-center items-center">
                 <button

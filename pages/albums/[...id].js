@@ -1,5 +1,5 @@
 import React, { useEffect, useState, createRef } from "react"
-import { connect } from "react-redux"
+import { connect, useSelector, useDispatch } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Moment from "moment"
@@ -50,7 +50,6 @@ const swingViewMap = {
 let timer
 
 const Album = ({
-  album,
   confirmation,
   recentUploads,
   user,
@@ -67,9 +66,12 @@ const Album = ({
   updateAlbum,
   updateAlbumRedux,
   // static props
+  album: staticAlbum,
   head,
 }) => {
   const router = useRouter()
+  const album = useSelector(state => state.album)
+  const dispatch = useDispatch()
   const albumId = router.query.id && router.query.id[0]
   const { swing } = router.query
   const { width: windowWidth } = useWindowDimensions()
@@ -121,11 +123,11 @@ const Album = ({
   let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
   const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
-  // useEffect(() => {
-  //   if (albumId) {
-  //     loadAlbum(albumId)
-  //   }
-  // }, [albumId])
+  useEffect(() => {
+    if (staticAlbum) {
+      dispatch(setAlbum(staticAlbum))
+    }
+  }, [staticAlbum])
 
   useEffect(() => {
     setShowSwingModal(!!swing)
@@ -396,9 +398,9 @@ const Album = ({
   return (
     <>
       <PageHead
-        title={head.title}
-        desc={head.desc}
-        img={head.img}
+        title={head?.title}
+        desc={head?.desc}
+        img={head?.img}
       />
       <div className="bg-gray-200">
         <Notifications />

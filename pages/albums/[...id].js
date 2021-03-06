@@ -942,7 +942,7 @@ const Album = ({
         </main>
 
         {/* All Video Controls Footer */}
-        <div className="sticky flex bottom-10 content-center justify-center items-center">
+        <div className="sticky flex bottom-10 right-2 content-center justify-center items-center">
           <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 lg:w-1/4 content-center justify-center items-center">
             <div className="hidden lg:flex flex-row">
               <input type="button"
@@ -1058,7 +1058,7 @@ const Album = ({
                 &lt;
                 </button>
                 <div className="static">
-                  <h2 className="text-sm text-white">
+                  <h2 className="text-sm text-white text-center">
                   Page { albumPage+1 }
                   </h2>
                   { showFooterUsage &&

@@ -942,7 +942,7 @@ const Album = ({
         </main>
 
         {/* All Video Controls Footer */}
-        <div className="sticky flex bottom-10 content-center justify-center items-center">
+        <div className="sticky flex bottom-10 right-2 content-center justify-center items-center">
           <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 lg:w-1/4 content-center justify-center items-center">
             <div className="hidden lg:flex flex-row">
               <input type="button"
@@ -1024,7 +1024,12 @@ const Album = ({
 
             <div className="flex flex-col">
               <div className="flex flex-row relative static">
-                <select
+                <input
+                  type="button"
+                  className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 bg-blue-600 text-white text-xs"
+                  value="8 videos"
+                />
+                {/* <select
                   className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
                   onChange={e => {
                     setAlbumView(e.target.value)
@@ -1036,7 +1041,7 @@ const Album = ({
                       <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
                     )
                   })}
-                </select>
+                </select> */}
                 { showFooterUsage &&
                 <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                   Choose how to display your swings
@@ -1053,7 +1058,7 @@ const Album = ({
                 &lt;
                 </button>
                 <div className="static">
-                  <h2 className="text-sm text-white">
+                  <h2 className="text-sm text-white text-center">
                   Page { albumPage+1 }
                   </h2>
                   { showFooterUsage &&

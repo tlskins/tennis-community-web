@@ -1023,8 +1023,13 @@ const Album = ({
             </div>
 
             <div className="flex flex-col">
-              {/* <div className="flex flex-row relative static">
-                <select
+              <div className="flex flex-row relative static">
+                <input
+                  type="button"
+                  className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 bg-blue-600 text-white text-xs"
+                  value="8 videos"
+                />
+                {/* <select
                   className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
                   onChange={e => {
                     setAlbumView(e.target.value)
@@ -1036,14 +1041,14 @@ const Album = ({
                       <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
                     )
                   })}
-                </select>
+                </select> */}
                 { showFooterUsage &&
                 <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                   Choose how to display your swings
                   <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
                 </div>
                 }
-              </div> */}
+              </div>
 
               <div className="flex flex-row content-center justify-center items-center">
                 <button

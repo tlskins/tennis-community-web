@@ -32,8 +32,8 @@ const SwingUploader = ({ displayAlert, uploadVideo, user }) => {
   const onFileChange = e => {
     const file = e.target.files[0]
     console.log("filesize bytes", e.target.files[0]?.size)
-    if (file.size > 1000000000) { // 1000 MBs
-      displayAlert({ id: Moment().toString(), message: "File size must be below 1GB", bgColor: "bg-red-300" })
+    if (file.size > 400000000) { // 400 MBs
+      displayAlert({ id: Moment().toString(), message: "File size must be below 400 MB", bgColor: "bg-red-300" })
       return
     }
     setSelectedVideo(e.target.files[0])

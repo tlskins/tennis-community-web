@@ -4,6 +4,7 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import Moment from "moment-timezone"
 
+import PageHead from "../../components/PageHead"
 import Notifications from "../../components/Notifications"
 import SwingUploader from "../../components/SwingUploader"
 import HowToUpload from "../../components/HowToUpload"
@@ -105,21 +106,7 @@ const NewAlbum = ({
 
   return (
     <div>
-      <Head>
-        <script async
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-          
-            gtag('config', ${process.env.NEXT_PUBLIC_GTM_ID});
-        `,}}>
-        </script>
-      </Head>
+      <PageHead />
       { (user && user.id) &&
         <Notifications />
       }

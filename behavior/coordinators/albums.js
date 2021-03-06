@@ -6,7 +6,7 @@ import { setMyAlbums, setFriendsAlbums, setSharedAlbums, setPublicAlbums } from 
 
 import Moment from "moment"
 
-const pAlbum = json => {
+export const pAlbum = json => {
   return {
     ...json,
     allComments: [

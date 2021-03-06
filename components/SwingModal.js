@@ -50,6 +50,8 @@ const SwingModal = ({
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
 
+  console.log("swing", swingId, album)
+
   const [name, setName] = useState(swing?.name)
   const [showSwingUsage, setShowSwingUsage] = useState(false)
 
@@ -473,12 +475,12 @@ const SwingModal = ({
           {/* Comments List  */}
           <div className="flex flex-col h-28 lg:max-h-80 overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
             { comments.filter( com => !com.isHidden ).length === 0 &&
-              <p className="text-center p-2"> No comments </p>
+              <p className="text-center text-xs p-2"> No comments </p>
             }
             { comments.filter( com => !com.isHidden ).map( comment => {
               return(
                 <div key={comment.id}
-                  className={`px-2 py-1.5 mb-2 ${comment.userId === user.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
+                  className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
                 >
                   { comment.replyId &&
                       <div className="p-2 rounded shadow-lg text-xs bg-gray-300">
@@ -507,7 +509,7 @@ const SwingModal = ({
                     </p>
 
                     <div className="mx-1 flex flex-wrap w-full overflow-x-auto content-center justify-center items-center">
-                      <div className={`mx-1 text-xs ${comment.userId === user.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
+                      <div className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
                           @{ usersCache[comment.userId]?.userName || "..." }
                       </div>
                       <div className="mx-1 text-sm align-middle font-bold">
@@ -558,7 +560,6 @@ const SwingModal = ({
 const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
-    album: state.album,
     confirmation: state.confirmation,
     user: state.user,
     usersCache: state.usersCache,
@@ -574,22 +575,6 @@ const mapDispatchToProps = (dispatch) => {
     searchFriends: SearchFriends(dispatch),
     toggleFlashMessage: args => dispatch(newNotification(args)),
     updateSwing: UpdateSwing(dispatch),
-  }
-}
-
-export async function getStaticProps() {
-  return {
-    props: {
-      pageTitle: "Hive Tennis - Swing",
-      pageDesc: "View my tennis swing!"
-    }
-  }
-}
-
-export async function getStaticPaths() {
-  return {
-    paths: [],
-    fallback: true,
   }
 }
   

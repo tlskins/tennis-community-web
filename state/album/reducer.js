@@ -5,6 +5,7 @@ import {
   SET_SHARED_ALBUMS,
   SET_PUBLIC_ALBUMS,
 } from "./action"
+import { LOG_OUT } from "../store"
 
 export const albumInitialState = null
 export const albumsInitialState = {
@@ -23,6 +24,9 @@ export function albumReducer(
   case SET_ALBUM: {
     const { payload } = action  
     return payload
+  }
+  case LOG_OUT: {
+    return albumInitialState
   }
   default:
     return state
@@ -49,6 +53,9 @@ export function albumsReducer(
   case SET_PUBLIC_ALBUMS: {
     const { payload } = action  
     return { ...state, publicAlbums: [...payload] }
+  }
+  case LOG_OUT: {
+    return { ...albumsInitialState }
   }
   default:
     return state

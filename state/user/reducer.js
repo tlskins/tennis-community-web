@@ -1,4 +1,5 @@
 import { CACHE_USERS, SET_USER, SET_CONFIRMATION } from "./action"
+import { LOG_OUT } from "../store"
 
 export const userInitialState = null
 export const usersCacheInitialState = {}
@@ -12,6 +13,9 @@ export function userReducer(
   case SET_USER: {
     const { payload } = action
     return payload
+  }
+  case LOG_OUT: {
+    return userInitialState
   }
   default:
     return state
@@ -28,6 +32,9 @@ export function usersCacheReducer(
     action.payload.forEach( user => newState[user.id] = user)
     return newState
   }
+  case LOG_OUT: {
+    return { ...usersCacheInitialState }
+  }
   default:
     return state
   }
@@ -41,6 +48,9 @@ export function confirmationReducer(
   case SET_CONFIRMATION: {
     const { payload } = action
     return payload
+  }
+  case LOG_OUT: {
+    return confirmationInitialState
   }
   default:
     return state

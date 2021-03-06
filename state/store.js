@@ -1,39 +1,29 @@
 import { createStore, applyMiddleware, combineReducers } from "redux"
-import { HYDRATE, createWrapper } from "next-redux-wrapper"
 import thunkMiddleware from "redux-thunk"
+import { createLogger } from "redux-logger"
 
 import {
   flashNotificationReducer,
-  flashNotificationInitialState,
   navBarReducer,
-  navBarInitialState,
 } from "./ui/reducer"
 import {
   confirmationReducer,
-  confirmationInitialState,
   userReducer,
-  userInitialState,
   usersCacheReducer,
-  usersCacheInitialState,
 } from "./user/reducer"
-import { recentUploadsReducer, recentUploadsInitialState } from "./upload/reducer"
+import { recentUploadsReducer } from "./upload/reducer"
 import {
   albumReducer,
-  albumInitialState,
   albumsReducer,
-  albumsInitialState,
 } from "./album/reducer"
 
+export const LOG_OUT = "LOG_OUT"
 
-const bindMiddleware = (middleware) => {
-  if (process.env.NODE_ENV !== "production") {
-    const { composeWithDevTools } = require("redux-devtools-extension")
-    return composeWithDevTools(applyMiddleware(...middleware))
-  }
-  return applyMiddleware(...middleware)
-}
+export const logOut = () => ({
+  type: LOG_OUT
+})
 
-const combinedReducer = combineReducers({
+export const rootReducer = combineReducers({
   confirmation: confirmationReducer,
   flashNotification: flashNotificationReducer,
   user: userReducer,
@@ -44,62 +34,12 @@ const combinedReducer = combineReducers({
   navBar: navBarReducer,
 })
 
-export const LOG_OUT = "LOG_OUT"
+const loggerMiddleware = createLogger()
 
-export const logOut = () => ({
-  type: LOG_OUT
-})
-  
-
-const reducer = (state, action) => {
-  if (action.type === HYDRATE) {
-    return {
-      ...state, // use previous state
-      ...action.payload, // apply delta from hydration
-    }
-  } else if (action.type === LOG_OUT) {
-    return {
-      // UI
-      flashNotification: flashNotificationInitialState,
-      navBar: navBarInitialState,
-      // user
-      confirmation: confirmationInitialState,
-      user: userInitialState,
-      usersCache: usersCacheInitialState,
-      // uploads
-      recentUploads: recentUploadsInitialState,
-      // albums
-      album: albumInitialState,
-      albums: albumsInitialState,
-    }
-  }
-  else {
-    return combinedReducer(state, action)
-  }
-}
-
-const initStore = () => {
-  const isServer = typeof window === "undefined"
-  if (isServer) {
-    return createStore(reducer, bindMiddleware([thunkMiddleware]))
-  } else {
-    // we need it only on client side
-    const {persistStore, persistReducer} = require("redux-persist")
-    const storage = require("redux-persist/lib/storage").default
-
-    const persistConfig = {
-      key: "root",
-      whitelist: ["user"], // make sure it does not clash with server keys
-      storage
-    }
-
-    const persistedReducer = persistReducer(persistConfig, reducer)
-    const store = createStore(persistedReducer, bindMiddleware([thunkMiddleware]))
-
-    store.__persistor = persistStore(store) // Nasty hack
-
-    return store
-  }
-}
-
-export const wrapper = createWrapper(initStore)
+export const store = createStore(
+  rootReducer,
+  applyMiddleware(
+    thunkMiddleware,
+    loggerMiddleware
+  )
+)

@@ -3,6 +3,7 @@ import {
   REMOVE_NOTIFICATION,
   SET_LOGIN_FORM_VISIBLE,
 } from "./action"
+import { LOG_OUT } from "../store"
 
 export const flashNotificationInitialState = []
 export const navBarInitialState = { showLoginForm: "" }
@@ -14,6 +15,9 @@ export function navBarReducer(
   switch (action.type) {
   case SET_LOGIN_FORM_VISIBLE: {
     return { ...state, showLoginForm: action.payload }
+  }
+  case LOG_OUT: {
+    return { ...navBarInitialState }
   }
   default:
     return state
@@ -43,6 +47,9 @@ export function flashNotificationReducer(
       ...state.slice(0, idx),
       ...state.slice(idx+1, state.length),
     ]
+  }
+  case LOG_OUT: {
+    return [ ...flashNotificationInitialState ]
   }
   default:
     return state

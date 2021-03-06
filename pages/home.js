@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createRef, Fragment } from "react"
+import React, { useEffect, useState, createRef } from "react"
 import { connect } from "react-redux"
 import Head from "next/head"
 import PropTypes from "prop-types"
@@ -8,8 +8,7 @@ import { GrSearch } from "react-icons/gr"
 import Notifications from "../components/Notifications"
 import HowToUpload from "../components/HowToUpload"
 import AlbumAndComments from "../components/AlbumAndComments"
-import VideoResources from "../components/VideoResources"
-import ProComparison from "../components/ProComparison"
+import PageHead from "../components/PageHead"
 import { LoadUser, UpdateUserProfile } from "../behavior/coordinators/users"
 import { 
   SearchFriends,
@@ -82,11 +81,11 @@ const Home = ({
   const myActiveAlbums = (myAlbums || []).slice(myAlbumsPage * myAlbumsPerPage, (myAlbumsPage+1) * myAlbumsPerPage).filter( a => !!a ) || []
   const sharedActiveAlbums = (sharedAlbums || []).slice(sharedAlbumsPage * sharedAlbumsPerPage, (sharedAlbumsPage+1) * sharedAlbumsPerPage).filter( a => !!a ) || []
 
-  useEffect(() => {
-    if (!user || !user?.id) {
-      router.push("/")
-    }
-  }, [user])
+  // useEffect(() => {
+  //   if (!user || !user?.id) {
+  //     router.push("/")
+  //   }
+  // }, [user])
 
   useEffect( async () => {
     loadMyAlbums()
@@ -249,30 +248,10 @@ const Home = ({
     }
   }
 
-  if (!user) {
-    return(<Fragment/>)
-  }
-
   return (
     <div>
-      <Head>
-        <script async
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-          
-            gtag('config', ${process.env.NEXT_PUBLIC_GTM_ID});
-        `,}}>
-        </script>
-      </Head>
-      { (user && user.id) &&
-        <Notifications />
-      }
+      <PageHead />
+      <Notifications />
       <main className="overflow-y-scroll bg-gray-200 static">
 
         {/* Begin Main */}

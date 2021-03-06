@@ -62,12 +62,12 @@ const AlbumAndComments = ({
                   public
                 </div>
               }
-              { album.friendIds.includes(user.id) && 
+              { album.friendIds.includes(user?.id) && 
                 <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-yellow-300 shadow-md">
                   you
                 </div>
               }
-              { (!album.isPublic && !album.isViewableByFriends && !album.friendIds.includes(user.id)) &&
+              { (!album.isPublic && !album.isViewableByFriends && !album.friendIds.includes(user?.id)) &&
                 <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-gray-200 shadow-md">
                   none
                 </div>
@@ -87,7 +87,7 @@ const AlbumAndComments = ({
           </div>
         </div>
 
-        { album.friendIds.includes(user.id) &&
+        { album.friendIds.includes(user?.id) &&
           <p className="flex flex-row w-full px-2 mt-2 rounded shadow-lg bg-black text-yellow-300 text-xs font-semibold content-center justify-center items-center text-center">
             Your review requested!
           </p>

@@ -6,6 +6,7 @@ import Moment from "moment"
 
 import { LoadPublicAlbums } from "../behavior/coordinators/albums"
 import { setLoginFormVisible } from "../state/ui/action"
+import Notifications from "../components/Notifications"
 import SwingPlayer from "../components/SwingPlayer"
 import PageHead from "../components/PageHead"
 
@@ -74,6 +75,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
   return (
     <>
       <PageHead />
+      <Notifications />
       <Header bg={ bg } mobileBg={ mobileBg }>
         <HeaderTitleContainer>
           <HeaderTitle>We automatically cut every swing from your tennis videos</HeaderTitle>

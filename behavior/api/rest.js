@@ -13,6 +13,8 @@ export const axios_ = axios.create({
   responseType: "json",
 })
 
+export const hasSession = typeof window !== "undefined" && !!window.localStorage.getItem("authToken")
+
 axios_.interceptors.request.use(
   (config) => {
     // window not available for static generation

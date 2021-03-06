@@ -7,6 +7,7 @@ import { RemoveNotification, LoadUser } from "../behavior/coordinators/users"
 import { GetRecentUploads } from "../behavior/coordinators/uploads"
 import { useInterval } from "../behavior/helpers"
 import { newNotification } from "../state/ui/action"
+import { hasSession } from "../behavior/api/rest"
 
 const Notifications = ({
   user,
@@ -18,22 +19,18 @@ const Notifications = ({
 }) => {
   const router = useRouter()
   
-  const uploadNoteIds = user.uploadNotifications.map( note => note.id)
-  const friendNoteIds = user.friendNotifications.map( note => note.id)
-  const commentNoteIds = user.commentNotifications.map( note => note.id)
+  const uploadNoteIds = user?.uploadNotifications.map( note => note.id) || []
+  const friendNoteIds = user?.friendNotifications.map( note => note.id) || []
+  const commentNoteIds = user?.commentNotifications.map( note => note.id) || []
 
-  if (user) {
-    useInterval(loadUser, 45000, 30)
-  }
+  useInterval(loadUser, 45000, 30)
 
   useEffect(() => {
-    if (user) {
-      loadUser()
-    }
+    loadUser()
   }, [])
 
   useEffect(() => {
-    if (user.uploadNotifications?.length > 0) {
+    if (user && user.uploadNotifications?.length > 0) {
       getRecentUploads()
       user.uploadNotifications.forEach( note => toggleFlashMessage({
         id: note.id,
@@ -58,53 +55,57 @@ const Notifications = ({
   }, [uploadNoteIds])
 
   useEffect(async () => {
-    user.friendNotifications.forEach( note => {
-      toggleFlashMessage({
-        id: note.id,
-        message: note.subject,
-        buttons: [
-          {
-            buttonText: "ok",
-            callback: () => removeNotification({ friendNotificationId: note.id }),
-          },
-          {
-            buttonText: "View",
-            callback: async () => {
-              await removeNotification({ friendNotificationId: note.id })
-              if (note.type === "New Friend Request") {
-                router.push("/home")
-              }
+    if (user) {
+      user.friendNotifications.forEach( note => {
+        toggleFlashMessage({
+          id: note.id,
+          message: note.subject,
+          buttons: [
+            {
+              buttonText: "ok",
+              callback: () => removeNotification({ friendNotificationId: note.id }),
             },
-          },
-        ],
+            {
+              buttonText: "View",
+              callback: async () => {
+                await removeNotification({ friendNotificationId: note.id })
+                if (note.type === "New Friend Request") {
+                  router.push("/home")
+                }
+              },
+            },
+          ],
+        })
       })
-    })
+    }
   }, [friendNoteIds])
 
   useEffect(async () => {
-    user.commentNotifications.forEach( note => {
-      let message = `${note.friendUserName} commented on your album ${note.albumName}`
-      if (note.numComments > 1) {
-        message = `${note.friendUserName} made ${note.numComments} comments on your album ${note.albumName}`
-      }
-      toggleFlashMessage({
-        id: note.id,
-        message,
-        buttons: [
-          {
-            buttonText: "ok",
-            callback: () => removeNotification({ commentNotificationId: note.id }),
-          },
-          {
-            buttonText: "View",
-            callback: async () => {
-              await removeNotification({ commentNotificationId: note.id })
-              router.push(`/albums/${note.albumId}`)
+    if (user) {
+      user.commentNotifications.forEach( note => {
+        let message = `${note.friendUserName} commented on your album ${note.albumName}`
+        if (note.numComments > 1) {
+          message = `${note.friendUserName} made ${note.numComments} comments on your album ${note.albumName}`
+        }
+        toggleFlashMessage({
+          id: note.id,
+          message,
+          buttons: [
+            {
+              buttonText: "ok",
+              callback: () => removeNotification({ commentNotificationId: note.id }),
             },
-          },
-        ],
+            {
+              buttonText: "View",
+              callback: async () => {
+                await removeNotification({ commentNotificationId: note.id })
+                router.push(`/albums/${note.albumId}`)
+              },
+            },
+          ],
+        })
       })
-    })
+    }
   }, [commentNoteIds])
 
   return(

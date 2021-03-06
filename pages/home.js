@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createRef, Fragment } from "react"
+import React, { useEffect, useState, createRef } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
@@ -80,11 +80,11 @@ const Home = ({
   const myActiveAlbums = (myAlbums || []).slice(myAlbumsPage * myAlbumsPerPage, (myAlbumsPage+1) * myAlbumsPerPage).filter( a => !!a ) || []
   const sharedActiveAlbums = (sharedAlbums || []).slice(sharedAlbumsPage * sharedAlbumsPerPage, (sharedAlbumsPage+1) * sharedAlbumsPerPage).filter( a => !!a ) || []
 
-  useEffect(() => {
-    if (!user || !user?.id) {
-      router.push("/")
-    }
-  }, [user])
+  // useEffect(() => {
+  //   if (!user || !user?.id) {
+  //     router.push("/")
+  //   }
+  // }, [user])
 
   useEffect( async () => {
     loadMyAlbums()
@@ -247,16 +247,10 @@ const Home = ({
     }
   }
 
-  if (!user) {
-    return(<Fragment/>)
-  }
-
   return (
     <div>
       <PageHead />
-      { (user && user.id) &&
-        <Notifications />
-      }
+      <Notifications />
       <main className="overflow-y-scroll bg-gray-200 static">
 
         {/* Begin Main */}

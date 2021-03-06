@@ -13,6 +13,7 @@ const SwingPlayer = ({
   albumId,
   swing,
   i,
+  isOwner,
   playerRefs,
   playbackRate,
   playings,
@@ -107,7 +108,7 @@ const SwingPlayer = ({
             </IconContext.Provider>
           </div>
 
-          { onDelete &&
+          { isOwner &&
             <IconContext.Provider value={{ color: "red" }}>
               <div className="mx-2 content-center justify-center items-center cursor-pointer"
                 onClick={onDelete}
@@ -213,6 +214,7 @@ SwingPlayer.propTypes = {
   swing: PropTypes.object,
   swingFrames: PropTypes.number,
   i: PropTypes.number,
+  isOwner: PropTypes.bool,
   playbackRate: PropTypes.number,
   pips: PropTypes.arrayOf(PropTypes.bool),
   playings: PropTypes.arrayOf(PropTypes.bool),

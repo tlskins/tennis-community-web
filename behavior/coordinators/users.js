@@ -1,4 +1,4 @@
-import { get, post, put } from "../api/rest"
+import { get, post, put, hasSession } from "../api/rest"
 import { setUser, setConfirmation } from "../../state/user/action"
 import { logOut } from "../../state/store"
 import { HandleError } from "./errors"
@@ -45,6 +45,8 @@ export const SignIn = (dispatch) => async ({ email, password }) => {
 export const SignOut = (dispatch) => () => dispatch(logOut())
 
 export const LoadUser = (dispatch) => async () => {
+  if (!hasSession) return false
+  
   try {
     const response = await get("/users")
     dispatch(setUser(response.data))

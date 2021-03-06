@@ -401,10 +401,7 @@ const Album = ({
         img={head.img}
       />
       <div className="bg-gray-200">
-        { (user && user.id) &&
         <Notifications />
-        }
-
         { showSwingModal &&
         <Modal
           hideModal={ () => {
@@ -910,7 +907,8 @@ const Album = ({
                         playerWidth="320px"
                         playerHeight="230px"
                         handleSeekChange={handleSeekChange}
-                        onDelete={album.userId === user?.id && onDeleteSwing(swing)}
+                        isOwner={album.userId === user?.id}
+                        onDelete={onDeleteSwing(swing)}
                         setPips={setPips}
                         setPlayings={setPlayings}
                         setPlayerFrames={setPlayerFrames}

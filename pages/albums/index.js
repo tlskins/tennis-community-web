@@ -98,22 +98,26 @@ const AlbumsIndex = ({
   }, [])
 
   useEffect(async () => {
-    if (user) {
-      switch(albumType) {
-      case "owner":
+    switch(albumType) {
+    case "owner":
+      if (user) {
         await loadMyAlbums()
-        setIsMyAlbumsLoaded(true)
-        break
-      case "friends": loadFriendsAlbums()
-        break
-      case "shared": loadSharedAlbums()
-        break
-      case "public": loadPublicAlbums()
-        break
-      default: break
       }
-    } else {
       setIsMyAlbumsLoaded(true)
+      break
+    case "friends":
+      if (user) {
+        loadFriendsAlbums()
+      }
+      break
+    case "shared":
+      if (user) {
+        loadSharedAlbums()
+      }
+      break
+    case "public": loadPublicAlbums()
+      break
+    default: break
     }
   }, [user, albumType])
 
@@ -149,6 +153,7 @@ const AlbumsIndex = ({
       })
 
       const ids = Array.from(userIdsSet)
+      console.log("index ids", ids)
       if (ids.length > 0) searchFriends({ ids })
     }
   }, [myAlbums, friendsAlbums, publicAlbums, page])
@@ -225,10 +230,7 @@ const AlbumsIndex = ({
   return (
     <div>
       <PageHead />
-      { (user && user.id) &&
-        <Notifications />
-      }
-
+      <Notifications />
       <main className="overflow-y-scroll">
         <div className="lg:flex lg:flex-row min-h-screen">
           <Sidebar>
@@ -242,43 +244,47 @@ const AlbumsIndex = ({
 
               <div className="w-full flex flex-col content-center justify-center items-center">
                 <div className="flex flex-col w-40 content-center justify-center items-start">
-                  <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "owner" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
-                    <input type="radio"
-                      id="filterRequested"
-                      checked={albumType === "owner"}
-                      onChange={() => setAlbumType("owner")}
-                    />
-                    <label htmlFor="filterRequested"
-                      className="ml-2 text-sm font-semibold uppercase"
-                    >My</label>
-                  </div>
+                  { user &&
+                    <>
+                      <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "owner" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                        <input type="radio"
+                          id="filterRequested"
+                          checked={albumType === "owner"}
+                          onChange={() => setAlbumType("owner")}
+                        />
+                        <label htmlFor="filterRequested"
+                          className="ml-2 text-sm font-semibold uppercase"
+                        >My</label>
+                      </div>
 
-                  <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "shared" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
-                    <input type="radio"
-                      id="filterRequested"
-                      checked={albumType === "shared"}
-                      onChange={() => setAlbumType("shared")}
-                    />
-                    <label htmlFor="filterRequested"
-                      className="ml-2 text-sm font-semibold uppercase"
-                    >Requested</label>
-                    { pendingAlbumReqs > 0 &&
+                      <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "shared" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                        <input type="radio"
+                          id="filterRequested"
+                          checked={albumType === "shared"}
+                          onChange={() => setAlbumType("shared")}
+                        />
+                        <label htmlFor="filterRequested"
+                          className="ml-2 text-sm font-semibold uppercase"
+                        >Requested</label>
+                        { pendingAlbumReqs > 0 &&
                       <div className="ml-2 h-6 w-6 rounded-full bg-blue-300 text-black shadow-lg font-bold flex items-center justify-center text-center">
                         { pendingAlbumReqs }
                       </div>
-                    }
-                  </div>
+                        }
+                      </div>
 
-                  <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "friends" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
-                    <input type="radio"
-                      id="filterFriends"
-                      checked={albumType === "friends"}
-                      onChange={() => setAlbumType("friends")}
-                    />
-                    <label htmlFor="filterFriends"
-                      className="ml-2 text-sm font-semibold uppercase"
-                    >Friends</label>
-                  </div>
+                      <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "friends" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                        <input type="radio"
+                          id="filterFriends"
+                          checked={albumType === "friends"}
+                          onChange={() => setAlbumType("friends")}
+                        />
+                        <label htmlFor="filterFriends"
+                          className="ml-2 text-sm font-semibold uppercase"
+                        >Friends</label>
+                      </div>
+                    </>
+                  }
 
                   <div className={`flex content-center justify-center items-center py-0.5 px-3 my-1 rounded-xl ${albumType === "public" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                     <input type="radio"

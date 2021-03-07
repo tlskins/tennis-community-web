@@ -474,7 +474,7 @@ const Admin = ({
                         <div className="border-r border-gray-400 col-span-2">{ Moment(comment.createdAt).format("LLL") }</div>
                         <div className="border-r border-gray-400">
                           <a className="text-blue-400 underline"
-                            href={`/albums/${comment.albumId}/swings/${comment.swingId}`}
+                            href={`/albums/${comment.albumId}?swings=${comment.swingId}`}
                           >
                             Link
                           </a>
@@ -555,7 +555,7 @@ const Admin = ({
                       </div>
                       <div className="border-r border-gray-400">
                         <a className="text-blue-400 underline"
-                          href={flag.swingId ? `/albums/${flag.albumId}/swings/${flag.swingId}` : `/albums/${flag.albumId}`}
+                          href={flag.swingId ? `/albums/${flag.albumId}?swing=${flag.swingId}` : `/albums/${flag.albumId}`}
                         >
                           Link
                         </a>

@@ -122,7 +122,7 @@ const AlbumAndComments = ({
                     <>
                       <span className="mx-1">|</span>
                       <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
-                        href={`/albums/${album.id}/swings/${comment.swingId}`}
+                        href={`/albums/${album.id}?swing=${comment.swingId}`}
                       >
                       swing { comment.swingName }
                       </a>
@@ -187,7 +187,7 @@ const AlbumAndComments = ({
             }
 
             <a className="text-xs text-blue-400 underline mx-2"
-              href={`/albums/${album.id}/swings/${album.swingVideos[swingIdx]?.id}`}
+              href={`/albums/${album.id}?swing=${album.swingVideos[swingIdx]?.id}`}
             >
               { album.swingVideos[swingIdx]?.name } 
             </a>

@@ -405,22 +405,22 @@ const Album = ({
       <div className="bg-gray-200">
         <Notifications />
         { showSwingModal &&
-        <Modal
-          hideModal={ () => {
-            setShowSwingModal(false)
-            router.push({
-              pathname: `/albums/${albumId}`,
-              query: {},
-            })
-          }}
-          width="80%"
-          padding="10px"
-        >
-          <SwingModal
-            swingId={swing}
-            album={album}
-          />
-        </Modal>
+          <Modal
+            hideModal={ () => {
+              setShowSwingModal(false)
+              router.push({
+                pathname: `/albums/${albumId}`,
+                query: {},
+              })
+            }}
+            width="80%"
+            padding="20px"
+          >
+            <SwingModal
+              swingId={swing}
+              album={album}
+            />
+          </Modal>
         }
 
         <main className="bg-gray-200 min-h-screen h-full">
@@ -810,7 +810,7 @@ const Album = ({
                                         { comment.swingId &&
                                         <>
                                           <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
-                                            href={`/albums/${albumId}/swings/${comment.swingId}`}
+                                            href={`/albums/${albumId}?swing=${comment.swingId}`}
                                           >
                                           swing { comment.swingName }
                                           </a>
@@ -823,7 +823,7 @@ const Album = ({
                                           { Moment(comment.createdAt).format("MMM D h:mm a") }
                                         </p>
                                         <p className="mx-1 text-sm align-middle font-bold">
-                                      |
+                                        |
                                         </p>
                                         { (user && !user.disableComments) &&
                                         <input type='button'
@@ -867,7 +867,7 @@ const Album = ({
               <a href="/albums"
                 className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-4 hidden lg:block"
               >
-            back to albums
+                back to albums
               </a>
 
               <div className="mb-2 block lg:flex flex-col content-center justify-center items-center">
@@ -1045,10 +1045,10 @@ const Album = ({
                   })}
                 </select> */}
                 { showFooterUsage &&
-                <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
-                  Choose how to display your swings
-                  <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
-                </div>
+                  <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                    Choose how to display your swings
+                    <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+                  </div>
                 }
               </div>
 

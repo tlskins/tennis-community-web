@@ -769,13 +769,14 @@ const Album = ({
                               <p className="text-center p-2"> No comments </p>
                           }
                           
-                          <div className="h-96">
-                            { comments.filter( com => !com.isHidden ).map( comment => {
-                              return(
-                                <div key={comment.id}
-                                  className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
-                                >
-                                  { comment.replyId &&
+                          { comments.length > 0 &&
+                            <div className="h-96">
+                              { comments.filter( com => !com.isHidden ).map( comment => {
+                                return(
+                                  <div key={comment.id}
+                                    className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
+                                  >
+                                    { comment.replyId &&
                                     <div className="p-2 rounded shadow-lg text-xs bg-gray-300">
                                       <p>reply to</p>
                                       <p className="pl-2 text-gray-700">
@@ -793,20 +794,20 @@ const Album = ({
                                         </p>
                                       </div>
                                     </div>
-                                  }
-                                  <div className="flex flex-col p-1 my-0.5">
-                                    <p className="text-xs bg-gray-300 rounded-md shadow w-full px-1 py-0.5 mb-1">
-                                      { comment.text }
-                                    </p>
+                                    }
+                                    <div className="flex flex-col p-1 my-0.5">
+                                      <p className="text-xs bg-gray-300 rounded-md shadow w-full px-1 py-0.5 mb-1">
+                                        { comment.text }
+                                      </p>
                                     
-                                    <div className="mx-1 flex flex-row content-center justify-center items-center">
-                                      <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
+                                      <div className="mx-1 flex flex-row content-center justify-center items-center">
+                                        <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
                                       @{ usersCache[comment.userId]?.userName || "..." }
-                                      </p>
-                                      <p className="mx-1 text-sm align-middle font-bold">
+                                        </p>
+                                        <p className="mx-1 text-sm align-middle font-bold">
                                       |
-                                      </p>
-                                      { comment.swingId &&
+                                        </p>
+                                        { comment.swingId &&
                                         <>
                                           <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
                                             href={`/albums/${albumId}/swings/${comment.swingId}`}
@@ -817,14 +818,14 @@ const Album = ({
                                           |
                                           </p>
                                         </>
-                                      }
-                                      <p className="mx-1 text-xs text-gray-500 align-middle">
-                                        { Moment(comment.createdAt).format("MMM D h:mm a") }
-                                      </p>
-                                      <p className="mx-1 text-sm align-middle font-bold">
+                                        }
+                                        <p className="mx-1 text-xs text-gray-500 align-middle">
+                                          { Moment(comment.createdAt).format("MMM D h:mm a") }
+                                        </p>
+                                        <p className="mx-1 text-sm align-middle font-bold">
                                       |
-                                      </p>
-                                      { (user && !user.disableComments) &&
+                                        </p>
+                                        { (user && !user.disableComments) &&
                                         <input type='button'
                                           className='border w-10 rounded py-0.5 px-0.5 mx-0.5 text-xs bg-green-700 text-white text-center cursor-pointer'
                                           value='reply'
@@ -833,21 +834,22 @@ const Album = ({
                                             setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
                                           }}
                                         />
-                                      }
-                                      { (user && comment.userId !== user.id) &&
+                                        }
+                                        { (user && comment.userId !== user.id) &&
                                         <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
                                           <img src={flag}
                                             className="w-4 h-4 cursor-pointer"
                                             onClick={onFlagComment(comment)}
                                           />
                                         </div>
-                                      }
+                                        }
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              )
-                            })}
-                          </div>
+                                )
+                              })}
+                            </div>
+                          }
                         </div>
                       </div>
                     </div>

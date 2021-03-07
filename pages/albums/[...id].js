@@ -5,7 +5,6 @@ import { useRouter } from "next/router"
 import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
-import { Line } from "react-chartjs-2"
 import axios from "axios"
 
 import { newNotification, setLoginFormVisible } from "../../state/ui/action"
@@ -34,7 +33,6 @@ import speechBubble from "../../public/speech-bubble.svg"
 import pencil from "../../public/pencil.svg"
 import flag from "../../public/flag.svg"
 import Sidebar from "../../components/Sidebar"
-import ChartContainer from "../../components/ChartContainer"
 
 const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 75
@@ -43,7 +41,6 @@ let posting = false
 
 const swingViewMap = {
   "video": 9,
-  // "gif": 16, // dont think this is useful
   "jpg": 16,
 }
 
@@ -113,9 +110,6 @@ const Album = ({
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
 
-  const [showGraph, setShowGraph] = useState(false)
-  const [graphLabels, setGraphLabels] = useState([])
-  const [graphDatasets, setGraphDatasets] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
 
   const [showSwingModal, setShowSwingModal] = useState(!!swing)
@@ -170,10 +164,6 @@ const Album = ({
 
       setSwingsByRally(swingsByRally)
       setFilteredRallies(swingsByRally.map((_,i) => i+1))
-      setGraphDatasets(dataSets)
-      setGraphLabels(new Array(maxSec).fill(1).map((_,j) => (
-        `${parseInt(j/60)}:${parseInt(j%60).toString().padStart(2,"0")}`
-      )))
     }
   }, [album])
 
@@ -519,35 +509,6 @@ const Album = ({
                             { showGraph ? "Hide breakdown" : "Show breakdown from source video" }
                           </a> */}
                         </div>
-
-                        { showGraph &&
-                            <ChartContainer>
-                              <div className="px-4 py-8 bg-gray-200 rounded shadow-lg">
-                                <Line
-                                  width={950}
-                                  // height={300}
-                                  data={{
-                                    labels: graphLabels,
-                                    datasets: graphDatasets,
-                                  }}
-                                  options={{
-                                    response: true,
-                                    maintainAspectRatio: true,
-                                    title:{
-                                      display: true,
-                                      position: "left",
-                                      text: "Swings By Timestamp",
-                                      fontSize: 12
-                                    },
-                                    legend:{
-                                      display: false,
-                                      position: "right"
-                                    },
-                                  }}
-                                />
-                              </div>
-                            </ChartContainer>
-                        }
                       </div>
                     }
                   </div>

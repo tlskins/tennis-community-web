@@ -74,13 +74,13 @@ const AlbumAndComments = ({
               }
             </div>
             <div className="block ml-1">
-              { album.status === "Processing" ?
-                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-yellow-300 shadow-md">
-                  processing
-                </div>
-                : 
+              { album.status === "Created" ?
                 <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-green-300 shadow-md">
                   finished
+                </div>
+                :
+                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-yellow-300 shadow-md">
+                  processing
                 </div>
               }
             </div>

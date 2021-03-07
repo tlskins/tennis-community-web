@@ -106,10 +106,7 @@ const NewAlbum = ({
   return (
     <div>
       <PageHead />
-      { (user && user.id) &&
-        <Notifications />
-      }
-
+      <Notifications />
       <main className="overflow-y-scroll bg-gray-100">
         <div className="lg:flex flex-col block">
           {/* Begin Main */}

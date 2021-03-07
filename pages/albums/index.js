@@ -130,6 +130,7 @@ const AlbumsIndex = ({
 
   useEffect(() => {
     if (isMyAlbumsLoaded && myAlbums.length === 0) {
+      console.log("setting public...")
       setAlbumType("public")
     }
   }, [isMyAlbumsLoaded])
@@ -153,7 +154,6 @@ const AlbumsIndex = ({
       })
 
       const ids = Array.from(userIdsSet)
-      console.log("index ids", ids)
       if (ids.length > 0) searchFriends({ ids })
     }
   }, [myAlbums, friendsAlbums, publicAlbums, page])

@@ -171,9 +171,7 @@ const Admin = ({
 
   return (
     <div>
-      { (user && user.id) &&
-        <Notifications />
-      }
+      <Notifications />
       <main className="overflow-y-scroll min-h-screen static">
 
         <div className="lg:flex lg:flex-row min-h-screen">

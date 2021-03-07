@@ -57,7 +57,7 @@ const HowToUpload = ({ isFirst, isUploadFile }) => {
               <ul className="list-disc text-sm lg:text-base">
                 <li>Upload video from your phone (it autocompresses)</li>
                 <li>
-                  Our <span className="rounded-full mx-1 bg-yellow-300 text-black px-1">Swing Detector</span> will take about 5 minutes to cut the swings from the first 10 mins of the video
+                  Our <span className="rounded-full mx-1 bg-yellow-300 text-black px-1">Swing Detector</span> will take less than 5 minutes to cut the swings from the first 15 mins of the video
                 </li>
               </ul>
               { isUploadFile && 

@@ -5,7 +5,6 @@ import { useRouter } from "next/router"
 import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
-import { Line } from "react-chartjs-2"
 import axios from "axios"
 
 import { newNotification, setLoginFormVisible } from "../../state/ui/action"
@@ -34,7 +33,6 @@ import speechBubble from "../../public/speech-bubble.svg"
 import pencil from "../../public/pencil.svg"
 import flag from "../../public/flag.svg"
 import Sidebar from "../../components/Sidebar"
-import ChartContainer from "../../components/ChartContainer"
 
 const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 75
@@ -43,7 +41,6 @@ let posting = false
 
 const swingViewMap = {
   "video": 9,
-  "gif": 16, // dont think this is useful
   "jpg": 16,
 }
 
@@ -113,9 +110,6 @@ const Album = ({
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
 
-  const [showGraph, setShowGraph] = useState(false)
-  const [graphLabels, setGraphLabels] = useState([])
-  const [graphDatasets, setGraphDatasets] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
 
   const [showSwingModal, setShowSwingModal] = useState(!!swing)
@@ -170,10 +164,6 @@ const Album = ({
 
       setSwingsByRally(swingsByRally)
       setFilteredRallies(swingsByRally.map((_,i) => i+1))
-      setGraphDatasets(dataSets)
-      setGraphLabels(new Array(maxSec).fill(1).map((_,j) => (
-        `${parseInt(j/60)}:${parseInt(j%60).toString().padStart(2,"0")}`
-      )))
     }
   }, [album])
 
@@ -441,7 +431,7 @@ const Album = ({
                           onChange={() => {}}
                         />
                         <label className="ml-2 text-sm font-semibold uppercase">
-                      Album Overview
+                          Album Overview
                         </label>
                       </div>
 
@@ -455,100 +445,71 @@ const Album = ({
                           }}
                         />
                         { showOverviewUsage &&
-                    <div className="absolute ml-10 -my-28 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">
-                      <ul className="list-disc pl-6">
-                        <li>Shows the swings and rallies that were clipped from the original video</li>
-                        <li>Rallies, or Points, are consecutive hits while playing tennis</li>
-                        <li>Toggle the Rally checkboxes to filter by Rally</li>
-                      </ul>
-                    </div>
+                          <div className="absolute ml-10 -my-28 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-10">
+                            <ul className="list-disc pl-6">
+                              <li>Shows the swings and rallies that were clipped from the original video</li>
+                              <li>Rallies, or Points, are consecutive hits while playing tennis</li>
+                              <li>Toggle the Rally checkboxes to filter by Rally</li>
+                            </ul>
+                          </div>
                         }
                       </div>
                     </div>
                 
                     { activeSideBar === "Album Overview" &&
-                  <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2 overflow-auto">
-                    <div className="flex flex-col sticky left-0 content-center justify-center items-start pl-8 py-4 mb-4 rounded shadow-lg bg-gray-200 text-gray-700">
-                      <p className="uppercase underline font-semibold mb-1">
-                        { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies
-                      </p>
-                      <div>
-                        <input type="checkbox"
-                          className="mr-2"
-                          checked={false}
-                          onChange={() => {
-                            const rallies = filteredRallies.length === swingsByRally.length ?
-                              [] :
-                              swingsByRally.map( swings => swings[0].rally )
-                            setFilteredRallies(rallies)
-                            setAlbumPage(0)
-                          }}
-                        />
-                        <span className="font-semibold mr-1">
-                          { filteredRallies.length === swingsByRally.length ? "Deselect All" : "Select All" }
-                        </span>
-                      </div>
-                      <div>
-                        {
-                          swingsByRally.map((swings, i) => {
-                            return(
-                              <div key={i}>
-                                <input type="checkbox"
-                                  className="mr-2"
-                                  checked={filteredRallies.includes(i+1)}
-                                  onChange={() => {
-                                    const rallies = filteredRallies.includes(i+1) ?
-                                      filteredRallies.filter( rally => rally != i+1) :
-                                      [...filteredRallies, i+1]
-                                    setFilteredRallies(rallies)
-                                    setAlbumPage(0)
-                                  }}
-                                />
-                                <span className="font-semibold mr-1">Rally {i+1}:</span>
-                                <span className="text-xs">{swings.length} swings</span>
-                              </div>
-                            )
-                          })
-                        }
-                      </div>
-                      
-                      {/* <a href="#"
-                        className="text-blue-700 text-xs underline cursor-pointer my-2"
-                        onClick={() => setShowGraph(!showGraph)}
-                      >
-                        { showGraph ? "Hide breakdown" : "Show breakdown from source video" }
-                      </a> */}
-                    </div>
-
-                    { showGraph &&
-                        <ChartContainer>
-                          <div className="px-4 py-8 bg-gray-200 rounded shadow-lg">
-                            <Line
-                              width={950}
-                              // height={300}
-                              data={{
-                                labels: graphLabels,
-                                datasets: graphDatasets,
-                              }}
-                              options={{
-                                response: true,
-                                maintainAspectRatio: true,
-                                title:{
-                                  display: true,
-                                  position: "left",
-                                  text: "Swings By Timestamp",
-                                  fontSize: 12
-                                },
-                                legend:{
-                                  display: false,
-                                  position: "right"
-                                },
+                      <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2 overflow-auto">
+                        <div className="flex flex-col sticky left-0 content-center justify-center items-start pl-8 py-4 mb-4 rounded shadow-lg bg-gray-200 text-gray-700">
+                          <p className="uppercase underline font-semibold mb-1">
+                            { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies
+                          </p>
+                          <div>
+                            <input type="checkbox"
+                              className="mr-2"
+                              checked={false}
+                              onChange={() => {
+                                const rallies = filteredRallies.length === swingsByRally.length ?
+                                  [] :
+                                  swingsByRally.map( swings => swings[0].rally )
+                                setFilteredRallies(rallies)
+                                setAlbumPage(0)
                               }}
                             />
+                            <span className="font-semibold mr-1">
+                              { filteredRallies.length === swingsByRally.length ? "Deselect All" : "Select All" }
+                            </span>
                           </div>
-                        </ChartContainer>
-                    }
-                  </div>
+                          <div>
+                            {
+                              swingsByRally.map((swings, i) => {
+                                return(
+                                  <div key={i}>
+                                    <input type="checkbox"
+                                      className="mr-2"
+                                      checked={filteredRallies.includes(i+1)}
+                                      onChange={() => {
+                                        const rallies = filteredRallies.includes(i+1) ?
+                                          filteredRallies.filter( rally => rally != i+1) :
+                                          [...filteredRallies, i+1]
+                                        setFilteredRallies(rallies)
+                                        setAlbumPage(0)
+                                      }}
+                                    />
+                                    <span className="font-semibold mr-1">Rally {i+1}:</span>
+                                    <span className="text-xs">{swings.length} swings</span>
+                                  </div>
+                                )
+                              })
+                            }
+                          </div>
+                          
+                          {/* <a href="#"
+                            className="text-blue-700 text-xs underline cursor-pointer my-2"
+                            onClick={() => setShowGraph(!showGraph)}
+                          >
+                            { showGraph ? "Hide breakdown" : "Show breakdown from source video" }
+                          </a> */}
+                        </div>
+                      </div>
                     }
                   </div>
 
@@ -562,7 +523,7 @@ const Album = ({
                           onChange={() => {}}
                         />
                         <label className="ml-2 text-sm font-semibold uppercase">
-                      Pro Comparison
+                          Pro Comparison
                         </label>
                       </div>
 
@@ -577,9 +538,9 @@ const Album = ({
                     </div>
 
                     { activeSideBar === "Pro Comparison" &&
-                  <div className="my-2">
-                    <ProComparison showUsage={showProUsage} />
-                  </div>
+                      <div className="my-2">
+                        <ProComparison showUsage={showProUsage} />
+                      </div>
                     }
                   </div>
 
@@ -593,7 +554,7 @@ const Album = ({
                           onChange={() => {}}
                         />
                         <label className="ml-2 text-sm font-semibold uppercase">
-                      Youtube Tutorials
+                          Youtube Tutorials
                         </label>
                       </div>
 
@@ -608,64 +569,64 @@ const Album = ({
                     </div>
 
                     { activeSideBar === "Video Resources" &&
-                  <div className="my-2">
-                    <VideoResources
-                      onExpand={playing => setExpandedSideBar(playing)}
-                      showUsage={showVideoUsage}
-                    />
-                  </div>
+                      <div className="my-2">
+                        <VideoResources
+                          onExpand={playing => setExpandedSideBar(playing)}
+                          showUsage={showVideoUsage}
+                        />
+                      </div>
                     }
                   </div>
 
                   { (user && user.id == album?.userId) &&
-                <div>
-                  <div className="flex flex-row relative pl-20">
-                    <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Sharing" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
-                      <input type="radio"
-                        checked={activeSideBar === "Sharing"}
-                        onClick={() => setActiveSidebar(activeSideBar === "Sharing" ? undefined : "Sharing")}
-                        onChange={() => {}}
-                      />
-                      <label className="ml-2 text-sm font-semibold uppercase">
-                      Sharing
-                      </label>
-                    </div>
+                    <div>
+                      <div className="flex flex-row relative pl-20">
+                        <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Sharing" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
+                          <input type="radio"
+                            checked={activeSideBar === "Sharing"}
+                            onClick={() => setActiveSidebar(activeSideBar === "Sharing" ? undefined : "Sharing")}
+                            onChange={() => {}}
+                          />
+                          <label className="ml-2 text-sm font-semibold uppercase">
+                          Sharing
+                          </label>
+                        </div>
 
-                    <input type="button"
-                      className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
-                      value="?"
-                      onClick={() => {
-                        setShowSharingUsage(activeSideBar !== "Sharing" ? true : !showSharingUsage)
-                        setActiveSidebar("Sharing")
-                      }}
-                    />
-                  </div>
+                        <input type="button"
+                          className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
+                          value="?"
+                          onClick={() => {
+                            setShowSharingUsage(activeSideBar !== "Sharing" ? true : !showSharingUsage)
+                            setActiveSidebar("Sharing")
+                          }}
+                        />
+                      </div>
 
-                  { activeSideBar === "Sharing" &&
-                    <div className="flex flex-col content-center justify-center items-center my-2 p-4 bg-white rounded">
-                      <Sharing
-                        isPublic={isPublic}
-                        setIsPublic={setIsPublic}
-                        isViewableByFriends={isViewableByFriends}
-                        setIsViewableByFriends={setIsViewableByFriends}
-                        friendIds={friendIds}
-                        setFriendIds={setFriendIds}
-                        invEmail={invEmail}
-                        setInvEmail={setInvEmail}
-                        invFirstName={invFirstName}
-                        setInvFirstName={setInvFirstName}
-                        invLastName={invLastName}
-                        setInvLastName={setInvLastName}
-                        showUsage={showSharingUsage}
-                      />
-                      <input type='button'
-                        className="w-14 rounded py-0.5 px-2 mt-4 text-xs font-semibold bg-blue-700 text-white cursor-pointer"
-                        onClick={onShareAlbum}
-                        value="Share"
-                      />
+                      { activeSideBar === "Sharing" &&
+                        <div className="flex flex-col content-center justify-center items-center my-2 p-4 bg-white rounded">
+                          <Sharing
+                            isPublic={isPublic}
+                            setIsPublic={setIsPublic}
+                            isViewableByFriends={isViewableByFriends}
+                            setIsViewableByFriends={setIsViewableByFriends}
+                            friendIds={friendIds}
+                            setFriendIds={setFriendIds}
+                            invEmail={invEmail}
+                            setInvEmail={setInvEmail}
+                            invFirstName={invFirstName}
+                            setInvFirstName={setInvFirstName}
+                            invLastName={invLastName}
+                            setInvLastName={setInvLastName}
+                            showUsage={showSharingUsage}
+                          />
+                          <input type='button'
+                            className="w-14 rounded py-0.5 px-2 mt-4 text-xs font-semibold bg-blue-700 text-white cursor-pointer"
+                            onClick={onShareAlbum}
+                            value="Share"
+                          />
+                        </div>
+                      }
                     </div>
-                  }
-                </div>
                   }
 
                   {/* Comments Sidebar */}
@@ -684,178 +645,178 @@ const Album = ({
                     </div>
 
                     { activeSideBar === "Album Comments" &&
-                  <div className="my-2 rounded bg-white p-2 w-full">
-                    <div className="flex flex-col content-center justify-center items-center overscroll-contain">
-                      <div className="flex flex-col w-full">
+                      <div className="my-2 rounded bg-white p-2 w-full">
+                        <div className="flex flex-col content-center justify-center items-center overscroll-contain">
+                          <div className="flex flex-col w-full">
 
-                        {/* Comment Form */}
-                        { user?.disableComments &&
-                          <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your commenting has been disabled</p>
-                        }
-                        <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                          { replyId &&
-                            <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
-                              onClick={() => {
-                                setReplyPreview("")
-                                setReplyId(undefined)
-                              }}
-                            >
-                              <p>reply to</p>
-                              <p className="pl-2 text-gray-700">{ replyPreview }</p>
+                            {/* Comment Form */}
+                            { user?.disableComments &&
+                              <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your commenting has been disabled</p>
+                            }
+                            <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+                              { replyId &&
+                                <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
+                                  onClick={() => {
+                                    setReplyPreview("")
+                                    setReplyId(undefined)
+                                  }}
+                                >
+                                  <p>reply to</p>
+                                  <p className="pl-2 text-gray-700">{ replyPreview }</p>
+                                </div>
+                              }
+                              <textarea
+                                className="p-2 rounded shadow-lg bg-gray-100"
+                                placeholder={commentsPlaceholder}
+                                rows="4"
+                                maxLength={500}
+                                value={comment}
+                                onClick={() => {
+                                  if (confirmation) onShowInviteForm()
+                                }}
+                                onChange={e => {
+                                  if (user && !user.disableComments) setComment(e.target.value)
+                                }}
+                              />
+                              <div className="flex flex-row p-1 content-center justify-center items-center">
+                                <p className="text-sm mr-2 text-gray-500 align-middle">
+                                  { Moment().format("MMM D h:mm a") }
+                                </p>
+                                <p className="text-sm mr-2 align-middle font-bold">
+                                    |
+                                </p>
+                                <p className="text-sm mr-2 align-middle font-medium">
+                                    chars {comment.length}
+                                </p>
+                                <p className="text-sm mr-2 align-middle font-bold">
+                                    |
+                                </p>
+                                <input type='button'
+                                  className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
+                                  value='post'
+                                  disabled={!user || user.disableComments}
+                                  onClick={onPostComment}
+                                />
+                              </div>
                             </div>
-                          }
-                          <textarea
-                            className="p-2 rounded shadow-lg bg-gray-100"
-                            placeholder={commentsPlaceholder}
-                            rows="4"
-                            maxLength={500}
-                            value={comment}
-                            onClick={() => {
-                              if (confirmation) onShowInviteForm()
-                            }}
-                            onChange={e => {
-                              if (user && !user.disableComments) setComment(e.target.value)
-                            }}
-                          />
-                          <div className="flex flex-row p-1 content-center justify-center items-center">
-                            <p className="text-sm mr-2 text-gray-500 align-middle">
-                              { Moment().format("MMM D h:mm a") }
-                            </p>
-                            <p className="text-sm mr-2 align-middle font-bold">
-                                |
-                            </p>
-                            <p className="text-sm mr-2 align-middle font-medium">
-                                chars {comment.length}
-                            </p>
-                            <p className="text-sm mr-2 align-middle font-bold">
-                                |
-                            </p>
-                            <input type='button'
-                              className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
-                              value='post'
-                              disabled={!user || user.disableComments}
-                              onClick={onPostComment}
-                            />
-                          </div>
-                        </div>
 
-                        {/* Comments Filters / Sort */}
-                        <div className="flex flex-row my-2 content-center justify-center items-center">
-                          <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
-                            <p className="mr-1 text-center">{(comments?.length || 0)}</p>
-                            <img src={speechBubble} className="w-5 h-5"/>
-                          </div>
+                            {/* Comments Filters / Sort */}
+                            <div className="flex flex-row my-2 content-center justify-center items-center">
+                              <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
+                                <p className="mr-1 text-center">{(comments?.length || 0)}</p>
+                                <img src={speechBubble} className="w-5 h-5"/>
+                              </div>
 
-                          <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                            onChange={onSortComments}
-                          >
-                            <option value="POSTED ASC">Sort by First Posted</option>
-                            <option value="POSTED DESC">Sort by Last Posted</option>
-                          </select>
+                              <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                                onChange={onSortComments}
+                              >
+                                <option value="POSTED ASC">Sort by First Posted</option>
+                                <option value="POSTED DESC">Sort by Last Posted</option>
+                              </select>
 
-                          <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                            onChange={onFilterComments}
-                          >
-                            <option value="ALL">All Users</option>
-                            { commenters.map( usrId => {
-                              return(
-                                <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
-                              )
-                            })}
-                          </select>
-                        </div>
+                              <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
+                                onChange={onFilterComments}
+                              >
+                                <option value="ALL">All Users</option>
+                                { commenters.map( usrId => {
+                                  return(
+                                    <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
+                                  )
+                                })}
+                              </select>
+                            </div>
 
-                        {/* Comments List  */}
-                        <div className="flex flex-col overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
-                          { comments.filter( com => !com.isHidden ).length === 0 &&
-                              <p className="text-center p-2"> No comments </p>
-                          }
-                          
-                          { comments.length > 0 &&
-                            <div className="h-96">
-                              { comments.filter( com => !com.isHidden ).map( comment => {
-                                return(
-                                  <div key={comment.id}
-                                    className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
-                                  >
-                                    { comment.replyId &&
-                                      <div className="p-2 rounded shadow-lg text-xs bg-gray-400">
-                                        <p>reply to</p>
-                                        <p className="pl-2 text-gray-700">
-                                          { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
-                                        </p>
-                                        <div className="flex flex-row items-center text-center">
-                                          <p className="mx-2 text-xs text-blue-500 align-middle">
-                                            @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                            {/* Comments List  */}
+                            <div className="flex flex-col overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
+                              { comments.filter( com => !com.isHidden ).length === 0 &&
+                                  <p className="text-center p-2"> No comments </p>
+                              }
+                              
+                              { comments.length > 0 &&
+                                <div className="h-96">
+                                  { comments.filter( com => !com.isHidden ).map( comment => {
+                                    return(
+                                      <div key={comment.id}
+                                        className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
+                                      >
+                                        { comment.replyId &&
+                                          <div className="p-2 rounded shadow-lg text-xs bg-gray-400">
+                                            <p>reply to</p>
+                                            <p className="pl-2 text-gray-700">
+                                              { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
+                                            </p>
+                                            <div className="flex flex-row items-center text-center">
+                                              <p className="mx-2 text-xs text-blue-500 align-middle">
+                                                @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                              </p>
+                                              <p className="mx-2 text-sm align-middle font-bold">
+                                                |
+                                              </p>
+                                              <p className="mx-2 text-xs text-gray-500 align-middle">
+                                                { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D h:mm a") }
+                                              </p>
+                                            </div>
+                                          </div>
+                                        }
+                                        <div className="flex flex-col p-1 mt-2 mb-1">
+                                          <p className="text-xs bg-gray-300 rounded-md shadow w-full px-2 py-0.5 mb-1">
+                                            { comment.text }
                                           </p>
-                                          <p className="mx-2 text-sm align-middle font-bold">
+                                        
+                                          <div className="mx-1 mt-0.5 flex flex-row content-center justify-center items-center text-center">
+                                            <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
+                                              @{ usersCache[comment.userId]?.userName || "..." }
+                                            </p>
+                                            <p className="mx-1 text-sm align-middle font-bold">
                                             |
-                                          </p>
-                                          <p className="mx-2 text-xs text-gray-500 align-middle">
-                                            { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D h:mm a") }
-                                          </p>
+                                            </p>
+                                            { comment.swingId &&
+                                            <>
+                                              <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
+                                                href={`/albums/${albumId}?swing=${comment.swingId}`}
+                                              >
+                                              swing { comment.swingName }
+                                              </a>
+                                              <p className="mx-1 text-sm align-middle font-bold">
+                                              |
+                                              </p>
+                                            </>
+                                            }
+                                            <p className="mx-1 text-xs text-gray-500 align-middle">
+                                              { Moment(comment.createdAt).format("MMM D h:mm a") }
+                                            </p>
+                                            <p className="mx-1 text-sm align-middle font-bold">
+                                            |
+                                            </p>
+                                            { (user && !user.disableComments) &&
+                                            <input type='button'
+                                              className='border w-10 rounded py-0.5 px-0.5 mx-0.5 text-xs bg-green-700 text-white text-center cursor-pointer'
+                                              value='reply'
+                                              onClick={() => {
+                                                setReplyId(comment.id)
+                                                setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                                              }}
+                                            />
+                                            }
+                                            { (user && comment.userId !== user.id) &&
+                                            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
+                                              <img src={flag}
+                                                className="w-4 h-4 cursor-pointer"
+                                                onClick={onFlagComment(comment)}
+                                              />
+                                            </div>
+                                            }
+                                          </div>
                                         </div>
                                       </div>
-                                    }
-                                    <div className="flex flex-col p-1 mt-2 mb-1">
-                                      <p className="text-xs bg-gray-300 rounded-md shadow w-full px-2 py-0.5 mb-1">
-                                        { comment.text }
-                                      </p>
-                                    
-                                      <div className="mx-1 mt-0.5 flex flex-row content-center justify-center items-center text-center">
-                                        <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
-                                          @{ usersCache[comment.userId]?.userName || "..." }
-                                        </p>
-                                        <p className="mx-1 text-sm align-middle font-bold">
-                                        |
-                                        </p>
-                                        { comment.swingId &&
-                                        <>
-                                          <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
-                                            href={`/albums/${albumId}?swing=${comment.swingId}`}
-                                          >
-                                          swing { comment.swingName }
-                                          </a>
-                                          <p className="mx-1 text-sm align-middle font-bold">
-                                          |
-                                          </p>
-                                        </>
-                                        }
-                                        <p className="mx-1 text-xs text-gray-500 align-middle">
-                                          { Moment(comment.createdAt).format("MMM D h:mm a") }
-                                        </p>
-                                        <p className="mx-1 text-sm align-middle font-bold">
-                                        |
-                                        </p>
-                                        { (user && !user.disableComments) &&
-                                        <input type='button'
-                                          className='border w-10 rounded py-0.5 px-0.5 mx-0.5 text-xs bg-green-700 text-white text-center cursor-pointer'
-                                          value='reply'
-                                          onClick={() => {
-                                            setReplyId(comment.id)
-                                            setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                                          }}
-                                        />
-                                        }
-                                        { (user && comment.userId !== user.id) &&
-                                        <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
-                                          <img src={flag}
-                                            className="w-4 h-4 cursor-pointer"
-                                            onClick={onFlagComment(comment)}
-                                          />
-                                        </div>
-                                        }
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                              })}
+                                    )
+                                  })}
+                                </div>
+                              }
                             </div>
-                          }
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
                     }
                   </div>
                 </div>
@@ -886,7 +847,7 @@ const Album = ({
                     disabled={!user || user.id !== album?.userId}
                   />
                   { (user && user.id === album?.userId) &&
-                <img src={pencil} className="w-4 h-4 absolute right-2"/>
+                    <img src={pencil} className="w-4 h-4 absolute right-2"/>
                   }
                 </div>
               </div>
@@ -1026,26 +987,19 @@ const Album = ({
               </div>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col content-center justify-center items-center">
               <div className="flex flex-row relative static">
                 <input
                   type="button"
-                  className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 bg-blue-600 text-white text-xs"
-                  value="8 videos"
-                />
-                {/* <select
-                  className="rounded shadow-lg py-0.5 px-1 mx-2 my-1 mr-1 bg-blue-600 text-white text-xs"
-                  onChange={e => {
-                    setAlbumView(e.target.value)
-                    setSwingsPerPage(windowWidth < 1000 ? Math.round(swingViewMap[e.target.value] / 3) : swingViewMap[e.target.value])
+                  className={`rounded shadow-lg py-0.5 px-1 mx-2 my-1 ${albumView === "video" ? "bg-blue-600 text-white" : "bg-yellow-300 text-black"} text-xs cursor-pointer`}
+                  value={`${filteredSwings.length} ${albumView}`}
+                  onClick={() => {
+                    const newView = albumView === "video" ? "jpg" : "video"
+                    const newSwingPP = swingViewMap[newView]
+                    setAlbumView(newView)
+                    setSwingsPerPage(windowWidth < 1000 ? Math.round(newSwingPP / 3) : newSwingPP)
                   }}
-                >
-                  { Object.entries(swingViewMap).map(([type, _], i) => {
-                    return(
-                      <option key={i} value={type}>{ type } ({filteredSwings.length})</option>
-                    )
-                  })}
-                </select> */}
+                />
                 { showFooterUsage &&
                   <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
                     Choose how to display your swings

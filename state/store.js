@@ -1,6 +1,6 @@
 import { createStore, applyMiddleware, combineReducers } from "redux"
 import thunkMiddleware from "redux-thunk"
-import { createLogger } from "redux-logger"
+// import { createLogger } from "redux-logger"
 
 import {
   flashNotificationReducer,
@@ -34,12 +34,12 @@ export const rootReducer = combineReducers({
   navBar: navBarReducer,
 })
 
-const loggerMiddleware = createLogger()
+// const loggerMiddleware = createLogger()
 
 export const store = createStore(
   rootReducer,
   applyMiddleware(
     thunkMiddleware,
-    loggerMiddleware
+    // loggerMiddleware
   )
 )

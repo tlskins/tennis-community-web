@@ -37,7 +37,7 @@ import Sidebar from "../../components/Sidebar"
 import ChartContainer from "../../components/ChartContainer"
 
 const SWING_FRAMES = 60
-const REPLY_PREVIEW_LEN = 50
+const REPLY_PREVIEW_LEN = 75
 let commentsCache = {}
 let posting = false
 
@@ -401,26 +401,28 @@ const Album = ({
         title={head?.title}
         desc={head?.desc}
         img={head?.img}
+        imgHeight={head?.imgHeight}
+        imgWidth={head?.imgWidth}
       />
       <div className="bg-gray-200">
         <Notifications />
         { showSwingModal &&
-        <Modal
-          hideModal={ () => {
-            setShowSwingModal(false)
-            router.push({
-              pathname: `/albums/${albumId}`,
-              query: {},
-            })
-          }}
-          width="80%"
-          padding="10px"
-        >
-          <SwingModal
-            swingId={swing}
-            album={album}
-          />
-        </Modal>
+          <Modal
+            hideModal={ () => {
+              setShowSwingModal(false)
+              router.push({
+                pathname: `/albums/${albumId}`,
+                query: {},
+              })
+            }}
+            width="80%"
+            padding="20px"
+          >
+            <SwingModal
+              swingId={swing}
+              album={album}
+            />
+          </Modal>
         }
 
         <main className="bg-gray-200 min-h-screen h-full">
@@ -769,47 +771,48 @@ const Album = ({
                               <p className="text-center p-2"> No comments </p>
                           }
                           
-                          <div className="h-96">
-                            { comments.filter( com => !com.isHidden ).map( comment => {
-                              return(
-                                <div key={comment.id}
-                                  className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
-                                >
-                                  { comment.replyId &&
-                                    <div className="p-2 rounded shadow-lg text-xs bg-gray-300">
-                                      <p>reply to</p>
-                                      <p className="pl-2 text-gray-700">
-                                        { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
-                                      </p>
-                                      <div className="flex flex-row items-center">
-                                        <p className="mx-2 text-xs text-blue-500 align-middle">
-                                          @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                          { comments.length > 0 &&
+                            <div className="h-96">
+                              { comments.filter( com => !com.isHidden ).map( comment => {
+                                return(
+                                  <div key={comment.id}
+                                    className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
+                                  >
+                                    { comment.replyId &&
+                                      <div className="p-2 rounded shadow-lg text-xs bg-gray-400">
+                                        <p>reply to</p>
+                                        <p className="pl-2 text-gray-700">
+                                          { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
                                         </p>
-                                        <p className="mx-2 text-sm align-middle font-bold">
-                                          |
-                                        </p>
-                                        <p className="mx-2 text-xs text-gray-500 align-middle">
-                                          { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D h:mm a") }
-                                        </p>
+                                        <div className="flex flex-row items-center text-center">
+                                          <p className="mx-2 text-xs text-blue-500 align-middle">
+                                            @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                          </p>
+                                          <p className="mx-2 text-sm align-middle font-bold">
+                                            |
+                                          </p>
+                                          <p className="mx-2 text-xs text-gray-500 align-middle">
+                                            { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D h:mm a") }
+                                          </p>
+                                        </div>
                                       </div>
-                                    </div>
-                                  }
-                                  <div className="flex flex-col p-1 my-0.5">
-                                    <p className="text-xs bg-gray-300 rounded-md shadow w-full px-1 py-0.5 mb-1">
-                                      { comment.text }
-                                    </p>
+                                    }
+                                    <div className="flex flex-col p-1 mt-2 mb-1">
+                                      <p className="text-xs bg-gray-300 rounded-md shadow w-full px-2 py-0.5 mb-1">
+                                        { comment.text }
+                                      </p>
                                     
-                                    <div className="mx-1 flex flex-row content-center justify-center items-center">
-                                      <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
-                                      @{ usersCache[comment.userId]?.userName || "..." }
-                                      </p>
-                                      <p className="mx-1 text-sm align-middle font-bold">
-                                      |
-                                      </p>
-                                      { comment.swingId &&
+                                      <div className="mx-1 mt-0.5 flex flex-row content-center justify-center items-center text-center">
+                                        <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
+                                          @{ usersCache[comment.userId]?.userName || "..." }
+                                        </p>
+                                        <p className="mx-1 text-sm align-middle font-bold">
+                                        |
+                                        </p>
+                                        { comment.swingId &&
                                         <>
                                           <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
-                                            href={`/albums/${albumId}/swings/${comment.swingId}`}
+                                            href={`/albums/${albumId}?swing=${comment.swingId}`}
                                           >
                                           swing { comment.swingName }
                                           </a>
@@ -817,14 +820,14 @@ const Album = ({
                                           |
                                           </p>
                                         </>
-                                      }
-                                      <p className="mx-1 text-xs text-gray-500 align-middle">
-                                        { Moment(comment.createdAt).format("MMM D h:mm a") }
-                                      </p>
-                                      <p className="mx-1 text-sm align-middle font-bold">
-                                      |
-                                      </p>
-                                      { (user && !user.disableComments) &&
+                                        }
+                                        <p className="mx-1 text-xs text-gray-500 align-middle">
+                                          { Moment(comment.createdAt).format("MMM D h:mm a") }
+                                        </p>
+                                        <p className="mx-1 text-sm align-middle font-bold">
+                                        |
+                                        </p>
+                                        { (user && !user.disableComments) &&
                                         <input type='button'
                                           className='border w-10 rounded py-0.5 px-0.5 mx-0.5 text-xs bg-green-700 text-white text-center cursor-pointer'
                                           value='reply'
@@ -833,21 +836,22 @@ const Album = ({
                                             setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
                                           }}
                                         />
-                                      }
-                                      { (user && comment.userId !== user.id) &&
+                                        }
+                                        { (user && comment.userId !== user.id) &&
                                         <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
                                           <img src={flag}
                                             className="w-4 h-4 cursor-pointer"
                                             onClick={onFlagComment(comment)}
                                           />
                                         </div>
-                                      }
+                                        }
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                              )
-                            })}
-                          </div>
+                                )
+                              })}
+                            </div>
+                          }
                         </div>
                       </div>
                     </div>
@@ -865,7 +869,7 @@ const Album = ({
               <a href="/albums"
                 className="text-xs text-blue-500 underline cursor-pointer absolute left-3 top-4 hidden lg:block"
               >
-            back to albums
+                back to albums
               </a>
 
               <div className="mb-2 block lg:flex flex-col content-center justify-center items-center">
@@ -1043,10 +1047,10 @@ const Album = ({
                   })}
                 </select> */}
                 { showFooterUsage &&
-                <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
-                  Choose how to display your swings
-                  <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
-                </div>
+                  <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
+                    Choose how to display your swings
+                    <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+                  </div>
                 }
               </div>
 
@@ -1110,7 +1114,6 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 export async function getServerSideProps({ params: { id }}) {
-  console.log("getServerSideProps", id)
   const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
   const album = pAlbum(data)
 
@@ -1121,6 +1124,8 @@ export async function getServerSideProps({ params: { id }}) {
         title: album.name,
         desc: `Check out my tennis album "${album.name}"`,
         img: album.swingVideos[0]?.jpgURL,
+        imgHeight: "600",
+        imgWidth: "1066",
       }
     }
   }

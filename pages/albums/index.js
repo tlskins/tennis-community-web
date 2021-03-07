@@ -20,6 +20,7 @@ import {
   FlagAlbum,
 } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
+import { hasSession } from "../../behavior/api/rest"
 import { GrSearch } from "react-icons/gr"
 import { FaWindowClose } from "react-icons/fa"
 import { IconContext } from "react-icons"
@@ -69,11 +70,10 @@ const AlbumsIndex = ({
   const [toDeleteAlbum, setToDeleteAlbum] = useState(undefined)
 
   const [page, setPage] = useState(0)
-  const [albumType, setAlbumType] = useState("owner")
+  const [albumType, setAlbumType] = useState(null)
   const [search, setSearch] = useState("")
   const [startDate, setStartDate] = useState(undefined)
   const [endDate, setEndDate] = useState(undefined)
-  const [isMyAlbumsLoaded, setIsMyAlbumsLoaded] = useState(false)
   const [pendingAlbumReqs, setPendingAlbumReqs] = useState(0)
 
   var sourceAlbums
@@ -94,26 +94,42 @@ const AlbumsIndex = ({
   const activeAlbums = filteredAlbums.slice(page * ALBUMS_PER_COL, (page+1) * ALBUMS_PER_COL).filter( a => !!a )
 
   useEffect(async () => {
-    if (user) loadSharedAlbums()
+    if (hasSession) {
+      loadSharedAlbums()
+      const myAlbumsResp = await loadMyAlbums()
+      if (myAlbumsResp && myAlbumsResp.length > 0) {
+        setAlbumType("owner")
+        return
+      }
+
+      const sharedResp = await loadSharedAlbums()
+      if (sharedResp && sharedResp.length > 0) {
+        setAlbumType("shared")
+        return
+      }
+
+      const friendsResp = await loadFriendsAlbums()
+      if (friendsResp && friendsResp.length > 0) {
+        setAlbumType("friends")
+        return
+      }
+
+      setAlbumType("public")
+    } else {
+      setAlbumType("public")
+    }
   }, [])
 
   useEffect(async () => {
     switch(albumType) {
     case "owner":
-      if (user) {
-        await loadMyAlbums()
-      }
-      setIsMyAlbumsLoaded(true)
+      if (user) loadMyAlbums()
       break
     case "friends":
-      if (user) {
-        loadFriendsAlbums()
-      }
+      if (user) loadFriendsAlbums()
       break
     case "shared":
-      if (user) {
-        loadSharedAlbums()
-      }
+      if (user) loadSharedAlbums()
       break
     case "public": loadPublicAlbums()
       break
@@ -127,12 +143,6 @@ const AlbumsIndex = ({
       setPendingAlbumReqs(count)
     }
   }, [sharedAlbums, user])
-
-  useEffect(() => {
-    if (isMyAlbumsLoaded && myAlbums.length === 0) {
-      setAlbumType("public")
-    }
-  }, [isMyAlbumsLoaded])
 
   useEffect(() => {
     // set video players
@@ -153,7 +163,6 @@ const AlbumsIndex = ({
       })
 
       const ids = Array.from(userIdsSet)
-      console.log("index ids", ids)
       if (ids.length > 0) searchFriends({ ids })
     }
   }, [myAlbums, friendsAlbums, publicAlbums, page])

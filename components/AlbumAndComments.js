@@ -74,13 +74,13 @@ const AlbumAndComments = ({
               }
             </div>
             <div className="block ml-1">
-              { album.status === "Processing" ?
-                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-yellow-300 shadow-md">
-                  processing
-                </div>
-                : 
+              { album.status === "Created" ?
                 <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-green-300 shadow-md">
                   finished
+                </div>
+                :
+                <div className="px-2 mr-1 mt-1 inline-block rounded-lg bg-yellow-300 shadow-md">
+                  processing
                 </div>
               }
             </div>
@@ -122,7 +122,7 @@ const AlbumAndComments = ({
                     <>
                       <span className="mx-1">|</span>
                       <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
-                        href={`/albums/${album.id}/swings/${comment.swingId}`}
+                        href={`/albums/${album.id}?swing=${comment.swingId}`}
                       >
                       swing { comment.swingName }
                       </a>
@@ -187,7 +187,7 @@ const AlbumAndComments = ({
             }
 
             <a className="text-xs text-blue-400 underline mx-2"
-              href={`/albums/${album.id}/swings/${album.swingVideos[swingIdx]?.id}`}
+              href={`/albums/${album.id}?swing=${album.swingVideos[swingIdx]?.id}`}
             >
               { album.swingVideos[swingIdx]?.name } 
             </a>

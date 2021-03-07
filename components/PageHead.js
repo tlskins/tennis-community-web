@@ -8,6 +8,8 @@ const PageHead = ({
   title = "Hive Tennis",
   desc = "Automatically cut swings from your tennis videos! Hive Tennis is a platform to quickly cut, analyze, and get feedback on your tennis!",
   img = "https://d198sck6ekbnwc.cloudfront.net/homepage-bg.jpg",
+  imgHeight = "834",
+  imgWidth = "1745",
 }) => {
   return(
     <Head>
@@ -33,6 +35,8 @@ const PageHead = ({
       <meta property="og:title" content={title}/>
       <meta property="og:description" content={desc}/>
       <meta property="og:image" content={img}/>
+      <meta property="og:image:width" content={imgWidth}/>
+      <meta property="og:image:height" content={imgHeight}/>
 
       <meta name="twitter:card" content="summary_large_image"/>
       <meta property="twitter:domain" content={PAGE_URL}/>
@@ -48,6 +52,8 @@ PageHead.propTypes = {
   title: PropTypes.string,
   desc: PropTypes.string,
   img: PropTypes.string,
+  imgHeight: PropTypes.string,
+  imgWidth: PropTypes.string,
 }  
 
 export default PageHead

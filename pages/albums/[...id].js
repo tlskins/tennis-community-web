@@ -401,6 +401,8 @@ const Album = ({
         title={head?.title}
         desc={head?.desc}
         img={head?.img}
+        imgHeight={head?.imgHeight}
+        imgWidth={head?.imgWidth}
       />
       <div className="bg-gray-200">
         <Notifications />
@@ -1112,7 +1114,6 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 export async function getServerSideProps({ params: { id }}) {
-  console.log("getServerSideProps", id)
   const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
   const album = pAlbum(data)
 
@@ -1123,6 +1124,8 @@ export async function getServerSideProps({ params: { id }}) {
         title: album.name,
         desc: `Check out my tennis album "${album.name}"`,
         img: album.swingVideos[0]?.jpgURL,
+        imgHeight: "600",
+        imgWidth: "1066",
       }
     }
   }

@@ -37,7 +37,7 @@ import Sidebar from "../../components/Sidebar"
 import ChartContainer from "../../components/ChartContainer"
 
 const SWING_FRAMES = 60
-const REPLY_PREVIEW_LEN = 50
+const REPLY_PREVIEW_LEN = 75
 let commentsCache = {}
 let posting = false
 
@@ -777,35 +777,35 @@ const Album = ({
                                     className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
                                   >
                                     { comment.replyId &&
-                                    <div className="p-2 rounded shadow-lg text-xs bg-gray-300">
-                                      <p>reply to</p>
-                                      <p className="pl-2 text-gray-700">
-                                        { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
-                                      </p>
-                                      <div className="flex flex-row items-center">
-                                        <p className="mx-2 text-xs text-blue-500 align-middle">
-                                          @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                      <div className="p-2 rounded shadow-lg text-xs bg-gray-400">
+                                        <p>reply to</p>
+                                        <p className="pl-2 text-gray-700">
+                                          { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
                                         </p>
-                                        <p className="mx-2 text-sm align-middle font-bold">
-                                          |
-                                        </p>
-                                        <p className="mx-2 text-xs text-gray-500 align-middle">
-                                          { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D h:mm a") }
-                                        </p>
+                                        <div className="flex flex-row items-center text-center">
+                                          <p className="mx-2 text-xs text-blue-500 align-middle">
+                                            @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
+                                          </p>
+                                          <p className="mx-2 text-sm align-middle font-bold">
+                                            |
+                                          </p>
+                                          <p className="mx-2 text-xs text-gray-500 align-middle">
+                                            { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D h:mm a") }
+                                          </p>
+                                        </div>
                                       </div>
-                                    </div>
                                     }
-                                    <div className="flex flex-col p-1 my-0.5">
-                                      <p className="text-xs bg-gray-300 rounded-md shadow w-full px-1 py-0.5 mb-1">
+                                    <div className="flex flex-col p-1 mt-2 mb-1">
+                                      <p className="text-xs bg-gray-300 rounded-md shadow w-full px-2 py-0.5 mb-1">
                                         { comment.text }
                                       </p>
                                     
-                                      <div className="mx-1 flex flex-row content-center justify-center items-center">
+                                      <div className="mx-1 mt-0.5 flex flex-row content-center justify-center items-center text-center">
                                         <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
-                                      @{ usersCache[comment.userId]?.userName || "..." }
+                                          @{ usersCache[comment.userId]?.userName || "..." }
                                         </p>
                                         <p className="mx-1 text-sm align-middle font-bold">
-                                      |
+                                        |
                                         </p>
                                         { comment.swingId &&
                                         <>

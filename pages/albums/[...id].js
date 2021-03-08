@@ -732,7 +732,6 @@ const Album = ({
                                             <p className="pl-2 text-gray-700"
                                               onClick={() => {
                                                 const replyIdx = comments.findIndex( c => c.id === comment.replyId )
-                                                console.log("onclick", commentsRef, replyIdx)
                                                 if (!replyIdx) return
                                                 commentsRef[replyIdx].current.scrollIntoView()
                                               }}

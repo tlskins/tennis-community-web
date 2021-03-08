@@ -733,7 +733,7 @@ const Album = ({
                               }
                               
                               { comments.length > 0 &&
-                                <div className="h-96">
+                                <div className="max-h-96">
                                   { comments.filter( com => !com.isHidden ).map( comment => {
                                     return(
                                       <div key={comment.id}

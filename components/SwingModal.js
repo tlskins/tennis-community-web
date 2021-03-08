@@ -15,7 +15,7 @@ import flag from "../public/flag.svg"
 import pencil from "../public/pencil.svg"
 
 const SWING_FRAMES = 60
-const REPLY_PREVIEW_LEN = 50
+const REPLY_PREVIEW_LEN = 75
 let commentsCache = {}
 let posting = false
 let timer
@@ -46,11 +46,9 @@ const SwingModal = ({
   updateSwing,
 }) => {
   const router = useRouter()
-  const albumId = router.query.albumid
+  const albumId = router.query.id && router.query.id[0]
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
-
-  console.log("swing", swingId, album)
 
   const [name, setName] = useState(swing?.name)
   const [showSwingUsage, setShowSwingUsage] = useState(false)
@@ -61,6 +59,7 @@ const SwingModal = ({
   const [playback, setPlayback] = useState(1)
 
   const [comments, setComments] = useState([])
+  const [commentsRef, setCommentsRef] = useState([])
   const [commenters, setCommenters] = useState([])
   const [comment, setComment] = useState("")
   const [replyId, setReplyId] = useState(undefined)
@@ -80,7 +79,7 @@ const SwingModal = ({
 
   useEffect(() => {
     if (swing) {
-      setComments(swing.comments || [])
+      setComments((swing.comments || []).sort((a, b) => Moment(a.createdAt).isAfter(b.createdAt) ? -1 : 1))
       setName(swing.name)
     }
   }, [swing])
@@ -88,24 +87,16 @@ const SwingModal = ({
   useEffect(() => {
     if (comments.length > 0) {
       const commentersSet = new Set([])
-      // search comment users
       const usersSet = new Set([])
       comments.forEach( com => {
-        if (!usersCache[com.userId]) {
-          usersSet.add(com.userId)
-        }
-
-        // build commenters
+        if (!usersCache[com.userId]) usersSet.add(com.userId)
         commentersSet.add(com.userId)
-
-        // build comments cache
         commentsCache[com.id] = com
       })
       const ids = Array.from(usersSet)
-      if (ids.length > 0) {
-        searchFriends({ ids })
-      }
+      if (ids.length > 0) searchFriends({ ids })
       setCommenters(Array.from(commentersSet))
+      setCommentsRef(ref => comments.map((_, i) => ref[i] || createRef()))
     }
   }, [comments])
 
@@ -477,15 +468,22 @@ const SwingModal = ({
             { comments.filter( com => !com.isHidden ).length === 0 &&
               <p className="text-center text-xs p-2"> No comments </p>
             }
-            { comments.filter( com => !com.isHidden ).map( comment => {
+            { comments.map( (comment, idx) => {
               return(
                 <div key={comment.id}
-                  className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
+                  className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg ${comment.isHidden ? "hidden" : ""}`}
+                  ref={commentsRef[idx]}
                 >
                   { comment.replyId &&
-                      <div className="p-2 rounded shadow-lg text-xs bg-gray-300">
+                      <div className="p-2 rounded shadow-lg text-xs bg-gray-400 cursor-pointer hover:bg-gray-300">
                         <p>reply to</p>
-                        <p className="pl-2 text-gray-700">
+                        <p className="pl-2 text-gray-700"
+                          onClick={() => {
+                            const replyIdx = comments.findIndex( c => c.id === comment.replyId )
+                            if (!replyIdx) return
+                            commentsRef[replyIdx].current.scrollIntoView()
+                          }}
+                        >
                           { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
                         </p>
                         <div className="flex flex-row items-center">
@@ -501,10 +499,10 @@ const SwingModal = ({
                         </div>
                       </div>
                   }
-                  <div className="flex flex-col p-1 my-0.5"
+                  <div className="flex flex-col p-1 mt-2 mb-1"
                     onClick={() => onSeekTo(comment.frame)}
                   >
-                    <p className="text-xs bg-gray-300 rounded-md shadow w-full px-1 py-0.5 mb-1">
+                    <p className="text-xs bg-gray-300 rounded-md shadow w-full px-2 py-0.5 mb-1">
                       { comment.text }
                     </p>
 

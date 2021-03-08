@@ -105,6 +105,7 @@ const Album = ({
   const [invLastName, setInvLastName] = useState("")
 
   const [comments, setComments] = useState([])
+  const [commentsRef, setCommentsRef] = useState([])
   const [commenters, setCommenters] = useState([])
   const [comment, setComment] = useState("")
   const [replyId, setReplyId] = useState(undefined)
@@ -142,26 +143,11 @@ const Album = ({
     setIsViewableByFriends(album?.isViewableByFriends || false)
     setFriendIds(album?.friendIds || [])
     if (album && album.swingVideos.length > 0) {
-      const maxSec = album.swingVideos[album.swingVideos.length-1].timestampSecs
       const swingsByRally = album.swingVideos.reduce((acc, swing) => {
         const rally = swing.rally || 1
         rally > acc.length ? acc.push([swing]) : acc[rally-1].push(swing)
         return acc
       }, [])
-      const dataSets = swingsByRally.map( (swings, i) => {
-        const swing = swings[swings.length-1]
-        const timestamps = swings.map( swing => swing.timestampSecs )
-        return {
-          label: `Rally: ${swing.rally || 1}`,
-          fill: true ,
-          lineTension: 0.5,
-          backgroundColor: (i % 2 === 0) ? "rgba(254, 250, 11, 1)" : "rgba(45, 51, 235, 1)",
-          borderColor: "rgba(0,0,0,1)",
-          borderWidth: 2,
-          data: new Array(maxSec).fill(1).map((_,j) => timestamps.includes(j) ? 1 : 0),
-        }
-      })
-
       setSwingsByRally(swingsByRally)
       setFilteredRallies(swingsByRally.map((_,i) => i+1))
     }
@@ -170,7 +156,6 @@ const Album = ({
   useEffect(() => {
     if (comments.length > 0) {
       const commentersSet = new Set([])
-      // search comment users
       const usersSet = new Set([])
       comments.forEach( com => {
         if (!usersCache[com.userId]) usersSet.add(com.userId)
@@ -180,6 +165,7 @@ const Album = ({
       const ids = Array.from(usersSet)
       if (ids.length > 0) searchFriends({ ids })
       setCommenters(Array.from(commentersSet))
+      setCommentsRef(ref => comments.map((_, i) => ref[i] || createRef()))
     }
   }, [comments])
 
@@ -734,15 +720,23 @@ const Album = ({
                               
                               { comments.length > 0 &&
                                 <div className="max-h-96">
-                                  { comments.filter( com => !com.isHidden ).map( comment => {
+                                  { comments.map( (comment, idx) => {
                                     return(
                                       <div key={comment.id}
-                                        className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg`}
+                                        className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg ${comment.isHidden ? "hidden" : ""}`}
+                                        ref={commentsRef[idx]}
                                       >
                                         { comment.replyId &&
-                                          <div className="p-2 rounded shadow-lg text-xs bg-gray-400">
+                                          <div className="p-2 rounded shadow-lg text-xs bg-gray-400 cursor-pointer hover:bg-gray-300">
                                             <p>reply to</p>
-                                            <p className="pl-2 text-gray-700">
+                                            <p className="pl-2 text-gray-700"
+                                              onClick={() => {
+                                                const replyIdx = comments.findIndex( c => c.id === comment.replyId )
+                                                console.log("onclick", commentsRef, replyIdx)
+                                                if (!replyIdx) return
+                                                commentsRef[replyIdx].current.scrollIntoView()
+                                              }}
+                                            >
                                               { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
                                             </p>
                                             <div className="flex flex-row items-center text-center">

@@ -59,6 +59,7 @@ const Home = ({
 
   const [showHowTo, setShowHowTo] = useState(false)
   const [hoverUploadButton, setHoverUploadButton] = useState(false)
+  const [showFeedbackBanner, setShowFeedbackBanner] = useState(true)
 
   const [playerRefs, setPlayerRefs] = useState([])
   const [playerFrames, setPlayerFrames] = useState({})
@@ -252,7 +253,18 @@ const Home = ({
       <PageHead />
       <Notifications />
       <main className="overflow-y-scroll bg-gray-200 static">
-
+        { showFeedbackBanner &&
+          <div
+            className="w-full bg-yellow-300 hover:bg-black text-black hover:text-yellow-300 tracking-wide text-sm text-center mt-1 py-3 cursor-pointer"
+            onClick={() => setShowFeedbackBanner(false)}
+          >
+            Questions or comments? We would love to get your feedback at 
+            <a href="mailto: admin@hivetennis.com"
+              className="underline text-blue-700 ml-1"
+            >admin@hivetennis.com</a>
+          </div>
+        }
+        
         {/* Begin Main */}
         <div className="p-4 block lg:flex flex-col">
 

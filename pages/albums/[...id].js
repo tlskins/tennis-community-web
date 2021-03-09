@@ -216,17 +216,11 @@ const Album = ({
       buttons: [
         {
           buttonText: "Confirm",
-          callback: async () => {
-            const success = await updateAlbum({
+          callback: () => {
+            updateAlbum({
               ...album,
               swingVideos: album.swingVideos.filter( sw => sw.id !== swing.id ),
             }, false, true)
-            if (success) {
-              flashMessage({
-                id: Moment().toString(),
-                message: `Swing "${swing.name}" Deleted`,
-              })
-            }
           }
         }
       ]

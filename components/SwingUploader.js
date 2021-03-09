@@ -7,15 +7,17 @@ import { GetRecentUploads, UploadVideo } from "../behavior/coordinators/uploads"
 import Sharing from "./Sharing"
 import { newNotification } from "../state/ui/action"
 
-const SwingUploader = ({ displayAlert, uploadVideo, user }) => {
+const SwingUploader = ({ displayAlert, getRecentUploads, uploadVideo, user }) => {
   const [selectedVideo, setSelectedVideo] = useState(undefined)
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
   const [friendIds, setFriendIds] = useState([])
   const [newAlbumName, setNewAlbumName] = useState("")
+  const [uploading, setUploading] = useState(false)
 
   const onUploadVideo = async () => {
-    displayAlert({ id: Moment().toString(), bgColor: "bg-green-300", message: "Uploading... Please do not navigate away from this page" })
+    // displayAlert({ id: Moment().toString(), bgColor: "bg-green-300", message: "Uploading... Please do not navigate away from this page" })
+    setUploading(true)
     await uploadVideo({
       userId: user?.id,
       file: selectedVideo,
@@ -25,13 +27,22 @@ const SwingUploader = ({ displayAlert, uploadVideo, user }) => {
       isPublic,
       isViewableByFriends,
       friendIds,
+      callback: onSuccessfulUpload,
     })
+  }
+
+  const onSuccessfulUpload = () => {
+    getRecentUploads()
     setSelectedVideo(undefined)
+    setNewAlbumName("")
+    setIsPublic(false)
+    setIsViewableByFriends(false)
+    setFriendIds([])
+    setUploading(false)
   }
 
   const onFileChange = e => {
     const file = e.target.files[0]
-    console.log("filesize bytes", e.target.files[0]?.size)
     if (file.size > 400000000) { // 400 MBs
       displayAlert({ id: Moment().toString(), message: "File size must be below 400 MB (~15 mins)", bgColor: "bg-red-300" })
       return
@@ -58,6 +69,7 @@ const SwingUploader = ({ displayAlert, uploadVideo, user }) => {
                 placeholder="Album Name"
                 value={newAlbumName}
                 onChange={e => setNewAlbumName(e.target.value)}
+                disabled={uploading}
               />
             </div>
 
@@ -71,12 +83,21 @@ const SwingUploader = ({ displayAlert, uploadVideo, user }) => {
                 setFriendIds={setFriendIds}
               />
 
-              <div className="flex flex-col content-center justify-center items-center mx-1 p-2">
-                <button className="rounded shadow-lg bg-black text-yellow-300 font-semibold tracking-wide m-2 py-1 px-2"
-                  onClick={onUploadVideo}
-                >
-                  Upload
-                </button>
+              <div className="flex flex-col content-center justify-center items-center mx-1 mt-3 p-2">
+                { uploading ?
+                  <button className="flex flex-row rounded shadow-lg bg-yellow-300 text-black font-semibold tracking-wide m-2 py-3 px-4"
+                    disabled={true}
+                  >
+                    <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-5 w-5 mr-2"></div>
+                    Uploading...
+                  </button>
+                  :
+                  <button className="rounded shadow-lg bg-black text-yellow-300 font-semibold tracking-wide m-2 py-3 px-4"
+                    onClick={onUploadVideo}
+                  >
+                      Upload
+                  </button>
+                }
               </div>
             </div>
           </div>
@@ -94,11 +115,10 @@ const mapStateToProps = (state) => {
 }
 
 const mapDispatchToProps = (dispatch) => {
-  const getRecentUploads = GetRecentUploads(dispatch)
   return {
     displayAlert: args => dispatch(newNotification(args)),
-    getRecentUploads,
-    uploadVideo: UploadVideo(dispatch, getRecentUploads),
+    getRecentUploads: GetRecentUploads(dispatch),
+    uploadVideo: UploadVideo(dispatch),
   }
 }
   

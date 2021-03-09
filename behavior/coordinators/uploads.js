@@ -16,7 +16,7 @@ const s3 = new AWS.S3({
 })
   
 
-export const UploadVideo = (dispatch, callback = () => {}) => async ({
+export const UploadVideo = (dispatch) => async ({
   userId,
   file,
   fileName,
@@ -24,6 +24,7 @@ export const UploadVideo = (dispatch, callback = () => {}) => async ({
   isPublic,
   isViewableByFriends,
   friendIds,
+  callback,
 }) => {
   console.log("uploading", userId, file, fileName)
   // NEXT_PUBLIC_SWINGS_BUCKET

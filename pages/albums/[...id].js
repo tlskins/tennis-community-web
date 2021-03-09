@@ -14,6 +14,7 @@ import Modal from "../../components/Modal"
 import PageHead from "../../components/PageHead"
 import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
+import {SwingImage} from "../../components/SwingImage"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
 import { useWindowDimensions } from "../../behavior/helpers"
@@ -38,6 +39,29 @@ const SWING_FRAMES = 60
 const REPLY_PREVIEW_LEN = 75
 let commentsCache = {}
 let posting = false
+
+const getPageVidsPerRally = pageVideos => {
+  const pageVidsPerRally = []
+  let currRally = []
+  let currRallyIdx = pageVideos[0]?.rally
+  for (let i=0;i<pageVideos.length;i++) {
+    const vid = pageVideos[i]
+    vid.playerIdx = i
+    if (vid.rally > currRallyIdx) {
+      if (currRally.length > 0) {
+        pageVidsPerRally.push(currRally)
+        currRally = []
+      }
+      currRallyIdx += 1
+    }
+    currRally.push(vid)
+  }
+  if (currRally.length > 0) {
+    pageVidsPerRally.push(currRally)
+  }
+
+  return pageVidsPerRally
+}
 
 const swingViewMap = {
   "video": 9,
@@ -76,7 +100,13 @@ const Album = ({
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
   const [albumView, setAlbumView] = useState("video")
-  const [swingsPerPage, setSwingsPerPage] = useState(windowWidth < 1000 ? Math.round(swingViewMap["video"] / 3) : swingViewMap["video"])
+  const [swingsPerPage, setSwingsPerPage] = useState(
+    // windowWidth < 1000 ? 
+    //   Math.round(swingViewMap["video"] / 3)
+    //   :
+    //   swingViewMap["video"]
+    swingViewMap["video"]
+  )
 
   const [showFooterUsage, setShowFooterUsage] = useState(false)
   const [showProUsage, setShowProUsage] = useState(false)
@@ -95,6 +125,7 @@ const Album = ({
   const [activeSideBar, setActiveSidebar] = useState(user ? "Album Overview" : "Album Comments")
   const [expandedSideBar, setExpandedSideBar] = useState(false)
   const [albumPage, setAlbumPage] = useState(0)
+  // array of rally # to filter for viewing
   const [filteredRallies, setFilteredRallies] = useState([])
 
   const [isPublic, setIsPublic] = useState(false)
@@ -111,12 +142,13 @@ const Album = ({
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
 
+  const [filteredSwings, setFilteredSwings] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
+  const [rallyRowRefs, setRallyRowRefs] = useState([])
+  const [pageVidsPerRally, setPageVidsPerRally] = useState([])
+  const [rallyPlayerIdxs, setRallyPlayerIdxs] = useState([])
 
   const [showSwingModal, setShowSwingModal] = useState(!!swing)
-
-  let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
-  const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
   useEffect(() => {
     if (staticAlbum) {
@@ -169,12 +201,21 @@ const Album = ({
     }
   }, [comments])
 
+
   useEffect(() => {
     if (album?.id) {
+      const filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
+      const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
+    
+      setFilteredSwings(filteredSwings)
       setPlayerRefs(ref => pageVideos.map((_, i) => ref[i] || createRef()))
       setPlayings(pageVideos.map(() => true))
       setPips(pageVideos.map(() => false))
       setAllPlaying(true)
+      const pageVidsPerRally = getPageVidsPerRally(pageVideos)
+      setPageVidsPerRally(pageVidsPerRally)
+      setRallyPlayerIdxs(pageVidsPerRally.map(() => 0))
+      setRallyRowRefs(ref => pageVidsPerRally.map((_, i) => ref[i] || createRef()))
     }
   }, [album?.id, filteredRallies, albumPage, swingsPerPage])
 
@@ -839,54 +880,109 @@ const Album = ({
                 </div>
               </div>
 
-              <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2">
-                { pageVideos.map( (swing, i) => {
+              <div className="block rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2">
+                { pageVidsPerRally.map((rallyRow, rallyIdx) => {
+                  return(
+                    <div key={rallyIdx}
+                      ref={rallyRowRefs[rallyIdx]}
+                      className="flex flex-row overflow-x-auto items-center"
+                      onScroll={() => {
+                        const el = rallyRowRefs[rallyIdx]?.current
+                        if (!el) return
+                        const scrollPct = (el.scrollLeft + el.clientWidth) / (el.scrollWidth || 1)
+                        const scrollIdx = Math.round(scrollPct * rallyRow.length)-1
+                        setRallyPlayerIdxs(
+                          [
+                            ...rallyPlayerIdxs.slice(0, rallyIdx),
+                            scrollIdx,
+                            ...rallyPlayerIdxs.slice(rallyIdx+1, rallyPlayerIdxs.length),
+                          ]
+                        )
+                      }}
+                    >
+                      { rallyRow.map( (swing, swingIdx) => {
+                        return(
+                          rallyPlayerIdxs[rallyIdx] === swingIdx ?
+                            <div className="mx-1 p-1 w-64">
+                              <SwingPlayer
+                                albumId={albumId}
+                                showAlbumUsage={showAlbumUsage}
+                                swing={swing}
+                                swingFrames={SWING_FRAMES}
+                                i={swing.playerIdx}
+                                playbackRate={playbackRate}
+                                pips={pips}
+                                playings={playings}
+                                playerFrames={playerFrames}
+                                playerRefs={playerRefs}
+                                playerWidth="260px"
+                                handleSeekChange={handleSeekChange}
+                                isOwner={album.userId === user?.id}
+                                onDelete={onDeleteSwing(swing)}
+                                setPips={setPips}
+                                setPlayings={setPlayings}
+                                setPlayerFrames={setPlayerFrames}
+                              />
+                            </div>
+                            :
+                            <SwingImage
+                              swing={swing}
+                              onHover={() => {
+                                setRallyPlayerIdxs(
+                                  [
+                                    ...rallyPlayerIdxs.slice(0, rallyIdx),
+                                    swingIdx,
+                                    ...rallyPlayerIdxs.slice(rallyIdx+1, rallyPlayerIdxs.length),
+                                  ]
+                                )
+                              }}
+                            />
+                        )
+                      })}
+                    </div>
+                  )
+                })}
+
+                {/* { pageVideos.map( (swing, i) => {
                   const viewScale = albumView === "video" ? "items-center lg:w-1/3 lg:h-1/3" : "m-2"
                   return (
                     <div className={`flex flex-col rounded-md ${viewScale}`}
                       key={i}
                     >
                       { albumView === "video" &&
-                      <SwingPlayer
-                        albumId={albumId}
-                        showAlbumUsage={showAlbumUsage}
-                        swing={swing}
-                        swingFrames={SWING_FRAMES}
-                        i={i}
-                        playbackRate={playbackRate}
-                        pips={pips}
-                        playings={playings}
-                        playerFrames={playerFrames}
-                        playerRefs={playerRefs}
-                        playerWidth="320px"
-                        playerHeight="230px"
-                        handleSeekChange={handleSeekChange}
-                        isOwner={album.userId === user?.id}
-                        onDelete={onDeleteSwing(swing)}
-                        setPips={setPips}
-                        setPlayings={setPlayings}
-                        setPlayerFrames={setPlayerFrames}
-                      />
-                      }
-                      { albumView === "gif" &&
-                    <div>
-                      <img src={swing.gifURL}
-                        alt="loading..."
-                        style={{height: 180}}
-                      />
-                    </div>
+                        <SwingPlayer
+                          albumId={albumId}
+                          // light={swing.jpgURL}
+                          showAlbumUsage={showAlbumUsage}
+                          swing={swing}
+                          swingFrames={SWING_FRAMES}
+                          i={i}
+                          playbackRate={playbackRate}
+                          pips={pips}
+                          playings={playings}
+                          playerFrames={playerFrames}
+                          playerRefs={playerRefs}
+                          playerWidth="320px"
+                          playerHeight="230px"
+                          handleSeekChange={handleSeekChange}
+                          isOwner={album.userId === user?.id}
+                          onDelete={onDeleteSwing(swing)}
+                          setPips={setPips}
+                          setPlayings={setPlayings}
+                          setPlayerFrames={setPlayerFrames}
+                        />
                       }
                       { albumView === "jpg" &&
-                    <div>
-                      <img src={swing.jpgURL}
-                        alt="loading..."
-                        style={{height: 180}}
-                      />
-                    </div>
+                        <div>
+                          <img src={swing.jpgURL}
+                            alt="loading..."
+                            style={{height: 180}}
+                          />
+                        </div>
                       }
                     </div>
                   )
-                })}
+                })} */}
               </div>
             </div>
             {/* End Album Videos */}
@@ -1055,16 +1151,21 @@ const mapDispatchToProps = (dispatch) => {
 }
 
 export async function getServerSideProps({ params: { id }}) {
-  const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
-  const album = pAlbum(data)
+  let album
+  try {
+    const { data } = await axios.get(`${API_HOST}/albums/${id[0]}`)
+    album = pAlbum(data)  
+  } catch (e) {
+    console.log(e)
+  }
 
   return {
     props: {
       album,
       head: {
-        title: album.name,
-        desc: `Check out my tennis album "${album.name}"`,
-        img: album.swingVideos[0]?.jpgURL,
+        title: album?.name,
+        desc: `Check out my tennis album "${album?.name}"`,
+        img: album?.swingVideos[0]?.jpgURL || "",
         imgHeight: "600",
         imgWidth: "1066",
       }

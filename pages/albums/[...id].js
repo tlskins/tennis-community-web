@@ -885,8 +885,8 @@ const Album = ({
 
         {/* All Video Controls Footer */}
         <div className="sticky flex bottom-10 lg-pl-25pct content-center justify-center items-center">
-          <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg py-1 mx-4 w-full lg:w-1/4 content-center justify-center items-center">        
-            <div className="flex flex-row py-1 w-full content-center justify-items-center justify-between items-center lg:mx-1">
+          <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg mx-4 py-1 w-full lg:w-1/4 content-center justify-center items-center">        
+            <div className="flex flex-row w-full content-center justify-items-center justify-between items-center lg:mx-1">
               <IconContext.Provider value={{ color: `${albumPage === 0 ? "gray" : "orange"}`, size: "40px", left: "0px" }}>
                 <div className={"ml-4 content-center justify-center items-center cursor-pointer"}>
                   <ImPrevious onClick={() => {
@@ -896,57 +896,59 @@ const Album = ({
               </IconContext.Provider>
 
               <div className="flex flex-col">
-                <div className="flex flex-row text-sm text-yellow-300 font-semibold content-center justify-center items-center">
-                  swings 
-                  <div className="flex flex-col ml-2 content-center justify-center">
-                    <div className="text-center">
-                      { (pageVideos[0]?.idx || 0) + 1 } - { (pageVideos[pageVideos.length-1]?.idx || 0) + 1 }
-                    </div>
-                    <div className="text-center text-xs hidden lg:block">
-                      { pageVideos[0] && `${parseInt(pageVideos[0].timestampSecs/60)}:${parseInt(pageVideos[0].timestampSecs%60).toString().padStart(2,"0")} ` }
-                        -
-                      { pageVideos[pageVideos.length-1] && ` ${parseInt(pageVideos[pageVideos.length-1].timestampSecs/60)}:${parseInt(pageVideos[pageVideos.length-1].timestampSecs%60).toString().padStart(2,"0")}` }
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative flex items-row content-center justify-center items-center">
-                  { allPlaying &&
-                    <IconContext.Provider value={{ color: "red", size: "24px" }}>
-                      <div className="m-1 content-center justify-center items-center cursor-pointer">
+                <div className="flex flex-row content-center justify-around items-center">
+                  <div className="flex flex-row items-center">
+                    { allPlaying &&
+                    <IconContext.Provider value={{ color: "red", size: "32px" }}>
+                      <div className="content-center justify-center items-center cursor-pointer">
                         <FaRegPauseCircle onClick={() => {
                           setAllPlaying(false)
                           setPlayings(Array(videosCount).fill().map(() => false))
                         }}/>
                       </div>
                     </IconContext.Provider>
-                  }
-                  { !allPlaying &&
-                    <IconContext.Provider value={{ color: "yellow", size: "24px" }}>
-                      <div className="m-1 content-center justify-center items-center cursor-pointer">
+                    }
+                    { !allPlaying &&
+                    <IconContext.Provider value={{ color: "yellow", size: "32px" }}>
+                      <div className="content-center justify-center items-center cursor-pointer">
                         <FaPlayCircle onClick={() => {
                           setAllPlaying(true)
                           setPlayings(Array(videosCount).fill().map(() => true))
                         }}/>
                       </div>
                     </IconContext.Provider>
-                  }
-                  { showFooterUsage &&
-                  <div className="absolute mr-40 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
-                    <p>Player seek for all videos at once</p>
-                    <p>Click once and use &lt;- and -&gt; keys to nav frame by frame</p>
-                    <svg className="absolute text-yellow-300 h-2 right-0 mr-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+                    }
                   </div>
-                  }
-                  <input
-                    type='range'
-                    className="ml-2"
-                    min={0}
-                    max={SWING_FRAMES}
-                    step='1'
-                    onMouseUp={handleAllSeekChange}
-                    onKeyDown={handleAllSeekChange}
-                  />
+
+                  <div className="flex flex-col">
+                    <div className="flex flex-col">
+                      <div className="flex flex-row text-sm text-yellow-300 font-semibold content-center justify-center items-center">
+                      swings 
+                        <div className="flex flex-col ml-3 content-center justify-center">
+                          <div className="text-center">
+                            { (pageVideos[0]?.idx || 0) + 1 } - { (pageVideos[pageVideos.length-1]?.idx || 0) + 1 }
+                          </div>
+                          <div className="text-center text-xs hidden lg:block">
+                            { pageVideos[0] && `${parseInt(pageVideos[0].timestampSecs/60)}:${parseInt(pageVideos[0].timestampSecs%60).toString().padStart(2,"0")} ` }
+                          -
+                            { pageVideos[pageVideos.length-1] && ` ${parseInt(pageVideos[pageVideos.length-1].timestampSecs/60)}:${parseInt(pageVideos[pageVideos.length-1].timestampSecs%60).toString().padStart(2,"0")}` }
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="relative flex items-row content-center justify-center items-center">
+                        <input
+                          type='range'
+                          className="my-0.5"
+                          min={0}
+                          max={SWING_FRAMES}
+                          step='1'
+                          onMouseUp={handleAllSeekChange}
+                          onKeyDown={handleAllSeekChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex flex-row content-center justify-center items-center mt-2">

@@ -256,7 +256,7 @@ const Home = ({
       <main className="overflow-y-scroll bg-gray-200 static">
         { showFeedbackBanner &&
           <div
-            className="w-full bg-yellow-300 hover:bg-black text-black hover:text-yellow-300 tracking-wide text-sm text-center mt-1 py-3 cursor-pointer"
+            className="w-full bg-yellow-300 hover:bg-black text-black hover:text-yellow-300 tracking-wide text-sm font-semibold text-center mt-1 py-3 cursor-pointer"
             onClick={() => setShowFeedbackBanner(false)}
           >
             Questions or comments? We would love to get your feedback at 

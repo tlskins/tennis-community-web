@@ -111,3 +111,9 @@ body {
     transform: rotate(360deg);
   }
 }
+
+@media screen and (min-width: 1024px) {
+  .lg-pl-25pct {
+    padding-left: 25%;
+  }
+}

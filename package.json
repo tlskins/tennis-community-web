@@ -22,6 +22,7 @@
     "react-datepicker": "3.4.1",
     "react-dom": "17.0.1",
     "react-icons": "4.1.0",
+    "react-in-viewport": "1.0.0-alpha.16",
     "react-player": "2.7.2",
     "react-redux": "^7.2.2",
     "redux": "^4.0.5",

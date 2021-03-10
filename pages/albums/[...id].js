@@ -888,7 +888,7 @@ const Album = ({
           <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg mx-4 py-1 w-full lg:w-1/4 content-center justify-center items-center">        
             <div className="flex flex-row w-full content-center justify-items-center justify-between items-center lg:mx-1">
               <IconContext.Provider value={{ color: `${albumPage === 0 ? "gray" : "orange"}`, size: "40px", left: "0px" }}>
-                <div className={"ml-4 content-center justify-center items-center cursor-pointer"}>
+                <div className={`ml-4 content-center justify-center items-center ${albumPage !== 0 && "cursor-pointer"}`}>
                   <ImPrevious onClick={() => {
                     if (albumPage !== 0) setAlbumPage(albumPage-1)
                   }}/>
@@ -953,27 +953,27 @@ const Album = ({
 
                 <div className="flex flex-row content-center justify-center items-center mt-2">
                   <input type='button'
-                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 0.1 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg cursor-pointer ${playbackRate === 0.1 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(0.1)}
                     value=".1x"
                   />
                   <input type='button'
-                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 0.25 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg cursor-pointer ${playbackRate === 0.25 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(0.25)}
                     value=".25x"
                   />
                   <input type='button'
-                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 0.5 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg cursor-pointer ${playbackRate === 0.5 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(0.5)}
                     value=".5x"
                   />
                   <input type='button'
-                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 1 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg cursor-pointer ${playbackRate === 1 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(1)}
                     value="1x"
                   />
                   <input type='button'
-                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 1.5 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg cursor-pointer ${playbackRate === 1.5 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(1.5)}
                     value="1.5x"
                   />
@@ -981,7 +981,7 @@ const Album = ({
               </div>
 
               <IconContext.Provider value={{ color: `${albumPage >= (swingVideos.length / swingsPerPage)-1 ? "gray" : "orange"}`, size: "40px", left: "0px" }}>
-                <div className={"mr-4 content-center justify-center items-center cursor-pointer"}>
+                <div className={`mr-4 content-center justify-center items-center ${albumPage < (swingVideos.length / swingsPerPage)-1 && "cursor-pointer"}`}>
                   <ImNext onClick={() => {
                     if (albumPage < (swingVideos.length / swingsPerPage)-1) setAlbumPage(albumPage+1)
                   }}/>

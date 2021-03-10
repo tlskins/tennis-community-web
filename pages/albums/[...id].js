@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Moment from "moment"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
+import { ImPrevious, ImNext } from "react-icons/im"
 import { IconContext } from "react-icons"
 import axios from "axios"
 
@@ -41,7 +42,7 @@ let posting = false
 
 const swingViewMap = {
   "video": {
-    true: 3,
+    true: 12, // is mobile
     false: 9,
   },
   "jpg": {
@@ -79,9 +80,9 @@ const Album = ({
   const { swing } = router.query
   const { width: windowWidth } = useWindowDimensions()
   const isMobileView = windowWidth < 1000
-
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
+
   const [albumView, setAlbumView] = useState("video")
   const [swingsPerPage, setSwingsPerPage] = useState(swingViewMap["video"][isMobileView])
 
@@ -102,7 +103,7 @@ const Album = ({
   const [activeSideBar, setActiveSidebar] = useState(user ? "Album Overview" : "Album Comments")
   const [expandedSideBar, setExpandedSideBar] = useState(false)
   const [albumPage, setAlbumPage] = useState(0)
-  const [filteredRallies, setFilteredRallies] = useState([])
+  const [showSwingModal, setShowSwingModal] = useState(!!swing)
 
   const [isPublic, setIsPublic] = useState(false)
   const [isViewableByFriends, setIsViewableByFriends] = useState(false)
@@ -118,12 +119,9 @@ const Album = ({
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
 
+  const [rallyFilters, setRallyFilters] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
-
-  const [showSwingModal, setShowSwingModal] = useState(!!swing)
-
-  let filteredSwings = swingVideos.filter( swing => filteredRallies.includes(swing.rally || 1))
-  const pageVideos = filteredSwings.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
+  const [pageVideos, setPageVideos] = useState([])
 
   useEffect(() => {
     if (staticAlbum) {
@@ -138,7 +136,7 @@ const Album = ({
   useEffect(() => {
     let allComments = [
       ...(album?.comments || []),
-      ...((album?.swingVideos || []).map( swing => 
+      ...(swingVideos.map( swing => 
         swing.comments.map( comment => 
           ({ ...comment, swingName: swing.name, swingId: swing.id })
         )
@@ -149,14 +147,14 @@ const Album = ({
     setIsPublic(album?.isPublic || false)
     setIsViewableByFriends(album?.isViewableByFriends || false)
     setFriendIds(album?.friendIds || [])
-    if (album && album.swingVideos.length > 0) {
-      const swingsByRally = album.swingVideos.reduce((acc, swing) => {
+    if (swingVideos.length > 0) {
+      const swingsByRally = swingVideos.reduce((acc, swing) => {
         const rally = swing.rally || 1
         rally > acc.length ? acc.push([swing]) : acc[rally-1].push(swing)
         return acc
       }, [])
       setSwingsByRally(swingsByRally)
-      setFilteredRallies(swingsByRally.map((_,i) => i+1))
+      setRallyFilters(swingsByRally.map((_,i) => i+1))
     }
   }, [album])
 
@@ -178,12 +176,20 @@ const Album = ({
 
   useEffect(() => {
     if (album?.id) {
+      let filtered = swingVideos.map( (swing,i) => {
+        swing.idx = i
+        return swing
+      })
+      filtered = filtered.filter( swing => rallyFilters.includes(swing.rally || 1))
+      const swings = filtered.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
+
+      setPageVideos(swings)
       setPlayerRefs(ref => pageVideos.map((_, i) => ref[i] || createRef()))
       setPlayings(pageVideos.map(() => true))
       setPips(pageVideos.map(() => false))
       setAllPlaying(true)
     }
-  }, [album?.id, filteredRallies, albumPage, swingsPerPage])
+  }, [album?.id, rallyFilters, albumPage, swingsPerPage])
 
   useEffect(() => {
     if (user && recentUploads === null) {
@@ -447,7 +453,7 @@ const Album = ({
                       <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2">
                         <div className="flex flex-col pl-8 py-4 mb-4 max-h-96 rounded shadow-lg bg-gray-200 text-gray-700 overflow-y-auto">
                           <p className="uppercase underline font-semibold mb-1">
-                            { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies
+                            { swingVideos.length } Total Swings | { swingsByRally.length } Rallies
                           </p>
 
                           <div>
@@ -455,15 +461,15 @@ const Album = ({
                               className="mr-2"
                               checked={false}
                               onChange={() => {
-                                const rallies = filteredRallies.length === swingsByRally.length ?
+                                const rallies = rallyFilters.length === swingsByRally.length ?
                                   [] :
                                   swingsByRally.map( swings => swings[0].rally )
-                                setFilteredRallies(rallies)
+                                setRallyFilters(rallies)
                                 setAlbumPage(0)
                               }}
                             />
                             <span className="font-semibold mr-1">
-                              { filteredRallies.length === swingsByRally.length ? "Deselect All" : "Select All" }
+                              { rallyFilters.length === swingsByRally.length ? "Deselect All" : "Select All" }
                             </span>
                           </div>
 
@@ -473,12 +479,12 @@ const Album = ({
                                 <div key={i}>
                                   <input type="checkbox"
                                     className="mr-2"
-                                    checked={filteredRallies.includes(i+1)}
+                                    checked={rallyFilters.includes(i+1)}
                                     onChange={() => {
-                                      const rallies = filteredRallies.includes(i+1) ?
-                                        filteredRallies.filter( rally => rally != i+1) :
-                                        [...filteredRallies, i+1]
-                                      setFilteredRallies(rallies)
+                                      const rallies = rallyFilters.includes(i+1) ?
+                                        rallyFilters.filter( rally => rally != i+1) :
+                                        [...rallyFilters, i+1]
+                                      setRallyFilters(rallies)
                                       setAlbumPage(0)
                                     }}
                                   />
@@ -868,22 +874,6 @@ const Album = ({
                           setPlayerFrames={setPlayerFrames}
                         />
                       }
-                      { albumView === "gif" &&
-                        <div>
-                          <img src={swing.gifURL}
-                            alt="loading..."
-                            style={{height: 180}}
-                          />
-                        </div>
-                      }
-                      { albumView === "jpg" &&
-                        <div>
-                          <img src={swing.jpgURL}
-                            alt="loading..."
-                            style={{height: 180}}
-                          />
-                        </div>
-                      }
                     </div>
                   )
                 })}
@@ -895,37 +885,51 @@ const Album = ({
 
         {/* All Video Controls Footer */}
         <div className="sticky flex bottom-10 lg-pl-25pct content-center justify-center items-center">
-          <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 w-full lg:w-1/4 content-center justify-center items-center">
-            <div className="hidden lg:flex flex-row">
-              <input type="button"
-                className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-1 cursor-pointer hidden lg:block"
-                value="?"
-                onClick={() => setShowFooterUsage(!showFooterUsage)}
-              />
-            </div>
-        
-            <div className="flex flex-row py-1 content-center justify-center items-center lg:mx-1">
+          <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg py-1 mx-4 w-full lg:w-1/4 content-center justify-center items-center">        
+            <div className="flex flex-row py-1 w-full content-center justify-items-center justify-between items-center lg:mx-1">
+              <IconContext.Provider value={{ color: `${albumPage === 0 ? "gray" : "orange"}`, size: "40px", left: "0px" }}>
+                <div className={"ml-4 content-center justify-center items-center cursor-pointer"}>
+                  <ImPrevious onClick={() => {
+                    if (albumPage !== 0) setAlbumPage(albumPage-1)
+                  }}/>
+                </div>
+              </IconContext.Provider>
+
               <div className="flex flex-col">
+                <div className="flex flex-row text-sm text-yellow-300 font-semibold content-center justify-center items-center">
+                  swings 
+                  <div className="flex flex-col ml-2 content-center justify-center">
+                    <div className="text-center">
+                      { (pageVideos[0]?.idx || 0) + 1 } - { (pageVideos[pageVideos.length-1]?.idx || 0) + 1 }
+                    </div>
+                    <div className="text-center text-xs hidden lg:block">
+                      { pageVideos[0] && `${parseInt(pageVideos[0].timestampSecs/60)}:${parseInt(pageVideos[0].timestampSecs%60).toString().padStart(2,"0")} ` }
+                        -
+                      { pageVideos[pageVideos.length-1] && ` ${parseInt(pageVideos[pageVideos.length-1].timestampSecs/60)}:${parseInt(pageVideos[pageVideos.length-1].timestampSecs%60).toString().padStart(2,"0")}` }
+                    </div>
+                  </div>
+                </div>
+
                 <div className="relative flex items-row content-center justify-center items-center">
                   { allPlaying &&
-                  <IconContext.Provider value={{ color: "red" }}>
-                    <div className="m-2 content-center justify-center items-center cursor-pointer">
-                      <FaRegPauseCircle onClick={() => {
-                        setAllPlaying(false)
-                        setPlayings(Array(videosCount).fill().map(() => false))
-                      }}/>
-                    </div>
-                  </IconContext.Provider>
+                    <IconContext.Provider value={{ color: "red", size: "24px" }}>
+                      <div className="m-1 content-center justify-center items-center cursor-pointer">
+                        <FaRegPauseCircle onClick={() => {
+                          setAllPlaying(false)
+                          setPlayings(Array(videosCount).fill().map(() => false))
+                        }}/>
+                      </div>
+                    </IconContext.Provider>
                   }
                   { !allPlaying &&
-                  <IconContext.Provider value={{ color: "blue" }}>
-                    <div className="m-2 content-center justify-center items-center cursor-pointer">
-                      <FaPlayCircle onClick={() => {
-                        setAllPlaying(true)
-                        setPlayings(Array(videosCount).fill().map(() => true))
-                      }}/>
-                    </div>
-                  </IconContext.Provider>
+                    <IconContext.Provider value={{ color: "yellow", size: "24px" }}>
+                      <div className="m-1 content-center justify-center items-center cursor-pointer">
+                        <FaPlayCircle onClick={() => {
+                          setAllPlaying(true)
+                          setPlayings(Array(videosCount).fill().map(() => true))
+                        }}/>
+                      </div>
+                    </IconContext.Provider>
                   }
                   { showFooterUsage &&
                   <div className="absolute mr-40 w-60 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
@@ -936,6 +940,7 @@ const Album = ({
                   }
                   <input
                     type='range'
+                    className="ml-2"
                     min={0}
                     max={SWING_FRAMES}
                     step='1'
@@ -944,83 +949,42 @@ const Album = ({
                   />
                 </div>
 
-                <div className="flex flex-row content-center justify-center items-center">
+                <div className="flex flex-row content-center justify-center items-center mt-2">
                   <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 0.1 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(0.1)}
                     value=".1x"
                   />
                   <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 0.25 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(0.25)}
                     value=".25x"
                   />
                   <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 0.5 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(0.5)}
                     value=".5x"
                   />
                   <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 1 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(1)}
                     value="1x"
                   />
                   <input type='button'
-                    className="w-8 rounded p-0.5 mx-1 text-xs font-bold bg-gray-300 shadow-lg"
+                    className={`w-8 rounded p-0.5 mx-1 text-xs font-bold shadow-lg ${playbackRate === 1.5 ? "bg-yellow-300 text-gray-700" : "bg-gray-800 text-yellow-300"}`}
                     onClick={() => setPlaybackRate(1.5)}
                     value="1.5x"
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="flex flex-col content-center justify-center items-center">
-              <div className="flex flex-row relative static">
-                <input
-                  type="button"
-                  className={`rounded shadow-lg py-0.5 px-1 mx-2 my-1 ${albumView === "video" ? "bg-blue-600 text-white" : "bg-yellow-300 text-black"} text-xs cursor-pointer`}
-                  value={`${filteredSwings.length} ${albumView}`}
-                  onClick={() => {
-                    const newView = albumView === "video" ? "jpg" : "video"
-                    setAlbumView(newView)
-                    setSwingsPerPage(swingViewMap[newView][isMobileView])
-                  }}
-                />
-                { showFooterUsage &&
-                  <div className="absolute mx-10 w-64 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
-                    Choose how to display your swings
-                    <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
-                  </div>
-                }
-              </div>
-
-              <div className="flex flex-row content-center justify-center items-center">
-                <button
-                  onClick={() => setAlbumPage(albumPage-1)}
-                  className={`rounder p-0.5 mx-1 text-white ${albumPage === 0 && "invisible"}`}
-                >
-                &lt;
-                </button>
-                <div className="static">
-                  <h2 className="text-sm text-white text-center">
-                  Page { albumPage+1 }
-                  </h2>
-                  { showFooterUsage &&
-                  <div className="absolute">
-                    <div className="absolute ml-20 w-40 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full">
-                      Show prev or next page of swings
-                      {/* <svg className="absolute text-yellow-300 h-2 left-0 ml-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg> */}
-                    </div>
-                  </div>
-                  }
+              <IconContext.Provider value={{ color: `${albumPage >= (swingVideos.length / swingsPerPage)-1 ? "gray" : "orange"}`, size: "40px", left: "0px" }}>
+                <div className={"mr-4 content-center justify-center items-center cursor-pointer"}>
+                  <ImNext onClick={() => {
+                    if (albumPage < (swingVideos.length / swingsPerPage)-1) setAlbumPage(albumPage+1)
+                  }}/>
                 </div>
-                <button
-                  onClick={() => setAlbumPage(albumPage+1)}
-                  className={`rounder p-0.5 mx-1 text-white ${albumPage >= (swingVideos.length / swingsPerPage)-1 && "invisible"}`}
-                >
-                &gt;
-                </button>
-              </div>
+              </IconContext.Provider>
             </div>
           </div>
         </div>
@@ -1061,9 +1025,9 @@ export async function getServerSideProps({ params: { id }}) {
     props: {
       album,
       head: {
-        title: album.name,
-        desc: `Check out my tennis album "${album.name}"`,
-        img: album.swingVideos[0]?.jpgURL,
+        title: album?.name,
+        desc: `Check out my tennis album "${album?.name}"`,
+        img: album?.swingVideos[0]?.jpgURL,
         imgHeight: "600",
         imgWidth: "1066",
       }

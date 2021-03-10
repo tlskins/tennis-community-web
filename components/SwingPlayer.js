@@ -165,7 +165,7 @@ const SwingPlayerContent = ({
               </IconContext.Provider>
           }
           { !playing &&
-              <IconContext.Provider value={{ color: "blue" }}>
+              <IconContext.Provider value={{ color: "yellow" }}>
                 <div className="mx-2 content-center justify-center items-center cursor-pointer">
                   <FaPlayCircle onClick={() => {
                     const newPlayings = playings.map((p,j) => j === i ? true : p)

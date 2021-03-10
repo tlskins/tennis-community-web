@@ -40,8 +40,14 @@ let commentsCache = {}
 let posting = false
 
 const swingViewMap = {
-  "video": 9,
-  "jpg": 16,
+  "video": {
+    true: 20,
+    false: 9,
+  },
+  "jpg": {
+    true: 20,
+    false: 15,
+  },
 }
 
 let timer
@@ -72,11 +78,12 @@ const Album = ({
   const albumId = router.query.id && router.query.id[0]
   const { swing } = router.query
   const { width: windowWidth } = useWindowDimensions()
+  const isMobileView = windowWidth < 1000
 
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
   const [albumView, setAlbumView] = useState("video")
-  const [swingsPerPage, setSwingsPerPage] = useState(windowWidth < 1000 ? Math.round(swingViewMap["video"] / 3) : swingViewMap["video"])
+  const [swingsPerPage, setSwingsPerPage] = useState(swingViewMap["video"][isMobileView])
 
   const [showFooterUsage, setShowFooterUsage] = useState(false)
   const [showProUsage, setShowProUsage] = useState(false)
@@ -403,7 +410,7 @@ const Album = ({
                 <div className="flex flex-col text-sm">
                   {/* Album Overview */}
                   <div>
-                    <div className="flex flex-row relative pl-20">
+                    <div className="flex flex-row relative pl-12">
                       <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Overview" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                         <input type="radio"
                           checked={activeSideBar === "Album Overview"}
@@ -437,11 +444,12 @@ const Album = ({
                     </div>
                 
                     { activeSideBar === "Album Overview" &&
-                      <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2 overflow-auto">
-                        <div className="flex flex-col sticky left-0 content-center justify-center items-start pl-8 py-4 mb-4 rounded shadow-lg bg-gray-200 text-gray-700">
+                      <div className="flex flex-col rounded bg-white shadow-lg p-2 my-2">
+                        <div className="flex flex-col pl-8 py-4 mb-4 max-h-96 rounded shadow-lg bg-gray-200 text-gray-700 overflow-y-auto">
                           <p className="uppercase underline font-semibold mb-1">
                             { album?.swingVideos?.length } Total Swings | { swingsByRally.length } Rallies
                           </p>
+
                           <div>
                             <input type="checkbox"
                               className="mr-2"
@@ -458,36 +466,28 @@ const Album = ({
                               { filteredRallies.length === swingsByRally.length ? "Deselect All" : "Select All" }
                             </span>
                           </div>
-                          <div>
-                            {
-                              swingsByRally.map((swings, i) => {
-                                return(
-                                  <div key={i}>
-                                    <input type="checkbox"
-                                      className="mr-2"
-                                      checked={filteredRallies.includes(i+1)}
-                                      onChange={() => {
-                                        const rallies = filteredRallies.includes(i+1) ?
-                                          filteredRallies.filter( rally => rally != i+1) :
-                                          [...filteredRallies, i+1]
-                                        setFilteredRallies(rallies)
-                                        setAlbumPage(0)
-                                      }}
-                                    />
-                                    <span className="font-semibold mr-1">Rally {i+1}:</span>
-                                    <span className="text-xs">{swings.length} swings</span>
-                                  </div>
-                                )
-                              })
-                            }
-                          </div>
-                          
-                          {/* <a href="#"
-                            className="text-blue-700 text-xs underline cursor-pointer my-2"
-                            onClick={() => setShowGraph(!showGraph)}
-                          >
-                            { showGraph ? "Hide breakdown" : "Show breakdown from source video" }
-                          </a> */}
+
+                          {
+                            swingsByRally.map((swings, i) => {
+                              return(
+                                <div key={i}>
+                                  <input type="checkbox"
+                                    className="mr-2"
+                                    checked={filteredRallies.includes(i+1)}
+                                    onChange={() => {
+                                      const rallies = filteredRallies.includes(i+1) ?
+                                        filteredRallies.filter( rally => rally != i+1) :
+                                        [...filteredRallies, i+1]
+                                      setFilteredRallies(rallies)
+                                      setAlbumPage(0)
+                                    }}
+                                  />
+                                  <span className="font-semibold mr-1">Rally {i+1}:</span>
+                                  <span className="text-xs">{swings.length} swings</span>
+                                </div>
+                              )
+                            })
+                          }
                         </div>
                       </div>
                     }
@@ -495,7 +495,7 @@ const Album = ({
 
                   {/* Pro Comparison Sidebar */}
                   <div>
-                    <div className="flex flex-row relative pl-20">
+                    <div className="flex flex-row relative pl-12">
                       <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Pro Comparison" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                         <input type="radio"
                           checked={activeSideBar === "Pro Comparison"}
@@ -526,7 +526,7 @@ const Album = ({
 
                   {/* Video Resources Sidebar */}
                   <div>
-                    <div className="flex flex-row relative pl-20">
+                    <div className="flex flex-row relative pl-12">
                       <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Video Resources" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                         <input type="radio"
                           checked={activeSideBar === "Video Resources"}
@@ -560,7 +560,7 @@ const Album = ({
 
                   { (user && user.id == album?.userId) &&
                     <div>
-                      <div className="flex flex-row relative pl-20">
+                      <div className="flex flex-row relative pl-12">
                         <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Sharing" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                           <input type="radio"
                             checked={activeSideBar === "Sharing"}
@@ -611,7 +611,7 @@ const Album = ({
 
                   {/* Comments Sidebar */}
                   <div className="w-full">
-                    <div className="flex flex-row relative pl-20">
+                    <div className="flex flex-row relative pl-12">
                       <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Album Comments" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
                         <input type="radio"
                           checked={activeSideBar === "Album Comments"}
@@ -839,50 +839,50 @@ const Album = ({
                 </div>
               </div>
 
-              <div className="flex flex-col lg:flex-row lg:flex-wrap w-full h-full rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2">
+              <div className="flex flex-col lg:grid lg:grid-cols-3 rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2">
                 { pageVideos.map( (swing, i) => {
-                  const viewScale = albumView === "video" ? "items-center lg:w-1/3 lg:h-1/3" : "m-2"
+                  const viewScale = albumView === "video" ? "items-center" : "m-2"
                   return (
                     <div className={`flex flex-col rounded-md ${viewScale}`}
                       key={i}
                     >
                       { albumView === "video" &&
-                      <SwingPlayer
-                        albumId={albumId}
-                        showAlbumUsage={showAlbumUsage}
-                        swing={swing}
-                        swingFrames={SWING_FRAMES}
-                        i={i}
-                        playbackRate={playbackRate}
-                        pips={pips}
-                        playings={playings}
-                        playerFrames={playerFrames}
-                        playerRefs={playerRefs}
-                        playerWidth="320px"
-                        playerHeight="230px"
-                        handleSeekChange={handleSeekChange}
-                        isOwner={album.userId === user?.id}
-                        onDelete={onDeleteSwing(swing)}
-                        setPips={setPips}
-                        setPlayings={setPlayings}
-                        setPlayerFrames={setPlayerFrames}
-                      />
+                        <SwingPlayer
+                          albumId={albumId}
+                          showAlbumUsage={showAlbumUsage}
+                          swing={swing}
+                          swingFrames={SWING_FRAMES}
+                          i={i}
+                          playbackRate={playbackRate}
+                          pips={pips}
+                          playings={playings}
+                          playerFrames={playerFrames}
+                          playerRefs={playerRefs}
+                          playerWidth="320px"
+                          playerHeight="182px"
+                          handleSeekChange={handleSeekChange}
+                          isOwner={album.userId === user?.id}
+                          onDelete={onDeleteSwing(swing)}
+                          setPips={setPips}
+                          setPlayings={setPlayings}
+                          setPlayerFrames={setPlayerFrames}
+                        />
                       }
                       { albumView === "gif" &&
-                    <div>
-                      <img src={swing.gifURL}
-                        alt="loading..."
-                        style={{height: 180}}
-                      />
-                    </div>
+                        <div>
+                          <img src={swing.gifURL}
+                            alt="loading..."
+                            style={{height: 180}}
+                          />
+                        </div>
                       }
                       { albumView === "jpg" &&
-                    <div>
-                      <img src={swing.jpgURL}
-                        alt="loading..."
-                        style={{height: 180}}
-                      />
-                    </div>
+                        <div>
+                          <img src={swing.jpgURL}
+                            alt="loading..."
+                            style={{height: 180}}
+                          />
+                        </div>
                       }
                     </div>
                   )
@@ -894,8 +894,8 @@ const Album = ({
         </main>
 
         {/* All Video Controls Footer */}
-        <div className="sticky flex bottom-10 right-2 content-center justify-center items-center">
-          <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 lg:w-1/4 content-center justify-center items-center">
+        <div className="sticky flex bottom-10 lg-pl-25pct content-center justify-center items-center">
+          <div className="absolute flex flex-row bg-gray-700 rounded-full shadow-lg px-5 lg:px-1 py-1 mx-4 w-full lg:w-1/4 content-center justify-center items-center">
             <div className="hidden lg:flex flex-row">
               <input type="button"
                 className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white mr-1 cursor-pointer hidden lg:block"
@@ -982,9 +982,8 @@ const Album = ({
                   value={`${filteredSwings.length} ${albumView}`}
                   onClick={() => {
                     const newView = albumView === "video" ? "jpg" : "video"
-                    const newSwingPP = swingViewMap[newView]
                     setAlbumView(newView)
-                    setSwingsPerPage(windowWidth < 1000 ? Math.round(newSwingPP / 3) : newSwingPP)
+                    setSwingsPerPage(swingViewMap[newView][isMobileView])
                   }}
                 />
                 { showFooterUsage &&

@@ -36,37 +36,35 @@ const SwingPlayer = ({
   const pip = pips[i]
   const playing = playings[i]
   return (
-    <div className="flex flex-col content-center justify-center items-center m-1">
-      <div className="">
-        <ReactPlayer
-          ref={ref}
-          url={swing.videoURL} 
-          playing={playing}
-          pip={pip}
-          volume={0}
-          muted={true}
-          playbackRate={playbackRate}
-          loop={true}
-          progressInterval={200}
-          onProgress={({ played }) => {
-            const frame = Math.round(played*swingFrames)
-            setPlayerFrames({
-              ...playerFrames,
-              [i]: frame,
-            })
-          }}
-          width={playerWidth || ""}
-          height={playerHeight || ""}
-          config={{
-            file: {
-              attributes: {
-                controlsList: "nofullscreen",
-                playsInline: true,
-              }
+    <div className="flex flex-col justify-center items-center m-1 p-1 bg-gray-400 rounded shadow-lg">
+      <ReactPlayer
+        ref={ref}
+        url={swing.videoURL} 
+        playing={playing}
+        pip={pip}
+        volume={0}
+        muted={true}
+        playbackRate={playbackRate}
+        loop={true}
+        progressInterval={200}
+        onProgress={({ played }) => {
+          const frame = Math.round(played*swingFrames)
+          setPlayerFrames({
+            ...playerFrames,
+            [i]: frame,
+          })
+        }}
+        width={playerWidth || ""}
+        height={playerHeight || ""}
+        config={{
+          file: {
+            attributes: {
+              controlsList: "nofullscreen",
+              playsInline: true,
             }
-          }}
-        />
-      </div>
+          }
+        }}
+      />
 
       {/* Controls Panel */}
       <div className="flex flex-col content-center justify-center p-1 mt-1 w-full bg-gray-100 rounded">

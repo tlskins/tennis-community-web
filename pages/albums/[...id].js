@@ -41,7 +41,7 @@ let posting = false
 
 const swingViewMap = {
   "video": {
-    true: 20,
+    true: 3,
     false: 9,
   },
   "jpg": {

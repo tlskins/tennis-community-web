@@ -3,13 +3,16 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import Moment from "moment"
+import Image from "next/image"
 
 import { LoadPublicAlbums } from "../behavior/coordinators/albums"
 import { setLoginFormVisible } from "../state/ui/action"
 import Notifications from "../components/Notifications"
 import SwingPlayer from "../components/SwingPlayer"
 import PageHead from "../components/PageHead"
+import HowToRecord from "../components/HowToRecord"
 
+import colors from "../styles/colors"
 import bg from "../public/homepage-bg.jpg"
 import mobileBg from "../public/homepage-mobile.jpg"
 import footerBg from "../public/footer.jpg"
@@ -26,9 +29,9 @@ import {
   IconContainer,
   IconSection,
   Section,
-  // VideoSection,
-  // VideoWrapper,
-  // VideoInnerWrapper,
+  VideoSection,
+  VideoWrapper,
+  VideoInnerWrapper,
   CommunityVideos,
   Footer,
   FooterInner,
@@ -45,6 +48,7 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
   const [playerFrames, setPlayerFrames] = useState({})
   const [playings, setPlayings] = useState([])
   const [pips, setPips] = useState([])
+  const [showCamAngles, setShowCamAngles] = useState(false)
 
   useEffect(() => {
     loadPublicAlbums({ homeApproved: true, limit: 3 })
@@ -121,6 +125,17 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
           </VideoWrapper>
         </VideoSection>
       </Section> */}
+      <Section bg={ colors.gray800 }>
+        <VideoSection>
+          <h2>How to record</h2>
+          <HowToRecord />
+          {/* <VideoWrapper>
+            <VideoInnerWrapper>
+              <iframe width="560" height="315" src="https://www.youtube.com/embed/CGRzfUccmNE" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
+            </VideoInnerWrapper>
+          </VideoWrapper> */}
+        </VideoSection>
+      </Section>
       <div className="w-full border border-t border-gray-300">
         <Section>
           <CommunityVideos>

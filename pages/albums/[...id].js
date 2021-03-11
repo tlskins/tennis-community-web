@@ -18,7 +18,6 @@ import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
 import { useWindowDimensions } from "../../behavior/helpers"
-import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { API_HOST } from "../../behavior/api/rest"
 import {
   pAlbum,
@@ -55,12 +54,10 @@ let timer
 
 const Album = ({
   confirmation,
-  recentUploads,
   user,
   usersCache,
 
   flagComment,
-  getRecentUploads,
   inviteUser,
   // loadAlbum,
   onShowInviteForm,
@@ -190,12 +187,6 @@ const Album = ({
       setAllPlaying(true)
     }
   }, [album?.id, rallyFilters, albumPage, swingsPerPage])
-
-  useEffect(() => {
-    if (user && recentUploads === null) {
-      getRecentUploads()
-    }
-  }, [recentUploads, user])
 
   const handleAllSeekChange = e => {
     const frame = parseFloat(e.target.value)
@@ -997,7 +988,6 @@ const Album = ({
 
 const mapStateToProps = (state) => {
   return {
-    recentUploads: state.recentUploads,
     confirmation: state.confirmation,
     user: state.user,
     usersCache: state.usersCache,
@@ -1007,7 +997,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     flagComment: FlagComment(dispatch),
-    getRecentUploads: GetRecentUploads(dispatch),
     inviteUser: InviteUser(dispatch),
     loadAlbum: LoadAlbum(dispatch),
     onShowInviteForm: () => dispatch(setLoginFormVisible("INVITE")),
@@ -1043,14 +1032,12 @@ Album.propTypes = {
   head: PropTypes.object,
   user: PropTypes.object,
   usersCache: PropTypes.object,
-  recentUploads: PropTypes.arrayOf(PropTypes.object),
   pageTitle: PropTypes.string,
   pageDesc: PropTypes.string,
   pageImg: PropTypes.string,
 
   flagComment: PropTypes.func,
   flashMessage: PropTypes.func,
-  getRecentUploads: PropTypes.func,
   inviteUser: PropTypes.func,
   loadAlbum: PropTypes.func,
   onShowInviteForm: PropTypes.func,

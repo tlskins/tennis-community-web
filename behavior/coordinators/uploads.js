@@ -39,24 +39,24 @@ export const UploadVideo = (dispatch) => async ({
       ACL: "public-read",
     }
 
-    s3.upload(params, async (err, data) => {
-      if (err) {
+    s3.upload(params, async (_, data) => {
+      try {
+        const response = await post("/uploads", {
+          originalURL: data.Location,
+          albumName,
+          isPublic,
+          isViewableByFriends,
+          friendIds,
+        })
+        console.log("create_swing_upload response", response )
+  
+        dispatch(newNotification({ message: `Processing new album: "${albumName}" ETA 5 minutes (${Moment().add(5, "minutes").format("h:mm a")})` }))
+  
+        if (callback) {
+          callback(response)
+        }
+      } catch ( err ) {
         HandleError(dispatch, err)
-        return false
-      }
-      const response = await post("/uploads", {
-        originalURL: data.Location,
-        albumName,
-        isPublic,
-        isViewableByFriends,
-        friendIds,
-      })
-      console.log("create_swing_upload response", response )
-
-      dispatch(newNotification({ message: `Processing new album: "${albumName}" ETA 5 minutes (${Moment().add(5, "minutes").format("h:mm a")})` }))
-
-      if (callback) {
-        callback(response)
       }
     })
   }

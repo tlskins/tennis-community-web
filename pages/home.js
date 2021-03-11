@@ -8,6 +8,7 @@ import Notifications from "../components/Notifications"
 import HowToUpload from "../components/HowToUpload"
 import AlbumAndComments from "../components/AlbumAndComments"
 import PageHead from "../components/PageHead"
+import { GetRecentUploads } from "../behavior/coordinators/uploads"
 import { LoadUser, UpdateUserProfile } from "../behavior/coordinators/users"
 import { 
   SearchFriends,
@@ -37,6 +38,7 @@ const sharedAlbumsPerPage = 3
 let timer
 
 const Home = ({
+  recentUploads,
   reduxMyAlbums,
   reduxFriendsAlbums,
   reduxSharedAlbums,
@@ -45,6 +47,7 @@ const Home = ({
   usersCache,
   
   acceptFriendRequest,
+  getRecentUploads,
   loadMyAlbums,
   loadFriendsAlbums,
   loadPublicAlbums,
@@ -81,14 +84,9 @@ const Home = ({
   const myActiveAlbums = (myAlbums || []).slice(myAlbumsPage * myAlbumsPerPage, (myAlbumsPage+1) * myAlbumsPerPage).filter( a => !!a ) || []
   const sharedActiveAlbums = (sharedAlbums || []).slice(sharedAlbumsPage * sharedAlbumsPerPage, (sharedAlbumsPage+1) * sharedAlbumsPerPage).filter( a => !!a ) || []
 
-  // useEffect(() => {
-  //   if (!user || !user?.id) {
-  //     router.push("/")
-  //   }
-  // }, [user])
-
   useEffect( async () => {
     loadMyAlbums()
+    getRecentUploads()
 
     // load shared albums by relevance then presence
     const shared = await loadSharedAlbums()
@@ -291,8 +289,21 @@ const Home = ({
                   My Albums
                 </h2>
 
-                <div className="block pt-6 p-4 bg-white rounded shadow-lg static">
+                <div className="flex flex-row p-4 mb-2 text-sm text-center content-center justify-center items-center tracking-wide font-semibold bg-blue-300 rounded shadow-lg">
+                  <div className="flex flex-col text-right">
+                    <p className="text-right">Total Albums:</p>
+                    <p className="text-right">Uploads limit per week:</p>
+                    <p className="text-right">Uploads this week:</p>
+                  </div>
 
+                  <div className="flex flex-col text-left text-yellow-200">
+                    <p className="ml-2 text-left">{ myAlbums?.length }</p>
+                    <p className="ml-2 text-left">{ user?.weeklyUploadsLimit }</p>
+                    <p className="ml-2 text-left">{ recentUploads?.length }</p>
+                  </div>
+                </div>
+
+                <div className="block pt-6 p-4 bg-white rounded shadow-lg static">
                   { (myActiveAlbums.length === 0 && myAlbums === []) &&
                       <div className="px-20 mt-4">
                         <p className="text-center bg-gray-100 text-gray-700 tracking-wide rounded-lg w-full px-20">no albums</p>
@@ -304,7 +315,6 @@ const Home = ({
                       </div>
                   }
 
-                  {/* <div className="flex flex-row lg:flex-wrap lg:content-center lg:justify-center lg:items-center overflow-x-scroll lg:overflow-auto"> */}
                   <div className="flex flex-row lg:grid lg:grid-cols-2 lg:gap-2 items-center overflow-x-scroll lg:overflow-x-auto">
                       
                     { myAlbumsPage === 0 &&
@@ -650,6 +660,7 @@ const Home = ({
 const mapStateToProps = (state) => {
   console.log("mapStateToProps", state)
   return {
+    recentUploads: state.recentUploads,
     reduxMyAlbums: state.albums.myAlbums,
     reduxFriendsAlbums: state.albums.friendsAlbums,
     reduxSharedAlbums: state.albums.sharedAlbums,
@@ -661,6 +672,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    getRecentUploads: GetRecentUploads(dispatch),
     loadMyAlbums: LoadMyAlbums(dispatch),
     loadFriendsAlbums: LoadFriendsAlbums(dispatch),
     loadSharedAlbums: LoadSharedAlbums(dispatch),
@@ -676,6 +688,7 @@ const mapDispatchToProps = (dispatch) => {
 }
   
 Home.propTypes = {
+  recentUploads: PropTypes.arrayOf(PropTypes.object),
   reduxMyAlbums: PropTypes.arrayOf(PropTypes.object),
   reduxFriendsAlbums: PropTypes.arrayOf(PropTypes.object),
   reduxSharedAlbums: PropTypes.arrayOf(PropTypes.object),
@@ -684,6 +697,7 @@ Home.propTypes = {
   usersCache: PropTypes.object,
 
   acceptFriendRequest: PropTypes.func,
+  getRecentUploads: PropTypes.func,
   loadUser: PropTypes.func,
   searchFriends: PropTypes.func,
   sendFriendRequest: PropTypes.func,

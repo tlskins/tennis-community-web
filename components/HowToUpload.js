@@ -3,13 +3,14 @@ import PropTypes from "prop-types"
 import Image from "next/image"
 
 import SwingUploader from "./SwingUploader"
+import HowToRecord from "./HowToRecord"
 import uploadYellow from "../public/upload-yellow.svg"
 import uploadBlue from "../public/upload-blue.svg"
 
 
 const HowToUpload = ({ isFirst, isUploadFile }) => {
   const [hoverUpload, setHoverUpload] = useState(false)
-  const [showCamAngles, setShowCamAngles] = useState(false)
+  const [showHowRecord, setShowHowRecord] = useState(false)
 
   return(
     <div className="p-4 flex flex-row bg-gray-800 rounded shadow-lg mb-3">
@@ -34,17 +35,14 @@ const HowToUpload = ({ isFirst, isUploadFile }) => {
             <div className="pl-8 mt-3 mb-5 lg:mt-0 lg:pl-20 w-full">
               <ul className="list-disc text-sm lg:text-base">
                 <li>Using your mobile phone, record yourself playing a match, rallying, or hitting against the wall</li>
-                <li>Prop your phone up on a water bottle
-                  <span className="underline text-blue-300 cursor-pointer ml-2"
-                    onMouseEnter={() => setShowCamAngles(true)}
-                    onMouseLeave={() => setShowCamAngles(false)}
-                  >from the baseline or corner</span>
+                <li>
+                  <span className="underline text-blue-300 cursor-pointer"
+                    onClick={() => setShowHowRecord(!showHowRecord)}
+                  >
+                    How to record
+                  </span>
+                  { showHowRecord && <HowToRecord /> }
                 </li>
-                { showCamAngles &&
-                      <Image src="/cam-angles.svg" alt="Camera Angles" width="500" height="400"
-                        onClick={() => setShowCamAngles(false)}
-                      />
-                }
               </ul>
             </div>
 

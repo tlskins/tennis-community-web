@@ -42,7 +42,7 @@ let posting = false
 
 const swingViewMap = {
   "video": {
-    true: 9, // is mobile
+    true: 6, // is mobile
     false: 9,
   },
   "jpg": {

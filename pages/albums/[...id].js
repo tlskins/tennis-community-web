@@ -17,7 +17,7 @@ import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
-import { useWindowDimensions } from "../../behavior/helpers"
+import { useWindowDimensions, textareaCursor, cursorWord } from "../../behavior/helpers"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { API_HOST } from "../../behavior/api/rest"
 import {
@@ -85,6 +85,7 @@ const Album = ({
 
   const [albumView, setAlbumView] = useState("video")
   const [swingsPerPage, setSwingsPerPage] = useState(swingViewMap["video"][isMobileView])
+  const [textAreaRef, setTextAreaRef] = useState(createRef())
 
   const [showFooterUsage, setShowFooterUsage] = useState(false)
   const [showProUsage, setShowProUsage] = useState(false)
@@ -118,6 +119,7 @@ const Album = ({
   const [comment, setComment] = useState("")
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
+  const [searchedFriends, setSearchedFriends] = useState([])
 
   const [rallyFilters, setRallyFilters] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
@@ -256,6 +258,17 @@ const Album = ({
     executeAfterTimeout(() => {
       updateAlbum(updatedAlbum)
     }, 700)
+  }
+
+  const onCheckAndSearchFriends = text => {
+    const cursorIdx = textareaCursor(textAreaRef?.current)
+    const word = cursorWord(cursorIdx, text)
+    if (word.charAt(0) === "@") {
+      executeAfterTimeout(async () => {
+        const friends = await searchFriends({ search: text.slice(1) })
+        setSearchedFriends(friends)
+      }, 600)
+    }
   }
 
   const onPostComment = async () => {
@@ -651,19 +664,35 @@ const Album = ({
                                   <p className="pl-2 text-gray-700">{ replyPreview }</p>
                                 </div>
                               }
-                              <textarea
-                                className="p-2 rounded shadow-lg bg-gray-100"
-                                placeholder={commentsPlaceholder}
-                                rows="4"
-                                maxLength={500}
-                                value={comment}
-                                onClick={() => {
-                                  if (confirmation) onShowInviteForm()
-                                }}
-                                onChange={e => {
-                                  if (user && !user.disableComments) setComment(e.target.value)
-                                }}
-                              />
+                              <div className="flex flex-col relative">
+                                <textarea
+                                  ref={textAreaRef}
+                                  className="p-2 rounded shadow-lg bg-gray-100"
+                                  placeholder={commentsPlaceholder}
+                                  rows="4"
+                                  maxLength={500}
+                                  value={comment}
+                                  onClick={() => {
+                                    onCheckAndSearchFriends(comment)
+                                    if (confirmation) onShowInviteForm()
+                                  }}
+                                  onChange={e => {
+                                    const text = e.target.value
+                                    onCheckAndSearchFriends(text)
+                                    if (user && !user.disableComments) setComment(text)
+                                  }}
+                                />
+                                <div className="absolute bottom-0 bg-gray-800 w-full">
+                                  <div className="absolute mt-0.5 flex flex-col w-full">
+                                    <div className="h-8 p-1 mt-0.5 text-center text-yellow-300 rounded bg-gray-800 hover:bg-yellow-300 hover:text-gray-800 w-full overflow-hidden whitespace-nowrap cursor-pointer">
+                                    @timmy-the-truth (timothy lee and his long ass name that is stupid)
+                                    </div>
+                                    <div className="h-8 p-1 mt-0.5 text-center text-yellow-300 rounded bg-gray-800 hover:bg-yellow-300 hover:text-gray-800 w-full overflow-hidden whitespace-nowrap cursor-pointer">
+                                    @jimmy-the-juice (jim lee)
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
                               <div className="flex flex-row p-1 content-center justify-center items-center">
                                 <p className="text-sm mr-2 text-gray-500 align-middle">
                                   { Moment().format("MMM D h:mm a") }

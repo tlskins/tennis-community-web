@@ -116,3 +116,40 @@ export const useSession = (state, setState) => {
     hydrated,
   }
 }
+
+// Comments
+
+export function textareaCursor(node) {
+  //node.focus(); 
+  /* without node.focus() IE will returns -1 when focus is not on node */
+  if(node.selectionStart) return node.selectionStart
+  else if(!document.selection) return 0
+  var c		= "\\001"
+  var sel	= document.selection.createRange()
+  var dul	= sel.duplicate()
+  var len	= 0
+  dul.moveToElementText(node)
+  sel.text	= c
+  len		= (dul.text.indexOf(c))
+  sel.moveStart("character",-1)
+  sel.text	= ""
+  return len
+}
+
+const isWordChar = letter => {
+  return !!letter && letter !== "" && letter !== " "
+}
+
+export function cursorWord(cursorIdx, text) {
+  let start = !isWordChar(text.charAt(cursorIdx)) ? cursorIdx-1 : cursorIdx
+  while (isWordChar(text.charAt(start))) {
+    start -= 1
+  }
+
+  let end = cursorIdx
+  while (isWordChar(text.charAt(end))) {
+    end += 1
+  }
+
+  return text.slice(start+1, end)
+}

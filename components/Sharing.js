@@ -5,6 +5,8 @@ import PropTypes from "prop-types"
 import { SearchFriends } from "../behavior/coordinators/friends"
 
 
+let timer
+
 const Sharing = ({
   // redux
   user,
@@ -27,11 +29,12 @@ const Sharing = ({
   setInvFirstName,
   setInvLastName,
 }) => {
-  const [friendSearch, setFriendSearch] = useState("")
   const [isSearchingFriends, setIsSearchingFriends] = useState(friendIds.length > 0)
+  const [friendSearch, setFriendSearch] = useState("")
+  const [searchedFriends, setSearchedFriends] = useState([])
   const [isInviting, setIsInviting] = useState(false)
 
-  useEffect(() => {
+  useEffect( () => {
     if (friendIds.length > 0) {
       const ids = friendIds.filter( id => !usersCache[id])
       if (ids.length > 0) {
@@ -40,18 +43,25 @@ const Sharing = ({
     }
   }, [friendIds])
 
+  const executeAfterTimeout = (func, timeout) => {
+    if ( timer ) {
+      clearTimeout( timer )
+    }
+    timer = undefined
+    timer = setTimeout(() => {
+      func()
+    }, timeout )
+  }
 
-  const searchRgx = new RegExp(friendSearch, "gi")
-  const searchedFriendIds = user.friendIds.filter( friendId => {
-    const friend = usersCache[friendId]
-    if (!friend || friendIds.includes(friendId)) {
-      return false
-    }
-    if (friendSearch === "") {
-      return true
-    }
-    return searchRgx.test(friend.userName) || searchRgx.test(friend.firstName) || searchRgx.test(friend.lastName)
-  })
+  const onSearchFriends = text => async () => {
+    const friends = await searchFriends({ search: text, limit: 10 })
+    setSearchedFriends(friends)
+  }
+
+  const onSearchFriendsThrottle = async text => {
+    setFriendSearch(text)
+    executeAfterTimeout(onSearchFriends( text ), 600)
+  }
 
   return(
     <div className="flex flex-col p-8 bg-gray-300 rounded shadow-lg">
@@ -160,18 +170,17 @@ const Sharing = ({
                 className="rounded border border-black p-1 my-2 text-xs"
                 placeholder="search"
                 value={friendSearch}
-                onChange={e => setFriendSearch(e.target.value)}
+                onChange={e => onSearchFriendsThrottle(e.target.value)}
               />
 
               <div className="max-h-20 overflow-y-auto bg-white p-1 border border-white rounded">
-                { searchedFriendIds.map( friendId => {
-                  const friend = usersCache[friendId]
+                { searchedFriends.map( friend => {
                   return(
-                    <div key={friendId}
+                    <div key={friend.id}
                       className="rounded shadow-lg text-xs font-semibold bg-blue-300 py-1 px-1.5 cursor-pointer hover:bg-green-300 mt-1"
-                      onClick={() => setFriendIds([...friendIds, friendId])}
+                      onClick={() => setFriendIds([...friendIds, friend.id])}
                     >
-                      <p>{ friend ? `@${friend.userName} (${friend.firstName} ${friend.lastName})` : "Loading..."}</p>
+                      <p>{ `@${friend.userName} (${friend.firstName} ${friend.lastName})` }</p>
                     </div>
                   )
                 })}

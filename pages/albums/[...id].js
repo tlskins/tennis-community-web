@@ -117,6 +117,7 @@ const Album = ({
   const [commentsRef, setCommentsRef] = useState([])
   const [commenters, setCommenters] = useState([])
   const [comment, setComment] = useState("")
+  const [commentUserTags, setCommentUserTags] = useState([])
   const [replyId, setReplyId] = useState(undefined)
   const [replyPreview, setReplyPreview] = useState("")
   const [searchedFriends, setSearchedFriends] = useState([])
@@ -261,11 +262,13 @@ const Album = ({
   }
 
   const onCheckAndSearchFriends = text => {
+    setSearchedFriends([])
     const cursorIdx = textareaCursor(textAreaRef?.current)
-    const word = cursorWord(cursorIdx, text)
+    const [word, start, end] = cursorWord(cursorIdx, text)
     if (word.charAt(0) === "@") {
       executeAfterTimeout(async () => {
-        const friends = await searchFriends({ search: text.slice(1) })
+        let friends = await searchFriends({ search: word.slice(1), limit: 5 })
+        friends = friends.map( f => ({ ...f, start, end }))
         setSearchedFriends(friends)
       }, 600)
     }
@@ -682,14 +685,41 @@ const Album = ({
                                     if (user && !user.disableComments) setComment(text)
                                   }}
                                 />
-                                <div className="absolute bottom-0 bg-gray-800 w-full">
-                                  <div className="absolute mt-0.5 flex flex-col w-full">
-                                    <div className="h-8 p-1 mt-0.5 text-center text-yellow-300 rounded bg-gray-800 hover:bg-yellow-300 hover:text-gray-800 w-full overflow-hidden whitespace-nowrap cursor-pointer">
-                                    @timmy-the-truth (timothy lee and his long ass name that is stupid)
-                                    </div>
-                                    <div className="h-8 p-1 mt-0.5 text-center text-yellow-300 rounded bg-gray-800 hover:bg-yellow-300 hover:text-gray-800 w-full overflow-hidden whitespace-nowrap cursor-pointer">
-                                    @jimmy-the-juice (jim lee)
-                                    </div>
+                                { commentUserTags.length > 0 &&
+                                  <div className="flex flex-row mt-1 p-1 rounded shadow-lg">
+                                    { commentUserTags.map( (tag, i) => {
+                                      return(
+                                        <span key={i}
+                                          className="rounded px-0.5 shadow-md bg-yellow-300 "
+                                        >
+                                          @{ tag.user.userName }
+                                        </span>
+                                      )
+                                    })}
+                                  </div>
+                                }
+                                <div className="absolute bottom-0 w-full">
+                                  <div className="absolute mt-0.5 bg-white border border-white flex flex-col w-full">
+                                    { searchedFriends.map( friend => {
+                                      return(
+                                        <div key={friend.id}
+                                          className="h-8 p-1 mt-0.5 text-center text-yellow-300 rounded bg-gray-800 hover:bg-yellow-300 hover:text-gray-800 w-full overflow-hidden whitespace-nowrap cursor-pointer"
+                                          onClick={() => {
+                                            const { start, end, userName } = friend
+                                            setComment(
+                                              comment.slice(0,start)+
+                                              "@"+userName+
+                                              comment.slice(end, comment.length)
+                                            )
+                                            setCommentUserTags([...commentUserTags, { start, end, type: "user", user: friend }])
+                                            setSearchedFriends([])
+                                            textAreaRef?.current?.focus()
+                                          }}
+                                        >
+                                          {`@${friend.userName} (${friend.firstName} ${friend.lastName})`}
+                                        </div>
+                                      )
+                                    })}
                                   </div>
                                 </div>
                               </div>

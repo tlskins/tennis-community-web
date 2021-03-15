@@ -37,7 +37,7 @@ const FlashNotif = ({ notifications, onRemoveNotification }) => {
                   return(
                     <button key={i}
                       onClick={ callback }
-                      className="bg-white text-sm py-1 px-2 mx-2 my-2 rounded-lg border border-solid border-gray-300 cursor-pointer shadow text-gray-600 font-semibold focus:outline-none"
+                      className="bg-gray-800 text-sm py-1 px-2 mx-2 my-2 rounded cursor-pointer shadow-lg text-yellow-300 font-semibold"
                       aria-label="notification_ok"
                     >
                       { buttonText }

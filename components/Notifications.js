@@ -7,7 +7,6 @@ import { RemoveNotification, LoadUser } from "../behavior/coordinators/users"
 import { GetRecentUploads } from "../behavior/coordinators/uploads"
 import { useInterval } from "../behavior/helpers"
 import { newNotification } from "../state/ui/action"
-import { hasSession } from "../behavior/api/rest"
 
 const Notifications = ({
   user,
@@ -22,6 +21,7 @@ const Notifications = ({
   const uploadNoteIds = user?.uploadNotifications.map( note => note.id) || []
   const friendNoteIds = user?.friendNotifications.map( note => note.id) || []
   const commentNoteIds = user?.commentNotifications.map( note => note.id) || []
+  const albumUserTagNoteIds = user?.albumUserTagNotifications?.map( note => note.id ) || []
 
   useInterval(loadUser, 45000, 30)
 
@@ -107,6 +107,29 @@ const Notifications = ({
       })
     }
   }, [commentNoteIds])
+
+  useEffect(async () => {
+    user?.albumUserTagNotifications?.forEach( note => {
+      const message = `${note.taggerUserName} tagged you in the album ${note.albumName}`
+      toggleFlashMessage({
+        id: note.id,
+        message,
+        buttons: [
+          {
+            buttonText: "ok",
+            callback: () => removeNotification({ albumUserTagNotificationId: note.id }),
+          },
+          {
+            buttonText: "View",
+            callback: async () => {
+              await removeNotification({ albumUserTagNotificationId: note.id })
+              router.push(`/albums/${note.albumId}`)
+            },
+          },
+        ],
+      })
+    })
+  }, [albumUserTagNoteIds])
 
   return(
     <Fragment />

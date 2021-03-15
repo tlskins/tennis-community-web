@@ -263,6 +263,12 @@ const Album = ({
 
   const onCheckAndSearchFriends = text => {
     setSearchedFriends([])
+    // remove any deleted tags
+    const newUserTags = commentUserTags.filter( tag => {
+      return text.slice(tag.start, tag.end) === `@${tag.userName}`
+    })
+    setCommentUserTags(newUserTags)
+    // check if typing out a tag
     const cursorIdx = textareaCursor(textAreaRef?.current)
     const [word, start, end] = cursorWord(cursorIdx, text)
     if (word.charAt(0) === "@") {
@@ -279,7 +285,11 @@ const Album = ({
       return
     }
     posting = true
-    const params = { albumId, text: comment }
+    const params = {
+      albumId,
+      text: comment,
+      userTags: commentUserTags,
+    }
     if (replyId) {
       params.replyId = replyId
     }
@@ -287,6 +297,8 @@ const Album = ({
       setReplyId(undefined)
       setReplyPreview("")
       setComment("")
+      setCommentUserTags([])
+      setSearchedFriends([])
     }
     posting = false
   }
@@ -676,23 +688,25 @@ const Album = ({
                                   maxLength={500}
                                   value={comment}
                                   onClick={() => {
-                                    onCheckAndSearchFriends(comment)
+                                    if (user && comment) onCheckAndSearchFriends(comment)
                                     if (confirmation) onShowInviteForm()
                                   }}
                                   onChange={e => {
-                                    const text = e.target.value
-                                    onCheckAndSearchFriends(text)
-                                    if (user && !user.disableComments) setComment(text)
+                                    if (user && !user.disableComments) {
+                                      const text = e.target.value
+                                      onCheckAndSearchFriends(text)
+                                      setComment(text)
+                                    }
                                   }}
                                 />
                                 { commentUserTags.length > 0 &&
-                                  <div className="flex flex-row mt-1 p-1 rounded shadow-lg">
+                                  <div className="flex flex-row mt-1 p-1 bg-gray-100 rounded shadow-lg">
                                     { commentUserTags.map( (tag, i) => {
                                       return(
                                         <span key={i}
                                           className="rounded px-0.5 shadow-md bg-yellow-300 "
                                         >
-                                          @{ tag.user.userName }
+                                          @{ tag.userName }
                                         </span>
                                       )
                                     })}
@@ -705,13 +719,16 @@ const Album = ({
                                         <div key={friend.id}
                                           className="h-8 p-1 mt-0.5 text-center text-yellow-300 rounded bg-gray-800 hover:bg-yellow-300 hover:text-gray-800 w-full overflow-hidden whitespace-nowrap cursor-pointer"
                                           onClick={() => {
-                                            const { start, end, userName } = friend
+                                            const { id: userId, start, end, userName, firstName, lastName } = friend
                                             setComment(
                                               comment.slice(0,start)+
                                               "@"+userName+
                                               comment.slice(end, comment.length)
                                             )
-                                            setCommentUserTags([...commentUserTags, { start, end, type: "user", user: friend }])
+                                            setCommentUserTags([
+                                              ...commentUserTags,
+                                              { start, end: start+1+userName.length, userId, userName, firstName, lastName }
+                                            ])
                                             setSearchedFriends([])
                                             textAreaRef?.current?.focus()
                                           }}
@@ -765,7 +782,9 @@ const Album = ({
                                 <option value="ALL">All Users</option>
                                 { commenters.map( usrId => {
                                   return(
-                                    <option key={usrId} value={usrId}>{ usersCache[usrId]?.userName || "..." }</option>
+                                    <option key={usrId} value={usrId}>
+                                      { usersCache[usrId]?.userName || "..." }
+                                    </option>
                                   )
                                 })}
                               </select>

@@ -141,7 +141,10 @@ const isWordChar = letter => {
 }
 
 export function cursorWord(cursorIdx, text) {
-  let start = text.charAt(cursorIdx) === "" ? cursorIdx-1 : cursorIdx
+  let start = (text.charAt(cursorIdx) === "" && text.charAt(cursorIdx-1) !== " ") ?
+    cursorIdx-1
+    :
+    cursorIdx
   while (isWordChar(text.charAt(start))) {
     start -= 1
   }

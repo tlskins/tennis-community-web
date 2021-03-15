@@ -58,9 +58,9 @@ export const LoadUser = (dispatch) => async () => {
   return true
 }
 
-export const RemoveNotification = (dispatch) => async ({ uploadNotificationId, friendNotificationId, commentNotificationId }) => {
+export const RemoveNotification = (dispatch) => async ({ uploadNotificationId, friendNotificationId, commentNotificationId, albumUserTagNotificationId }) => {
   try {
-    const response = await put("/users/remove_notification", { uploadNotificationId, friendNotificationId, commentNotificationId })
+    const response = await put("/users/remove_notification", { uploadNotificationId, friendNotificationId, commentNotificationId, albumUserTagNotificationId })
     dispatch(setUser(response.data))
   }
   catch( err ) {

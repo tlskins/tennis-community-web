@@ -17,7 +17,7 @@ import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
-import { useWindowDimensions, textareaCursor, cursorWord } from "../../behavior/helpers"
+import { useWindowDimensions, textareaCursor, cursorWord, commentWithTags } from "../../behavior/helpers"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { API_HOST } from "../../behavior/api/rest"
 import {
@@ -137,16 +137,7 @@ const Album = ({
   }, [swing])
 
   useEffect(() => {
-    let allComments = [
-      ...(album?.comments || []),
-      ...(swingVideos.map( swing => 
-        swing.comments.map( comment => 
-          ({ ...comment, swingName: swing.name, swingId: swing.id })
-        )
-      ).flat()),
-    ]
-    allComments = allComments.sort((a, b) => Moment(a.createdAt).isAfter(b.createdAt) ? -1 : 1)
-    setComments(allComments)
+    setComments(album?.allComments || [])
     setIsPublic(album?.isPublic || false)
     setIsViewableByFriends(album?.isViewableByFriends || false)
     setFriendIds(album?.friendIds || [])
@@ -698,13 +689,19 @@ const Album = ({
                                       setComment(text)
                                     }
                                   }}
+                                  onKeyDown={e => {
+                                    if (e.key === "Escape") {
+                                      e.preventDefault()
+                                      setSearchedFriends([])
+                                    }
+                                  }}
                                 />
                                 { commentUserTags.length > 0 &&
                                   <div className="flex flex-row mt-1 p-1 bg-gray-100 rounded shadow-lg">
                                     { commentUserTags.map( (tag, i) => {
                                       return(
                                         <span key={i}
-                                          className="rounded px-0.5 shadow-md bg-yellow-300 "
+                                          className="rounded px-0.5 mx-0.5 shadow-md bg-yellow-300 "
                                         >
                                           @{ tag.userName }
                                         </span>
@@ -720,6 +717,7 @@ const Album = ({
                                           className="h-8 p-1 mt-0.5 text-center text-yellow-300 rounded bg-gray-800 hover:bg-yellow-300 hover:text-gray-800 w-full overflow-hidden whitespace-nowrap cursor-pointer"
                                           onClick={() => {
                                             const { id: userId, start, end, userName, firstName, lastName } = friend
+                                            if (commentUserTags.some( tag => tag.userName === userName )) return
                                             setComment(
                                               comment.slice(0,start)+
                                               "@"+userName+
@@ -831,7 +829,16 @@ const Album = ({
                                         }
                                         <div className="flex flex-col p-1 mt-2 mb-1">
                                           <p className="text-xs bg-gray-300 rounded-md shadow w-full px-2 py-0.5 mb-1">
-                                            { comment.text }
+                                            { comment.taggedText.map( (segment, i) => {
+                                              return(
+                                                segment.type === "text" ?
+                                                  segment.text
+                                                  :
+                                                  <span key={i} className="px-0.5 mx-0.5 bg-yellow-300 rounded shadow-lg">
+                                                    { segment.text }
+                                                  </span>
+                                              )
+                                            }) }
                                           </p>
                                         
                                           <div className="mx-1 mt-0.5 flex flex-row content-center justify-center items-center text-center">

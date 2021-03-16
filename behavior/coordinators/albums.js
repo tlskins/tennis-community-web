@@ -3,6 +3,7 @@ import { setAlbum } from "../../state/album/action"
 import { HandleError } from "./errors"
 import { newNotification } from "../../state/ui/action"
 import { setMyAlbums, setFriendsAlbums, setSharedAlbums, setPublicAlbums } from "../../state/album/action"
+import { commentWithTags } from "../helpers"
 
 import Moment from "moment"
 
@@ -10,10 +11,10 @@ export const pAlbum = json => {
   return {
     ...json,
     allComments: [
-      ...(json?.comments || []),
+      ...(json.comments || []).map( comment => ({ ...comment, taggedText: commentWithTags(comment) })),
       ...((json?.swingVideos || []).map( swing => 
         (swing.comments || []).map( comment => 
-          ({ ...comment, swingName: swing.name, swingId: swing.id })
+          ({ ...comment, swingName: swing.name, swingId: swing.id, taggedText: commentWithTags(comment) })
         )
       ).flat()),
     ].sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)

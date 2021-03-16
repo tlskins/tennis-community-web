@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useReducer } from "react"
+import React, { useState, useEffect, useRef } from "react"
 
 // interval timer
 
@@ -156,4 +156,19 @@ export function cursorWord(cursorIdx, text) {
 
   const startIdx = start+1
   return [text.slice(startIdx, end), startIdx, end]
+}
+
+export function commentWithTags(comment) {
+  const { text, userTags } = comment
+  let tags = userTags || []
+  const segments = []
+  let start = 0
+  tags.forEach( tag => {
+    segments.push({ text: text.slice(start, tag.start), type: "text" })
+    segments.push({ text: text.slice(tag.start, tag.end), type: "user" })
+    start = tag.end
+  })
+  if (start < text.length) segments.push({ text: text.slice(start, text.length), type: "text" })
+
+  return segments
 }

@@ -11,13 +11,14 @@ import axios from "axios"
 import { newNotification, setLoginFormVisible } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
+import CommentsListAndForm from "../../components/CommentsListAndForm"
 import Modal from "../../components/Modal"
 import PageHead from "../../components/PageHead"
 import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
-import { useWindowDimensions, textareaCursor, cursorWord, commentWithTags } from "../../behavior/helpers"
+import { useWindowDimensions, textareaCursor, cursorWord } from "../../behavior/helpers"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { API_HOST } from "../../behavior/api/rest"
 import {
@@ -27,17 +28,13 @@ import {
   PostComment,
   FlagComment,
 } from "../../behavior/coordinators/albums"
-import { SearchFriends } from "../..//behavior/coordinators/friends"
+import { SearchFriends } from "../../behavior/coordinators/friends"
 import { InviteUser } from "../../behavior/coordinators/users"
 import { setAlbum } from "../../state/album/action"
-import speechBubble from "../../public/speech-bubble.svg"
 import pencil from "../../public/pencil.svg"
-import flag from "../../public/flag.svg"
 import Sidebar from "../../components/Sidebar"
 
 const SWING_FRAMES = 60
-const REPLY_PREVIEW_LEN = 75
-let commentsCache = {}
 let posting = false
 
 const swingViewMap = {
@@ -83,11 +80,9 @@ const Album = ({
   const swingVideos = album?.swingVideos || []
   const videosCount = swingVideos.length
 
-  const [albumView, setAlbumView] = useState("video")
-  const [swingsPerPage, setSwingsPerPage] = useState(swingViewMap["video"][isMobileView])
-  const [textAreaRef, setTextAreaRef] = useState(createRef())
+  const [albumView,] = useState("video")
+  const [swingsPerPage,] = useState(swingViewMap["video"][isMobileView])
 
-  const [showFooterUsage, setShowFooterUsage] = useState(false)
   const [showProUsage, setShowProUsage] = useState(false)
   const [showVideoUsage, setShowVideoUsage] = useState(false)
   const [showSharingUsage, setShowSharingUsage] = useState(false)
@@ -114,17 +109,12 @@ const Album = ({
   const [invLastName, setInvLastName] = useState("")
 
   const [comments, setComments] = useState([])
-  const [commentsRef, setCommentsRef] = useState([])
-  const [commenters, setCommenters] = useState([])
-  const [comment, setComment] = useState("")
-  const [commentUserTags, setCommentUserTags] = useState([])
-  const [replyId, setReplyId] = useState(undefined)
-  const [replyPreview, setReplyPreview] = useState("")
-  const [searchedFriends, setSearchedFriends] = useState([])
 
   const [rallyFilters, setRallyFilters] = useState([])
   const [swingsByRally, setSwingsByRally] = useState([])
   const [pageVideos, setPageVideos] = useState([])
+
+  const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
 
   useEffect(() => {
     if (staticAlbum) {
@@ -159,12 +149,9 @@ const Album = ({
       comments.forEach( com => {
         if (!usersCache[com.userId]) usersSet.add(com.userId)
         commentersSet.add(com.userId)
-        commentsCache[com.id] = com
       })
       const ids = Array.from(usersSet)
       if (ids.length > 0) searchFriends({ ids })
-      setCommenters(Array.from(commentersSet))
-      setCommentsRef(ref => comments.map((_, i) => ref[i] || createRef()))
     }
   }, [comments])
 
@@ -252,103 +239,6 @@ const Album = ({
     }, 700)
   }
 
-  const onCheckAndSearchFriends = text => {
-    setSearchedFriends([])
-    // remove any deleted tags
-    const newUserTags = commentUserTags.filter( tag => {
-      return text.slice(tag.start, tag.end) === `@${tag.userName}`
-    })
-    setCommentUserTags(newUserTags)
-    // check if typing out a tag
-    const cursorIdx = textareaCursor(textAreaRef?.current)
-    const [word, start, end] = cursorWord(cursorIdx, text)
-    if (word.charAt(0) === "@") {
-      executeAfterTimeout(async () => {
-        let friends = await searchFriends({ search: word.slice(1), limit: 5 })
-        friends = friends.map( f => ({ ...f, start, end }))
-        setSearchedFriends(friends)
-      }, 600)
-    }
-  }
-
-  const onPostComment = async () => {
-    if (posting) {
-      return
-    }
-    posting = true
-    const params = {
-      albumId,
-      text: comment,
-      userTags: commentUserTags,
-    }
-    if (replyId) {
-      params.replyId = replyId
-    }
-    if (await postComment(params)) {
-      setReplyId(undefined)
-      setReplyPreview("")
-      setComment("")
-      setCommentUserTags([])
-      setSearchedFriends([])
-    }
-    posting = false
-  }
-
-  const onFlagComment = comment => () => {
-    flashMessage({
-      id: comment.id,
-      message: `Flag Comment: "${comment.text}" as inappropriate?`,
-      buttons: [
-        {
-          buttonText: "Confirm",
-          callback: async () => {
-            const success = await flagComment({
-              commentCreatedAt: comment.createdAt,
-              commentId: comment.id,
-              commenterId: comment.userId,
-              albumId: album.id,
-              text: comment.text,
-            })
-            if (success) {
-              flashMessage({
-                id: Moment().toString(),
-                message: "Comment Flagged!"
-              })
-            }
-          },
-        }
-      ],
-    })
-  }
-
-  const onSortComments = e => {
-    const sortBy = e.target.value
-    let newComments = []
-    if (sortBy === "POSTED ASC") {
-      newComments = comments.sort((a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? 1 : -1)
-    } else if (sortBy === "POSTED DESC") {
-      newComments = comments.sort((a,b) => Moment(a.createdAt).isBefore(Moment(b.createdAt)) ? 1 : -1)
-    }
-    setComments([...newComments])
-  }
-
-  const onFilterComments = e => {
-    const filterBy = e.target.value
-    let newComments = []
-    if (filterBy === "ALL") {
-      newComments = comments.map( com => {
-        com.isHidden = false
-        return com
-      })
-    } else {
-      newComments = comments.map( com => {
-        com.isHidden = com.userId !== filterBy
-        return com
-      })
-    }
-    setComments([...newComments])
-  }
-
   const onShareAlbum = async () => {
     const success = await updateAlbum(
       {
@@ -385,16 +275,6 @@ const Album = ({
         setInvLastName("")
       }
     }
-  }
-
-  const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
-  let commentsPlaceholder = "Comment on entire album"
-  if (!user) {
-    commentsPlaceholder = "Create account to comment"
-  } else if (user.disableComments) {
-    commentsPlaceholder = "Your commenting has been disabled. Please contact an administrator."
-  } else if (replyId) {
-    commentsPlaceholder = "Reply to comment"
   }
 
   return (
@@ -652,247 +532,12 @@ const Album = ({
                     { activeSideBar === "Album Comments" &&
                       <div className="my-2 rounded bg-white p-2 w-full">
                         <div className="flex flex-col content-center justify-center items-center overscroll-contain">
-                          <div className="flex flex-col w-full">
-
-                            {/* Comment Form */}
-                            { user?.disableComments &&
-                              <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your commenting has been disabled</p>
-                            }
-                            <div className="flex flex-col border-b-2 border-gray-400 mb-2">
-                              { replyId &&
-                                <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
-                                  onClick={() => {
-                                    setReplyPreview("")
-                                    setReplyId(undefined)
-                                  }}
-                                >
-                                  <p>reply to</p>
-                                  <p className="pl-2 text-gray-700">{ replyPreview }</p>
-                                </div>
-                              }
-                              <div className="flex flex-col relative">
-                                <textarea
-                                  ref={textAreaRef}
-                                  className="p-2 rounded shadow-lg bg-gray-100"
-                                  placeholder={commentsPlaceholder}
-                                  rows="4"
-                                  maxLength={500}
-                                  value={comment}
-                                  onClick={() => {
-                                    if (user && comment) onCheckAndSearchFriends(comment)
-                                    if (confirmation) onShowInviteForm()
-                                  }}
-                                  onChange={e => {
-                                    if (user && !user.disableComments) {
-                                      const text = e.target.value
-                                      onCheckAndSearchFriends(text)
-                                      setComment(text)
-                                    }
-                                  }}
-                                  onKeyDown={e => {
-                                    if (e.key === "Escape") {
-                                      e.preventDefault()
-                                      setSearchedFriends([])
-                                    }
-                                  }}
-                                />
-                                { commentUserTags.length > 0 &&
-                                  <div className="flex flex-row mt-1 p-1 bg-gray-100 rounded shadow-lg">
-                                    { commentUserTags.map( (tag, i) => {
-                                      return(
-                                        <span key={i}
-                                          className="rounded px-0.5 mx-0.5 shadow-md bg-yellow-300 "
-                                        >
-                                          @{ tag.userName }
-                                        </span>
-                                      )
-                                    })}
-                                  </div>
-                                }
-                                <div className="absolute bottom-0 w-full">
-                                  <div className="absolute mt-0.5 bg-white border border-white flex flex-col w-full">
-                                    { searchedFriends.map( friend => {
-                                      return(
-                                        <div key={friend.id}
-                                          className="h-8 p-1 mt-0.5 text-center text-yellow-300 rounded bg-gray-800 hover:bg-yellow-300 hover:text-gray-800 w-full overflow-hidden whitespace-nowrap cursor-pointer"
-                                          onClick={() => {
-                                            const { id: userId, start, end, userName, firstName, lastName } = friend
-                                            if (commentUserTags.some( tag => tag.userName === userName )) return
-                                            setComment(
-                                              comment.slice(0,start)+
-                                              "@"+userName+
-                                              comment.slice(end, comment.length)
-                                            )
-                                            setCommentUserTags([
-                                              ...commentUserTags,
-                                              { start, end: start+1+userName.length, userId, userName, firstName, lastName }
-                                            ])
-                                            setSearchedFriends([])
-                                            textAreaRef?.current?.focus()
-                                          }}
-                                        >
-                                          {`@${friend.userName} (${friend.firstName} ${friend.lastName})`}
-                                        </div>
-                                      )
-                                    })}
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="flex flex-row p-1 content-center justify-center items-center">
-                                <p className="text-sm mr-2 text-gray-500 align-middle">
-                                  { Moment().format("MMM D h:mm a") }
-                                </p>
-                                <p className="text-sm mr-2 align-middle font-bold">
-                                    |
-                                </p>
-                                <p className="text-sm mr-2 align-middle font-medium">
-                                    chars {comment.length}
-                                </p>
-                                <p className="text-sm mr-2 align-middle font-bold">
-                                    |
-                                </p>
-                                <input type='button'
-                                  className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
-                                  value='post'
-                                  disabled={!user || user.disableComments}
-                                  onClick={onPostComment}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Comments Filters / Sort */}
-                            <div className="flex flex-row my-2 content-center justify-center items-center">
-                              <div className="flex flex-row bg-white rounded p-0.5 mx-1 text-xs w-8">
-                                <p className="mr-1 text-center">{(comments?.length || 0)}</p>
-                                <img src={speechBubble} className="w-5 h-5"/>
-                              </div>
-
-                              <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                                onChange={onSortComments}
-                              >
-                                <option value="POSTED ASC">Sort by First Posted</option>
-                                <option value="POSTED DESC">Sort by Last Posted</option>
-                              </select>
-
-                              <select className="rounded py-0.5 px-1 mx-2 border border-black bg-blue-600 text-white text-xs"
-                                onChange={onFilterComments}
-                              >
-                                <option value="ALL">All Users</option>
-                                { commenters.map( usrId => {
-                                  return(
-                                    <option key={usrId} value={usrId}>
-                                      { usersCache[usrId]?.userName || "..." }
-                                    </option>
-                                  )
-                                })}
-                              </select>
-                            </div>
-
-                            {/* Comments List  */}
-                            <div className="flex flex-col overflow-y-auto lg:h-full rounded shadow-lg bg-gray-300 border border-gray-300 p-1">
-                              { comments.filter( com => !com.isHidden ).length === 0 &&
-                                  <p className="text-center p-2"> No comments </p>
-                              }
-                              
-                              { comments.length > 0 &&
-                                <div className="max-h-96">
-                                  { comments.map( (comment, idx) => {
-                                    return(
-                                      <div key={comment.id}
-                                        className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg ${comment.isHidden ? "hidden" : ""}`}
-                                        ref={commentsRef[idx]}
-                                      >
-                                        { comment.replyId &&
-                                          <div className="p-2 rounded shadow-lg text-xs bg-gray-400 cursor-pointer hover:bg-gray-300">
-                                            <p>reply to</p>
-                                            <p className="pl-2 text-gray-700"
-                                              onClick={() => {
-                                                const replyIdx = comments.findIndex( c => c.id === comment.replyId )
-                                                if (!replyIdx) return
-                                                commentsRef[replyIdx].current.scrollIntoView()
-                                              }}
-                                            >
-                                              { commentsCache[comment.replyId]?.text?.substring(0, REPLY_PREVIEW_LEN) }
-                                            </p>
-                                            <div className="flex flex-row items-center text-center">
-                                              <p className="mx-2 text-xs text-blue-500 align-middle">
-                                                @{ usersCache[commentsCache[comment.replyId]?.userId]?.userName || "..." }
-                                              </p>
-                                              <p className="mx-2 text-sm align-middle font-bold">
-                                                |
-                                              </p>
-                                              <p className="mx-2 text-xs text-gray-500 align-middle">
-                                                { Moment(commentsCache[comment.replyId]?.createdAt).format("MMM D h:mm a") }
-                                              </p>
-                                            </div>
-                                          </div>
-                                        }
-                                        <div className="flex flex-col p-1 mt-2 mb-1">
-                                          <p className="text-xs bg-gray-300 rounded-md shadow w-full px-2 py-0.5 mb-1">
-                                            { comment.taggedText.map( (segment, i) => {
-                                              return(
-                                                segment.type === "text" ?
-                                                  segment.text
-                                                  :
-                                                  <span key={i} className="px-0.5 mx-0.5 bg-yellow-300 rounded shadow-lg">
-                                                    { segment.text }
-                                                  </span>
-                                              )
-                                            }) }
-                                          </p>
-                                        
-                                          <div className="mx-1 mt-0.5 flex flex-row content-center justify-center items-center text-center">
-                                            <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
-                                              @{ usersCache[comment.userId]?.userName || "..." }
-                                            </p>
-                                            <p className="mx-1 text-sm align-middle font-bold">
-                                            |
-                                            </p>
-                                            { comment.swingId &&
-                                            <>
-                                              <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
-                                                href={`/albums/${albumId}?swing=${comment.swingId}`}
-                                              >
-                                              swing { comment.swingName }
-                                              </a>
-                                              <p className="mx-1 text-sm align-middle font-bold">
-                                              |
-                                              </p>
-                                            </>
-                                            }
-                                            <p className="mx-1 text-xs text-gray-500 align-middle">
-                                              { Moment(comment.createdAt).format("MMM D h:mm a") }
-                                            </p>
-                                            <p className="mx-1 text-sm align-middle font-bold">
-                                            |
-                                            </p>
-                                            { (user && !user.disableComments) &&
-                                            <input type='button'
-                                              className='border w-10 rounded py-0.5 px-0.5 mx-0.5 text-xs bg-green-700 text-white text-center cursor-pointer'
-                                              value='reply'
-                                              onClick={() => {
-                                                setReplyId(comment.id)
-                                                setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                                              }}
-                                            />
-                                            }
-                                            { (user && comment.userId !== user.id) &&
-                                            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
-                                              <img src={flag}
-                                                className="w-4 h-4 cursor-pointer"
-                                                onClick={onFlagComment(comment)}
-                                              />
-                                            </div>
-                                            }
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )
-                                  })}
-                                </div>
-                              }
-                            </div>
-                          </div>
+                          <CommentsListAndForm
+                            albumId={albumId}
+                            user={user}
+                            usersCache={usersCache}
+                            comments={comments}
+                          />
                         </div>
                       </div>
                     }
@@ -1112,9 +757,9 @@ export async function getServerSideProps({ params: { id }}) {
     props: {
       album,
       head: {
-        title: album?.name,
-        desc: `Check out my tennis album "${album?.name}"`,
-        img: album?.swingVideos[0]?.jpgURL,
+        title: album?.name || "",
+        desc: `Check out my tennis album "${album?.name || ""}"`,
+        img: album?.swingVideos[0]?.jpgURL || "",
         imgHeight: "600",
         imgWidth: "1066",
       }

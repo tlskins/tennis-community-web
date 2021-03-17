@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useReducer } from "react"
+import React, { useState, useEffect, useRef } from "react"
 
 // interval timer
 
@@ -115,4 +115,60 @@ export const useSession = (state, setState) => {
   return {
     hydrated,
   }
+}
+
+// Comments
+
+export function textareaCursor(node) {
+  //node.focus(); 
+  /* without node.focus() IE will returns -1 when focus is not on node */
+  if(node.selectionStart) return node.selectionStart
+  else if(!document.selection) return 0
+  var c		= "\\001"
+  var sel	= document.selection.createRange()
+  var dul	= sel.duplicate()
+  var len	= 0
+  dul.moveToElementText(node)
+  sel.text	= c
+  len		= (dul.text.indexOf(c))
+  sel.moveStart("character",-1)
+  sel.text	= ""
+  return len
+}
+
+const isWordChar = letter => {
+  return !!letter && letter !== "" && letter !== " "
+}
+
+export function cursorWord(cursorIdx, text) {
+  let start = (text.charAt(cursorIdx) === "" && text.charAt(cursorIdx-1) !== " ") ?
+    cursorIdx-1
+    :
+    cursorIdx
+  while (isWordChar(text.charAt(start))) {
+    start -= 1
+  }
+
+  let end = cursorIdx
+  while (isWordChar(text.charAt(end))) {
+    end += 1
+  }
+
+  const startIdx = start+1
+  return [text.slice(startIdx, end), startIdx, end]
+}
+
+export function commentWithTags(comment) {
+  const { text, userTags } = comment
+  let tags = userTags || []
+  const segments = []
+  let start = 0
+  tags.forEach( tag => {
+    segments.push({ text: text.slice(start, tag.start), type: "text" })
+    segments.push({ text: text.slice(tag.start, tag.end), type: "user" })
+    start = tag.end
+  })
+  if (start < text.length) segments.push({ text: text.slice(start, text.length), type: "text" })
+
+  return segments
 }

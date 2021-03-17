@@ -18,7 +18,7 @@ import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
 import ProComparison from "../../components/ProComparison"
-import { useWindowDimensions, textareaCursor, cursorWord } from "../../behavior/helpers"
+import { useWindowDimensions } from "../../behavior/helpers"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { API_HOST } from "../../behavior/api/rest"
 import {
@@ -35,7 +35,6 @@ import pencil from "../../public/pencil.svg"
 import Sidebar from "../../components/Sidebar"
 
 const SWING_FRAMES = 60
-let posting = false
 
 const swingViewMap = {
   "video": {
@@ -51,17 +50,13 @@ const swingViewMap = {
 let timer
 
 const Album = ({
-  confirmation,
   recentUploads,
   user,
   usersCache,
 
-  flagComment,
   getRecentUploads,
   inviteUser,
   // loadAlbum,
-  onShowInviteForm,
-  postComment,
   searchFriends,
   flashMessage,
   updateAlbum,
@@ -524,21 +519,19 @@ const Album = ({
                           onChange={() => {}}
                         />
                         <label className="ml-2 text-sm font-semibold uppercase">
-                      Album Comments
+                          Album Comments
                         </label>
                       </div>
                     </div>
 
                     { activeSideBar === "Album Comments" &&
                       <div className="my-2 rounded bg-white p-2 w-full">
-                        <div className="flex flex-col content-center justify-center items-center overscroll-contain">
-                          <CommentsListAndForm
-                            albumId={albumId}
-                            user={user}
-                            usersCache={usersCache}
-                            comments={comments}
-                          />
-                        </div>
+                        <CommentsListAndForm
+                          albumId={albumId}
+                          user={user}
+                          usersCache={usersCache}
+                          comments={comments}
+                        />
                       </div>
                     }
                   </div>
@@ -728,7 +721,6 @@ const Album = ({
 const mapStateToProps = (state) => {
   return {
     recentUploads: state.recentUploads,
-    confirmation: state.confirmation,
     user: state.user,
     usersCache: state.usersCache,
   }
@@ -736,12 +728,9 @@ const mapStateToProps = (state) => {
    
 const mapDispatchToProps = (dispatch) => {
   return {
-    flagComment: FlagComment(dispatch),
     getRecentUploads: GetRecentUploads(dispatch),
     inviteUser: InviteUser(dispatch),
     loadAlbum: LoadAlbum(dispatch),
-    onShowInviteForm: () => dispatch(setLoginFormVisible("INVITE")),
-    postComment: PostComment(dispatch),
     searchFriends: SearchFriends(dispatch),
     flashMessage: args => dispatch(newNotification(args)),
     updateAlbum: UpdateAlbum(dispatch),
@@ -769,22 +758,15 @@ export async function getServerSideProps({ params: { id }}) {
 
 Album.propTypes = {
   album: PropTypes.object,
-  confirmation: PropTypes.object,
   head: PropTypes.object,
   user: PropTypes.object,
   usersCache: PropTypes.object,
   recentUploads: PropTypes.arrayOf(PropTypes.object),
-  pageTitle: PropTypes.string,
-  pageDesc: PropTypes.string,
-  pageImg: PropTypes.string,
 
-  flagComment: PropTypes.func,
   flashMessage: PropTypes.func,
   getRecentUploads: PropTypes.func,
   inviteUser: PropTypes.func,
   loadAlbum: PropTypes.func,
-  onShowInviteForm: PropTypes.func,
-  postComment: PropTypes.func,
   searchFriends: PropTypes.func,
   updateAlbum: PropTypes.func,
   updateAlbumRedux: PropTypes.func,

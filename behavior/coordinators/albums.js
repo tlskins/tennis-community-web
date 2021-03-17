@@ -8,17 +8,23 @@ import { commentWithTags } from "../helpers"
 import Moment from "moment"
 
 export const pAlbum = json => {
-  return {
-    ...json,
-    allComments: [
-      ...(json.comments || []).map( comment => ({ ...comment, taggedText: commentWithTags(comment) })),
-      ...((json?.swingVideos || []).map( swing => 
-        (swing.comments || []).map( comment => 
-          ({ ...comment, swingName: swing.name, swingId: swing.id, taggedText: commentWithTags(comment) })
-        )
-      ).flat()),
-    ].sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
-  }
+  json.comments = (json.comments || []).map( comment => ({ ...comment, taggedText: commentWithTags(comment) }))
+  json.comments = json.comments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
+
+  json.swingVideos = (json.swingVideos || []).map( swing => ({
+    ...swing,
+    comments: (swing.comments || []).map( comment => 
+      ({ ...comment, swingName: swing.name, swingId: swing.id, taggedText: commentWithTags(comment) })
+    ).sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
+  }))
+  
+  json.allComments = [
+    ...json.comments,
+    ...(json?.swingVideos || []).map( swing => swing.comments || [] ).flat(),
+  ]
+  json.allComments = json.allComments.sort( (a,b) => Moment(a.createdAt).isAfter(Moment(b.createdAt)) ? -1 : 1)
+
+  return json
 }
 
 const pAlbums = json => {

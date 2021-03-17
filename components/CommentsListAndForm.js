@@ -14,11 +14,24 @@ let posting = false
 const REPLY_PREVIEW_LEN = 75
 let commentsCache = {}
 
+const executeAfterTimeout = (func, timeout) => {
+  if ( timer ) {
+    clearTimeout( timer )
+  }
+  timer = undefined
+  timer = setTimeout(() => {
+    func()
+  }, timeout )
+}
+
 const CommentsListAndForm = ({
   albumId,
+  playerFrame,
   user,
   usersCache,
   comments,
+  showSwingUsage,
+  swingId,
 }) => {
   const dispatch = useDispatch()
   const searchFriends = SearchFriends(dispatch)
@@ -42,16 +55,6 @@ const CommentsListAndForm = ({
     setCommentsRef(ref => comments.map((_, i) => ref[i] || createRef()))
   }, [comments])
 
-  const executeAfterTimeout = (func, timeout) => {
-    if ( timer ) {
-      clearTimeout( timer )
-    }
-    timer = undefined
-    timer = setTimeout(() => {
-      func()
-    }, timeout )
-  }
-
   const onPostComment = async () => {
     if (posting) {
       return
@@ -62,9 +65,9 @@ const CommentsListAndForm = ({
       text: comment,
       userTags: commentUserTags,
     }
-    if (replyId) {
-      params.replyId = replyId
-    }
+    if (replyId) params.replyId = replyId
+    if (swingId) params.swingId = swingId
+    if (playerFrame != null) params.frame = playerFrame
     if (await postComment(params)) {
       setReplyId(undefined)
       setReplyPreview("")
@@ -89,6 +92,7 @@ const CommentsListAndForm = ({
               commentId: comment.id,
               commenterId: comment.userId,
               albumId,
+              swingId,
               text: comment.text,
             })
             if (success) {
@@ -141,7 +145,10 @@ const CommentsListAndForm = ({
     textAreaRef?.current?.focus()
   }
 
-  let commentsPlaceholder = "Comment on entire album"
+  let commentsPlaceholder = swingId ?
+    "Comment on specific frame and tag friends using @"
+    :
+    "Comment on entire album and tag friends using @"
   if (!user) {
     commentsPlaceholder = "Create account to comment"
   } else if (user.disableComments) {
@@ -156,7 +163,7 @@ const CommentsListAndForm = ({
       { user?.disableComments &&
         <p className="rounded-md p-2 font-semibold bg-red-200 mb-2">Your commenting has been disabled</p>
       }
-      <div className="flex flex-col border-b-2 border-gray-400 mb-2">
+      <div className="flex flex-col mb-2">
         { replyId &&
             <div className="p-2 my-1 border border-black rounded text-xs bg-gray-300 hover:bg-red-100 cursor-pointer"
               onClick={() => {
@@ -210,6 +217,12 @@ const CommentsListAndForm = ({
               }
             }}
           />
+          { showSwingUsage &&
+            <div className="absolute -mb-28 bg-yellow-300 text-black text-xs font-semibold tracking-wide rounded shadow py-1.5 px-4 bottom-full z-100">
+              Use seek bar to select frame # to comment on
+              <svg className="absolute text-yellow-300 h-2 right-0 mr-3 top-full" x="0px" y="0px" viewBox="0 0 600 400" xmlSpace="preserve"><polygon className="fill-current" points="0,0 300,400 600,0"/></svg>
+            </div>
+          }
           { commentUserTags.length > 0 &&
             <div className="flex flex-row mt-1 p-1 bg-gray-100 rounded shadow-lg">
               { commentUserTags.map( (tag, i) => {
@@ -240,15 +253,20 @@ const CommentsListAndForm = ({
             </div>
           </div>
         </div>
-        <div className="flex flex-row p-1 content-center justify-center items-center">
-          <p className="text-sm mr-2 text-gray-500 align-middle">
-            { Moment().format("MMM D h:mm a") }
-          </p>
-          <p className="text-sm mr-2 align-middle font-bold">
-            |
-          </p>
+
+        <div className="flex flex-row p-1 mt-1 content-center justify-center items-center">
+          { playerFrame != null &&
+            <>
+              <p className="mx-1 text-xs px-1 rounded-lg bg-black text-center text-yellow-300 underline align-middle">
+                frame {playerFrame}
+              </p>
+              <p className="mx-2 text-xs align-middle font-bold">
+                |
+              </p>
+            </>
+          }
           <input type='button'
-            className='border w-12 rounded py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
+            className='border w-12 rounded-full shadow-lg py-0.5 px-2 text-xs bg-green-700 text-white text-center cursor-pointer'
             value='post'
             disabled={!user || user.disableComments}
             onClick={onPostComment}
@@ -267,7 +285,7 @@ const CommentsListAndForm = ({
               { comments.map( (comment, idx) => {
                 return(
                   <div key={comment.id}
-                    className={`px-2 py-1.5 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg ${comment.isHidden ? "hidden" : ""}`}
+                    className={`px-2 py-1 mb-2 ${comment.userId === user?.id ? "bg-gray-200" : "bg-white"} rounded shadow-lg ${comment.isHidden ? "hidden" : ""}`}
                     ref={commentsRef[idx]}
                   >
                     { comment.replyId &&
@@ -295,7 +313,8 @@ const CommentsListAndForm = ({
                           </div>
                         </div>
                     }
-                    <div className="flex flex-col p-1 mt-2 mb-1">
+
+                    <div className="flex flex-col mt-2 mb-1">
                       <p className="text-xs bg-gray-300 rounded-md shadow w-full px-2 py-0.5 mb-1">
                         { comment.taggedText.map( (segment, i) => {
                           return(
@@ -308,51 +327,55 @@ const CommentsListAndForm = ({
                           )
                         }) }
                       </p>
-                    
-                      <div className="mx-1 mt-0.5 flex flex-row content-center justify-center items-center text-center">
-                        <p className={`mx-1 text-xs ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"} align-middle`}>
+
+                      {/* content-center justify-center items-center */}
+                      <div className="mx-1 mt-0.5 flex lg:justify-center items-center overflow-x-auto">
+                        <div className={`mx-1 text-xs whitespace-nowrap ${comment.userId === user?.id ? "text-gray-700" : "text-blue-500"}`}>
                           @{ usersCache[comment.userId]?.userName || "..." }
-                        </p>
-                        <p className="mx-1 text-sm align-middle font-bold">
-                        |
-                        </p>
-                        { comment.swingId &&
-                        <>
-                          <a className="mx-1 text-xs px-2 rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
-                            href={`/albums/${albumId}?swing=${comment.swingId}`}
-                          >
-                            swing { comment.swingName }
-                          </a>
-                          <p className="mx-1 text-sm align-middle font-bold">
-                            |
-                          </p>
-                        </>
-                        }
-                        <p className="mx-1 text-xs text-gray-500 align-middle">
-                          { Moment(comment.createdAt).format("MMM D h:mm a") }
-                        </p>
-                        <p className="mx-1 text-sm align-middle font-bold">
-                        |
-                        </p>
-                        { (user && !user.disableComments) &&
-                        <input type='button'
-                          className='border w-10 rounded py-0.5 px-0.5 mx-0.5 text-xs bg-green-700 text-white text-center cursor-pointer'
-                          value='reply'
-                          onClick={() => {
-                            setReplyId(comment.id)
-                            setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
-                          }}
-                        />
-                        }
-                        { (user && comment.userId !== user.id) &&
-                        <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
-                          <img src={flag}
-                            className="w-4 h-4 cursor-pointer"
-                            onClick={onFlagComment(comment)}
-                          />
                         </div>
+                        <div className="mx-1 text-sm align-middle font-bold">
+                          |
+                        </div>
+                        <div className="mx-1 text-xs whitespace-nowrap text-gray-500 align-middle">
+                          { Moment(comment.createdAt).format("MMM D h:mm a") }
+                        </div>
+
+                        { comment.swingId &&
+                          <>
+                            <div className="mx-1 text-sm align-middle font-bold">
+                              |
+                            </div>
+                            <a className="mx-1 text-xs px-2 whitespace-nowrap rounded-lg bg-black text-yellow-300 shadow-md underline align-middle"
+                              href={`/albums/${albumId}?swing=${comment.swingId}`}
+                            >
+                              swing { comment.swingName } { comment.frame != null && `/ frame ${comment.frame || 0}`}
+                            </a>
+                          </>
                         }
                       </div>
+
+                      { user &&
+                        <div className="mx-1 mt-0.5 flex justify-center items-center overflow-x-auto">
+                          { (user && !user.disableComments) &&
+                            <input type='button'
+                              className='border w-10 rounded-full shadow-lg px-0.5 mx-0.5 text-xs bg-green-700 text-white text-center cursor-pointer'
+                              value='reply'
+                              onClick={() => {
+                                setReplyId(comment.id)
+                                setReplyPreview(comment.text.substring(0, REPLY_PREVIEW_LEN))
+                              }}
+                            />
+                          }
+                          { (user && comment.userId !== user.id) &&
+                            <div className="ml-2 mr-1 p-0.5 rounded-xl bg-white hover:bg-blue-300">
+                              <img src={flag}
+                                className="w-4 h-4 cursor-pointer"
+                                onClick={onFlagComment(comment)}
+                              />
+                            </div>
+                          }
+                        </div>
+                      }
                     </div>
                   </div>
                 )
@@ -367,9 +390,12 @@ const CommentsListAndForm = ({
 
 CommentsListAndForm.propTypes = {
   albumId: PropTypes.string,
+  playerFrame: PropTypes.number,
   user: PropTypes.object,
   usersCache: PropTypes.object,
   comments: PropTypes.arrayOf(PropTypes.object),
+  showSwingUsage: PropTypes.bool,
+  swingId: PropTypes.string,
 }
 
 export default CommentsListAndForm

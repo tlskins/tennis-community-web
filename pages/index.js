@@ -129,11 +129,6 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
         <VideoSection>
           <h2>How to record</h2>
           <HowToRecord />
-          {/* <VideoWrapper>
-            <VideoInnerWrapper>
-              <iframe width="560" height="315" src="https://www.youtube.com/embed/CGRzfUccmNE" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
-            </VideoInnerWrapper>
-          </VideoWrapper> */}
         </VideoSection>
       </Section>
       <div className="w-full border border-t border-gray-300">

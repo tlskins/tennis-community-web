@@ -160,9 +160,9 @@ const Album = ({
       const swings = filtered.slice(albumPage * swingsPerPage, (albumPage+1) * swingsPerPage)
 
       setPageVideos(swings)
-      setPlayerRefs(ref => pageVideos.map((_, i) => ref[i] || createRef()))
-      setPlayings(pageVideos.map(() => true))
-      setPips(pageVideos.map(() => false))
+      setPlayerRefs(ref => swings.map((_, i) => ref[i] || createRef()))
+      setPlayings(swings.map(() => true))
+      setPips(swings.map(() => false))
       setAllPlaying(true)
     }
   }, [album?.id, rallyFilters, albumPage, swingsPerPage])

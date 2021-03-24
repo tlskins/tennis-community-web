@@ -16,7 +16,10 @@ const SwingUploader = ({ displayAlert, getRecentUploads, uploadVideo, user }) =>
   const [uploading, setUploading] = useState(false)
 
   const onUploadVideo = async () => {
-    // displayAlert({ id: Moment().toString(), bgColor: "bg-green-300", message: "Uploading... Please do not navigate away from this page" })
+    displayAlert({
+      id: Moment().toString(),
+      message: "Please wait while your video is being uploaded...",
+    })
     setUploading(true)
     await uploadVideo({
       userId: user?.id,

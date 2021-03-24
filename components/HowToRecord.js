@@ -7,7 +7,7 @@ const HowToUpload = () => {
 
   return(
     <ul className="list-disc lg:w-1/2 text-white content-center justify-center items-center px-6">
-      <li className="my-2">Record yourself using your mobile phone or any camera in landscape mode</li>
+      <li className="my-2">Record yourself using your mobile phone or any camera in <span className="font-bold text-blue-300">landscape mode</span></li>
       <li className="my-2">Prop up your phone against a water bottle or tennis bag</li>
       <li className="my-2">It's easier to record using the front facing camera to more easily see if you are in frame when recording</li>
       <li className="my-2">

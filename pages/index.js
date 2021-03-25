@@ -124,8 +124,8 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
         </VideoSection>
       </Section> */}
 
-      <div className="w-full border border-t border-gray-200">
-        <Section bg={ colors.gray200 }>
+      <div className="w-full border border-t border-gray-800">
+        <Section>
           <CommunityVideos>
             <div className="flex flex-col">
               <h2 className="underline cursor-pointer text-blue-600"

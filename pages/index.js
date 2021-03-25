@@ -125,14 +125,9 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
           </VideoWrapper>
         </VideoSection>
       </Section> */}
-      <Section bg={ colors.gray800 }>
-        <VideoSection>
-          <h2>How to record</h2>
-          <HowToRecord />
-        </VideoSection>
-      </Section>
-      <div className="w-full border border-t border-gray-300">
-        <Section>
+
+      <div className="w-full border border-t border-gray-200">
+        <Section bg={ colors.gray200 }>
           <CommunityVideos>
             <div className="flex flex-col">
               <h2 className="underline cursor-pointer text-blue-600"
@@ -182,6 +177,14 @@ const Index = ({ publicAlbums, loadPublicAlbums, user, onShowNewUser }) => {
           </CommunityVideos>
         </Section>
       </div>
+
+      <Section bg={ colors.gray800 }>
+        <VideoSection>
+          <h2>How to record</h2>
+          <HowToRecord />
+        </VideoSection>
+      </Section>
+      
       <Footer bg={ footerBg } mobileBg={ footerBgMobile }>
         <FooterInner>
           <p className="footer-title">Have questions or feedback?</p>

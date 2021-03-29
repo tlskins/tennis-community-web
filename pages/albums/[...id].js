@@ -109,7 +109,8 @@ const Album = ({
   const [pageVideos, setPageVideos] = useState([])
 
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
-  const gridCols = `lg:grid-cols-${(pageVideos.length > 3 ? 3 : pageVideos.length).toString()}`
+  // const gridCols = `lg:grid-cols-${(pageVideos.length > 3 ? 3 : pageVideos.length).toString()}`
+  const gridCols = "lg:grid-cols-3"
 
   useEffect(() => {
     if (staticAlbum) {

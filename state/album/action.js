@@ -3,6 +3,7 @@ export const SET_MY_ALBUMS = "SET_MY_ALBUMS"
 export const SET_FRIENDS_ALBUMS = "SET_FRIENDS_ALBUMS"
 export const SET_SHARED_ALBUMS = "SET_SHARED_ALBUMS"
 export const SET_PUBLIC_ALBUMS = "SET_PUBLIC_ALBUMS"
+export const SET_PRO_ALBUMS = "SET_PRO_ALBUMS"
 
 export const setAlbum = ( album ) => ({
   type: SET_ALBUM,
@@ -22,5 +23,9 @@ export const setSharedAlbums = ( albums ) => ({
 })
 export const setPublicAlbums = ( albums ) => ({
   type: SET_PUBLIC_ALBUMS,
+  payload: albums,
+})
+export const setProAlbums = ( albums ) => ({
+  type: SET_PRO_ALBUMS,
   payload: albums,
 })

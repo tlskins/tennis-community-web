@@ -111,7 +111,7 @@ const SwingPlayerContent = ({
             </IconContext.Provider>
           </div>
 
-          { isOwner &&
+          { (isOwner && onDelete) &&
               <IconContext.Provider value={{ color: "red" }}>
                 <div className="mx-2 content-center justify-center items-center cursor-pointer"
                   onClick={onDelete}

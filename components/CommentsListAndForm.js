@@ -5,7 +5,7 @@ import PropTypes from "prop-types"
 
 import { textareaCursor, cursorWord } from "../behavior/helpers"
 import { SearchFriends } from "../behavior/coordinators/friends"
-import { PostComment, FlagComment } from "../behavior/coordinators/albums"
+import { FlagComment } from "../behavior/coordinators/albums"
 import { newNotification, setLoginFormVisible } from "../state/ui/action"
 import flag from "../public/flag.svg"
 
@@ -32,10 +32,11 @@ const CommentsListAndForm = ({
   comments,
   showSwingUsage,
   swingId,
+
+  postComment,
 }) => {
   const dispatch = useDispatch()
   const searchFriends = SearchFriends(dispatch)
-  const postComment = PostComment(dispatch)
   const flagComment = FlagComment(dispatch)
   const flashMessage = args => dispatch(newNotification(args))
   const onShowInviteForm = () => dispatch(setLoginFormVisible("INVITE"))
@@ -396,6 +397,8 @@ CommentsListAndForm.propTypes = {
   comments: PropTypes.arrayOf(PropTypes.object),
   showSwingUsage: PropTypes.bool,
   swingId: PropTypes.string,
+
+  postComment: PropTypes.func,
 }
 
 export default CommentsListAndForm

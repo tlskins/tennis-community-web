@@ -8,7 +8,7 @@ import { ImPrevious, ImNext } from "react-icons/im"
 import { IconContext } from "react-icons"
 import axios from "axios"
 
-import { newNotification, setLoginFormVisible } from "../../state/ui/action"
+import { newNotification } from "../../state/ui/action"
 import Notifications from "../../components/Notifications"
 import Sharing from "../../components/Sharing"
 import CommentsListAndForm from "../../components/CommentsListAndForm"
@@ -17,7 +17,7 @@ import PageHead from "../../components/PageHead"
 import SwingModal from "../../components/SwingModal"
 import SwingPlayer from "../../components/SwingPlayer"
 import VideoResources from "../../components/VideoResources"
-import ProComparison from "../../components/ProComparison"
+import AlbumComparison from "../../components/AlbumComparison"
 import { useWindowDimensions } from "../../behavior/helpers"
 import { GetRecentUploads } from "../../behavior/coordinators/uploads"
 import { API_HOST } from "../../behavior/api/rest"
@@ -26,7 +26,6 @@ import {
   LoadAlbum,
   UpdateAlbum,
   PostComment,
-  FlagComment,
 } from "../../behavior/coordinators/albums"
 import { SearchFriends } from "../../behavior/coordinators/friends"
 import { InviteUser } from "../../behavior/coordinators/users"
@@ -66,8 +65,9 @@ const Album = ({
   head,
 }) => {
   const router = useRouter()
-  const album = useSelector(state => state.album)
   const dispatch = useDispatch()
+  const postComment = PostComment(dispatch)
+  const album = useSelector(state => state.album)
   const albumId = router.query.id && router.query.id[0]
   const { swing } = router.query
   const { width: windowWidth } = useWindowDimensions()
@@ -78,7 +78,6 @@ const Album = ({
   const [albumView,] = useState("video")
   const [swingsPerPage,] = useState(swingViewMap["video"][isMobileView])
 
-  const [showProUsage, setShowProUsage] = useState(false)
   const [showVideoUsage, setShowVideoUsage] = useState(false)
   const [showSharingUsage, setShowSharingUsage] = useState(false)
   const [showAlbumUsage, setShowAlbumUsage] = useState(false)
@@ -110,6 +109,7 @@ const Album = ({
   const [pageVideos, setPageVideos] = useState([])
 
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
+  const gridCols = (pageVideos.length > 3 ? 3 : pageVideos.length).toString()
 
   useEffect(() => {
     if (staticAlbum) {
@@ -214,6 +214,13 @@ const Album = ({
         }
       ]
     })
+  }
+
+  const onPostComment = async args => {
+    const album = await postComment(args)
+    if (!album) return
+    dispatch(setAlbum(album))
+    return album
   }
 
   const executeAfterTimeout = (func, timeout) => {
@@ -393,7 +400,7 @@ const Album = ({
                     }
                   </div>
 
-                  {/* Pro Comparison Sidebar */}
+                  {/* Album Comparison Sidebar */}
                   <div>
                     <div className="flex flex-row relative pl-12">
                       <div className={`flex content-center justify-center items-center py-0.5 px-2 my-1 rounded-xl ${activeSideBar === "Pro Comparison" ? "bg-yellow-300" : "bg-gray-800 text-yellow-300"}`}>
@@ -403,23 +410,14 @@ const Album = ({
                           onChange={() => {}}
                         />
                         <label className="ml-2 text-sm font-semibold uppercase">
-                          Pro Comparison
+                          Album & Pro Comparison
                         </label>
                       </div>
-
-                      <input type="button"
-                        className="text-xs rounded-full bg-black text-white hover:bg-white hover:text-black h-4 w-4 border border-white ml-2 mt-2 cursor-pointer hidden lg:block"
-                        value="?"
-                        onClick={() => {
-                          setShowProUsage(activeSideBar !== "Pro Comparison" ? true : !showProUsage)
-                          setActiveSidebar("Pro Comparison")
-                        }}
-                      />
                     </div>
 
                     { activeSideBar === "Pro Comparison" &&
                       <div className="my-2">
-                        <ProComparison showUsage={showProUsage} />
+                        <AlbumComparison />
                       </div>
                     }
                   </div>
@@ -531,6 +529,7 @@ const Album = ({
                           user={user}
                           usersCache={usersCache}
                           comments={comments}
+                          postComment={onPostComment}
                         />
                       </div>
                     }
@@ -568,7 +567,7 @@ const Album = ({
                 </div>
               </div>
 
-              <div className="flex flex-col lg:grid lg:grid-cols-3 rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2">
+              <div className={`flex flex-col lg:grid lg:grid-cols-${gridCols} rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2`}>
                 { pageVideos.map( (swing, i) => {
                   const viewScale = albumView === "video" ? "items-center" : "m-2"
                   return (
@@ -653,7 +652,7 @@ const Album = ({
                           </div>
                           <div className="text-center text-xs hidden lg:block">
                             { pageVideos[0] && `${parseInt(pageVideos[0].timestampSecs/60)}:${parseInt(pageVideos[0].timestampSecs%60).toString().padStart(2,"0")} ` }
-                          -
+                            -
                             { pageVideos[pageVideos.length-1] && ` ${parseInt(pageVideos[pageVideos.length-1].timestampSecs/60)}:${parseInt(pageVideos[pageVideos.length-1].timestampSecs%60).toString().padStart(2,"0")}` }
                           </div>
                         </div>

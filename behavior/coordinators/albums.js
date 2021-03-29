@@ -2,7 +2,13 @@ import { get, put, post, del } from "../api/rest"
 import { setAlbum } from "../../state/album/action"
 import { HandleError } from "./errors"
 import { newNotification } from "../../state/ui/action"
-import { setMyAlbums, setFriendsAlbums, setSharedAlbums, setPublicAlbums } from "../../state/album/action"
+import {
+  setMyAlbums,
+  setFriendsAlbums,
+  setSharedAlbums,
+  setPublicAlbums,
+  setProAlbums,
+} from "../../state/album/action"
 import { commentWithTags } from "../helpers"
 
 import Moment from "moment"
@@ -88,6 +94,19 @@ export const LoadPublicAlbums = (dispatch) => async ({ homeApproved, limit, offs
   }
 }
 
+export const LoadProAlbums = (dispatch) => async ({ limit, offset } = {}) => {
+  try {
+    const response = await put("/albums/search", { pro: true, limit, offset })
+    const albums = pAlbums(response.data)
+    dispatch(setProAlbums(albums))
+    return albums
+  }
+  catch( err ) {
+    HandleError(dispatch, err)
+    return false
+  }
+}
+
 export const LoadAlbum = (dispatch) => async (albumId) => {
   try {
     const response = await get(`/albums/${albumId}`)
@@ -162,14 +181,12 @@ export const PostComment = (dispatch) => async ({ albumId, swingId, replyId, tex
       params.replyId = replyId
     }
     const response = await post(`/albums/${albumId}/comments`, params)
-    const album = pAlbum( response.data )
-    dispatch(setAlbum(album))
+    return pAlbum( response.data )
   }
   catch( err ) {
     HandleError(dispatch, err)
     return false
   }
-  return true
 }
 
 export const FlagComment = (dispatch) => async ({

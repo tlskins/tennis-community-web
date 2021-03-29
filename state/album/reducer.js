@@ -4,6 +4,7 @@ import {
   SET_FRIENDS_ALBUMS,
   SET_SHARED_ALBUMS,
   SET_PUBLIC_ALBUMS,
+  SET_PRO_ALBUMS,
 } from "./action"
 import { LOG_OUT } from "../store"
 
@@ -13,6 +14,7 @@ export const albumsInitialState = {
   friendsAlbums: [],
   sharedAlbums: [],
   publicAlbums: [],
+  proAlbums: [],
 }
 
 
@@ -53,6 +55,10 @@ export function albumsReducer(
   case SET_PUBLIC_ALBUMS: {
     const { payload } = action  
     return { ...state, publicAlbums: [...payload] }
+  }
+  case SET_PRO_ALBUMS: {
+    const { payload } = action  
+    return { ...state, proAlbums: [...payload] }
   }
   case LOG_OUT: {
     return { ...albumsInitialState }

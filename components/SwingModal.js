@@ -1,13 +1,15 @@
 import React, { useEffect, useState, createRef } from "react"
-import { connect } from "react-redux"
+import { connect, useDispatch } from "react-redux"
 import ReactPlayer from "react-player"
 import PropTypes from "prop-types"
 import { useRouter } from "next/router"
 import { FaPlayCircle, FaRegPauseCircle } from "react-icons/fa"
 import { IconContext } from "react-icons"
 
-import { LoadAlbum, UpdateSwing } from "../behavior/coordinators/albums"
+import { LoadAlbum, UpdateSwing, PostComment } from "../behavior/coordinators/albums"
 import { SearchFriends } from "../behavior/coordinators/friends"
+import { setAlbum } from "../state/album/action"
+
 import CommentsListAndForm from "./CommentsListAndForm"
 import pencil from "../public/pencil.svg"
 
@@ -35,6 +37,8 @@ const SwingModal = ({
   updateSwing,
 }) => {
   const router = useRouter()
+  const dispatch = useDispatch()
+  const postComment = PostComment(dispatch)
   const albumId = router.query.id && router.query.id[0]
   const swingVideos = album?.swingVideos || []
   const swing = swingVideos.find( sw => sw.id === swingId )
@@ -94,6 +98,13 @@ const SwingModal = ({
     executeAfterTimeout(() => {
       updateSwing({ ...swing, albumId: album.id, name: e.target.value })
     }, 700)
+  }
+
+  const onPostComment = async args => {
+    const album = await postComment(args)
+    if (!album) return
+    dispatch(setAlbum(album))
+    return album
   }
 
   const renderVideo = ({ swing, ref, playing, pip, duration }) => {
@@ -278,6 +289,7 @@ const SwingModal = ({
           comments={comments}
           showSwingUsage={showSwingUsage}
           swingId={swingId}
+          postComment={onPostComment}
         />
       </div>
     </div>

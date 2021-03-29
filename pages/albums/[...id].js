@@ -109,7 +109,7 @@ const Album = ({
   const [pageVideos, setPageVideos] = useState([])
 
   const mainWidth = expandedSideBar ? "w-1/2" : "w-3/4"
-  const gridCols = (pageVideos.length > 3 ? 3 : pageVideos.length).toString()
+  const gridCols = `lg:grid-cols-${(pageVideos.length > 3 ? 3 : pageVideos.length).toString()}`
 
   useEffect(() => {
     if (staticAlbum) {
@@ -567,7 +567,7 @@ const Album = ({
                 </div>
               </div>
 
-              <div className={`flex flex-col lg:grid lg:grid-cols-${gridCols} rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2`}>
+              <div className={`flex flex-col lg:grid ${gridCols} rounded bg-white lg:bg-white px-2 py-4 shadow-lg mb-2`}>
                 { pageVideos.map( (swing, i) => {
                   const viewScale = albumView === "video" ? "items-center" : "m-2"
                   return (
